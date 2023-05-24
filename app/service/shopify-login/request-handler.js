@@ -58,7 +58,7 @@ export default class RequestHandler {
   get(params, url = this.url) {
     return new Promise((resolve, reject) => {
       api
-        .get(url, {...params})
+        .get(`${url}.json`, {...params})
         .then(response => {
           if (response.ok) resolve(response.data);
           else {

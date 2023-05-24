@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   //   ScrollView,
@@ -16,35 +16,76 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {COLORS, FONTS} from '../../constants/theme';
 import {ProductApi} from '../../service/shopify-api';
 import LoadingScreen from '../../components/LoadingView';
+import {gql, useLazyQuery} from '@apollo/client';
+
+const SEARCH_PRODUCTS_QUERY = gql`
+query SearchProducts($query: String!) {
+  products(query: $query, first: 10) {
+    edges {
+      node {
+        id
+        title
+        description
+        images(first: 4) {
+          edges {
+            node {
+              id
+              url
+            }
+          }
+        }
+        variants(first: 1) {
+          edges {
+            node {
+              price {
+                amount
+                currencyCode
+              }
+              compareAtPrice {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+        options(first: 2) {
+          values
+        }
+      }
+    }
+  }
+}`
 
 
 const Search = ({navigation}) => {
   const [valSearch, setValSearch] = useState('');
   const [itemView, setItemView] = useState('grid');
-  const [isLoading, setIsLoading] = useState(null);
+  // const [isLoading, setIsLoading] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
+
+  const [searchProducts, {data, loading, error}] = useLazyQuery(
+    SEARCH_PRODUCTS_QUERY,
+  );
 
   const handlePress = () => {
     navigation.navigate('Home');
   };
 
   const handleSearchButton = () => {
-    setIsLoading(true);
-    const keyword = valSearch.toLowerCase();
-    ProductApi.get({product_type: keyword})
-      .then(res => {
-        setIsLoading(false);
-        const products = res.products;
-        const filteredProducts = products.filter(product =>
-          product.product_type.toLowerCase().includes(keyword),
-        );
-        setSearchResults(filteredProducts);
-      })
-      .catch(error => {
-        setIsLoading(false);
-        console.log('errorrr', error);
-      });
+    const query = valSearch.toLowerCase();
+    searchProducts({
+      variables: {
+        query,
+      },
+    });
   };
+
+  useEffect(() => {
+    if (data) {
+      const results = data.products.edges.map(edge => edge.node);
+      setSearchResults(results);
+    }
+  }, [data]);
 
   const renderItem = ({item}) => (
     <View style={{width: '50%', paddingHorizontal: 5}}>
@@ -53,10 +94,10 @@ const Search = ({navigation}) => {
           navigation.navigate('ProductDetail', {
             item: {
               title: item.title,
-              images: item.images,
-              oldPrice: item.variants[0].compare_at_price,
-              price: item.variants[0].price,
-              desc: item.body_html,
+              images: item?.images?.edges,
+              oldPrice: item?.variants?.edges[0]?.node?.compareAtPrice?.amount,
+              price: item?.variants?.edges[0]?.node?.price?.amount,
+              desc: item.desc,
               variant: item?.options[0]?.values,
               colors: item?.options[1]?.values,
             },
@@ -65,13 +106,12 @@ const Search = ({navigation}) => {
         }
         imgLength
         id={item.id}
-        imageSrc={item.images[0].src}
-        images={item.images}
+        imageSrc={item?.images?.edges[0]?.node?.url}
         title={item.title}
         desc={item.desc}
         status={item.status ? 'SALE' : null}
-        price={item.variants[0].price}
-        oldPrice={item.variants[0].compare_at_price}
+        price={item?.variants?.edges[0]?.node?.price?.amount}
+        oldPrice={item?.variants?.edges[0]?.node?.compareAtPrice?.amount}
       />
     </View>
   );
@@ -200,7 +240,7 @@ const Search = ({navigation}) => {
               name="md-arrow-forward"
               size={12}
               color={COLORS.white}
-              style={{
+              style={{  
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginTop: 4,
@@ -210,8 +250,8 @@ const Search = ({navigation}) => {
           </TouchableOpacity>
         </View>
       </View>
-      {isLoading ? (
-       <LoadingScreen />
+      {loading ? (
+        <LoadingScreen />
       ) : (
         <FlatList
           data={searchResults}

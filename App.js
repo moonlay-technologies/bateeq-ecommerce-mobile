@@ -7,16 +7,16 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 
   React.useEffect(() => {
-    const checkAuthentication = async () => {
+    const checkAccessToken = async () => {
       try {
-        const token = await AsyncStorage.getItem('tokenAccess');
-        setIsAuthenticated(!!token);
+        const accessToken = await AsyncStorage.getItem('accessToken');
+        setIsAuthenticated(!!accessToken);
       } catch (error) {
-        console.log('Error retrieving authentication token:', error);
+        console.log('Error reading access token from AsyncStorage:', error);
       }
     };
 
-    checkAuthentication();
+    checkAccessToken();
   }, []);
 
   return (

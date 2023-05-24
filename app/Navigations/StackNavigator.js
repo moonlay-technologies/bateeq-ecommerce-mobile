@@ -44,7 +44,7 @@ import ListScreen from '../Screens/Components/Lists';
 import Paginations from '../Screens/Components/Paginations';
 import Pricings from '../Screens/Components/Pricings';
 import Snackbars from '../Screens/Components/Snakbars';
-import Socials from '../Screens/Components/Socials';
+import PageOurStory from '../Screens/Components/PageOurStory';
 import SwipeableScreen from '../Screens/Components/Swipeable';
 import Tabs from '../Screens/Components/Tabs';
 import Tables from '../Screens/Components/Tables';
@@ -73,6 +73,16 @@ const StackNavigator = ({ isAuthenticated }) => {
           name="DrawerNavigation"
           component={DrawerNavigation}
         />
+        <StackComponent.Screen name={'Products'} component={Products} />
+        <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
+        <StackComponent.Screen
+          name={'ProductDetail'}
+          component={ProductDetail}
+        />
+         <StackComponent.Screen name={'Checkout'} component={Checkout} />
+         <StackComponent.Screen name={'Payment'} component={Payment} />
+        <StackComponent.Screen name={'PageOurStory'} component={PageOurStory} />
+        <StackComponent.Screen name={'Items'} component={Items} />
         <StackComponent.Screen name={'SignIn'} component={SignIn} />
         <StackComponent.Screen name={'SignUp'} component={SignUp} />
       </StackComponent.Navigator>
@@ -122,7 +132,6 @@ const StackNavigator = ({ isAuthenticated }) => {
           component={AddDeliveryAddress}
         />
         <StackComponent.Screen name={'Filter'} component={Filter} />
-        <StackComponent.Screen name={'Items'} component={Items} />
         <StackComponent.Screen name={'Search'} component={Search} />
         <StackComponent.Screen name={'Components'} component={Components} />
         <StackComponent.Screen name={'Accordion'} component={AccordionScreen} />
@@ -151,7 +160,6 @@ const StackNavigator = ({ isAuthenticated }) => {
         <StackComponent.Screen name={'Paginations'} component={Paginations} />
         <StackComponent.Screen name={'Pricings'} component={Pricings} />
         <StackComponent.Screen name={'Snackbars'} component={Snackbars} />
-        <StackComponent.Screen name={'Socials'} component={Socials} />
         <StackComponent.Screen name={'Swipeable'} component={SwipeableScreen} />
         <StackComponent.Screen name={'Tabs'} component={Tabs} />
         <StackComponent.Screen name={'Tables'} component={Tables} />

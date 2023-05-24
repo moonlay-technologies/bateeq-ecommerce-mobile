@@ -140,9 +140,9 @@ const ProductDetail = ({navigation, route}) => {
             }}>
             {item?.images?.map(data => {
               return (
-                <View key={data.product_id}>
+                <View key={data.node.id}>
                   <Image
-                    source={item.imagePath ? item.imagePath : {uri: data.src}}
+                    source={item.imagePath ? item.imagePath : {uri: data.node.url}}
                     style={{
                       width: '100%',
                       height: undefined,

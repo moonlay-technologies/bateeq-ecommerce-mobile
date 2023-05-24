@@ -1,29 +1,37 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS, FONTS, IMAGES} from '../constants/theme';
 import FeatherIcon from 'react-native-vector-icons/Feather';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthenApi } from '../service/shopify-login';
 
 const CustomDrawer = ({navigation}) => {
+  const [dataAccount, setDataAccount] = useState(null);
+
+  useEffect(() => {
+    getDetailCustomer();
+  }, []);
+
+  const getDetailCustomer = async () => {
+    // setIsLoading(true);
+    const customerId = await AsyncStorage.getItem('customerIdString');
+
+    AuthenApi.getDataAccount(customerId)
+      .then(res => {
+        // setIsLoading(false);
+        setDataAccount(res.customer);
+      })
+      .catch(error => {
+        // setIsLoading(false);
+        console.log('error', error);
+      });
+  };
+
   const navItem = [
     {
       icon: 'home',
       name: 'Home',
       navigate: 'DrawerNavigation',
-    },
-    {
-      icon: 'layers',
-      name: 'Products',
-      navigate: 'Products',
-    },
-    {
-      icon: 'grid',
-      name: 'Components',
-      navigate: 'Components',
-    },
-    {
-      icon: 'list',
-      name: 'Featured',
-      navigate: 'Featured',
     },
     {
       icon: 'heart',
@@ -81,11 +89,11 @@ const CustomDrawer = ({navigation}) => {
                 color: COLORS.title,
                 top: 2,
               }}>
-              Olivia Johanson
+              {dataAccount?.first_name}
             </Text>
             <Text
               style={{...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)'}}>
-              oliviajon@mail.com
+              {dataAccount?.email}
             </Text>
           </View>
         </View>

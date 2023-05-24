@@ -1,17 +1,17 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   // ScrollView,
   StyleSheet,
   Text,
-  // TouchableOpacity,
+  TouchableOpacity,
   View,
   FlatList,
 } from 'react-native';
 // import Octicons from 'react-native-vector-icons/Octicons';
 // import FeatherIcon from 'react-native-vector-icons/Feather';
 // import RBSheet from 'react-native-raw-bottom-sheet';
-import {COLORS} from '../../constants/theme';
+import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
 import ProductItem from '../../components/ProductItem';
 import pic1 from '../../assets/images/product/pic1.jpg';
@@ -35,6 +35,9 @@ import FurnitureData from '../../JSON/Furniture.json';
 import GroceryData from '../../JSON/Grocery.json';
 import AppliancesData from '../../JSON/Appliances.json';
 import BooksToysData from '../../JSON/BooksToys.json';
+import {gql, useQuery} from '@apollo/client';
+import LoadingScreen from '../../components/LoadingView';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 
 const ProductData = [
   {
@@ -174,18 +177,64 @@ const brandFilterData = [
   },
 ];
 
+const GET_LIST_PRODUCTS_CATEGORIES = gql`
+  query GetProducts($first: Int!, $query: String!) {
+    products(first: $first, query: $query) {
+      edges {
+        node {
+          id
+          title
+          description
+          images(first: 1) {
+            edges {
+              node {
+                url
+              }
+            }
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                price {
+                  amount
+                }
+                compareAtPrice {
+                  amount
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 const Items = ({navigation, route}) => {
-  const sheetRef = useRef();
-  const {type, collectionTitle, collectionId} = route.params;
+  // const sheetRef = useRef();
+  const {type, collectionId, query, categories, colletionTitle} = route.params;
   const [itemView, setItemView] = useState('grid');
   const [productData, setProductData] = useState(null);
+  const [dataCategories, setDataCategories] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const [collectionCustomId, setCollectionCustomId] = useState({
     collection_id: collectionId,
   });
 
+  const {data: dataListCategories} = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+    variables: {
+      first: 5,
+      query: query,
+    },
+  });
+
+  // console.log('collectionTit', dataListCategories.products.edges.map(e => e.node.variants.edges[0].node.price.amount))
+
   useEffect(() => {
     getDataProducts();
+    if (dataListCategories) {
+      setDataCategories(dataListCategories?.products?.edges);
+    }
     // getDataCount();
   }, []);
 
@@ -193,7 +242,6 @@ const Items = ({navigation, route}) => {
     setIsLoading(true);
     ProductApi.get(collectionCustomId)
       .then(res => {
-        console.log('cekkk baruuu', res.products.map((data) => data.options[0].values ))
         // console.log(res.products[0].images.map(src => src.src));
         setIsLoading(false);
         setProductData(res.products);
@@ -203,7 +251,6 @@ const Items = ({navigation, route}) => {
         console.log('errorrr', error);
       });
   };
-
 
   const Products =
     type == 'Mobiles'
@@ -218,17 +265,17 @@ const Items = ({navigation, route}) => {
       ? AppliancesData.items
       : type == 'Books,Toys'
       ? BooksToysData.items
-      : type == 'Fashion' || collectionTitle == 'Padma' 
+      : type == 'Fashion'
       ? FashionData.items
       : ProductData;
 
   const [itemData, setItemData] = useState(Products);
 
   // const [sortVal, setSortVal] = useState('');
-  const [sheetType, setSheetType] = useState('');
-  const [brandFilter, setBrandFilter] = useState(brandFilterData);
-  const [discountFilter, setDiscountFilter] = useState(discountFilterData);
-  const [filterData, setFilterData] = useState([]);
+  // const [sheetType, setSheetType] = useState('');
+  // const [brandFilter, setBrandFilter] = useState(brandFilterData);
+  // const [discountFilter, setDiscountFilter] = useState(discountFilterData);
+  // const [filterData, setFilterData] = useState([]);
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [snackText, setSnackText] = useState('Loading...');
 
@@ -248,25 +295,25 @@ const Items = ({navigation, route}) => {
     setItemData(items);
   };
 
-  const handleFilterSelected = val => {
-    let Brand = brandFilter.map(data => {
-      if (val === data.title) {
-        return {...data, selected: !data.selected};
-      }
-      return data;
-    });
-    let Discount = discountFilter.map(data => {
-      if (val === data.title) {
-        return {...data, selected: !data.selected};
-      }
-      return data;
-    });
-    setBrandFilter(Brand);
-    setDiscountFilter(Discount);
-    setFilterData(
-      sheetType == 'brand' ? Brand : sheetType == 'discount' ? Discount : [],
-    );
-  };
+  // const handleFilterSelected = val => {
+  //   let Brand = brandFilter.map(data => {
+  //     if (val === data.title) {
+  //       return {...data, selected: !data.selected};
+  //     }
+  //     return data;
+  //   });
+  //   let Discount = discountFilter.map(data => {
+  //     if (val === data.title) {
+  //       return {...data, selected: !data.selected};
+  //     }
+  //     return data;
+  //   });
+  //   setBrandFilter(Brand);
+  //   setDiscountFilter(Discount);
+  //   setFilterData(
+  //     sheetType == 'brand' ? Brand : sheetType == 'discount' ? Discount : [],
+  //   );
+  // };
 
   const renderItem = ({item}) => (
     // <View
@@ -294,26 +341,48 @@ const Items = ({navigation, route}) => {
         onPress={() =>
           navigation.navigate('ProductDetail', {
             item: {
-              title: item.title,
-              images: item.images,
-              oldPrice: item.variants[0].compare_at_price,
-              price: item.variants[0].price,
-              desc: item.body_html,
-              variant: item?.options[0]?.values,
-              colors: item?.options[1]?.values,
+              title: categories ? item.node.title : item.title,
+              images: categories
+                ? item.node.images.edges[0].node.url
+                : item.images,
+              oldPrice: categories
+                ? item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount
+                : item.variants[0].compare_at_price,
+              price: categories
+                ? item.node.variants.edges[0].node.price.amount
+                : item.variants[0].price,
+              desc: categories ? item.node.description : item.desc,
+              variant: categories
+                ? data.products.edges[0].node.variants.edges[0].node
+                    .selectedOptions[0].value
+                : item?.options[0]?.values,
+              colors: categories
+                ? data.products.edges[0].node.variants.edges[0].node
+                    .selectedOptions[1].value
+                : item?.options[1]?.values,
             },
             // category: type,
           })
         }
         imgLength
-        id={item.id}
-        imageSrc={item.images[0].src}
-        images={item.images}
-        title={item.title}
-        desc={item.desc}
+        id={categories ? item.node.id : item.id}
+        imageSrc={
+          categories ? item.node.images.edges[0].node.url : item.images[0].src
+        }
+        // images={item.images}
+        title={categories ? item.node.title : item.title}
+        desc={categories ? item.node.description : item.desc}
         status={item.status ? 'SALE' : null}
-        price={item.variants[0].price}
-        oldPrice={item.variants[0].compare_at_price}
+        price={
+          categories
+            ? item.node.variants.edges[0].node.price.amount
+            : item.variants[0].price
+        }
+        oldPrice={
+          categories
+            ? item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount
+            : item.variants[0].compare_at_price
+        }
         // rating={data.rating}
         // reviews={data.reviews}
         isLike={item.isLike}
@@ -469,7 +538,7 @@ const Items = ({navigation, route}) => {
           backgroundColor: COLORS.backgroundColor,
         }}>
         <View style={{paddingHorizontal: 20}}>
-          <Header titleLeft leftIcon={'back'} title={'All Product'} />
+          <Header titleLeft leftIcon={'back'} title={categories ? query : colletionTitle ? colletionTitle : "All Product"} />
         </View>
         {/* <View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -577,27 +646,59 @@ const Items = ({navigation, route}) => {
             </View>
           </View> */}
         {isLoading ? (
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text>Loading . . .</Text>
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <LoadingScreen />
           </View>
         ) : (
-          <FlatList
-            data={productData}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            numColumns={itemView === 'grid' ? 2 : 1}
-            initialNumToRender={20}
-            maxToRenderPerBatch={10}
-            windowSize={10}
-            onEndReachedThreshold={0.5}
-            contentContainerStyle={{
-              paddingHorizontal: 8,
-              marginBottom: 15,
-            }}
-            // onEndReached={() => {
-            // Load more data here
-            // }}
-          />
+          <View>
+            <TouchableOpacity
+              style={{
+                borderWidth: 1,
+                paddingHorizontal: 10,
+                paddingVertical: 2,
+                flexDirection: 'row',
+                justifyContent: 'center',
+                width: '30%',
+                marginBottom: 10,
+                marginHorizontal: 17,
+              }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  marginRight: 10,
+                  marginVertical: 3,
+                  ...FONTS.fontSatoshiBold,
+                }}>
+                Filter
+              </Text>
+              <AntDesignIcon
+                color={'#374957'}
+                size={20}
+                name="filter"
+                style={{textAlign: 'center', marginVertical: 3}}
+              />
+            </TouchableOpacity>
+            <FlatList
+              data={
+                categories ? dataListCategories?.products?.edges : productData
+              }
+              renderItem={renderItem}
+              keyExtractor={item => (categories ? item.node.id : item.id)}
+              numColumns={itemView === 'grid' ? 2 : 1}
+              initialNumToRender={20}
+              maxToRenderPerBatch={10}
+              windowSize={10}
+              onEndReachedThreshold={0.5}
+              contentContainerStyle={{
+                paddingHorizontal: 8,
+                marginBottom: 15,
+              }}
+              // onEndReached={() => {
+              // Load more data here
+              // }}
+            />
+          </View>
         )}
         {/* </ScrollView> */}
         <Snackbar

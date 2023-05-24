@@ -51,7 +51,7 @@ const Header = (props) => {
                         flexDirection:'row',
                         alignItems:'center',
                         // paddingHorizontal:-40,
-                        marginLeft: -14,
+                        marginLeft: -1,
                         marginVertical: 10,
                         // borderBottomWidth:1,
                         // borderColor:COLORS.borderColor,

@@ -9,7 +9,7 @@ const ProductItem = ({
   id,
   image,
   title,
-//   desc,
+  //   desc,
   price,
   oldPrice,
   // rating,
@@ -40,7 +40,7 @@ const ProductItem = ({
             // borderTopLeftRadius:6,
             // borderTopRightRadius:6,
           }}
-          source={imageSrc ? {uri: imageSrc} : image}
+          source={{uri: imageSrc}}
         />
         <LinearGradient
           colors={['rgba(0,0,0,.3)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0)']}
@@ -67,11 +67,13 @@ const ProductItem = ({
               paddingHorizontal: 10,
               paddingVertical: 3,
               marginLeft: 5,
-            //   borderTopRightRadius: 10,
-            //   borderBottomRightRadius: 10,
+              //   borderTopRightRadius: 10,
+              //   borderBottomRightRadius: 10,
               alignItems: 'center',
             }}>
-            <Text style={{...FONTS.fontSatoshiRegular, color: COLORS.title}}>{status}</Text>
+            <Text style={{...FONTS.fontSatoshiRegular, color: COLORS.title}}>
+              {status}
+            </Text>
           </View>
         )}
         <TouchableOpacity

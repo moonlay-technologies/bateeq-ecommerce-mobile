@@ -16,8 +16,7 @@ import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import CheckBox from '@react-native-community/checkbox';
 import {AuthenApi} from '../../service/shopify-login';
-// import FeatherIcon from "react-native-vector-icons/Feather";
-// import FontAwesome5Brands from "react-native-vector-icons/FontAwesome5Pro";
+import LoadingScreen from '../../components/LoadingView';
 
 const SignUp = props => {
   const [isFocused, setisFocused] = useState(false);
@@ -27,6 +26,7 @@ const SignUp = props => {
   const [handlePassword2, setHandlePassword2] = useState(true);
   const [handleErrorMessage, setHandleErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [passwordsMatched, setPasswordsMatched] = useState(false);
   // const [inputEmail, setInputEmail] = useState(null);
   // const [inputName, setInputName] = useState(null);
   // const [inputPhoneNumber, setInputPhoneNumber] = useState(null);
@@ -65,19 +65,23 @@ const SignUp = props => {
     } else if (
       values?.customer?.password_confirmation === values?.customer?.password
     ) {
-      Toast.show({
-        type: 'success',
-        text1: 'Passwords match',
-        visibilityTime: 2000,
-      });
-    } else if (
-      values?.customer?.password_confirmation !== values?.customer?.password
-    ) {
-      Toast.show({
-        type: 'error',
-        text1: 'Passwords do not match',
-        visibilityTime: 2000,
-      });
+      if (!passwordsMatched) {
+        Toast.show({
+          type: 'success',
+          text1: 'Passwords match',
+          visibilityTime: 2000,
+        });
+        setPasswordsMatched(true);
+      }
+    } else {
+      if (passwordsMatched) {
+        Toast.show({
+          type: 'error',
+          text1: 'Passwords do not match',
+          visibilityTime: 2000,
+        });
+        setPasswordsMatched(false);
+      }
       errors.customer = {
         ...errors.customer,
         password_confirmation: 'Passwords do not match',
@@ -104,7 +108,6 @@ const SignUp = props => {
   };
 
   const handleOnSubmit = values => {
-    console.log('values', values)
     setIsLoading(true);
     AuthenApi.store(values)
       .then(res => {
@@ -114,13 +117,13 @@ const SignUp = props => {
           props.navigation.navigate('SignIn');
         }
 
-        if (res?.data.errors?.email) {
+        if (res?.data?.errors?.email) {
           setIsLoading(false);
           setHandleErrorMessage(`email has already been registered`);
         } else if (res?.errors?.phone) {
           setIsLoading(false);
           setHandleErrorMessage(`phone has already been registered`);
-        } else if (res?.data.errors?.email && res?.data.errors.phone) {
+        } else if (res?.data?.errors?.email && res?.data?.errors?.phone) {
           setIsLoading(false);
           setHandleErrorMessage('email & phone has already been registered');
         } else {
@@ -130,7 +133,11 @@ const SignUp = props => {
       })
       .catch(err => {
         setIsLoading(false);
-        console.log('err', err);
+        Toast.show({
+          type: 'error',
+          text1: err,
+          visibilityTime: 5000,
+        });
       });
   };
 
@@ -163,7 +170,7 @@ const SignUp = props => {
                 </View> */}
         <HeaderBateeq signin />
         <View style={{marginVertical: 20}}>
-          {isLoading && <Text>...Loading</Text>}
+          {isLoading && <LoadingScreen Loading2 />}
           {handleErrorMessage && (
             <Text style={{color: 'red', fontSize: 16}}>
               {handleErrorMessage}

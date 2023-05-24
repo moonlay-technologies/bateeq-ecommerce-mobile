@@ -12,7 +12,9 @@ const CustomHTML = ({htmlContent, limit, blog_id}) => {
         style: styles.heading2,
       },
     };
-    const previewText = htmlContent.replace(/<[^>]+>/g, '').slice(0, limit);
+    // const previewText = htmlContent.replace(/<[^>]+>/g, '').slice(0, limit);
+    const paragraphEndIndex = htmlContent.indexOf('</p>') + 4;
+    const previewText = htmlContent.slice(0, paragraphEndIndex);
     return (
       <View style={styles.container}>
         <RenderHTML
@@ -27,9 +29,9 @@ const CustomHTML = ({htmlContent, limit, blog_id}) => {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    // paddingHorizontal: 20,
-    // paddingVertical: 10,
+    flex: 1,
+    paddingHorizontal: 20,
+    // paddingVertical: -10,
   },
   paragraph: {
     fontSize: 16,

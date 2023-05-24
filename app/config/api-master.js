@@ -5,5 +5,5 @@ module.exports = {
   CART: 'checkouts.json',
   BLOG: 'blogs',
   CUSTOMERS: 'customers.json',
-  // TESTIMONIALS: 'testimonials.json',
+  ASSETS: 'themes/145469997339/assets.json?asset[key]=sections/slideshow.liquid'
 };

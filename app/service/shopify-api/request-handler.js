@@ -10,7 +10,7 @@ const api = create({
 });
 
 export default class RequestHandler {
-  constructor(url) {    
+  constructor(url) {
     this.api = api;
     this.url = url;
   }

@@ -152,58 +152,58 @@ const Wishlist = () => {
   //   .then(data => console.log('datahh', data))
   //   .catch(error => console.error(error));
 
-  useEffect(() => {
-    getDataProducts();
-    getDataCount();
-  }, []);
+  // useEffect(() => {
+  //   getDataProducts();
+  //   getDataCount();
+  // }, []);
 
-  const getDataProducts = () => {
-    setIsLoading(true);
-    ProductApi.get(collectionId)
-      .then(res => {
-        console.log('resss collections', res.products.map((data) => data.options[0].values ));
-        // console.log(res.products[0].images.map(src => src.src));
-        setIsLoading(false);
-        setProductData(res.products);
-      })
-      .catch(error => {
-        setIsLoading(false);
-        console.log('errorrr', error);
-      });
-  };
+  // const getDataProducts = () => {
+  //   setIsLoading(true);
+  //   ProductApi.get(collectionId)
+  //     .then(res => {
+  //       console.log('resss collections', res.products.map((data) => data.options[0].values ));
+  //       // console.log(res.products[0].images.map(src => src.src));
+  //       setIsLoading(false);
+  //       setProductData(res.products);
+  //     })
+  //     .catch(error => {
+  //       setIsLoading(false);
+  //       console.log('errorrr', error);
+  //     });
+  // };
 
-  const getDataCount = () => {
-    CountApi.get()
-      .then(res => {
-        setCountData(res.count);
-      })
-      .catch(error => {
-        console.log('errorrr', error);
-      });
-  };
+  // const getDataCount = () => {
+  //   CountApi.get()
+  //     .then(res => {
+  //       setCountData(res.count);
+  //     })
+  //     .catch(error => {
+  //       console.log('errorrr', error);
+  //     });
+  // };
 
-  const renderItem = ({item}) => (
-    <View
-      style={{
-        width: itemView == 'list' ? '100%' : '50%',
-        paddingHorizontal: 10,
-        marginBottom: 8,
-      }}>
-      <ItemCard
-        listView={itemView == 'list' ? true : false}
-        id={item.id}
-        subCategory="MEN - LS - REGULER"
-        imageSrc={item.images[0].src}
-        images={item.images}
-        price={item.variants[0].price}
-        oldPrice={item.variants[0].compare_at_price}
-        title={item.title}
-        description={item.description}
-        shopBtn={false}
-        itemName={item.title}
-      />
-    </View>
-  );
+  // const renderItem = ({item}) => (
+  //   <View
+  //     style={{
+  //       width: itemView == 'list' ? '100%' : '50%',
+  //       paddingHorizontal: 10,
+  //       marginBottom: 8,
+  //     }}>
+  //     <ItemCard
+  //       listView={itemView == 'list' ? true : false}
+  //       id={item.id}
+  //       subCategory="MEN - LS - REGULER"
+  //       imageSrc={item.images[0].src}
+  //       images={item.images}
+  //       price={item.variants[0].price}
+  //       oldPrice={item.variants[0].compare_at_price}
+  //       title={item.title}
+  //       description={item.description}
+  //       shopBtn={false}
+  //       itemName={item.title}
+  //     />
+  //   </View>
+  // );
 
   // const handleLike = id => {
   //   let temp = productsData.map((data, index) => {
@@ -241,21 +241,24 @@ const Wishlist = () => {
         contentContainerStyle={{
           paddingTop: 18,
         }}> */}
-      <View
+      {/* <View
         style={{
           flexDirection: 'row',
           justifyContent: 'space-between',
           paddingHorizontal: 20,
-        }}>
+        }}> */}
+      <View style={{justifyContent: 'center', alignItems: 'center', height: "70%"}}>
         <Text
           style={{
             ...FONTS.fontSatoshiBold,
             color: COLORS.title,
             marginTop: 5,
+            textAlign: 'center',
           }}>
-          {countData} Items
+          Under Maintenace, OnProgress . . .
         </Text>
-        <TouchableOpacity
+      </View>
+      {/* <TouchableOpacity
           style={{
             borderWidth: 1,
             paddingHorizontal: 10,
@@ -265,23 +268,23 @@ const Wishlist = () => {
             width: '30%',
             marginBottom: 10,
             marginHorizontal: 17,
-          }}>
-          <Text
+          }}> */}
+      {/* <Text
             style={{
               textAlign: 'center',
               marginRight: 10,
               ...FONTS.fontSatoshiBold,
             }}>
             Filter
-          </Text>
-          <AntDesignIcon
+          </Text> */}
+      {/* <AntDesignIcon
             color={'#374957'}
             size={20}
-            name="filter"
-            //   style={{textAlign: 'center', marginVertical: 12}}
-          />
-        </TouchableOpacity>
-      </View>
+            name="filter" */}
+      {/* //   style={{textAlign: 'center', marginVertical: 12}} */}
+      {/* // /> */}
+      {/* </TouchableOpacity> */}
+      {/* </View> */}
       {/* <View
           style={{
             flexDirection: 'row',
@@ -313,7 +316,7 @@ const Wishlist = () => {
                 />
               </View>
             ))} */}
-      <FlatList
+      {/* <FlatList
         data={productData}
         renderItem={renderItem}
         keyExtractor={item => item.id}
@@ -325,25 +328,25 @@ const Wishlist = () => {
         contentContainerStyle={{
           paddingHorizontal: 8,
           marginBottom: 15,
-        }}
-        // onEndReached={() => {
-        // Load more data here
-        // }}
-      />
+        }} */}
+      {/* // onEndReached={() => { */}
+      {/* // Load more data here */}
+      {/* // }} */}
+      {/* // /> */}
       {/* </View> */}
       {/* </ScrollView> */}
-      <Snackbar
+      {/* <Snackbar
         visible={isSnackbar}
         duration={3000}
         onDismiss={() => setIsSnackbar(false)}
         action={{
           label: 'Undo',
-          onPress: () => {
-            // do something
-          },
-        }}>
-        {snackText}
-      </Snackbar>
+          onPress: () => { */}
+      {/* // do something */}
+      {/* },
+        }}> */}
+      {/* {snackText}
+      </Snackbar> */}
     </SafeAreaView>
   );
 };

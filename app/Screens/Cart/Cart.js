@@ -224,7 +224,7 @@ const Cart = ({navigation}) => {
       </View> */}
       <View style={{flex: 1, padding: 10}}>
         <ScrollView>
-          {CheckoutData.map((data, index) => (
+          {dataCart.map((data, index) => (
             <CheckoutItem
               onPress={() =>
                 navigation.navigate('ProductDetail', {
