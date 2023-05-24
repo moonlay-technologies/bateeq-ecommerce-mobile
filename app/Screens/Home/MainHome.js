@@ -554,7 +554,7 @@ const MainHome = ({navigation}) => {
             }
             key={index}
             image={data.imagePath}
-            title={data.title}
+            title={data.title}  
             desc={data.desc}
             price={data.price}
             oldPrice={data.oldPrice}
