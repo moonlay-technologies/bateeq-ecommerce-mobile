@@ -43,13 +43,19 @@
 // export default Routes;
 
 import React from 'react';
-import { Animated } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import {Animated} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
 import StackNavigator from './StackNavigator';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import SplashScreen from '../components/SplashScreen';
-import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import {
+  ApolloProvider,
+  ApolloClient,
+  InMemoryCache,
+  createHttpLink,
+} from '@apollo/client';
+import {Provider as PaperProvider} from 'react-native-paper';
 
 const httpLink = createHttpLink({
   uri: 'https://bateeqshop.myshopify.com/api/2023-04/graphql.json',
@@ -64,7 +70,7 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-const Routes = ({ isAuthenticated, setIsAuthenticated }) => {
+const Routes = ({isAuthenticated, setIsAuthenticated}) => {
   const [showSplashScreen, setShowSplashScreen] = React.useState(true);
   const fadeAnim = React.useRef(new Animated.Value(1)).current;
 
@@ -82,21 +88,23 @@ const Routes = ({ isAuthenticated, setIsAuthenticated }) => {
 
   return (
     <ApolloProvider client={client}>
-      <SafeAreaProvider>
-        {showSplashScreen ? (
-          <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-            <SplashScreen />
-          </Animated.View>
-        ) : (
-          <NavigationContainer>
-            <StackNavigator
-              isAuthenticated={isAuthenticated}
-              setIsAuthenticated={setIsAuthenticated}
-            />
-          </NavigationContainer>
-        )}
-        <Toast />
-      </SafeAreaProvider>
+      <PaperProvider>
+        <SafeAreaProvider>
+          {showSplashScreen ? (
+            <Animated.View style={{flex: 1, opacity: fadeAnim}}>
+              <SplashScreen />
+            </Animated.View>
+          ) : (
+            <NavigationContainer>
+              <StackNavigator
+                isAuthenticated={isAuthenticated}
+                setIsAuthenticated={setIsAuthenticated}
+              />
+            </NavigationContainer>
+          )}
+          <Toast />
+        </SafeAreaProvider>
+      </PaperProvider>
     </ApolloProvider>
   );
 };

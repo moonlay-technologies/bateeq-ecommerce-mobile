@@ -30,7 +30,7 @@ const CustomHTML = ({htmlContent, limit, blog_id}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     // paddingVertical: -10,
   },
   paragraph: {

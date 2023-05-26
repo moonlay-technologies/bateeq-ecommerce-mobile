@@ -1,7 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect} from 'react';
 import {
   SafeAreaView,
   // ScrollView,
+  TextInput,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,6 +14,7 @@ import {
 // import RBSheet from 'react-native-raw-bottom-sheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProductItem from '../../components/ProductItem';
 import pic1 from '../../assets/images/product/pic1.jpg';
 import pic2 from '../../assets/images/product/pic2.jpg';
@@ -35,7 +37,7 @@ import FurnitureData from '../../JSON/Furniture.json';
 import GroceryData from '../../JSON/Grocery.json';
 import AppliancesData from '../../JSON/Appliances.json';
 import BooksToysData from '../../JSON/BooksToys.json';
-import {gql, useQuery} from '@apollo/client';
+import {gql, useQuery, useLazyQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 
@@ -116,75 +118,80 @@ const ProductData = [
   },
 ];
 
-const discountFilterData = [
-  {
-    selected: false,
-    title: '50% or more',
-  },
-  {
-    selected: false,
-    title: '30% or more',
-  },
-  {
-    selected: false,
-    title: '40% or more',
-  },
-  {
-    selected: false,
-    title: '60% or more',
-  },
-  {
-    selected: false,
-    title: '70% or more',
-  },
-];
-const brandFilterData = [
-  {
-    selected: true,
-    title: 'Roadster',
-  },
-  {
-    selected: true,
-    title: 'Peter England',
-  },
-  {
-    selected: true,
-    title: 'Flying Machine',
-  },
-  {
-    selected: true,
-    title: 'Killer',
-  },
-  {
-    selected: true,
-    title: "Levi's",
-  },
-  {
-    selected: true,
-    title: 'Puma',
-  },
-  {
-    selected: true,
-    title: 'Wildcraft',
-  },
-  {
-    selected: true,
-    title: 'Ndet',
-  },
-  {
-    selected: true,
-    title: 'Woodland',
-  },
-];
+// const discountFilterData = [
+//   {
+//     selected: false,
+//     title: '50% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '30% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '40% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '60% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '70% or more',
+//   },
+// ];
+// const brandFilterData = [
+//   {
+//     selected: true,
+//     title: 'Roadster',
+//   },
+//   {
+//     selected: true,
+//     title: 'Peter England',
+//   },
+//   {
+//     selected: true,
+//     title: 'Flying Machine',
+//   },
+//   {
+//     selected: true,
+//     title: 'Killer',
+//   },
+//   {
+//     selected: true,
+//     title: "Levi's",
+//   },
+//   {
+//     selected: true,
+//     title: 'Puma',
+//   },
+//   {
+//     selected: true,
+//     title: 'Wildcraft',
+//   },
+//   {
+//     selected: true,
+//     title: 'Ndet',
+//   },
+//   {
+//     selected: true,
+//     title: 'Woodland',
+//   },
+// ];
 
 const GET_LIST_PRODUCTS_CATEGORIES = gql`
-  query GetProducts($first: Int!, $query: String!) {
-    products(first: $first, query: $query) {
+  query GetProducts($first: Int!, $query: String!, $after: String) {
+    products(first: $first, query: $query, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
         node {
           id
           title
           description
+          descriptionHtml
           images(first: 1) {
             edges {
               node {
@@ -192,7 +199,7 @@ const GET_LIST_PRODUCTS_CATEGORIES = gql`
               }
             }
           }
-          variants(first: 1) {
+          variants(first: 5) {
             edges {
               node {
                 price {
@@ -200,6 +207,10 @@ const GET_LIST_PRODUCTS_CATEGORIES = gql`
                 }
                 compareAtPrice {
                   amount
+                }
+                selectedOptions {
+                  name
+                  value
                 }
               }
             }
@@ -211,47 +222,18 @@ const GET_LIST_PRODUCTS_CATEGORIES = gql`
 `;
 
 const Items = ({navigation, route}) => {
-  // const sheetRef = useRef();
-  const {type, collectionId, query, categories, colletionTitle} = route.params;
+  const {type, query, categories, colletionTitle} = route.params;
   const [itemView, setItemView] = useState('grid');
-  const [productData, setProductData] = useState(null);
-  const [dataCategories, setDataCategories] = useState(null);
+  const [dataCategories, setDataCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(null);
-  const [collectionCustomId, setCollectionCustomId] = useState({
-    collection_id: collectionId,
-  });
+  const [isSnackbar, setIsSnackbar] = useState(false);
+  const [snackText, setSnackText] = useState('Loading...');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [valSearch, setValSearch] = useState('');
 
-  const {data: dataListCategories} = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
-    variables: {
-      first: 5,
-      query: query,
-    },
-  });
-
-  // console.log('collectionTit', dataListCategories.products.edges.map(e => e.node.variants.edges[0].node.price.amount))
-
-  useEffect(() => {
-    getDataProducts();
-    if (dataListCategories) {
-      setDataCategories(dataListCategories?.products?.edges);
-    }
-    // getDataCount();
-  }, []);
-
-  const getDataProducts = () => {
-    setIsLoading(true);
-    ProductApi.get(collectionCustomId)
-      .then(res => {
-        // console.log(res.products[0].images.map(src => src.src));
-        setIsLoading(false);
-        setProductData(res.products);
-      })
-      .catch(error => {
-        setIsLoading(false);
-        console.log('errorrr', error);
-      });
-  };
-
+  const flatListRef = useRef(null);
   const Products =
     type == 'Mobiles'
       ? MobilesData.items
@@ -261,23 +243,55 @@ const Items = ({navigation, route}) => {
       ? FurnitureData.items
       : type == 'Grocery'
       ? GroceryData.items
-      : type == 'Appliances'
+      : type == 'Dress'
       ? AppliancesData.items
-      : type == 'Books,Toys'
+      : type == 'Bottom'
       ? BooksToysData.items
-      : type == 'Fashion'
+      : type == 'Top'
       ? FashionData.items
       : ProductData;
 
   const [itemData, setItemData] = useState(Products);
 
-  // const [sortVal, setSortVal] = useState('');
-  // const [sheetType, setSheetType] = useState('');
-  // const [brandFilter, setBrandFilter] = useState(brandFilterData);
-  // const [discountFilter, setDiscountFilter] = useState(discountFilterData);
-  // const [filterData, setFilterData] = useState([]);
-  const [isSnackbar, setIsSnackbar] = useState(false);
-  const [snackText, setSnackText] = useState('Loading...');
+  const {data, fetchMore, loading} = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+    variables: {
+      first: 10,
+      query: valSearch || query,
+    },
+  });
+
+  const [filterSearch, {loading: loadingSearch}] = useLazyQuery(
+    GET_LIST_PRODUCTS_CATEGORIES,
+    {
+      onCompleted: ({products}) => {
+        const results = products?.edges || [];
+        setDataCategories(results);
+      },
+    },
+  );
+
+  const handleSearchButton = () => {
+    filterSearch({
+      variables: {
+        first: 10,
+        query: valSearch,
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (data) {
+      setDataCategories(data?.products?.edges || []);
+    }
+  }, []);
+
+  const handleValChange = val => {
+    setValSearch(val);
+  };
+
+  const handleFilterButtonClick = () => {
+    setShowInput(!showInput);
+  };
 
   const handleItemLike = val => {
     let items = itemData.map(data => {
@@ -295,25 +309,88 @@ const Items = ({navigation, route}) => {
     setItemData(items);
   };
 
-  // const handleFilterSelected = val => {
-  //   let Brand = brandFilter.map(data => {
-  //     if (val === data.title) {
-  //       return {...data, selected: !data.selected};
-  //     }
-  //     return data;
-  //   });
-  //   let Discount = discountFilter.map(data => {
-  //     if (val === data.title) {
-  //       return {...data, selected: !data.selected};
-  //     }
-  //     return data;
-  //   });
-  //   setBrandFilter(Brand);
-  //   setDiscountFilter(Discount);
-  //   setFilterData(
-  //     sheetType == 'brand' ? Brand : sheetType == 'discount' ? Discount : [],
-  //   );
-  // };
+  const handleLoadMore = async () => {
+    if (data.products.pageInfo.hasNextPage) {
+      setIsLoadingMore(true);
+      try {
+        const result = await fetchMore({
+          variables: {
+            first: 10,
+            query: query,
+            after: data.products.pageInfo.endCursor,
+          },
+          updateQuery: (prev, {fetchMoreResult}) => {
+            if (!fetchMoreResult) return prev;
+            return {
+              products: {
+                ...fetchMoreResult.products,
+                edges: [
+                  ...prev.products.edges,
+                  ...fetchMoreResult.products.edges,
+                ],
+              },
+            };
+          },
+        });
+        // Process the result if needed
+      } catch (error) {
+        console.error('Error fetching more products:', error);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prevPage => prevPage + 1);
+    handleLoadMore();
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prevPage => prevPage - 1);
+    }
+  };
+
+  const renderPaginationButtons = () => {
+    if (currentPage === 1 && data && data.products.pageInfo.hasNextPage) {
+      return (
+        <TouchableOpacity
+          style={styles.paginationButton}
+          onPress={handleNextPage}>
+          <AntDesignIcon name="right" size={20} color={COLORS.black} />
+        </TouchableOpacity>
+      );
+    } else if (currentPage > 1 && data && data.products.pageInfo.hasNextPage) {
+      return (
+        <>
+          <TouchableOpacity
+            style={styles.paginationButton}
+            onPress={handlePrevPage}>
+            <AntDesignIcon name="left" size={20} color={COLORS.black} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.paginationButton}
+            onPress={handleNextPage}>
+            {isLoadingMore ? (
+              <LoadingScreen Loading2 />
+            ) : (
+              <AntDesignIcon name="right" size={20} color={COLORS.black} />
+            )}
+          </TouchableOpacity>
+        </>
+      );
+    } else if (currentPage > 1 && !data.products.pageInfo.hasNextPage) {
+      return (
+        <TouchableOpacity
+          style={styles.paginationButton}
+          onPress={handlePrevPage}>
+          <AntDesignIcon name="left" size={20} color={COLORS.black} />
+        </TouchableOpacity>
+      );
+    }
+    return null;
+  };
 
   const renderItem = ({item}) => (
     // <View
@@ -341,48 +418,26 @@ const Items = ({navigation, route}) => {
         onPress={() =>
           navigation.navigate('ProductDetail', {
             item: {
-              title: categories ? item.node.title : item.title,
-              images: categories
-                ? item.node.images.edges[0].node.url
-                : item.images,
-              oldPrice: categories
-                ? item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount
-                : item.variants[0].compare_at_price,
-              price: categories
-                ? item.node.variants.edges[0].node.price.amount
-                : item.variants[0].price,
-              desc: categories ? item.node.description : item.desc,
-              variant: categories
-                ? data.products.edges[0].node.variants.edges[0].node
-                    .selectedOptions[0].value
-                : item?.options[0]?.values,
-              colors: categories
-                ? data.products.edges[0].node.variants.edges[0].node
-                    .selectedOptions[1].value
-                : item?.options[1]?.values,
+              title: item.node.title,
+              images: item.node.images.edges,
+              oldPrice:
+                item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount,
+              price: item.node.variants.edges[0].node.price.amount,
+              desc: item.node.descriptionHtml,
+              variant: item.node.variants.edges,
             },
             // category: type,
           })
         }
         imgLength
-        id={categories ? item.node.id : item.id}
-        imageSrc={
-          categories ? item.node.images.edges[0].node.url : item.images[0].src
-        }
+        id={item.node.id}
+        imageSrc={item.node.images.edges[0].node.url}
         // images={item.images}
-        title={categories ? item.node.title : item.title}
-        desc={categories ? item.node.description : item.desc}
+        title={item.node.title}
+        desc={item.node.description}
         status={item.status ? 'SALE' : null}
-        price={
-          categories
-            ? item.node.variants.edges[0].node.price.amount
-            : item.variants[0].price
-        }
-        oldPrice={
-          categories
-            ? item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount
-            : item.variants[0].compare_at_price
-        }
+        price={item.node.variants.edges[0].node.price.amount}
+        oldPrice={item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount}
         // rating={data.rating}
         // reviews={data.reviews}
         isLike={item.isLike}
@@ -390,6 +445,36 @@ const Items = ({navigation, route}) => {
       />
     </View>
   );
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  // const [sortVal, setSortVal] = useState('');
+  // const [sheetType, setSheetType] = useState('');
+  // const [brandFilter, setBrandFilter] = useState(brandFilterData);
+  // const [discountFilter, setDiscountFilter] = useState(discountFilterData);
+  // const [filterData, setFilterData] = useState([]);
+
+  // const handleFilterSelected = val => {
+  //   let Brand = brandFilter.map(data => {
+  //     if (val === data.title) {
+  //       return {...data, selected: !data.selected};
+  //     }
+  //     return data;
+  //   });
+  //   let Discount = discountFilter.map(data => {
+  //     if (val === data.title) {
+  //       return {...data, selected: !data.selected};
+  //     }
+  //     return data;
+  //   });
+  //   setBrandFilter(Brand);
+  //   setDiscountFilter(Discount);
+  //   setFilterData(
+  //     sheetType == 'brand' ? Brand : sheetType == 'discount' ? Discount : [],
+  //   );
+  // };
 
   return (
     <>
@@ -538,7 +623,17 @@ const Items = ({navigation, route}) => {
           backgroundColor: COLORS.backgroundColor,
         }}>
         <View style={{paddingHorizontal: 20}}>
-          <Header titleLeft leftIcon={'back'} title={categories ? query : colletionTitle ? colletionTitle : "All Product"} />
+          <Header
+            titleLeft
+            leftIcon={'back'}
+            title={
+              categories
+                ? query
+                : colletionTitle
+                ? colletionTitle
+                : 'All Product'
+            }
+          />
         </View>
         {/* <View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -645,61 +740,126 @@ const Items = ({navigation, route}) => {
               ))}
             </View>
           </View> */}
-        {isLoading ? (
-          <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <LoadingScreen />
-          </View>
-        ) : (
-          <View>
-            <TouchableOpacity
+
+        <View style={{height: '100%'}}>
+          <TouchableOpacity
+            style={{
+              borderWidth: 1,
+              paddingHorizontal: 10,
+              paddingVertical: 2,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              width: '30%',
+              marginBottom: 10,
+              marginHorizontal: 17,
+            }}
+            onPress={handleFilterButtonClick}>
+            <Text
               style={{
-                borderWidth: 1,
-                paddingHorizontal: 10,
-                paddingVertical: 2,
-                flexDirection: 'row',
-                justifyContent: 'center',
-                width: '30%',
-                marginBottom: 10,
-                marginHorizontal: 17,
+                textAlign: 'center',
+                marginRight: 10,
+                marginVertical: 3,
+                ...FONTS.fontSatoshiBold,
               }}>
-              <Text
+              Filter
+            </Text>
+            <AntDesignIcon
+              color={'#374957'}
+              size={20}
+              name="filter"
+              style={{textAlign: 'center', marginVertical: 3}}
+            />
+          </TouchableOpacity>
+          {showInput && (
+            <View>
+              <TextInput
                 style={{
-                  textAlign: 'center',
-                  marginRight: 10,
-                  marginVertical: 3,
-                  ...FONTS.fontSatoshiBold,
-                }}>
-                Filter
-              </Text>
-              <AntDesignIcon
-                color={'#374957'}
-                size={20}
-                name="filter"
-                style={{textAlign: 'center', marginVertical: 3}}
+                  borderWidth: 1,
+                  paddingHorizontal: 10,
+                  paddingVertical: 2,
+                  marginBottom: 10,
+                  marginHorizontal: 17,
+                }}
+                placeholder="Search"
+                autoFocus={true}
+                value={valSearch}
+                onChangeText={handleValChange}
               />
-            </TouchableOpacity>
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: 8,
+                }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#333333',
+                    gap: 6,
+                    paddingVertical: 6,
+                    paddingHorizontal: 24,
+                    flexDirection: 'row',
+                    width: 100,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: 38,
+                  }}
+                  onPress={handleSearchButton}>
+                  <Text
+                    style={{
+                      color: COLORS.white,
+                      ...FONTS.fontSatoshiBold,
+                      textAlign: 'center',
+                      alignItems: 'center',
+                    }}>
+                    Search
+                  </Text>
+                  <Ionicons
+                    name="md-arrow-forward"
+                    size={12}
+                    color={COLORS.white}
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginTop: 4,
+                      marginLeft: 18,
+                    }}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {loadingSearch || isLoading ? (
+            <View
+              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+              <LoadingScreen />
+            </View>
+          ) : (
             <FlatList
-              data={
-                categories ? dataListCategories?.products?.edges : productData
-              }
+              data={dataCategories}
               renderItem={renderItem}
-              keyExtractor={item => (categories ? item.node.id : item.id)}
+              ref={flatListRef}
+              keyExtractor={item => item.node.id.toString()}
               numColumns={itemView === 'grid' ? 2 : 1}
-              initialNumToRender={20}
+              initialNumToRender={10}
               maxToRenderPerBatch={10}
               windowSize={10}
-              onEndReachedThreshold={0.5}
               contentContainerStyle={{
                 paddingHorizontal: 8,
-                marginBottom: 15,
+                marginBottom: 10,
               }}
-              // onEndReached={() => {
-              // Load more data here
-              // }}
+              showsVerticalScrollIndicator={false}
+              ListFooterComponent={
+                data &&
+                data.products.pageInfo.hasNextPage && (
+                  <View style={styles.paginationContainer}>
+                    {renderPaginationButtons()}
+                  </View>
+                )
+              }
+              onEndReached={handleLoadMore}
             />
-          </View>
-        )}
+          )}
+        </View>
         {/* </ScrollView> */}
         <Snackbar
           visible={isSnackbar}
@@ -718,18 +878,46 @@ const Items = ({navigation, route}) => {
   );
 };
 
+// const styles = StyleSheet.create({
+//   badge: {
+//     borderWidth: 1,
+//     borderColor: COLORS.borderColor,
+//     backgroundColor: '#f5f5f5',
+//     paddingHorizontal: 15,
+//     paddingVertical: 6,
+//     borderRadius: 20,
+//     marginRight: 12,
+//     flexDirection: 'row',
+//     alignItems: 'center',
+//   },
+// });
+
 const styles = StyleSheet.create({
-  badge: {
-    borderWidth: 1,
-    borderColor: COLORS.borderColor,
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 15,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 12,
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  columnWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  paginationContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: 10,
+  },
+  paginationButton: {
+    padding: 10,
+    position: 'absolute',
+  },
+  snackbar: {
+    backgroundColor: COLORS.primary,
+    marginBottom: 10,
   },
 });
+
+// Rest of the code...
 
 export default Items;

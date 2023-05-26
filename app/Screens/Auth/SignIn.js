@@ -19,7 +19,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import LoadingScreen from '../../components/LoadingView';
 import {gql, useMutation} from '@apollo/client';
-import { useNavigation, CommonActions } from '@react-navigation/native';
+import {useNavigation, CommonActions} from '@react-navigation/native';
 
 const customerAccessTokenCreate = gql`
   mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
@@ -70,9 +70,9 @@ const SignIn = props => {
         },
       });
       const accessToken =
-         data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
+        data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
 
-      console.log('access token', accessToken)
+      console.log('access token', accessToken);
 
       if (accessToken) {
         Toast.show({
@@ -84,10 +84,8 @@ const SignIn = props => {
         navigation.dispatch(
           CommonActions.reset({
             index: 0,
-            routes: [
-              { name: 'DrawerNavigation' }
-            ],
-          })
+            routes: [{name: 'DrawerNavigation'}],
+          }),
         );
       } else {
         Toast.show({

@@ -31,7 +31,7 @@ const ProductCardStyle1 = ({
           //   borderTopLeftRadius: 6,
           //   borderTopRightRadius: 6,
         }}
-        source={asset ? imageSrc : {uri: imageSrc}}
+        source={{uri: imageSrc}}
       />
       <View
         style={{

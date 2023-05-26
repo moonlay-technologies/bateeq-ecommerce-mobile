@@ -27,22 +27,6 @@ import SelectInput from '../../components/SelectInput';
 import {Footer, ShowHideProductDetail} from '../../components/Footer';
 import {formatWithCommas} from '../../utils/helper';
 import CustomHTML from '../../components/CustomHtml.js';
-// import CustomHTML from '../../components/CustomHTML.js';
-// import product1 from '../../assets/images/product/product1.jpg';
-// import product2 from '../../assets/images/product/product2.jpg';
-
-// const productImage = [pic1, pic2, pic3];
-// const chooseSize = [
-//   {label: 'M', value: 'm'},
-//   {label: 'L', value: 'l'},
-//   {label: 'XL', value: 'xl'},
-// ];
-
-// const chooseColor = [
-//   {label: 'RED', value: 'red'},
-//   {label: 'BLACK', value: 'black'},
-//   {label: 'BLUE', value: 'blue'},
-// ];
 
 const SuggestData = [
   {
@@ -88,18 +72,38 @@ const ProductDetail = ({navigation, route}) => {
     ratingArry.push(i);
   }
 
-  const sizes = item.variant;
-  const colors = item.colors;
+  
+  const chooseColor = [];
+  const chooseSize = [];
+  
+  item?.variant?.forEach(variant => {
+    const colorOption = variant?.node?.selectedOptions?.find(option => option.name === "Color");
+    const sizeOption = variant?.node?.selectedOptions?.find(option => option.name === "Size");
+    
+    if (colorOption && colorOption.value) {
+      const color = colorOption.value;
+      if (!chooseColor.some(item => item.value === color)) {
+        chooseColor.push({ label: color, value: color });
+      }
+    } else {
+      console.log('Color is empty');
+      // Handle the error condition for empty color
+    }
+  
+    if (sizeOption && sizeOption.value) {
+      const size = sizeOption.value;
+      if (!chooseSize.some(item => item.value === size)) {
+        chooseSize.push({ label: size, value: size });
+      }
+    } else {
+      console.log('Size is empty');
+      // Handle the error condition for empty size
+    }
+  });
+  
 
-  const chooseSize = sizes?.map(size => ({
-    label: size,
-    value: size,
-  }));
 
-  const chooseColor = colors?.map(color => ({
-    label: color,
-    value: color,
-  }));
+  console.log('choseee seize', chooseSize)
 
   const scrollViewRef = React.useRef(null);
 
@@ -138,9 +142,10 @@ const ProductDetail = ({navigation, route}) => {
               backgroundColor: COLORS.white,
               borderRadius: 10,
             }}>
-            {item?.images?.map(data => {
+            {item?.images?.map((data, index) => {
+              console.log('dataImage', data)
               return (
-                <View key={data.node.id}>
+                <View key={index}>
                   <Image
                     source={item.imagePath ? item.imagePath : {uri: data.node.url}}
                     style={{
