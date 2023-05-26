@@ -88,8 +88,8 @@ const ProductDetail = ({navigation, route}) => {
     ratingArry.push(i);
   }
 
-  const sizes = item.variant;
-  const colors = item.colors;
+  const sizes = item?.variant ?? [];
+  const colors = item?.colors ?? [];
 
   const chooseSize = sizes?.map(size => ({
     label: size,
@@ -140,9 +140,9 @@ const ProductDetail = ({navigation, route}) => {
             }}>
             {item?.images?.map(data => {
               return (
-                <View key={data.node.id}>
+                <View key={data?.node?.id ?? Math.random()}>
                   <Image
-                    source={item.imagePath ? item.imagePath : {uri: data.node.url}}
+                    source={item?.imagePath ?? {uri: data?.node?.url ?? ""}}
                     style={{
                       width: '100%',
                       height: undefined,
@@ -225,7 +225,7 @@ const ProductDetail = ({navigation, route}) => {
                     textDecorationLine: 'line-through',
                     fontSize: 16,
                   }}>
-                  Rp {formatWithCommas(Number(item.oldPrice).toLocaleString())}
+                  Rp {formatWithCommas(Number(item?.oldPrice ?? 0).toLocaleString())}
                 </Text>
               )}
               <Text
@@ -234,10 +234,10 @@ const ProductDetail = ({navigation, route}) => {
                   color: COLORS.title,
                   fontSize: 20,
                 }}>
-                Rp {formatWithCommas(Number(item.price).toLocaleString())}
+                Rp {formatWithCommas(Number(item?.price ?? 0).toLocaleString())}
               </Text>
             </View>
-            {item.desc && <CustomHTML htmlContent={item.desc} />}
+            {item?.desc && <CustomHTML htmlContent={item?.desc ?? undefined} />}
             {/* <View style={{...FONTS.font, color: COLORS.text}}>
             {item.desc && <RenderHTML source={{ html: item.desc }} />}
             </View> */}
