@@ -57,7 +57,7 @@ import BottomNavigation from './BottomNavigation';
 
 const StackComponent = createNativeStackNavigator();
 
-const StackNavigator = ({ isAuthenticated }) => {
+const StackNavigator = ({isAuthenticated}) => {
   if (isAuthenticated) {
     return (
       <StackComponent.Navigator
@@ -65,9 +65,8 @@ const StackNavigator = ({ isAuthenticated }) => {
         detachInactiveScreens={true}
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: 'transparent' },
-        }}
-      >
+          cardStyle: {backgroundColor: 'transparent'},
+        }}>
         <StackComponent.Screen name="Splash" component={Splash} />
         <StackComponent.Screen
           name="DrawerNavigation"
@@ -79,8 +78,8 @@ const StackNavigator = ({ isAuthenticated }) => {
           name={'ProductDetail'}
           component={ProductDetail}
         />
-         <StackComponent.Screen name={'Checkout'} component={Checkout} />
-         <StackComponent.Screen name={'Payment'} component={Payment} />
+        <StackComponent.Screen name={'Checkout'} component={Checkout} />
+        <StackComponent.Screen name={'Payment'} component={Payment} />
         <StackComponent.Screen name={'PageOurStory'} component={PageOurStory} />
         <StackComponent.Screen name={'Items'} component={Items} />
         <StackComponent.Screen name={'SignIn'} component={SignIn} />

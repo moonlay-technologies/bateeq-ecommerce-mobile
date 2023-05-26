@@ -3,70 +3,78 @@ import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {COLORS, FONTS} from '../constants/theme';
 
-const FeaturedCard = ({image, title, dataCollection, imagePath, hiddenBtn, categories}) => {
+const FeaturedCard = ({
+  image,
+  title,
+  dataCollection,
+  imagePath,
+  hiddenBtn,
+  categories,
+}) => {
+  console.log('dataColllection', dataCollection);
   const navigation = useNavigation();
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={() => {
-        const padmaCollection = dataCollection.find(
-          collection => collection.title === 'Padma',
-        );
-        const kamalaCollection = dataCollection.find(
-          collection => collection.title === 'Kamala',
-        );
-        const topCategories = dataCollection.find(
-          categories => categories?.node?.description === 'TOP',
+        if (categories) {
+          const topCategories = dataCollection.find(
+            categories => categories?.node?.description === 'TOP',
           );
-        const outerWearCategories = dataCollection.find(
-          categories => categories?.node?.description === 'OUTER',
-        );
-        const bottomCategories = dataCollection.find(
-          categories => categories?.node?.description === 'PANTS',
-        );
-        const dressCategories = dataCollection.find(
-          categories => categories?.node?.description === 'DRESS',
-        );
+          const outerWearCategories = dataCollection.find(
+            categories => categories?.node?.description === 'OUTER',
+          );
+          const bottomCategories = dataCollection.find(
+            categories => categories?.node?.description === 'PANTS',
+          );
+          const dressCategories = dataCollection.find(
+            categories => categories?.node?.description === 'DRESS',
+          );
 
-        if (padmaCollection && title === 'PADMA') {
-          navigation.navigate('Items', {
-            collectionId: padmaCollection.id,
-            colletionTitle: padmaCollection.title,
-            // type: 'Fashion',
-          });
-        } else if (kamalaCollection && title === 'KAMALA') {
-          navigation.navigate('Items', {
-            collectionId: kamalaCollection.id,
-            colletionTitle: kamalaCollection.title,
-            // type: 'Fashion',
-          });
-        } else if ( topCategories && title === 'TOP') {
-          navigation.navigate('Items', {
-            query: topCategories.node.description,
-            categories: categories
-            // type: 'Fashion',
-          });
-        } else if ( outerWearCategories && title === 'OUTER') {
-          navigation.navigate('Items', {
-            query: outerWearCategories.node.description,
-            categories: categories
-            // type: 'Fashion',
-          });
-        } else if ( bottomCategories && title === 'PANTS') {
-          navigation.navigate('Items', {
-            query: bottomCategories.node.description,
-            categories: categories
-            // type: 'Fashion',
-          });
-        } else if ( dressCategories && title === 'DRESS') {
-          navigation.navigate('Items', {
-            query: dressCategories.node.description,
-            categories: categories
-            // type: 'Fashion',
-          });
+          if (topCategories && title === 'TOP') {
+            navigation.navigate('Items', {
+              query: topCategories.node.description,
+              categories: categories,
+              // type: 'Fashion',
+            });
+          } else if (outerWearCategories && title === 'OUTER') {
+            navigation.navigate('Items', {
+              query: outerWearCategories.node.description,
+              categories: categories,
+              // type: 'Fashion',
+            });
+          } else if (bottomCategories && title === 'PANTS') {
+            navigation.navigate('Items', {
+              query: bottomCategories.node.description,
+              categories: categories,
+              // type: 'Fashion',
+            });
+          } else if (dressCategories && title === 'DRESS') {
+            navigation.navigate('Items', {
+              query: dressCategories.node.description,
+              categories: categories,
+              // type: 'Fashion',
+            });
+          } else {
+            navigation.navigate('Items', {type: 'Fashion'});
+          }
         } else {
-          navigation.navigate('Items', {type: 'Fashion'});
+          const collectionData = dataCollection.description;
+
+          if (collectionData && title === 'PADMA') {
+            navigation.navigate('Items', {
+              query: title,
+              // type: 'Fashion',
+            });
+          } else if (collectionData && title === 'KAMALA') {
+            navigation.navigate('Items', {
+              query: title,
+              // type: 'Fashion',
+            });
+          } else {
+            navigation.navigate('Items', {type: 'Fashion'});
+          }
         }
       }}
       style={{
@@ -126,28 +134,64 @@ const FeaturedCard = ({image, title, dataCollection, imagePath, hiddenBtn, categ
           {title}
         </Text>
         <TouchableOpacity
-          onPress={() => {
-            const padmaCollection = dataCollection?.find(
-              collection => collection.title === 'Padma',
-            );
-            const kamalaCollection = dataCollection.find(
-              collection => collection.title === 'Kamala',
-            );
-
-            console.log(padmaCollection, 'padamaaa');
-
-            if (padmaCollection && title === 'PADMA') {
-              navigation.navigate('Items', {
-                collectionId: padmaCollection.id,
-                colletionTitle: padmaCollection.title,
-                type: 'Fashion',
-              });
+           onPress={() => {
+            if (categories) {
+              const topCategories = dataCollection.find(
+                categories => categories?.node?.description === 'TOP',
+              );
+              const outerWearCategories = dataCollection.find(
+                categories => categories?.node?.description === 'OUTER',
+              );
+              const bottomCategories = dataCollection.find(
+                categories => categories?.node?.description === 'PANTS',
+              );
+              const dressCategories = dataCollection.find(
+                categories => categories?.node?.description === 'DRESS',
+              );
+    
+              if (topCategories && title === 'TOP') {
+                navigation.navigate('Items', {
+                  query: topCategories.node.description,
+                  categories: categories,
+                  // type: 'Fashion',
+                });
+              } else if (outerWearCategories && title === 'OUTER') {
+                navigation.navigate('Items', {
+                  query: outerWearCategories.node.description,
+                  categories: categories,
+                  // type: 'Fashion',
+                });
+              } else if (bottomCategories && title === 'PANTS') {
+                navigation.navigate('Items', {
+                  query: bottomCategories.node.description,
+                  categories: categories,
+                  // type: 'Fashion',
+                });
+              } else if (dressCategories && title === 'DRESS') {
+                navigation.navigate('Items', {
+                  query: dressCategories.node.description,
+                  categories: categories,
+                  // type: 'Fashion',
+                });
+              } else {
+                navigation.navigate('Items', {type: 'Fashion'});
+              }
             } else {
-              navigation.navigate('Items', {
-                collectionId: kamalaCollection.id,
-                colletionTitle: kamalaCollection.title,
-                type: 'Fashion',
-              });
+              const collectionData = dataCollection.description;
+    
+              if (collectionData && title === 'PADMA') {
+                navigation.navigate('Items', {
+                  query: title,
+                  // type: 'Fashion',
+                });
+              } else if (collectionData && title === 'KAMALA') {
+                navigation.navigate('Items', {
+                  query: title,
+                  // type: 'Fashion',
+                });
+              } else {
+                navigation.navigate('Items', {type: 'Fashion'});
+              }
             }
           }}
           style={{

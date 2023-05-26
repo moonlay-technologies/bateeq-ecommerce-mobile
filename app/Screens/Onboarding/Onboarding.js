@@ -1,7 +1,6 @@
 import React from 'react';
 import {Image, Text, View} from 'react-native';
 import {COLORS, FONTS, IMAGES, SIZES} from '../../constants/theme';
-// import Icon from 'react-native-vector-icons/MaterialIcons';
 import Swiper from 'react-native-swiper';
 import CustomButton from '../../components/CustomButton';
 
