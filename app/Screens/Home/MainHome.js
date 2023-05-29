@@ -585,6 +585,7 @@ const MainHome = ({navigation}) => {
                                     .amount,
                                 desc: product.node.descriptionHtml,
                                 variant: product.node.variants.edges,
+                                product_id: product.node.id
                               },
                               // category : "Appliances"
                             })

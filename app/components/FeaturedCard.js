@@ -11,7 +11,7 @@ const FeaturedCard = ({
   hiddenBtn,
   categories,
 }) => {
-  console.log('dataColllection', dataCollection);
+  // console.log('dataColllection', dataCollection);
   const navigation = useNavigation();
 
   return (

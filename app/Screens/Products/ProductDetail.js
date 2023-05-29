@@ -1,23 +1,10 @@
-import React, {useState} from 'react';
-import {
-  Image,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useState, useRef } from 'react';
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-// import RenderHTML from 'react-native-render-html';
-// import FontAwesome from 'react-native-vector-icons/FontAwesome';
-// import Octicons from 'react-native-vector-icons/Octicons';
+import Toast from 'react-native-toast-message';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
-// import pic1 from '../../assets/images/shop/detail/pic1.png';
-// import pic2 from '../../assets/images/shop/pic2.png';
-// import pic3 from '../../assets/images/shop/pic3.png';
-// import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import CustomButton from '../../components/CustomButton';
 import LinearGradient from 'react-native-linear-gradient';
 import {Snackbar} from 'react-native-paper';
@@ -27,97 +14,127 @@ import SelectInput from '../../components/SelectInput';
 import {Footer, ShowHideProductDetail} from '../../components/Footer';
 import {formatWithCommas} from '../../utils/helper';
 import CustomHTML from '../../components/CustomHtml.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as yup from 'yup';
+import { useQuery } from '@apollo/client';
+import { GET_PRODUCT_RECOMMENDATION } from '../../graphql/queries';
 
-const SuggestData = [
-  {
-    image:
-      'https://combateeqshopstorage.blob.core.windows.net/bateeqimagecontainerprd/IAUE6uWf13.jpg',
-    title: 'JACQUARD NALIKA 011',
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,200',
-    // offer: '30% off',
-  },
-  {
-    image:
-      'https://combateeqshopstorage.blob.core.windows.net/bateeqimagecontainerprd/pJyJVN2956.jpg',
-    title: 'Zip-Front Track Jacket',
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,200',
-    // offer: '40% off',
-  },
-];
+const schema = yup.object().shape({
+  product_id: yup.string().required(),
+  title: yup.string().required(),
+  currentPrice: yup.number().required(),
+  oldPrice: yup.number(),
+  image: yup.array().required(),
+  quantity: yup.number().required(),
+  size: yup.string().required(),
+  color: yup.string().required(),
+});
 
-const ProductDetail = ({navigation, route}) => {
-  const {item, category} = route.params;
-  const productColors = ['#A29698', '#80C6A9', '#8E84CA', '#E5907D'];
-  // console.log('colors', item.colors);
-
-  const [isLike, setIsLike] = useState(false);
+const ProductDetail = ({ navigation, route }) => {
+  const { item } = route.params;
+  const scrollViewRef = useRef(null);
+  const { data, error: errorGetProduct } = useQuery(GET_PRODUCT_RECOMMENDATION, {
+    variables: {
+      productId: item.product_id
+    }
+  })
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [snackText, setSnackText] = useState('Loading...');
-  const [selectedVal, setSelectedVal] = useState(null);
-  const [selectedColor, setSelectedColor] = useState(null);
-  const [itemQuantity, setItemQuantity] = useState(1);
-
-  const handleSelectSize = value => {
-    setSelectedVal(value);
-  };
-
-  const handleSelectColor = value => {
-    setSelectedColor(value);
-  };
-
-  var ratingArry = [];
-  for (var i = 0; i < 4; i++) {
-    ratingArry.push(i);
+  const [errors, setErrors] = useState({})
+  const [qty, setQty] = useState(1);
+  const [variants, setVariants] = useState({
+    size: '',
+    color: ''
+  })
+  let productRecommendations = []
+  if(!data && errorGetProduct) {
+    Toast.show({
+      type: 'error',
+      text1: 'oops! somehing went wrong'
+    })
+  } else {
+    if(data?.productRecommendations.length > 0) {
+      productRecommendations = data?.productRecommendations.map(d => ({
+        id: d.id,
+        title: d.title,
+        image: d.images.edges.find(i => i)?.node.url,
+        compareAtPrice: d.variants.edges.find(i => i)?.node.compareAtPrice,
+        price: d.variants.edges.find(i => i)?.node.price.amount
+      }))
+     
+    }
   }
 
-  
-  const chooseColor = [];
-  const chooseSize = [];
-  
+  const onSelectValue = (type, value) => {
+    if(type === 'size') {
+      setVariants(prev => ({
+        ...prev,
+        size: value
+      }));
+    } else {
+      setVariants(prev => ({
+        ...prev,
+        color: value
+      }));
+    }
+  };
+
+  let colorOptions = [];
+  let sizeOptions = [];
+  if (item?.variant) {
   item?.variant?.forEach(variant => {
-    const colorOption = variant?.node?.selectedOptions?.find(option => option.name === "Color");
-    const sizeOption = variant?.node?.selectedOptions?.find(option => option.name === "Size");
-    
+    const { selectedOptions } =  variant?.node
+    const colorOption = selectedOptions.find(option => option.name.toLowerCase() === "color");
+    const sizeOption = selectedOptions.find(option => option.name.toLowerCase() === "size");
+
     if (colorOption && colorOption.value) {
       const color = colorOption.value;
-      if (!chooseColor.some(item => item.value === color)) {
-        chooseColor.push({ label: color, value: color });
+      if (!colorOptions.some(item => item.value === color)) {
+        colorOptions.push({ label: color, value: color });
       }
-    } else {
-      console.log('Color is empty');
-      // Handle the error condition for empty color
-    }
+    } 
   
     if (sizeOption && sizeOption.value) {
       const size = sizeOption.value;
-      if (!chooseSize.some(item => item.value === size)) {
-        chooseSize.push({ label: size, value: size });
+      if (!sizeOptions.some(item => item.value === size)) {
+        sizeOptions.push({ label: size, value: size });
       }
-    } else {
-      console.log('Size is empty');
-      // Handle the error condition for empty size
     }
   });
-  
+}
 
-
-  console.log('choseee seize', chooseSize)
-
-  const scrollViewRef = React.useRef(null);
-
-  // const [activeColor, setActiveColor] = useState(productColors[0]);
-
-  const handleLike = () => {
-    if (isLike) {
-      setSnackText('Item removed to Favourite.');
-    } else {
-      setSnackText('Item add to Favourite.');
-    }
-    setIsSnackbar(true);
-    setIsLike(!isLike);
-  };
+ const onSubmit = () => {
+ const body = { 
+    product_id: item.product_id,
+    title: item.title,
+    currentPrice: item.price,
+    oldPrice: item.oldPrice,
+    image: item.images,
+    quantity: qty,
+    size: variants.size,
+    color: variants.color
+  }
+  schema.validate(body, { abortEarly: false })
+  .then(result => {
+    AsyncStorage.setItem('productDetail', JSON.stringify(result))
+    setErrors({})
+    colorOptions = null
+    sizeOptions = null
+    setVariants({
+      size: '',
+      color: ''
+    })
+    navigation.navigate('Cart')
+  }).
+  catch(validationError => { 
+    const errorsVal = validationError.inner.reduce((acc, error) => {
+      const { path, message } = error;
+      acc[path] = message;
+      return acc;
+    }, {});
+    setErrors(errorsVal)
+  })
+ }
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
@@ -143,7 +160,6 @@ const ProductDetail = ({navigation, route}) => {
               borderRadius: 10,
             }}>
             {item?.images?.map((data, index) => {
-              console.log('dataImage', data)
               return (
                 <View key={index}>
                   <Image
@@ -171,26 +187,7 @@ const ProductDetail = ({navigation, route}) => {
               );
             })}
           </Swiper>
-          {/* <TouchableOpacity
-            onPress={() => handleLike()}
-            activeOpacity={0.95}
-            style={{
-              height: 60,
-              width: 60,
-              backgroundColor: COLORS.primaryLight,
-              borderRadius: 30,
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'absolute',
-              bottom: -30,
-              right: 30,
-            }}>
-            {isLike ? (
-              <FontAwesome name="heart" color={COLORS.primary} size={22} />
-            ) : (
-              <FontAwesome name="heart-o" color={COLORS.primary} size={22} />
-            )}
-          </TouchableOpacity> */}
+
         </View>
         <View style={{paddingHorizontal: 20}}>
           <View
@@ -200,19 +197,7 @@ const ProductDetail = ({navigation, route}) => {
               //   borderColor: COLORS.borderColor,
               paddingBottom: 12,
             }}>
-            {/* <View
-              style={{
-                backgroundColor: COLORS.primaryLight,
-                paddingHorizontal: 14,
-                paddingVertical: 6,
-                borderRadius: SIZES.radius,
-                marginBottom: 14,
-                marginTop: 10,
-              }}>
-              <Text style={{...FONTS.fontLg, color: COLORS.primary}}>
-                {category}
-              </Text>
-            </View> */}
+      
             <Text
               style={{
                 ...FONTS.fontSatoshiBold,
@@ -243,94 +228,28 @@ const ProductDetail = ({navigation, route}) => {
               </Text>
             </View>
             {item.desc && <CustomHTML htmlContent={item.desc} />}
-            {/* <View style={{...FONTS.font, color: COLORS.text}}>
-            {item.desc && <RenderHTML source={{ html: item.desc }} />}
-            </View> */}
-            {/* <View
-              style={{
-                flexDirection: 'row',
-                marginTop: 20,
-                alignItems: 'center',
-              }}>
-              <View style={{flex: 1}}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    marginBottom: 4,
-                  }}>
-                  {ratingArry.map((data, index) => {
-                    return (
-                      <Octicons
-                        key={index}
-                        size={16}
-                        style={{marginRight: 5}}
-                        color={'#FFA800'}
-                        name="star-fill"
-                      />
-                    );
-                  })}
-                </View>
-                <Text style={FONTS.font}>(256 Reviews)</Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: 'row',
-                }}>
-                {productColors.map((data, index) => {
-                  return (
-                    <TouchableOpacity
-                      onPress={() => setActiveColor(data)}
-                      key={index}
-                      style={{
-                        paddingHorizontal: 5,
-                        paddingVertical: 5,
-                        marginLeft: 5,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      {activeColor === data && (
-                        <View
-                          style={{
-                            height: 24,
-                            width: 24,
-                            borderRadius: 24,
-                            borderWidth: 2,
-                            borderColor: COLORS.primary,
-                            position: 'absolute',
-                          }}
-                        />
-                      )}
-                      <View
-                        style={{
-                          height: 16,
-                          width: 16,
-                          borderRadius: 16,
-                          backgroundColor: data,
-                        }}
-                      />
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View> */}
+          
             <View style={{width: '100%', marginTop: 20}}>
               <SelectInput
                 label="Choose Size"
-                options={chooseSize}
-                onSelect={handleSelectSize}
+                name="size"
+                options={sizeOptions}
+                onSelect={(val)=> onSelectValue('size', val)}
                 placeholder="Choose Size"
                 customDetail
+                errors={errors}
               />
-              {chooseColor?.length > 0 && (
+        
                 <SelectInput
                   label="Choose Color"
-                  options={chooseColor}
-                  onSelect={handleSelectColor}
+                  name="color"
+                  options={colorOptions}
+                  onSelect={(val)=> onSelectValue('color', val)}
                   placeholder="Choose Color"
                   customDetail
+                  errors={errors}
                 />
-              )}
+              
               <View>
                 <Text
                   style={{
@@ -344,17 +263,15 @@ const ProductDetail = ({navigation, route}) => {
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
-                    // width: '100%',
                   }}>
                   <TouchableOpacity
                     onPress={() =>
-                      itemQuantity > 1 && setItemQuantity(itemQuantity - 1)
+                      qty > 1 && setQty(qty - 1)
                     }
                     style={{
                       height: 32,
                       width: 30,
                       borderWidth: 1,
-                      // borderRadius:6,
                       borderColor: COLORS.borderColor,
                       backgroundColor: '#AAAAAA',
                       alignItems: 'center',
@@ -373,15 +290,14 @@ const ProductDetail = ({navigation, route}) => {
                       paddingVertical: 5,
                       paddingHorizontal: 50,
                     }}>
-                    {itemQuantity}
+                    {qty}
                   </Text>
                   <TouchableOpacity
-                    onPress={() => setItemQuantity(itemQuantity + 1)}
+                    onPress={() => setQty(qty + 1)}
                     style={{
                       height: 32,
                       width: 30,
                       borderWidth: 1,
-                      // borderRadius:6,
                       backgroundColor: '#303030',
                       borderColor: COLORS.borderColor,
                       alignItems: 'center',
@@ -394,41 +310,6 @@ const ProductDetail = ({navigation, route}) => {
               </View>
             </View>
           </View>
-          {/* <View
-            style={{
-              paddingTop: 15,
-              //   borderBottomWidth: 1,
-              //   borderColor: COLORS.borderColor,
-              paddingBottom: 12,
-            }}>
-            <Text style={{...FONTS.h6, marginBottom: 5}}>Specifications</Text>
-            <View style={{flexDirection: 'row', marginBottom: 5}}>
-              <Text style={{...FONTS.font, color: COLORS.title, flex: 1}}>
-                Brand
-              </Text>
-              <Text style={FONTS.font}>Femall Clothing</Text>
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 5}}>
-              <Text style={{...FONTS.font, color: COLORS.title, flex: 1}}>
-                Weight
-              </Text>
-              <Text style={FONTS.font}>260gr</Text>
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 5}}>
-              <Text style={{...FONTS.font, color: COLORS.title, flex: 1}}>
-                Condition
-              </Text>
-              <Text style={FONTS.font}>NEW</Text>
-            </View>
-            <View style={{flexDirection: 'row', marginBottom: 5}}>
-              <Text style={{...FONTS.font, color: COLORS.title, flex: 1}}>
-                Category
-              </Text>
-              <Text style={{...FONTS.font, color: COLORS.primary}}>
-                Sleep Suits
-              </Text>
-            </View>
-          </View> */}
           <View
             style={{
               marginTop: 20,
@@ -445,10 +326,6 @@ const ProductDetail = ({navigation, route}) => {
               }}>
               You May Like
             </Text>
-            {/* <Text style={{...FONTS.font, color: COLORS.text}}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et
-            </Text> */}
             <View style={{marginBottom: 10}}>
               <View
                 style={{
@@ -457,11 +334,7 @@ const ProductDetail = ({navigation, route}) => {
                   flexWrap: 'wrap',
                   justifyContent: 'space-between',
                 }}>
-                {/* <ScrollView
-            contentContainerStyle={{paddingLeft: 15}}
-            horizontal
-            showsHorizontalScrollIndicator={false}> */}
-                {SuggestData.map(({image, title, price, oldPrice}, index) => {
+                {productRecommendations.length > 0 && productRecommendations.map(({image, title, price, compareAtPrice}, index) => {
                   return (
                     <View
                       key={index}
@@ -476,44 +349,20 @@ const ProductDetail = ({navigation, route}) => {
                             item: {
                               title: title,
                               image: image,
-                              oldPrice: oldPrice,
+                              oldPrice: compareAtPrice,
                               price: price,
                             },
-                            // category : "Appliances"
                           })
                         }
                         imageSrc={image}
                         title={title}
                         price={price}
-                        oldPrice={oldPrice}
-                        // offer={data.offer}
+                        oldPrice={compareAtPrice}
                       />
                     </View>
                   );
                 })}
-                {/* </ScrollView> */}
               </View>
-              {/* <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Items', {type: 'Fashion'})}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderWidth: 1,
-                width: 200,
-                height: 48,
-              }}>
-              <Text
-                style={{
-                  ...FONTS.fontSatoshiBold,
-                  color: COLORS.title,
-                  marginRight: 2,
-                }}>
-                See More
-              </Text>
-            </TouchableOpacity>
-          </View> */}
             </View>
           </View>
         </View>
@@ -537,7 +386,7 @@ const ProductDetail = ({navigation, route}) => {
           </View>
           <View>
             <CustomButton
-              onPress={() => navigation.navigate('Cart')}
+              onPress={onSubmit}
               customWidth={150}
               title="Add To Cart"
               bagIcon

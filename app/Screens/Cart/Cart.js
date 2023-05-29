@@ -19,6 +19,7 @@ import pic3 from '../../assets/images/product/product3.jpg';
 // import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import CustomButton from '../../components/CustomButton';
 import { CartApi } from '../../service/shopify-api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CheckoutData = [
   {
@@ -63,7 +64,14 @@ const Cart = ({navigation}) => {
     setInstructuction(text);
   };
 
-  useEffect(() => {
+  useEffect(async () => {
+    try {
+     const data = await AsyncStorage.getItem('productDetail')
+     console.log('asyncStorage get product',data)
+    } catch (error) {
+      console.log('errpr', error)
+    }
+   
     getListCart();
   }, []);
 
@@ -71,15 +79,12 @@ const Cart = ({navigation}) => {
     setIsLoading(true);
     CartApi.get(filterData)
       .then(res => {
-        console.log('resss cart', res.checkouts);
-        // console.log(res.products[0].images.map(src => src.src));
         setIsLoading(false);
         setDataCart(res.checkouts.line_items)
         // setProductData(res.products);
       })
       .catch(error => {
         setIsLoading(false);
-        console.log('errorrr', error);
       });
   };
 
@@ -89,77 +94,7 @@ const Cart = ({navigation}) => {
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
       }}>
-      {/* <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          justifyContent: 'space-between',
-          borderBottomWidth:1,
-          borderBottomColor:COLORS.borderColor,
-        }}>
-        <IconButton
-          icon={() => (
-            <View
-              style={{
-                borderWidth:1,
-                borderColor:COLORS.borderColor,
-                height: 30,
-                width: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}>
-              <FeatherIcon color={COLORS.title} size={18} name="menu" />
-            </View>
-          )}
-          size={25}
-          onPress={() => navigation.openDrawer()}
-        />
-        <Text style={{...FONTS.fontSatoshiBold,color:COLORS.title,flex:1, fontSize: 18,justifyContent:'center',alignItems:'center', textAlign: 'center',marginLeft:5}}>bateeq</Text>
-        <TouchableOpacity onPress={handlePress}>
-          <Image
-            style={{width: 70, height: 35}}
-            source={require('../../assets/images/logo.png')}
-          />
-        </TouchableOpacity>
-        <IconButton
-                    icon={() => <FeatherIcon color={COLORS.title} size={20} name='search'/>}
-                    size={25}
-                    onPress={() => navigation.navigate('Search')}
-                />
-        <IconButton
-                    icon={() => <FeatherIcon color={COLORS.title} size={20} name='heart'/>}
-                    size={25}
-                    onPress={() => navigation.navigate('Wishlist')}
-                />
-        <IconButton
-          onPress={() => navigation.navigate('Cart')}
-          icon={() => (
-            <View>
-              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              <View
-                style={{
-                  height: 14,
-                  width: 14,
-                  borderRadius: 14,
-                  backgroundColor: COLORS.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'absolute',
-                  top: -4,
-                  right: -6,
-                }}>
-                <Text
-                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
-                </Text>
-              </View>
-            </View>
-          )}
-          size={25}
-        />
-      </View> */}
+
       <View style={{paddingHorizontal: 20}}>
         <Header
           backAction={() => navigation.navigate('Home')}
@@ -178,50 +113,7 @@ const Cart = ({navigation}) => {
         }}>
         My Cart
       </Text>
-      {/* <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 15,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderColor: COLORS.borderColor,
-        }}>
-        <Image
-          style={{
-            height: 35,
-            width: 35,
-            borderRadius: 20,
-            marginRight: 10,
-          }}
-          source={IMAGES.user}
-        />
-        <Text
-          style={{
-            ...FONTS.fontSm,
-            ...FONTS.fontBold,
-            color: COLORS.title,
-            flex: 1,
-          }}>
-          Deliver to Yatin
-        </Text>
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}>
-          <Text
-            style={{...FONTS.fontSm, ...FONTS.fontBold, color: COLORS.primary}}>
-            Ram krishan, puram
-          </Text>
-          <FeatherIcon
-            color={COLORS.primary}
-            style={{marginLeft: 2, top: 1}}
-            size={16}
-            name="chevron-down"
-          />
-        </TouchableOpacity>
-      </View> */}
+
       <View style={{flex: 1, padding: 10}}>
         <ScrollView>
           {CheckoutData.map((data, index) => (
@@ -232,7 +124,7 @@ const Cart = ({navigation}) => {
                     imagePath: data.image,
                     title: data.title,
                     price: data.price,
-                    oldPrice: data.oldPrice,
+                    oldPrice: data.oldPrice,  
                   },
                   category: 'Fashion',
                 })
@@ -246,97 +138,7 @@ const Cart = ({navigation}) => {
               oldPrice={data.oldPrice}
             />
           ))}
-          {/* <View style={GlobalStyleSheet.container}>
-            <Text style={{...FONTS.fontSm, ...FONTS.fontBold, marginBottom: 6}}>
-              Have a coupon code ? enter here
-            </Text>
-            <View>
-              <FeatherIcon
-                style={{position: 'absolute', left: 18, top: 16}}
-                size={18}
-                color={COLORS.primary}
-                name="scissors"
-              />
-              <TextInput
-                style={{
-                  ...FONTS.font,
-                  ...FONTS.fontBold,
-                  color: COLORS.title,
-                  borderWidth: 1,
-                  borderColor: COLORS.borderColor,
-                  borderRadius: 8,
-                  paddingHorizontal: 18,
-                  paddingLeft: 50,
-                  borderStyle: 'dashed',
-                }}
-                defaultValue="B2GET150"
-              />
-              <TouchableOpacity
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  padding: 13,
-                }}>
-                <FeatherIcon
-                  size={22}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
-              </TouchableOpacity>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 8,
-                marginTop: 12,
-              }}>
-              <Text style={{...FONTS.font}}>Price : </Text>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.title}}>
-                $158.2
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 8,
-              }}>
-              <Text style={{...FONTS.font}}>Tax : </Text>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.title}}>
-                0.5%
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 8,
-              }}>
-              <Text style={{...FONTS.font}}>Delivery Fee :</Text>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.title}}>
-                0.5%
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 10,
-                marginTop: 5,
-                alignItems: 'center',
-                borderTopWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: COLORS.borderColor,
-                paddingTop: 8,
-              }}>
-              <Text style={{...FONTS.font}}>Total : </Text>
-              <Text style={{...FONTS.h4, color: COLORS.primary}}>$215.5</Text>
-            </View>
-          </View> */}
+     
           <View style={{padding: 20}}>
             <Text style={{...FONTS.fontSatoshiBold, marginBottom: 12}}>
               Special Instruction
@@ -356,45 +158,7 @@ const Cart = ({navigation}) => {
                 ...FONTS.fontSatoshiRegular,
               }}
             />
-            {/* <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: 20,
-          }}>
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#1A120B',
-              gap: 12,
-              paddingVertical: 16,
-              paddingHorizontal: 24,
-              flexDirection: 'row',
-              width: 200,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            onPress={handleCheckout}>
-            <Text
-              style={{
-                color: '#fff',
-                fontFamily: FontFamily.satoshiBold,
-                textAlign: 'center',
-                alignItems: 'center',
-              }}>
-              Checkout
-            </Text>
-            <IconAwesome
-              name="arrow-right"
-              size={12}
-              color="#fff"
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: 2,
-              }}
-            />
-          </TouchableOpacity>
-        </View> */}
+         
           </View>
           <View
             style={{
@@ -403,8 +167,6 @@ const Cart = ({navigation}) => {
               height: 100,
             }}>
             <CustomButton
-              // btnSm
-              // onPress={() => navigation.navigate('AddDeliveryAddress')}
               onPress={() => navigation.navigate('Checkout')}
               title="Checkout"
               customWidth={200}
@@ -413,38 +175,7 @@ const Cart = ({navigation}) => {
           </View>
         </ScrollView>
       </View>
-      {/* <View
-        style={{
-          flexDirection: 'row',
-          paddingHorizontal: 15,
-          paddingVertical: 10,
-          borderTopWidth: 1,
-          borderColor: COLORS.borderColor,
-        }}>
-        <View style={{flex: 1}}>
-          <Text style={{...FONTS.h4}}>$215.5</Text>
-          <TouchableOpacity
-            style={{
-              marginTop: -4,
-            }}>
-            <Text
-              style={{
-                ...FONTS.fontXs,
-                color: COLORS.primary,
-                ...FONTS.fontBold,
-              }}>
-              View price details
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{flex: 1}}>
-          <CustomButton
-            btnSm
-            onPress={() => navigation.navigate('AddDeliveryAddress')}
-            title="Checkout"
-          />
-        </View>
-      </View> */}
+    
     </SafeAreaView>
   );
 };
