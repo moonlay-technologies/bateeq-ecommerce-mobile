@@ -79,6 +79,10 @@ export class GqlCart {
     }
 
 
+    /**
+     * @name remove
+     * @returns {[Error,null]|[null,{data: any, networkStatus: NetworkStatus, error: ApolloError, loading: boolean}]|*[]}
+     */
     remove(){
         try{
             this.eventName = CART_REMOVE_ITEM
