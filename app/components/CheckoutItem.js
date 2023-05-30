@@ -7,13 +7,13 @@ const CheckoutItem = ({
   image,
   title,
   price,
-  oldPrice,
-  // quantity,
+  originalPrice,
+  quantity,
   size,
   onPress,
 }) => {
-  const [itemQuantity, setItemQuantity] = useState(1);
-
+  const [itemQuantity, setItemQuantity] = useState(quantity || 1);
+  console.log('originalPrice', originalPrice)
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -25,14 +25,10 @@ const CheckoutItem = ({
         borderBottomColor: COLORS.borderColor,
         paddingBottom: 15,
         paddingTop: 15,
-      }}>
+      }}
+    >
       <Image
-        style={{
-          height: 120,
-          width: 80,
-          // borderRadius:8,
-          marginRight: 12,
-        }}
+        style={{ height: 120, width: 80, marginRight: 12}}
         source={image}
       />
       <View style={{flex: 1, paddingVertical: 7}}>
@@ -73,7 +69,7 @@ const CheckoutItem = ({
                 textDecorationLine: 'line-through',
                 marginLeft: 8,
               }}>
-              {oldPrice}
+              {originalPrice}
             </Text>
           </View>
         </View>
@@ -126,10 +122,6 @@ const CheckoutItem = ({
             <FeatherIcon size={14} color={COLORS.white} name="plus" />
           </TouchableOpacity>
         </View>
-        {/* <View style={{flexDirection:'row',alignItems:'center'}}>
-                    <Text style={{...FONTS.h6,marginRight:15}}>{price}</Text>
-                    <Text style={{...FONTS.fontXs,textDecorationLine:'line-through'}}>{oldPrice}</Text>
-                </View> */}
       </View>
     </TouchableOpacity>
   );

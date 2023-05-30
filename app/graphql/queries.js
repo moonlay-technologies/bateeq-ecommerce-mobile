@@ -27,6 +27,44 @@ export const GET_PRODUCT_RECOMMENDATION = gql`
         }
     }
 `
+
+export const GET_PRODUCT_BY_ID = gql`
+    query getProductById ($id: ID!) {
+        product(id:$id) {
+            id
+            description
+            descriptionHtml
+            title
+            images(first: 4) {
+                edges {
+                    node {
+                    url
+                    }
+                }
+            }
+            variants(first: 1) {
+                edges {
+                    node {
+                        id
+                        compareAtPrice {
+                            amount
+                        }
+                        price {
+                            amount
+                            currencyCode
+                        }
+                        selectedOptions {
+                            name
+                            value
+                      }
+                    }
+                }
+            }
+        }
+    }
+`
+
+
 export const GET_PRODUCT_OPTIONS_BY_ID = gql`
     query getOptions($id: ID!){
         product(id: $id){
@@ -36,4 +74,52 @@ export const GET_PRODUCT_OPTIONS_BY_ID = gql`
             }
         }
     }
+`
+
+export const GET_CART_BY_ID = gql`
+    query getCart($id:ID!) {
+        cart(id: $id) {
+            id
+            totalQuantity
+            lines(first:50){
+                edges {
+                    node {
+                    id
+                    quantity
+                    merchandise {
+                        ... on ProductVariant {
+                        product {
+                            id
+                            title
+                        }
+                        id
+                        image {
+                            url
+                            }
+                        }
+                    }
+                    attributes {
+                        key
+                        value
+                    }
+                    
+                    cost {
+                        compareAtAmountPerQuantity{
+                            currencyCode
+                            amount
+                        }
+                        totalAmount {
+                            amount
+                            currencyCode
+                        }
+                        subtotalAmount {
+                            amount
+                            currencyCode
+                        }
+                    }
+                }
+            }
+        }
+    }  
+}
 `

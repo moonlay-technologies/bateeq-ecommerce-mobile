@@ -582,20 +582,7 @@ const MainHome = ({navigation}) => {
                         <ProductCardStyle1
                           onPress={() =>
                             navigation.navigate('ProductDetail', {
-                              item: {
-                                title: product.node.title,
-                                images: product.node.images.edges,
-                                oldPrice:
-                                  product?.node?.variants?.edges[0]?.node
-                                    ?.compareAtPrice?.amount,
-                                price:
-                                  product.node.variants.edges[0].node.price
-                                    .amount,
-                                desc: product.node.descriptionHtml,
-                                variant: product.node.variants.edges,
-                                product_id: product.node.id
-                              },
-                              // category : "Appliances"
+                              id: product.node.id,
                             })
                           }
                           imageSrc={product.node.images.edges[0].node.url}

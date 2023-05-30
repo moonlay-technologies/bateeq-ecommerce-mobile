@@ -1,92 +1,31 @@
-import React, {useState, useEffect} from 'react';
-import {
-  // Image,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  // TouchableOpacity,
-  View,
-} from 'react-native';
-// import {IconButton} from 'react-native-paper';
-// import FeatherIcon from 'react-native-vector-icons/Feather';
+import React from 'react';
+import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { useQuery } from '@apollo/client';
+import { GET_CART_BY_ID } from '../../graphql/queries';
+import { COLORS, FONTS } from '../../constants/theme';
 import CheckoutItem from '../../components/CheckoutItem';
-import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
-import pic1 from '../../assets/images/product/product1.jpg';
-import pic2 from '../../assets/images/product/product2.jpg';
-import pic3 from '../../assets/images/product/product3.jpg';
-// import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import CustomButton from '../../components/CustomButton';
-import { CartApi } from '../../service/shopify-api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const CheckoutData = [
-  {
-    image: pic1,
-    title: 'JACQUARD NALIKA 014',
-    size: 'XS',
-    quantity: 1,
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,000',
-  },
-  {
-    image: pic2,
-    title: 'JACQUARD NALIKA 014',
-    size: 'XS',
-    quantity: 1,
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,000',
-  },
-  {
-    image: pic3,
-    title: 'JACQUARD NALIKA 014',
-    size: 'XS',
-    quantity: 1,
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,000',
-  },
-];
 
 const Cart = ({navigation}) => {
-  const handlePress = () => {
-    navigation.navigate('Home');
-  };
-
-  const [instruction, setInstructuction] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [dataCart, setDataCart] = useState(null)
-  const [filterData, setFilterData] = useState({
-    limit: 5,
-  });
-
-  const handleInstructionChange = text => {
-    setInstructuction(text);
-  };
-
-  useEffect(async () => {
-    try {
-     const data = await AsyncStorage.getItem('productDetail')
-     console.log('asyncStorage get product',data)
-    } catch (error) {
-      console.log('errpr', error)
+  let cartList = []
+  const cart = useSelector(state => state.cart)
+  const { data } = useQuery(GET_CART_BY_ID, {
+    variables: {
+      id: cart.id
     }
-   
-    getListCart();
-  }, []);
-
-  const getListCart = () => {
-    setIsLoading(true);
-    CartApi.get(filterData)
-      .then(res => {
-        setIsLoading(false);
-        setDataCart(res.checkouts.line_items)
-        // setProductData(res.products);
-      })
-      .catch(error => {
-        setIsLoading(false);
-      });
-  };
+  })
+ 
+  try {
+    cartList = data?.cart.lines.edges.map(i => i.node)
+  } catch (error) {
+    Toast.show({
+      type: 'error',
+      text1: 'oops!',
+      text2: error?.originalError?.message || 'something went wrong'
+    })
+  }
 
   return (
     <SafeAreaView
@@ -94,10 +33,9 @@ const Cart = ({navigation}) => {
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
       }}>
-
       <View style={{paddingHorizontal: 20}}>
         <Header
-          backAction={() => navigation.navigate('Home')}
+          backAction={() => navigation.goBack()}
           titleLeft
           title={'back'}
           leftIcon={'back'}
@@ -116,28 +54,35 @@ const Cart = ({navigation}) => {
 
       <View style={{flex: 1, padding: 10}}>
         <ScrollView>
-          {CheckoutData.map((data, index) => (
+          {cartList?.length > 0 && cartList.map((data, index) => {
+            console.log('cartList', data)
+            const { 
+              quantity,
+              attributes,
+              merchandise: { image, product: { id, title }}, 
+              cost: { 
+                totalAmount: {amount, currencyCode}, 
+                compareAtAmountPerQuantity: {amount: original_price} 
+              },
+            } = data
+       
+            return (
             <CheckoutItem
               onPress={() =>
                 navigation.navigate('ProductDetail', {
-                  item: {
-                    imagePath: data.image,
-                    title: data.title,
-                    price: data.price,
-                    oldPrice: data.oldPrice,  
-                  },
-                  category: 'Fashion',
+                  item: { product_id: id }
                 })
               }
               key={index}
-              image={data.image}
-              title={data.title}
-              size={data.size}
-              quantity={data.quantity}
-              price={data.price}
-              oldPrice={data.oldPrice}
+              image={{uri: image?.url}}
+              title={title}
+              size={attributes.find(i=> i.key === 'Size')?.value}
+              quantity={quantity}
+              price={amount}
+              originalPrice={original_price}
+              currencyCode={currencyCode}
             />
-          ))}
+          )})}
      
           <View style={{padding: 20}}>
             <Text style={{...FONTS.fontSatoshiBold, marginBottom: 12}}>
@@ -149,8 +94,8 @@ const Cart = ({navigation}) => {
               placeholderTextColor="gray"
               numberOfLines={5}
               multiline={true}
-              onChangeText={handleInstructionChange}
-              value={instruction}
+              // onChangeText={handleInstructionChange}
+              // value={instruction}
               style={{
                 borderWidth: 1,
                 textAlignVertical: 'top',
@@ -175,7 +120,6 @@ const Cart = ({navigation}) => {
           </View>
         </ScrollView>
       </View>
-    
     </SafeAreaView>
   );
 };

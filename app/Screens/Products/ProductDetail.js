@@ -1,56 +1,63 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import Swiper from 'react-native-swiper';
-import FeatherIcon from 'react-native-vector-icons/Feather';
-import Toast from 'react-native-toast-message';
-import {COLORS, FONTS} from '../../constants/theme';
-import Header from '../../layout/Header';
-import CustomButton from '../../components/CustomButton';
-import LinearGradient from 'react-native-linear-gradient';
-import {Snackbar} from 'react-native-paper';
-import ProductCardStyle1 from '../../components/ProductCardStyle1';
-import HeaderBateeq from '../../components/Headers/HeaderBateeq';
-import SelectInput from '../../components/SelectInput';
-import {Footer, ShowHideProductDetail} from '../../components/Footer';
-import {formatWithCommas} from '../../utils/helper';
-import CustomHTML from '../../components/CustomHtml.js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
-import { GET_PRODUCT_RECOMMENDATION } from '../../graphql/queries';
-import { ADD_TO_CART } from '../../graphql/mutation';
-import { GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
-import { findVariantIdByOptions } from './helper';
+import { Snackbar } from 'react-native-paper';
 import { useSelector } from 'react-redux';
-
-const schema = yup.object().shape({
-  product_id: yup.string().required(),
-  title: yup.string().required(),
-  currentPrice: yup.number().required(),
-  oldPrice: yup.number(),
-  image: yup.array().required(),
-  quantity: yup.number().required(),
-  size: yup.string().required(),
-  color: yup.string().required(),
-});
+import Swiper from 'react-native-swiper';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message';
+import { Footer, ShowHideProductDetail } from '../../components/Footer';
+import ProductCardStyle1 from '../../components/ProductCardStyle1';
+import HeaderBateeq from '../../components/Headers/HeaderBateeq';
+import CustomButton from '../../components/CustomButton';
+import SelectInput from '../../components/SelectInput';
+import CustomHTML from '../../components/CustomHtml';
+import Header from '../../layout/Header';
+import { COLORS, FONTS } from '../../constants/theme';
+import { formatWithCommas, renderHTMLContent } from '../../utils/helper';
+import { findVariantIdByOptions } from './helper';
+import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
+import { ADD_TO_CART } from '../../graphql/mutation';
+import LoadingScreen from '../../components/LoadingView';
 
 const ProductDetail = ({ navigation, route }) => {
-  const { item } = route.params;
-  const cart = useSelector(state => state.cart)
+  const schema = yup.object().shape({
+    image: yup.array().required(),
+    quantity: yup.number().required(),
+    size: yup.string().required(),
+    color: yup.string().test('color', 'color is required' , (value) => {
+    let pass = true
+      if(colorOptions.length > 0) {
+        if(value){
+          return pass
+        } 
+        return !pass
+      }
+      return pass
+    })
+  });
+
+  const { id } = route.params;
   const scrollViewRef = useRef(null);
-  const { data, error: errorGetProduct } = useQuery(GET_PRODUCT_RECOMMENDATION, {
-    variables: {
-      productId: item.product_id
-    }
-  })
-  const {data: optionData, error: getOptionsError} = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
-    variables: {
-      id: item.product_id
-    }
-  })
-console.log('cart', cart)
+  const cart = useSelector(state => state.cart)
   const [cartLinesAdd]= useMutation(ADD_TO_CART)
   const [isSnackbar, setIsSnackbar] = useState(false);
+  const [product, setProduct] = useState({
+    id: '', 
+    descriptionHtml: '',
+    title: '',
+    images: [], 
+    variants: []
+  })
+  const [amount, setAmount] = useState({
+    currencyCode: '',
+    original_price: '',
+    discounted_price: '' 
+  })
+  const [productRecommendations, setProductRecommendations] = useState([])
+  
   const [snackText] = useState('Loading...');
   const [errors, setErrors] = useState({})
   const [qty, setQty] = useState(1);
@@ -58,58 +65,88 @@ console.log('cart', cart)
     size: '',
     color: ''
   })
+  const [options, setOptions] = useState({
+    color: [],
+    size: []
+  })
 
-  let productRecommendations = []
- 
-    if(data?.productRecommendations.length > 0) {
-      productRecommendations = data?.productRecommendations.map(d => ({
+  const {data: productData, error: productDataError, loading: productDataLoad} = useQuery(GET_PRODUCT_BY_ID, {
+    variables: {
+      id: id
+    }
+  })
+  const {data: optionData, error: getOptionsError, loading: optionDataLoad} = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
+    variables: {
+      id: id
+    }
+  })
+  const { data, error: productRecommendationError, loading: productRecommendationLoad } = useQuery(GET_PRODUCT_RECOMMENDATION, {
+    variables: {
+      productId: id
+    }
+  })
+
+  const isLoading =  [productDataLoad, optionDataLoad, productRecommendationLoad].some(i => i === true)
+  const isError = [productRecommendationError, productDataError, getOptionsError].some(i => i)
+
+  useEffect(() => {
+    if(!isLoading) {
+      let colorOptions = []
+      let sizeOptions = []
+
+      const { id, descriptionHtml, title, images: { edges }, variants: {
+        edges: variantEdge
+      }} = productData?.product
+
+      const [{node: {compareAtPrice, price}}] = variantEdge
+  
+      setAmount({
+        currencyCode: price?.currencyCode,
+        original_price: price?.amount,
+        discounted_price: compareAtPrice?.amount
+      })
+      setProduct({ id, descriptionHtml,title, images: edges, variants: variantEdge })
+     
+      const productRecommendation = data?.productRecommendations.map(d => ({
         id: d.id,
         title: d.title,
         image: d.images.edges.find(i => i)?.node.url,
         compareAtPrice: d.variants.edges.find(i => i)?.node.compareAtPrice,
         price: d.variants.edges.find(i => i)?.node.price.amount
       }))
-    } else {
-      if(!data?.productRecommendations || errorGetProduct) {
-        Toast.show({
-          type: 'error',
-          text1: 'oops! somehing went wrong',
-          text2: 'cannot show recomendation for you'
-        })
-      }
-    }
 
+      setProductRecommendations(productRecommendation || [])
 
-  let colorOptions = []
-  let sizeOptions = []
+      const options = optionData?.product?.options || []
 
-    const { options } = optionData?.product
-
-    if(options.length > 0 ) {
-      options.find(option => {
-        if(option.name.toLowerCase() === 'color') {
+      options.forEach(option => {
+        if (option.name.toLowerCase() === 'color') {
           colorOptions.push(...option.values.map(i => ({
             label: i,
             value: i
-          })))
+          })));
         }
-        if(option.name.toLowerCase() === 'size') { 
+        if (option.name.toLowerCase() === 'size') {
           sizeOptions.push(...option.values.map(i => ({
             label: i,
             value: i
-          })))
+          })));
         }
+      });
+      setOptions({
+        color: colorOptions || [],
+        size: sizeOptions || []
       })
-    } else {
-      if(!optionData || getOptionsError) {
-        Toast.show({
-          type: 'error',
-          text1: 'oops! somehing went wrong',
-          text2: 'cannot show option for you'
-        })
-      }
+    } else if (isError) {
+      Toast.show({
+        type: 'error',
+        text1: 'oops!',
+        text2: productRecommendationError?.message 
+        ||productDataError?.message || getOptionsError?.message 
+        || 'something went wrong'
+      })
     }
-
+  }, [id, isLoading, isError])
 
   const onSelectValue = (type, value) => {
     if(type === 'size') {
@@ -125,16 +162,10 @@ console.log('cart', cart)
     }
   };
 
-  const variantId = findVariantIdByOptions(item, variants);
-  
+  const variantId = product?.variants.length > 0 ? findVariantIdByOptions(product?.variants, variants) : "" ;
 
  const onSubmit = () => {
  const body = { 
-    product_id: item.product_id,
-    title: item.title,
-    currentPrice: item.price,
-    oldPrice: item.oldPrice,
-    image: item.images,
     quantity: qty,
     size: variants.size,
     color: variants.color,
@@ -142,9 +173,6 @@ console.log('cart', cart)
   }
   schema.validate(body, { abortEarly: false })
   .then(async result => {
-    console.log('result', result)
-    console.log('variantId', result.variant_id)
-    
     const { data } = await cartLinesAdd({
       variables: {
         cartId: cart?.id,
@@ -152,7 +180,7 @@ console.log('cart', cart)
           {
             merchandiseId: result.variant_id,
             quantity: result.quantity,
-            attributes: [  // Updated field name
+            attributes: [ 
               {
                 key: 'Color',
                 value: result.size
@@ -166,30 +194,45 @@ console.log('cart', cart)
         ]
       }
     });
-    
-    console.log('data create line add', data)
-    setErrors({})
-    colorOptions = null
-    sizeOptions = null
-    setVariants({
-      size: '',
-      color: ''
-    })
-    navigation.navigate('Cart')
-  }).
-  catch(validationError => { 
-    console.log('validation error',  validationError)
-    const errorsVal = validationError.inner.reduce((acc, error) => {
-      const { path, message } = error;
-      acc[path] = message;
-      return acc;
-    }, {});
-    setErrors(errorsVal)
+
+    if(data.cartLinesAdd.cart.id){
+      setErrors({})
+      colorOptions = null
+      sizeOptions = null
+      setVariants({
+        size: '',
+        color: ''
+      })
+      navigation.navigate('Cart')
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'oops! something went wrong',
+        text2: error?.originalError?.message
+      })
+    }
+  })
+  .catch(error => { 
+    if(error.name === 'ValidationError') {
+      const errorsVal = error.inner.reduce((acc, error) => {
+        const { path, message } = error;
+        acc[path] = message;
+        return acc;
+      }, {});
+      setErrors(errorsVal)
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'oops!',
+        text2: error?.originalError?.message || 'something went wrong'
+      })
+    }
   })
  }
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
+      {isLoading && <LoadingScreen />}
       <ScrollView ref={scrollViewRef}>
         <HeaderBateeq />
         <View style={{paddingHorizontal: 20}}>
@@ -211,11 +254,11 @@ console.log('cart', cart)
               backgroundColor: COLORS.white,
               borderRadius: 10,
             }}>
-            {item?.images?.map((data, index) => {
+            {product.images.length > 0 && product?.images?.map((data, index) => {
               return (
                 <View key={index}>
                   <Image
-                    source={item.imagePath ? item.imagePath : {uri: data.node.url}}
+                    source={{uri: data.node.url}}
                     style={{
                       width: '100%',
                       height: undefined,
@@ -251,17 +294,17 @@ console.log('cart', cart)
                 color: COLORS.title,
                 marginBottom: 3,
               }}>
-              {item.title}
+              {product?.title || ''}
             </Text>
             <View style={{flexDirection: 'column', alignItems: 'center'}}>
-              {item.oldPrice && (
+              {amount.original_price && (
                 <Text
                   style={{
                     ...FONTS.fontSatoshiRegular,
                     textDecorationLine: 'line-through',
                     fontSize: 16,
                   }}>
-                  Rp {formatWithCommas(Number(item.oldPrice).toLocaleString())}
+                  {amount.currencyCode} {formatWithCommas(Number(amount.original_price).toLocaleString())}
                 </Text>
               )}
               <Text
@@ -270,25 +313,25 @@ console.log('cart', cart)
                   color: COLORS.title,
                   fontSize: 20,
                 }}>
-                Rp {formatWithCommas(Number(item.price).toLocaleString())}
+                {amount.currencyCode} {formatWithCommas(Number(amount.discounted_price).toLocaleString())}
               </Text>
             </View>
-            {item.desc && <CustomHTML htmlContent={item.desc} />}
+            {product && <CustomHTML htmlContent={product.descriptionHtml} />}
           
             <View style={{width: '100%', marginTop: 20}}>
               <SelectInput
                 label="Choose Size"
                 name="size"
-                options={sizeOptions}
+                options={options.size}
                 onSelect={(val)=> onSelectValue('size', val)}
                 placeholder="Choose Size"
                 customDetail
                 errors={errors}
               />
-              {colorOptions.length > 0 && <SelectInput
+              {options.color.length > 0 && <SelectInput
                 label="Choose Color"
                 name="color"
-                options={colorOptions}
+                options={options.color}
                 onSelect={(val)=> onSelectValue('color', val)}
                 placeholder="Choose Color"
                 customDetail
@@ -379,10 +422,10 @@ console.log('cart', cart)
                   flexWrap: 'wrap',
                   justifyContent: 'space-between',
                 }}>
-                {productRecommendations.length > 0 && productRecommendations.map(({image, title, price, compareAtPrice}, index) => {
+                {productRecommendations.length > 0 && productRecommendations.map(({image, title, price, compareAtPrice, id}) => {
                   return (
                     <View
-                      key={index}
+                      key={id}
                       style={{
                         width: 150,
                         marginRight: 10,
@@ -390,14 +433,7 @@ console.log('cart', cart)
                       }}>
                       <ProductCardStyle1
                         onPress={() =>
-                          navigation.navigate('ProductDetail', {
-                            item: {
-                              title: title,
-                              image: image,
-                              oldPrice: compareAtPrice,
-                              price: price,
-                            },
-                          })
+                          navigation.navigate('ProductDetail', { id: id })
                         }
                         imageSrc={image}
                         title={title}
