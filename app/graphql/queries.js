@@ -27,3 +27,13 @@ export const GET_PRODUCT_RECOMMENDATION = gql`
         }
     }
 `
+export const GET_PRODUCT_OPTIONS_BY_ID = gql`
+    query getOptions($id: ID!){
+        product(id: $id){
+            options {
+            name
+            values
+            }
+        }
+    }
+`

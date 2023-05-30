@@ -23,6 +23,8 @@ import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
 import {gql, useQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
+import { useDispatch } from 'react-redux';
+import { setCartId } from '../../store/reducer';
 
 const languagetData = [
   {
@@ -65,6 +67,7 @@ const Profile = ({navigation}) => {
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
+  const dispatch = useDispatch()
   const [accessToken, setAccessToken] = useState('');
 
   useEffect(() => {
@@ -318,6 +321,7 @@ const Profile = ({navigation}) => {
                 onPress={async () => {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
+                  dispatch(setCartId(''))
                   navigation.navigate('SignIn');
                 }}
                 logout={true}

@@ -54,9 +54,9 @@ const SelectInput = ({
       </TouchableOpacity>
       {isDropdownOpen && (
         <View style={styles.optionsContainer}>
-          {options?.map(option => (
+          {options?.map((option, idx) => (
             <TouchableOpacity
-              key={option.value}
+              key={option.value || idx}
               style={[
                 styles.option,
                 selectedOption &&

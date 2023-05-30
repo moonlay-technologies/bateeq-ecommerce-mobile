@@ -20,6 +20,10 @@ import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import LoadingScreen from '../../components/LoadingView';
 import {gql, useMutation} from '@apollo/client';
 import {useNavigation, CommonActions} from '@react-navigation/native';
+import { CREATE_CART } from '../../graphql/mutation';
+import { setCartId } from '../../store/reducer';
+import { useDispatch } from 'react-redux';
+
 
 const customerAccessTokenCreate = gql`
   mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
@@ -39,8 +43,9 @@ const SignIn = props => {
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [cartCreate, error] = useMutation(CREATE_CART)
+  const dispatch = useDispatch()
   const navigation = useNavigation();
-
   const validateForm = values => {
     const errors = {};
 
@@ -81,6 +86,15 @@ const SignIn = props => {
           visibilityTime: 2000,
         });
         await AsyncStorage.setItem('accessToken', accessToken);
+        const cartCreated = await cartCreate({
+          variables: {
+            input: {
+              note: ""
+            }
+          }
+        })
+        const { id } = cartCreated?.data?.cartCreate?.cart
+        dispatch(setCartId(id))
         navigation.dispatch(
           CommonActions.reset({
             index: 0,

@@ -16,8 +16,12 @@ import {formatWithCommas} from '../../utils/helper';
 import CustomHTML from '../../components/CustomHtml.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as yup from 'yup';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_PRODUCT_RECOMMENDATION } from '../../graphql/queries';
+import { ADD_TO_CART } from '../../graphql/mutation';
+import { GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
+import { findVariantIdByOptions } from './helper';
+import { useSelector } from 'react-redux';
 
 const schema = yup.object().shape({
   product_id: yup.string().required(),
@@ -32,27 +36,31 @@ const schema = yup.object().shape({
 
 const ProductDetail = ({ navigation, route }) => {
   const { item } = route.params;
+  const cart = useSelector(state => state.cart)
   const scrollViewRef = useRef(null);
   const { data, error: errorGetProduct } = useQuery(GET_PRODUCT_RECOMMENDATION, {
     variables: {
       productId: item.product_id
     }
   })
+  const {data: optionData, error: getOptionsError} = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
+    variables: {
+      id: item.product_id
+    }
+  })
+console.log('cart', cart)
+  const [cartLinesAdd]= useMutation(ADD_TO_CART)
   const [isSnackbar, setIsSnackbar] = useState(false);
-  const [snackText, setSnackText] = useState('Loading...');
+  const [snackText] = useState('Loading...');
   const [errors, setErrors] = useState({})
   const [qty, setQty] = useState(1);
   const [variants, setVariants] = useState({
     size: '',
     color: ''
   })
+
   let productRecommendations = []
-  if(!data && errorGetProduct) {
-    Toast.show({
-      type: 'error',
-      text1: 'oops! somehing went wrong'
-    })
-  } else {
+ 
     if(data?.productRecommendations.length > 0) {
       productRecommendations = data?.productRecommendations.map(d => ({
         id: d.id,
@@ -61,9 +69,47 @@ const ProductDetail = ({ navigation, route }) => {
         compareAtPrice: d.variants.edges.find(i => i)?.node.compareAtPrice,
         price: d.variants.edges.find(i => i)?.node.price.amount
       }))
-     
+    } else {
+      if(!data?.productRecommendations || errorGetProduct) {
+        Toast.show({
+          type: 'error',
+          text1: 'oops! somehing went wrong',
+          text2: 'cannot show recomendation for you'
+        })
+      }
     }
-  }
+
+
+  let colorOptions = []
+  let sizeOptions = []
+
+    const { options } = optionData?.product
+
+    if(options.length > 0 ) {
+      options.find(option => {
+        if(option.name.toLowerCase() === 'color') {
+          colorOptions.push(...option.values.map(i => ({
+            label: i,
+            value: i
+          })))
+        }
+        if(option.name.toLowerCase() === 'size') { 
+          sizeOptions.push(...option.values.map(i => ({
+            label: i,
+            value: i
+          })))
+        }
+      })
+    } else {
+      if(!optionData || getOptionsError) {
+        Toast.show({
+          type: 'error',
+          text1: 'oops! somehing went wrong',
+          text2: 'cannot show option for you'
+        })
+      }
+    }
+
 
   const onSelectValue = (type, value) => {
     if(type === 'size') {
@@ -79,29 +125,8 @@ const ProductDetail = ({ navigation, route }) => {
     }
   };
 
-  let colorOptions = [];
-  let sizeOptions = [];
-  if (item?.variant) {
-  item?.variant?.forEach(variant => {
-    const { selectedOptions } =  variant?.node
-    const colorOption = selectedOptions.find(option => option.name.toLowerCase() === "color");
-    const sizeOption = selectedOptions.find(option => option.name.toLowerCase() === "size");
-
-    if (colorOption && colorOption.value) {
-      const color = colorOption.value;
-      if (!colorOptions.some(item => item.value === color)) {
-        colorOptions.push({ label: color, value: color });
-      }
-    } 
+  const variantId = findVariantIdByOptions(item, variants);
   
-    if (sizeOption && sizeOption.value) {
-      const size = sizeOption.value;
-      if (!sizeOptions.some(item => item.value === size)) {
-        sizeOptions.push({ label: size, value: size });
-      }
-    }
-  });
-}
 
  const onSubmit = () => {
  const body = { 
@@ -112,11 +137,37 @@ const ProductDetail = ({ navigation, route }) => {
     image: item.images,
     quantity: qty,
     size: variants.size,
-    color: variants.color
+    color: variants.color,
+    variant_id : variantId
   }
   schema.validate(body, { abortEarly: false })
-  .then(result => {
-    AsyncStorage.setItem('productDetail', JSON.stringify(result))
+  .then(async result => {
+    console.log('result', result)
+    console.log('variantId', result.variant_id)
+    
+    const { data } = await cartLinesAdd({
+      variables: {
+        cartId: cart?.id,
+        lines: [
+          {
+            merchandiseId: result.variant_id,
+            quantity: result.quantity,
+            attributes: [  // Updated field name
+              {
+                key: 'Color',
+                value: result.size
+              },
+              {
+                key: 'Size',
+                value: result.size
+              }
+            ]
+          }
+        ]
+      }
+    });
+    
+    console.log('data create line add', data)
     setErrors({})
     colorOptions = null
     sizeOptions = null
@@ -127,6 +178,7 @@ const ProductDetail = ({ navigation, route }) => {
     navigation.navigate('Cart')
   }).
   catch(validationError => { 
+    console.log('validation error',  validationError)
     const errorsVal = validationError.inner.reduce((acc, error) => {
       const { path, message } = error;
       acc[path] = message;
@@ -191,13 +243,7 @@ const ProductDetail = ({ navigation, route }) => {
         </View>
         <View style={{paddingHorizontal: 20}}>
           <View
-            style={{
-              alignItems: 'flex-start',
-              //   borderBottomWidth: 1,
-              //   borderColor: COLORS.borderColor,
-              paddingBottom: 12,
-            }}>
-      
+            style={{ alignItems: 'flex-start', paddingBottom: 12 }}> 
             <Text
               style={{
                 ...FONTS.fontSatoshiBold,
@@ -239,17 +285,15 @@ const ProductDetail = ({ navigation, route }) => {
                 customDetail
                 errors={errors}
               />
-        
-                <SelectInput
-                  label="Choose Color"
-                  name="color"
-                  options={colorOptions}
-                  onSelect={(val)=> onSelectValue('color', val)}
-                  placeholder="Choose Color"
-                  customDetail
-                  errors={errors}
-                />
-              
+              {colorOptions.length > 0 && <SelectInput
+                label="Choose Color"
+                name="color"
+                options={colorOptions}
+                onSelect={(val)=> onSelectValue('color', val)}
+                placeholder="Choose Color"
+                customDetail
+                errors={errors}
+              /> }
               <View>
                 <Text
                   style={{
@@ -257,7 +301,8 @@ const ProductDetail = ({ navigation, route }) => {
                     ...FONTS.fontSatoshiBold,
                     color: COLORS.title,
                   }}>
-                  Quantity <Text style={{color: COLORS.danger}}>*</Text>
+                  Quantity 
+                  <Text style={{color: COLORS.danger}}>*</Text>
                 </Text>
                 <View
                   style={{

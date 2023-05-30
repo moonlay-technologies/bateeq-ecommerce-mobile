@@ -24,6 +24,8 @@ import CustomHTML from '../../components/CustomHtml';
 import LoadingScreen from '../../components/LoadingView';
 import {useQuery, gql} from '@apollo/client';
 import {useNavigation} from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsOpen } from '../../store/reducer'
 
 // const TopSelectionData = [
 //   {
@@ -109,6 +111,7 @@ const GET_LIST_CATEGORIES = gql`
           variants(first: 5) {
             edges {
               node {
+                id
                 price {
                   amount
                 }
@@ -238,8 +241,9 @@ const MainHome = ({navigation}) => {
   const [dataCategories, setDataCategories] = useState([]);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
   const navigations = useNavigation();
+  const isOpen = useSelector(state => state.open.isOpen);
+  const dispatch = useDispatch();
   // const [isOpen, setIsOpen] = useState(false);
-
   // const toggleSubMenu = () => {
   //   setIsOpen(!isOpen);
   // };
@@ -250,7 +254,9 @@ const MainHome = ({navigation}) => {
   //     prevActiveSubMenu === itemId ? null : itemId,
   //   );
   // };
-
+  const handleDrawer = () => {
+    dispatch(setIsOpen(!isOpen))
+  };
   const toggleSubMenu = menuId => {
     setActiveSubMenu(prevActiveMenu =>
       prevActiveMenu === menuId ? null : menuId,
@@ -423,7 +429,8 @@ const MainHome = ({navigation}) => {
             </View>
           )}
           size={25}
-          onPress={() => navigation.openDrawer()}
+          onPress={() => navigations.openDrawer()}
+          // onPress={handleDrawer}
         />
         <TouchableOpacity onPress={handlePress}>
           <Image
@@ -563,6 +570,7 @@ const MainHome = ({navigation}) => {
                 }}>
                 {dataAllProduct?.slice(0, 4) &&
                   dataAllProduct?.slice(0, 4)?.map(product => {
+                    console.log('product', product)
                     return (
                       <View
                         key={product.node.id}
