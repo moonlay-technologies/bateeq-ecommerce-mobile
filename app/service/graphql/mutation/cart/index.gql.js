@@ -1,11 +1,3 @@
-/**
- * @typedef gqlReturn
- * @property {Array|Object|String|Number|Boolean} data
- * @property {Boolean} loading
- * @property {Object} error
- * @property {NetworkStatus} networkStatus
- */
-
 import {gql} from "@apollo/client";
 
 /**
@@ -14,7 +6,7 @@ import {gql} from "@apollo/client";
  */
 export const CART_PUT_QTY = gql`
 mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
-    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+    cartLinesUpdate(cartId: $cartId, lines: F$lines) {
         cart {
             id
         }
