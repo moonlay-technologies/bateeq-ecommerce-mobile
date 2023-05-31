@@ -3,7 +3,6 @@ import Routes from './app/Navigations/Route';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
-
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
 
   React.useEffect(() => {
@@ -21,7 +20,10 @@ const App = () => {
 
   return (
     <>
-        <Routes isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+      <Routes
+        isAuthenticated={isAuthenticated}
+        setIsAuthenticated={setIsAuthenticated}
+      />
     </>
   );
 };

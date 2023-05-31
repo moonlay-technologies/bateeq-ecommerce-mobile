@@ -191,7 +191,7 @@ const MainHome = ({navigation}) => {
         handle: 'latest-collection',
       },
     });
-  const {data: dataImageBanner, loading: dataImageBannerLoading} = useQuery(
+  const {data: dataImageBanner, loading: dataImageBannerLoading,e} = useQuery(
     GET_BANNER_SLIDER,
     {
       variables: {
