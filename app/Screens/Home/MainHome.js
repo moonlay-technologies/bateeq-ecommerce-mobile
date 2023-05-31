@@ -350,21 +350,6 @@ const MainHome = ({navigation}) => {
       });
   };
 
-  // const getDataCustomCollections = () => {
-  //   CollectionsApi.get()
-  //     .then(res => {
-  //       setDataCustomCollection(
-  //         res.custom_collections.map(collection => ({
-  //           id: collection?.id,
-  //           title: collection?.title,
-  //         })),
-  //       );
-  //     })
-  //     .catch(error => {
-  //       console.log('error', error);
-  //     });
-  // };
-
   const handlePress = () => {
     navigation.navigate('Home');
   };

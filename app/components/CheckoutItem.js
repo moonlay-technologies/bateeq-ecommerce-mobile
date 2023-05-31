@@ -11,9 +11,19 @@ const CheckoutItem = ({
   quantity,
   size,
   onPress,
+  onDelete = () => {},
 }) => {
-  const [itemQuantity, setItemQuantity] = useState(quantity || 1);
+  const [itemQuantity, setItemQuantity] = useState(quantity);
   console.log('originalPrice', originalPrice)
+  const handleQuantity = (type) => {
+    if(type === 'de' && itemQuantity >= 0 ) {
+      setItemQuantity(itemQuantity - 1)
+      if(itemQuantity === 0) {
+        onDelete()
+      }
+    }
+
+  }
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -79,9 +89,7 @@ const CheckoutItem = ({
             alignItems: 'center',
           }}>
           <TouchableOpacity
-            onPress={() =>
-              itemQuantity > 1 && setItemQuantity(itemQuantity - 1)
-            }
+            onPress={() => handleQuantity('de', )}
             style={{
               height: 32,
               width: 30,
@@ -91,7 +99,8 @@ const CheckoutItem = ({
               backgroundColor: '#AAAAAA',
               alignItems: 'center',
               justifyContent: 'center',
-            }}>
+            }}
+            disabled={itemQuantity === 0}>
             <FeatherIcon size={14} color={COLORS.white} name="minus" />
           </TouchableOpacity>
           <Text

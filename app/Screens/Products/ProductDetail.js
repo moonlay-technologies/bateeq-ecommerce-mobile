@@ -3,7 +3,7 @@ import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'r
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,15 +21,19 @@ import { findVariantIdByOptions } from './helper';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import LoadingScreen from '../../components/LoadingView';
+import { getCartId } from '../../store/reducer';
 
 const ProductDetail = ({ navigation, route }) => {
+  const [options, setOptions] = useState({
+    color: [],
+    size: []
+  })
   const schema = yup.object().shape({
-    image: yup.array().required(),
     quantity: yup.number().required(),
     size: yup.string().required(),
     color: yup.string().test('color', 'color is required' , (value) => {
     let pass = true
-      if(colorOptions.length > 0) {
+      if(options.color.length > 0) {
         if(value){
           return pass
         } 
@@ -41,9 +45,16 @@ const ProductDetail = ({ navigation, route }) => {
 
   const { id } = route.params;
   const scrollViewRef = useRef(null);
-  const cart = useSelector(state => state.cart)
+  const dispatch = useDispatch()
   const [cartLinesAdd]= useMutation(ADD_TO_CART)
   const [isSnackbar, setIsSnackbar] = useState(false);
+  const [productRecommendations, setProductRecommendations] = useState([])
+  const [snackText] = useState('Loading...');
+  const [errors, setErrors] = useState({})
+  const [qty, setQty] = useState(1);
+  const cart = useSelector(state => state.cart);
+  // const [cartId, setCartId] = useState('')
+  console.log('cartId product detail', cart)
   const [product, setProduct] = useState({
     id: '', 
     descriptionHtml: '',
@@ -56,18 +67,9 @@ const ProductDetail = ({ navigation, route }) => {
     original_price: '',
     discounted_price: '' 
   })
-  const [productRecommendations, setProductRecommendations] = useState([])
-  
-  const [snackText] = useState('Loading...');
-  const [errors, setErrors] = useState({})
-  const [qty, setQty] = useState(1);
   const [variants, setVariants] = useState({
     size: '',
     color: ''
-  })
-  const [options, setOptions] = useState({
-    color: [],
-    size: []
   })
 
   const {data: productData, error: productDataError, loading: productDataLoad} = useQuery(GET_PRODUCT_BY_ID, {
@@ -173,6 +175,7 @@ const ProductDetail = ({ navigation, route }) => {
   }
   schema.validate(body, { abortEarly: false })
   .then(async result => {
+    console.log('result', result)
     const { data } = await cartLinesAdd({
       variables: {
         cartId: cart?.id,
@@ -197,8 +200,10 @@ const ProductDetail = ({ navigation, route }) => {
 
     if(data.cartLinesAdd.cart.id){
       setErrors({})
-      colorOptions = null
-      sizeOptions = null
+      setOptions({
+        color: [],
+        size: []
+      })
       setVariants({
         size: '',
         color: ''
@@ -213,6 +218,7 @@ const ProductDetail = ({ navigation, route }) => {
     }
   })
   .catch(error => { 
+    console.log('error', error)
     if(error.name === 'ValidationError') {
       const errorsVal = error.inner.reduce((acc, error) => {
         const { path, message } = error;

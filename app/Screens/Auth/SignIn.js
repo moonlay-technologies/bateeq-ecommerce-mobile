@@ -22,8 +22,8 @@ import {gql, useMutation} from '@apollo/client';
 import {useNavigation, CommonActions} from '@react-navigation/native';
 import { CREATE_CART } from '../../graphql/mutation';
 import { setCartId } from '../../store/reducer';
-import { useDispatch } from 'react-redux';
-
+import { batch, useDispatch } from 'react-redux';
+import { setIsLogin } from '../../store/reducer';
 
 const customerAccessTokenCreate = gql`
   mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
@@ -43,8 +43,8 @@ const SignIn = props => {
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [cartCreate, error] = useMutation(CREATE_CART)
   const dispatch = useDispatch()
+  const [cartCreate, { error, loading }] = useMutation(CREATE_CART)
   const navigation = useNavigation();
   const validateForm = values => {
     const errors = {};
@@ -85,7 +85,6 @@ const SignIn = props => {
           text1: 'Login Success',
           visibilityTime: 2000,
         });
-        await AsyncStorage.setItem('accessToken', accessToken);
         const cartCreated = await cartCreate({
           variables: {
             input: {
@@ -94,7 +93,12 @@ const SignIn = props => {
           }
         })
         const { id } = cartCreated?.data?.cartCreate?.cart
-        dispatch(setCartId(id))
+        console.log('iddd', id)
+        batch(() => {
+          dispatch(setIsLogin(!!accessToken))
+          dispatch(setCartId(id))
+        })
+        await AsyncStorage.setItem('accessToken', accessToken); 
         navigation.dispatch(
           CommonActions.reset({
             index: 0,

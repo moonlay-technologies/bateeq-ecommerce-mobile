@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useQuery } from '@apollo/client';
@@ -7,25 +7,35 @@ import { COLORS, FONTS } from '../../constants/theme';
 import CheckoutItem from '../../components/CheckoutItem';
 import Header from '../../layout/Header';
 import CustomButton from '../../components/CustomButton';
+import LoadingScreen from '../../components/LoadingView';
 
 const Cart = ({navigation}) => {
   let cartList = []
   const cart = useSelector(state => state.cart)
-  const { data } = useQuery(GET_CART_BY_ID, {
+  const { data, error, loading } = useQuery(GET_CART_BY_ID, {
     variables: {
       id: cart.id
     }
   })
- 
-  try {
-    cartList = data?.cart.lines.edges.map(i => i.node)
-  } catch (error) {
-    Toast.show({
-      type: 'error',
-      text1: 'oops!',
-      text2: error?.originalError?.message || 'something went wrong'
-    })
-  }
+  console.log('dataa', data)
+  console.log('loading', loading)
+  console.log('cartList', cartList)
+  // useEffect(()=> {
+    try {
+     
+        cartList = data?.cart.lines.edges.map(i => i.node)
+      // }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'oops!',
+        text2: error?.originalError?.message || 'something went wrong'
+      })
+    }
+    
+
+  // }, [data, loading])
+
 
   return (
     <SafeAreaView
@@ -33,6 +43,7 @@ const Cart = ({navigation}) => {
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
       }}>
+
       <View style={{paddingHorizontal: 20}}>
         <Header
           backAction={() => navigation.goBack()}
@@ -53,6 +64,7 @@ const Cart = ({navigation}) => {
       </Text>
 
       <View style={{flex: 1, padding: 10}}>
+      {loading && <LoadingScreen Loading2 />}
         <ScrollView>
           {cartList?.length > 0 && cartList.map((data, index) => {
             console.log('cartList', data)
