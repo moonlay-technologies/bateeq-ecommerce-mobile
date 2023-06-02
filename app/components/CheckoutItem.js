@@ -1,7 +1,13 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Image, Text, TouchableOpacity, View} from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {COLORS, FONTS} from '../constants/theme';
+import { useDispatch } from 'react-redux';
+import { setCartData } from '../store/reducer';
+import { GqlCart } from '../service/graphql/mutation/cart';
+import { useMutation } from '@apollo/client';
+import { CART_PUT_QTY } from '../graphql/mutation';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 const CheckoutItem = ({
   image,
@@ -11,19 +17,77 @@ const CheckoutItem = ({
   quantity,
   size,
   onPress,
-  onDelete = () => {},
+  lineId,
+  cartId,
+  attributes,
+  addComponent,
+  merchandiseId,
+  isChange,
+  setIsChange
 }) => {
+  const dispatch = useDispatch()
+  const [cartLinesUpdate] = useMutation(CART_PUT_QTY)
   const [itemQuantity, setItemQuantity] = useState(quantity);
-  console.log('originalPrice', originalPrice)
-  const handleQuantity = (type) => {
-    if(type === 'de' && itemQuantity >= 0 ) {
-      setItemQuantity(itemQuantity - 1)
-      if(itemQuantity === 0) {
-        onDelete()
-      }
+  
+  const handleQuantity = async (type) => {
+    let qty;
+    const body = {
+      isChange: true,
+      cartId,
+      attributes,
+      lineId:lineId,
     }
-
+    if(type === 'de' && itemQuantity > 0 ) {
+      const decrement = itemQuantity - 1
+      setItemQuantity(decrement)
+      dispatch(setCartData({
+        body,
+        quantity: decrement
+      }))
+      qty = decrement
+    } 
+    if(type === 'in') {
+      const increment = itemQuantity + 1
+      setItemQuantity(itemQuantity + 1)
+      dispatch(setCartData({
+        body,
+        quantity: increment
+      }))
+      qty = increment
+    }
+    // console.log('variabess', {variables:{
+    //   cartId: cartId,
+    //   lines: [{
+    //     attributes,
+    //     id: lineId,
+    //     merchandiseId,
+    //     quantity: qty
+    //   }]
+    // }})
+    const { data, errors } = await cartLinesUpdate({ variables:{
+      cartId: cartId,
+      lines: [{
+        attributes,
+        id: lineId,
+        merchandiseId,
+        quantity: qty
+      }]
+    }}) 
+    if(data?.cartLinesUpdate) {
+      const {cart, userErrors} = data?.cartLinesUpdate 
+      if(userErrors && userErrors.length > 0) {
+        Toast.show({
+          type: 'error',
+          text1: 'oops!',
+          text2: userErrors[0]?.message || 'something went wrong'
+        })
+      } else {
+        console.log('data cartLinesUpdate', [cart, errors])
+      }
+      setIsChange(!isChange)
+    }
   }
+
   return (
     <TouchableOpacity
       activeOpacity={0.9}
@@ -52,14 +116,29 @@ const CheckoutItem = ({
           }}>
           {title}
         </Text>
-        <Text
-          numberOfLines={1}
-          style={{...FONTS.fontSatoshiRegular, color: '#BCBCBC'}}>
-          Size:{' '}
-          <Text style={{color: COLORS.title, ...FONTS.fontSatoshiBold}}>
-            {size}
-          </Text>
-        </Text>
+        <View style={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between' ,
+        }}>
+          <View>
+            <Text
+              numberOfLines={1}
+              style={{...FONTS.fontSatoshiRegular, color: '#BCBCBC',}}>
+              Size:{' '}
+              <Text style={{color: COLORS.title, ...FONTS.fontSatoshiBold}}>
+                {size}
+              </Text>
+            </Text>
+          </View>
+            {addComponent && (
+              <View style={{
+                marginRight: 20,
+                backgroundColor: 'yellow'
+              }}>
+                {addComponent}
+              </View>)}
+         </View>
         <View
           style={{
             flexDirection: 'row',
@@ -89,7 +168,7 @@ const CheckoutItem = ({
             alignItems: 'center',
           }}>
           <TouchableOpacity
-            onPress={() => handleQuantity('de', )}
+            onPress={() => handleQuantity('de' )}
             style={{
               height: 32,
               width: 30,
@@ -117,7 +196,7 @@ const CheckoutItem = ({
             {itemQuantity}
           </Text>
           <TouchableOpacity
-            onPress={() => setItemQuantity(itemQuantity + 1)}
+            onPress={() => handleQuantity('in')}
             style={{
               height: 32,
               width: 30,
@@ -130,8 +209,8 @@ const CheckoutItem = ({
             }}>
             <FeatherIcon size={14} color={COLORS.white} name="plus" />
           </TouchableOpacity>
+         </View>
         </View>
-      </View>
     </TouchableOpacity>
   );
 };

@@ -74,3 +74,31 @@ export const CREATE_CART = gql`
         }
     }
 `
+
+export const CART_REMOVE_ITEM = gql`
+mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+        cart {
+            id
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+`
+
+export const CART_PUT_QTY = gql`
+mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+        cart {
+            id
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+`

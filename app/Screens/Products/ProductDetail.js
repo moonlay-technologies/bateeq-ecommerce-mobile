@@ -3,7 +3,7 @@ import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'r
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,12 +16,11 @@ import SelectInput from '../../components/SelectInput';
 import CustomHTML from '../../components/CustomHtml';
 import Header from '../../layout/Header';
 import { COLORS, FONTS } from '../../constants/theme';
-import { formatWithCommas, renderHTMLContent } from '../../utils/helper';
+import { formatWithCommas } from '../../utils/helper';
 import { findVariantIdByOptions } from './helper';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import LoadingScreen from '../../components/LoadingView';
-import { getCartId } from '../../store/reducer';
 
 const ProductDetail = ({ navigation, route }) => {
   const [options, setOptions] = useState({
@@ -40,12 +39,12 @@ const ProductDetail = ({ navigation, route }) => {
         return !pass
       }
       return pass
-    })
+    }),
+    cartId: yup.string().required()
   });
 
   const { id } = route.params;
   const scrollViewRef = useRef(null);
-  const dispatch = useDispatch()
   const [cartLinesAdd]= useMutation(ADD_TO_CART)
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [productRecommendations, setProductRecommendations] = useState([])
@@ -53,8 +52,8 @@ const ProductDetail = ({ navigation, route }) => {
   const [errors, setErrors] = useState({})
   const [qty, setQty] = useState(1);
   const cart = useSelector(state => state.cart);
-  // const [cartId, setCartId] = useState('')
-  console.log('cartId product detail', cart)
+  const [cartId, setCartId] = useState()
+  const [onSubmitLoading , setOnSubmitLoading] = useState(false)
   const [product, setProduct] = useState({
     id: '', 
     descriptionHtml: '',
@@ -139,6 +138,9 @@ const ProductDetail = ({ navigation, route }) => {
         color: colorOptions || [],
         size: sizeOptions || []
       })
+      if(cart){
+        setCartId(cart?.id)
+      }
     } else if (isError) {
       Toast.show({
         type: 'error',
@@ -148,7 +150,7 @@ const ProductDetail = ({ navigation, route }) => {
         || 'something went wrong'
       })
     }
-  }, [id, isLoading, isError])
+  }, [id, isLoading, isError, cart])
 
   const onSelectValue = (type, value) => {
     if(type === 'size') {
@@ -156,7 +158,7 @@ const ProductDetail = ({ navigation, route }) => {
         ...prev,
         size: value
       }));
-    } else {
+    } else if (type === 'color') {
       setVariants(prev => ({
         ...prev,
         color: value
@@ -167,18 +169,21 @@ const ProductDetail = ({ navigation, route }) => {
   const variantId = product?.variants.length > 0 ? findVariantIdByOptions(product?.variants, variants) : "" ;
 
  const onSubmit = () => {
+  setOnSubmitLoading(true)
  const body = { 
     quantity: qty,
     size: variants.size,
     color: variants.color,
-    variant_id : variantId
+    variant_id : variantId,
+    cartId: cartId || ''
   }
-  schema.validate(body, { abortEarly: false })
+  schema
+  .validate(body, { abortEarly: false })
   .then(async result => {
     console.log('result', result)
-    const { data } = await cartLinesAdd({
+    const { data, } = await cartLinesAdd({
       variables: {
-        cartId: cart?.id,
+        cartId: result.cartId,
         lines: [
           {
             merchandiseId: result.variant_id,
@@ -186,19 +191,18 @@ const ProductDetail = ({ navigation, route }) => {
             attributes: [ 
               {
                 key: 'Color',
-                value: result.size
+                value: result?.color || 'white'
               },
               {
                 key: 'Size',
-                value: result.size
+                value: result?.size 
               }
             ]
           }
         ]
       }
     });
-
-    if(data.cartLinesAdd.cart.id){
+    if(data?.cartLinesAdd?.cart.id) {
       setErrors({})
       setOptions({
         color: [],
@@ -213,12 +217,12 @@ const ProductDetail = ({ navigation, route }) => {
       Toast.show({
         type: 'error',
         text1: 'oops! something went wrong',
-        text2: error?.originalError?.message
+        text2: errors?.originalError?.message
       })
     }
+    setOnSubmitLoading(false)
   })
   .catch(error => { 
-    console.log('error', error)
     if(error.name === 'ValidationError') {
       const errorsVal = error.inner.reduce((acc, error) => {
         const { path, message } = error;
@@ -233,62 +237,64 @@ const ProductDetail = ({ navigation, route }) => {
         text2: error?.originalError?.message || 'something went wrong'
       })
     }
+    setOnSubmitLoading(false)
   })
  }
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
-      {isLoading && <LoadingScreen />}
       <ScrollView ref={scrollViewRef}>
         <HeaderBateeq />
         <View style={{paddingHorizontal: 20}}>
           <Header titleLeft leftIcon={'back'} title={'back'} />
         </View>
         <View style={{paddingHorizontal: 20}}>
-          <Swiper
-            style={{height: 500}}
-            dotStyle={{
-              height: 10,
-              width: 10,
-              borderWidth: 2,
-              borderColor: COLORS.white,
-              borderRadius: 10,
-            }}
-            activeDotStyle={{
-              height: 10,
-              width: 10,
-              backgroundColor: COLORS.white,
-              borderRadius: 10,
-            }}>
-            {product.images.length > 0 && product?.images?.map((data, index) => {
-              return (
-                <View key={index}>
-                  <Image
-                    source={{uri: data.node.url}}
-                    style={{
-                      width: '100%',
-                      height: undefined,
-                      aspectRatio: 200 / 300,
-                    }}
-                  />
-                  <LinearGradient
-                    style={{
-                      position: 'absolute',
-                      height: '100%',
-                      width: '100%',
-                      top: 0,
-                      left: 0,
-                    }}
-                    colors={[
-                      'rgba(0,0,0,.3)',
-                      'rgba(0,0,0,0)',
-                      'rgba(0,0,0,0)',
-                    ]}></LinearGradient>
-                </View>
-              );
-            })}
-          </Swiper>
-
+        {isLoading ? 
+        <LoadingScreen Loading2 /> : (
+                 <Swiper
+                 style={{height: 500}}
+                 dotStyle={{
+                   height: 10,
+                   width: 10,
+                   borderWidth: 2,
+                   borderColor: COLORS.white,
+                   borderRadius: 10,
+                 }}
+                 activeDotStyle={{
+                   height: 10,
+                   width: 10,
+                   backgroundColor: COLORS.white,
+                   borderRadius: 10,
+                 }}>
+                 {product.images.length > 0 && product?.images?.map((data, index) => {
+                   return (
+                     <View key={index}>
+                       <Image
+                         source={{uri: data.node.url}}
+                         style={{
+                           width: '100%',
+                           height: undefined,
+                           aspectRatio: 200 / 300,
+                         }}
+                       />
+                       <LinearGradient
+                         style={{
+                           position: 'absolute',
+                           height: '100%',
+                           width: '100%',
+                           top: 0,
+                           left: 0,
+                         }}
+                         colors={[
+                           'rgba(0,0,0,.3)',
+                           'rgba(0,0,0,0)',
+                           'rgba(0,0,0,0)',
+                         ]}></LinearGradient>
+                     </View>
+                   );
+                 })}
+               </Swiper>
+        )}
         </View>
         <View style={{paddingHorizontal: 20}}>
           <View
@@ -473,9 +479,10 @@ const ProductDetail = ({ navigation, route }) => {
           </View>
           <View>
             <CustomButton
+              disabled={onSubmitLoading}
               onPress={onSubmit}
               customWidth={150}
-              title="Add To Cart"
+              title={onSubmitLoading ? "Loading ..." : "Add To Cart"}
               bagIcon
             />
           </View>

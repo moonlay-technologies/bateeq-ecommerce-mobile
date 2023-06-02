@@ -33,6 +33,7 @@ const cartSlice = createSlice({
     name: 'cart',
     initialState: {
         id: '' ,
+        cartData: []
     },
     reducers: {
         setCartId: (state, action) => {
@@ -54,11 +55,15 @@ const cartSlice = createSlice({
                   console.log('Error  local storage:', error);
                 });
             })
-    }}
+        },
+        setCartData: (state, action) => {
+            state.cartData = action.payload
+        }
+    }
 })
 
 export const { setIsOpen } = sidebarSlice.actions
-export const { setCartId, getCartId } = cartSlice.actions
+export const { setCartId, getCartId, setCartData } = cartSlice.actions
 export const { setIsLogin, hasAccess } = userSlice.actions
 
 const rootReducer = {

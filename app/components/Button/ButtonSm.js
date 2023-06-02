@@ -3,10 +3,13 @@ import { Text, TouchableOpacity } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../../constants/theme';
 
 const ButtonSm = (props) => {
+    const { onPress=()=>{}, style , disabled } = props
     return (
         <TouchableOpacity
+            onPress={onPress}
+            disabled={disabled}
             style={[{
-                ...props.style,
+                ...style,
                 backgroundColor: props.color ? props.color : COLORS.primary,
                 paddingHorizontal:10,
                 paddingVertical:8,

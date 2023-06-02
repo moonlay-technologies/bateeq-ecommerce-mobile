@@ -42,7 +42,7 @@ export const GET_PRODUCT_BY_ID = gql`
                     }
                 }
             }
-            variants(first: 1) {
+            variants(first: 10) {
                 edges {
                     node {
                         id
@@ -77,11 +77,11 @@ export const GET_PRODUCT_OPTIONS_BY_ID = gql`
 `
 
 export const GET_CART_BY_ID = gql`
-    query getCart($id:ID!) {
+     query getCart($id:ID!) {
         cart(id: $id) {
             id
             totalQuantity
-            lines(first:50){
+            lines(first: 10){
                 edges {
                     node {
                     id

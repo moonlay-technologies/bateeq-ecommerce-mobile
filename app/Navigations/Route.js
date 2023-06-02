@@ -7,10 +7,12 @@ import Toast from 'react-native-toast-message';
 import SplashScreen from '../components/SplashScreen';
 import {Provider as PaperProvider} from 'react-native-paper';
 import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Routes = () => {
   const [showSplashScreen, setShowSplashScreen] = useState(true);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const { isLogin,  } = useSelector(state => state.user)
 
   useEffect(() => {
@@ -24,6 +26,22 @@ const Routes = () => {
       });
     }, 3000);
   }, []);
+
+  useEffect(() => {
+    const checkAccessToken = async () => {
+      try {
+        if(isLogin){
+          const accessToken = await AsyncStorage.getItem('accessToken');
+          setIsAuthenticated(!!accessToken);
+        }
+      
+      } catch (error) {
+        console.log('Error reading access token from AsyncStorage:', error);
+      }
+    };
+    checkAccessToken();
+  }, []);
+
   
   return (
    
@@ -36,7 +54,7 @@ const Routes = () => {
           ) : (
             <NavigationContainer>
               <StackNavigator
-                isAuthenticated={isLogin}
+                isAuthenticated={isAuthenticated}
               />
             </NavigationContainer>
           )}

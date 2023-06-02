@@ -98,6 +98,10 @@ const StackNavigator = ({isAuthenticated}) => {
           cardStyle: {backgroundColor: 'transparent'},
         }}>
         <StackComponent.Screen name={'Home'} component={MainHome} />
+        <StackComponent.Screen
+          name={'ProductDetail'}
+          component={ProductDetail}
+        />
         <StackComponent.Screen name={'Cart'} component={Cart} />
         <StackComponent.Screen name={'Splash'} component={Splash} />
         <StackComponent.Screen name={'Onboarding'} component={Onboarding} />
@@ -110,10 +114,7 @@ const StackNavigator = ({isAuthenticated}) => {
         />
         <StackComponent.Screen name={'CategoryHome'} component={CategoryHome} />
         <StackComponent.Screen name={'Products'} component={Products} />
-        <StackComponent.Screen
-          name={'ProductDetail'}
-          component={ProductDetail}
-        />
+      
         <StackComponent.Screen name={'Featured'} component={Featured} />
         <StackComponent.Screen name={'Orders'} component={Orders} />
         <StackComponent.Screen
