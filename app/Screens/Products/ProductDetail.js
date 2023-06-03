@@ -11,7 +11,7 @@ import Toast from 'react-native-toast-message';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
 import ProductCardStyle1 from '../../components/ProductCardStyle1';
 import HeaderBateeq from '../../components/Headers/HeaderBateeq';
-import CustomButton from '../../components/CustomButton';
+import Button from '../../components/CustomButton';
 import SelectInput from '../../components/SelectInput';
 import CustomHTML from '../../components/CustomHtml';
 import Header from '../../layout/Header';
@@ -72,11 +72,13 @@ const ProductDetail = ({ navigation, route }) => {
   })
 
   const {data: productData, error: productDataError, loading: productDataLoad} = useQuery(GET_PRODUCT_BY_ID, {
+    fetchPolicy: 'no-cache' ,
     variables: {
       id: id
     }
   })
   const {data: optionData, error: getOptionsError, loading: optionDataLoad} = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
+    fetchPolicy: 'no-cache' ,
     variables: {
       id: id
     }
@@ -469,7 +471,7 @@ const ProductDetail = ({ navigation, route }) => {
             paddingVertical: 12,
           }}>
           <View style={{marginRight: 20, paddingVertical: 20}}>
-            <CustomButton
+            <Button
               onPress={() => navigation.navigate('Wishlist')}
               outline
               customWidth={150}
@@ -478,7 +480,7 @@ const ProductDetail = ({ navigation, route }) => {
             />
           </View>
           <View>
-            <CustomButton
+            <Button
               disabled={onSubmitLoading}
               onPress={onSubmit}
               customWidth={150}

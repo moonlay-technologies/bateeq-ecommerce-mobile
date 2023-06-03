@@ -23,6 +23,7 @@ const CheckoutItem = ({
   addComponent,
   merchandiseId,
   isChange,
+  refreshCartData,
   setIsChange
 }) => {
   const dispatch = useDispatch()
@@ -82,7 +83,7 @@ const CheckoutItem = ({
           text2: userErrors[0]?.message || 'something went wrong'
         })
       } else {
-        console.log('data cartLinesUpdate', [cart, errors])
+        refreshCartData()
       }
       setIsChange(!isChange)
     }
@@ -134,7 +135,6 @@ const CheckoutItem = ({
             {addComponent && (
               <View style={{
                 marginRight: 20,
-                backgroundColor: 'yellow'
               }}>
                 {addComponent}
               </View>)}

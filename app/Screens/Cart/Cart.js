@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_CART_BY_ID } from '../../graphql/queries';
 import { COLORS, FONTS } from '../../constants/theme';
 import CheckoutItem from '../../components/CheckoutItem';
 import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
-import OptionBar from '../../components/Modal/OptionBar';
+import Modal from '../../components/Modal/OptionBar';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { CART_REMOVE_ITEM } from '../../graphql/mutation';
 import ButtonSm from '../../components/Button/ButtonSm';;
 import Header from '../../layout/Header';
+import NoContent from '../../components/NoContent';
 
 const Cart = ({navigation}) => {
   const cart = useSelector(state => state.cart)
-  const dispacth = useDispatch()
   const [cartList, setCartList] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const [isChange, setIsChange] = useState(false)
@@ -23,14 +23,14 @@ const Cart = ({navigation}) => {
     show: false,
     data: ''
   })
-  const { data: cartData, error, loading } = useQuery(GET_CART_BY_ID, {
+  const { data: cartData, error, loading, refetch } = useQuery(GET_CART_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
       id: cart?.id
     }
   })
 
-  const [cartLinesRemove, {error: mutationERror, loading: mutationLoad}] = useMutation(CART_REMOVE_ITEM, {
+  const [cartLinesRemove, {error: mutationERror, loading: mutationLoad, data: mutationData}] = useMutation(CART_REMOVE_ITEM, {
     variables : {
       cartId: cart?.id,
       lineIds: showModal?.data?.lineId
@@ -39,7 +39,6 @@ const Cart = ({navigation}) => {
 
   useEffect(() => {
     setCartList(cartData?.cart?.lines?.edges?.map(i => i.node))
-
     // } else {
     //     setCartList(prev => {
     //       if (lineIndex !== -1) 
@@ -62,44 +61,47 @@ const Cart = ({navigation}) => {
         text2: error?.originalError?.message || 'something went wrong'
       })
     }
-  }, [loading, error, isLoading, cart, isChange])
+  }, [loading, error, isLoading, cart, isChange, mutationData, cartData])
+
+  const refreshCartData = () => {
+    refetch();
+  };
 
   const handleDelete = async () => {
-    console.log('showModal?.data?.lineIds', showModal?.data?.lineIds)
-    const {data, errors} = await cartLinesRemove({
+    setIsLoading(true)
+    await cartLinesRemove({
       variables: {
         cartId: cart?.id,
         lineIds: showModal?.data?.lineIds
       }
     })
-    console.log('data', [data, errors])
-    setIsChange(!isChange)
-    setIsLoading(mutationLoad)
+    refreshCartData()
     setShowModal(prev => ({
       ...prev,
       show: !prev.show
     }))
+    setIsChange(!isChange)
+    setIsLoading(false)
   }
-  console.log('mutationERror', [mutationERror, mutationLoad])
-  console.log("isChange", isChange)
-  console.log('CARTLIST', cartList)
+
   return (
     <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
       }}>
-      {showModal.show && <OptionBar 
+      <Modal 
         text={`${showModal?.data?.title || '' } will be deleted from your cart`} 
         onOpen={showModal.show}
+        visible={showModal.show}
         toggle={()=>setShowModal(prev => ({
           ...prev,
           show: !prev.show
         }))}
-        submitText={isLoading ? 'Loading ...' : 'Delete'}
+        submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
-        />}
+        />
       <View style={{paddingHorizontal: 20}}>
       <Header
           backAction={() => navigation.goBack()}
@@ -120,9 +122,9 @@ const Cart = ({navigation}) => {
       </Text>
      
       <View style={{flex: 1, padding: 10}}>
-      {loading || isLoading && <LoadingScreen Loading2 />}
         <ScrollView>
-          {cartList?.length > 0 && cartList.map((data) => {
+          {loading ? 
+              <LoadingScreen Loading2 /> : cartList?.length > 0 ? cartList.map((data) => {
             const { 
               quantity,
               attributes,
@@ -136,7 +138,7 @@ const Cart = ({navigation}) => {
 
             return (
             <View key={`${lineId}-${id}`}>
-                  <CheckoutItem
+                <CheckoutItem
                   // onPress={() =>
                   //   navigation.navigate('ProductDetail', {
                   //     item: { product_id: id }
@@ -154,12 +156,20 @@ const Cart = ({navigation}) => {
                   lineId={lineId}
                   setIsChange={setIsChange}
                   isChange={isChange}
+                  refreshCartData={refreshCartData}
                   merchandiseId={merchandiseId}
                   addComponent={<ButtonSm 
                     title={`Delete`} 
-                    color={'#704FFE'} 
+                    color={'#e63f31'} 
                     style={{
-                      width: 100
+                      width: 80,
+                      backgroundColor: '#fbfbfb',
+                      borderColor: '#c42b1c',
+                      borderWidth: 1,
+                    }}
+                    textStyle={{
+                      color: '#c42b1c',
+                      fontWeight: '900'
                     }}
                     onPress={() => setShowModal(prev =>({
                       data: { lineIds: [lineId], title },
@@ -168,8 +178,13 @@ const Cart = ({navigation}) => {
                   />}
                 />
             </View>
-          )})}
-     
+          )}) 
+          : (
+          <View>
+            <NoContent to={() => navigation.navigate('Home')}/>
+          </View>
+          )
+        }
           <View style={{padding: 20}}>
             <Text style={{...FONTS.fontSatoshiBold, marginBottom: 12}}>
               Special Instruction
@@ -197,7 +212,7 @@ const Cart = ({navigation}) => {
               height: 100,
             }}>
             <CustomButton
-              // onPress={onChange}
+               onPress={() => navigation.navigate('Checkout')}
               title="Checkout"
               customWidth={200}
               arrowIcon={true}
