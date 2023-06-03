@@ -123,3 +123,12 @@ export const GET_CART_BY_ID = gql`
     }  
 }
 `
+
+export const GET_TOTAL_QUANTITY_CART = gql`
+    query getTotalQuantityCart($id: ID!) {
+        cart(id: $id) {
+            id
+            totalQuantity
+        }
+    }
+`

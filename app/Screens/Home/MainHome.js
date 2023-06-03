@@ -26,6 +26,7 @@ import {useQuery, gql} from '@apollo/client';
 import {useNavigation} from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsOpen } from '../../store/reducer'
+import { GET_TOTAL_QUANTITY_CART } from '../../graphql/queries';
 
 // const TopSelectionData = [
 //   {
@@ -150,86 +151,8 @@ const GET_MAIN_MENU_NAVIGATION = gql`
   }
 `;
 
-const mainMenu = [
-  {
-    id: 1,
-    title: 'SHOP',
-    url: '#',
-    subMenu: [
-      {
-        id: 1,
-        title: 'Submenu 1',
-        url: '#',
-        nestedMenu: [{id: 1, title: 'Nested 1', url: '#'}],
-      },
-      {
-        id: 2,
-        title: 'Submenu 2',
-        url: '#',
-        nestedMenu: [{id: 2, title: 'Nested 2', url: '#'}],
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: 'BATEEQ HOM',
-    url: '#',
-    subMenu: [
-      {
-        id: 1,
-        title: 'Submenu 1',
-        url: '#',
-        nestedMenu: [{id: 1, title: 'Nested 1', url: '#'}],
-      },
-      {
-        id: 2,
-        title: 'Submenu 2',
-        url: '#',
-        nestedMenu: [{id: 2, title: 'Nested 2', url: '#'}],
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: 'SALE',
-    url: '#',
-    subMenu: [
-      {
-        id: 1,
-        title: 'Submenu 1',
-        url: '#',
-        nestedMenu: [{id: 1, title: 'Nested 1', url: '#'}],
-      },
-      {
-        id: 2,
-        title: 'Submenu 2',
-        url: '#',
-        nestedMenu: [{id: 2, title: 'Nested 2', url: '#'}],
-      },
-    ],
-  },
-  {
-    id: 4,
-    title: 'OURSTORY',
-    url: '#',
-    subMenu: [
-      {
-        id: 1,
-        title: 'Submenu 1',
-        url: '#',
-        nestedMenu: [{id: 1, title: 'Nested 1', url: '#'}],
-      },
-      {
-        id: 2,
-        title: 'Submenu 2',
-        url: '#',
-        nestedMenu: [{id: 2, title: 'Nested 2', url: '#'}],
-      },
-    ],
-  },
-];
-
 const MainHome = ({navigation}) => {
+  const cart = useSelector(state => state.cart)
   const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState(null);
   // const [dataCustomCollection, setDataCustomCollection] = useState([]);
@@ -240,6 +163,7 @@ const MainHome = ({navigation}) => {
   const [imageCollection, setImageCollection] = useState([]);
   const [dataCategories, setDataCategories] = useState([]);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
+  const [cartQuantity, setCartQuantity] = useState(null)
   const navigations = useNavigation();
   const isOpen = useSelector(state => state.open.isOpen);
   const dispatch = useDispatch();
@@ -302,6 +226,12 @@ const MainHome = ({navigation}) => {
     },
   });
 
+  const {data: cartData} = useQuery(GET_TOTAL_QUANTITY_CART, {
+    variables:{
+      id: cart?.id
+    }
+  })
+
   useEffect(() => {
     if (data) {
       setPageStory(data.page);
@@ -323,6 +253,9 @@ const MainHome = ({navigation}) => {
     if (dataListCategories) {
       setDataCategories(dataListCategories.products.edges);
     }
+    if(cartData) {
+      setCartQuantity(cartData?.cart?.totalQuantity)
+    }
   }, [
     data,
     latestCollectionData,
@@ -330,6 +263,7 @@ const MainHome = ({navigation}) => {
     dataListCategories,
     dataImageCollection,
     getAllProduct,
+    cartData
   ]);
 
   useEffect(() => {
@@ -442,7 +376,7 @@ const MainHome = ({navigation}) => {
                 }}>
                 <Text
                   style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
+                  {cartQuantity || ''}
                 </Text>
               </View>
             </View>
