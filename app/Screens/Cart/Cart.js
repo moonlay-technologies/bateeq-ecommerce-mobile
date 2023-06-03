@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { useMutation, useQuery } from '@apollo/client';
 import { GET_CART_BY_ID } from '../../graphql/queries';
 import { COLORS, FONTS } from '../../constants/theme';
-import CheckoutItem from '../../components/CheckoutItem';
+import CartList from '../../components/CartList';
 import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import Modal from '../../components/Modal/OptionBar';
@@ -138,12 +138,13 @@ const Cart = ({navigation}) => {
 
             return (
             <View key={`${lineId}-${id}`}>
-                <CheckoutItem
+                <CartList
                   // onPress={() =>
                   //   navigation.navigate('ProductDetail', {
                   //     item: { product_id: id }
                   //   })
                   // }
+                  withIncrementDecrement
                   image={{uri: image?.url}}
                   title={title}
                   size={attributes.find(i=> i.key === 'Size')?.value}

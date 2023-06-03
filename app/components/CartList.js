@@ -9,7 +9,7 @@ import { useMutation } from '@apollo/client';
 import { CART_PUT_QTY } from '../graphql/mutation';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
-const CheckoutItem = ({
+const CartList = ({
   image,
   title,
   price,
@@ -24,7 +24,9 @@ const CheckoutItem = ({
   merchandiseId,
   isChange,
   refreshCartData,
-  setIsChange
+  setIsChange,
+  withIncrementDecrement=false,
+  showQuantity
 }) => {
   const dispatch = useDispatch()
   const [cartLinesUpdate] = useMutation(CART_PUT_QTY)
@@ -131,6 +133,14 @@ const CheckoutItem = ({
                 {size}
               </Text>
             </Text>
+             {showQuantity && <Text
+              numberOfLines={1}
+              style={{...FONTS.fontSatoshiRegular, color: '#BCBCBC',}}>
+              Qty:{' '}
+              <Text style={{color: COLORS.title, ...FONTS.fontSatoshiBold}}>
+                {quantity}
+              </Text>
+            </Text> }
           </View>
             {addComponent && (
               <View style={{
@@ -162,7 +172,7 @@ const CheckoutItem = ({
             </Text>
           </View>
         </View>
-        <View
+        {withIncrementDecrement && <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -209,10 +219,10 @@ const CheckoutItem = ({
             }}>
             <FeatherIcon size={14} color={COLORS.white} name="plus" />
           </TouchableOpacity>
-         </View>
-        </View>
+         </View> }
+        </View> 
     </TouchableOpacity>
   );
 };
 
-export default CheckoutItem;
+export default CartList;

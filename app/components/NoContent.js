@@ -3,12 +3,12 @@ import { View, Text } from 'react-native'
 import ButtonSm from "./Button/ButtonSm"
 
 const NoContent = (props) => {
-    const { to } = props
+    const { to, text='Cart is waiting for you . . .' } = props
 
     return (
       <View style={{alignItems: 'center'}}>
         <Text style={{fontSize: 18, marginBottom: 12 , fontWeight: '700'}}>
-          Cart is waiting for you . . .
+          {text}
         </Text>
         <ButtonSm 
           title='Go Shopping'

@@ -163,24 +163,9 @@ const MainHome = ({navigation}) => {
   const [imageCollection, setImageCollection] = useState([]);
   const [dataCategories, setDataCategories] = useState([]);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
-  const [cartQuantity, setCartQuantity] = useState(null)
+  const [cartQuantity, setCartQuantity] = useState(0)
   const navigations = useNavigation();
-  const isOpen = useSelector(state => state.open.isOpen);
-  const dispatch = useDispatch();
-  // const [isOpen, setIsOpen] = useState(false);
-  // const toggleSubMenu = () => {
-  //   setIsOpen(!isOpen);
-  // };
 
-  // const handleSubMenuToggle = itemId => {
-  //   console.log('itemsId', itemId);
-  //   setActiveSubMenu(prevActiveSubMenu =>
-  //     prevActiveSubMenu === itemId ? null : itemId,
-  //   );
-  // };
-  const handleDrawer = () => {
-    dispatch(setIsOpen(!isOpen))
-  };
   const toggleSubMenu = menuId => {
     setActiveSubMenu(prevActiveMenu =>
       prevActiveMenu === menuId ? null : menuId,
@@ -362,7 +347,7 @@ const MainHome = ({navigation}) => {
           icon={() => (
             <View>
               <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              <View
+              {cartQuantity > 0 && <View
                 style={{
                   height: 14,
                   width: 14,
@@ -376,9 +361,9 @@ const MainHome = ({navigation}) => {
                 }}>
                 <Text
                   style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  {cartQuantity || ''}
+                  {cartQuantity}
                 </Text>
-              </View>
+              </View> }
             </View>
           )}
           size={25}
