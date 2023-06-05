@@ -10,23 +10,43 @@ import OcticonsIcon from 'react-native-vector-icons/Octicons';
 import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
+import { useEffect } from 'react';
+import { GET_CUSTOMER_ADDRESS } from '../../graphql/queries';
+import AuthService from '../../service/auth/auth-service';
+import { useQuery } from '@apollo/client';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
-const dummyAddress = [
-  {
-    titleAddress: 'PT Moonlay Tecnologies',
-    addressDetail:
-      'SCBD, Equity Tower 25th Floor, Suite H.\nJl. Jend. Sudirman Kav. 52-53, South Jakarta,\nIndonesia 12190',
-    status: true,
-  },
-  {
-    titleAddress: 'Home',
-    addressDetail:
-      'Jl. Mawar Indah Blok B2 No. 15, Cempaka Putih,\nJakarta Pusat, Indonesia 10520',
-    status: false,
-  },
-];
+const Address = ({navigation, route}) => {
+  let { params } = route
+  const [token, setToken]=useState('')
+  const [customerAddress, setCustomerAddress] = useState([])
+  const {data: address, error: errorAddress, loading: loadingAddress, refetch: refetchAdress} = useQuery(GET_CUSTOMER_ADDRESS, {
+    variables: {
+      fetchPolicy: 'no-cache',
+      accessToken: token,
+      limit: 20
+    }
+  })
 
-const Address = ({navigation}) => {
+  useEffect(()=>{
+    if(params?.refetch) {
+      refetchAdress()
+    }
+    AuthService?.getToken()
+      .then(result => {
+        setToken(result|| '')
+      })
+      .catch(err => {
+        Toast.show({
+          type: 'error', 
+          text1: 'Oops!',
+          text2: err?.originalError?.message || 'something went wrong'
+        })
+      })
+    setCustomerAddress(address?.customer?.addresses?.edges.map(i=>i.node) || [])
+  },[address, errorAddress, loadingAddress, params])
+
+  console.log('customerAddress', [customerAddress, token])
   return (
     <SafeAreaView
       style={{
@@ -45,7 +65,7 @@ const Address = ({navigation}) => {
             ]}>
             Select Address
           </Text>
-          {dummyAddress.map(({titleAddress, addressDetail, status}, index) => (
+          {customerAddress?.length > 0 && customerAddress?.map(({address1, address2, status=true}, index) => (
             <TouchableOpacity
               style={{
                 padding: 12,
@@ -68,7 +88,7 @@ const Address = ({navigation}) => {
                     fontSize: 14,
                     color: COLORS.title,
                   }}>
-                  {titleAddress}
+                  {address1}
                 </Text>
                 {status && (
                   <View
@@ -87,7 +107,7 @@ const Address = ({navigation}) => {
               </View>
               {/* <Text style={FONTS.font}>Mokshita dairy near bsnl circle {`\n`}Rk puram{`\n`}Kota -324009{`\n`}Rajasthan{`\n`}{`\n`}Mobile: 0123 4567 891</Text> */}
               <Text style={{...FONTS.fontSatoshiRegular, fontSize: 14}}>
-                {addressDetail}
+                {address2}
               </Text>
             </TouchableOpacity>
           ))}
@@ -142,15 +162,6 @@ const Address = ({navigation}) => {
               </View>
             </TouchableOpacity>
           </View>
-          {/* <TouchableOpacity
-                    onPress={() => navigation.navigate('AddDeliveryAddress')}
-                    style={{
-                        paddingHorizontal:15,
-                        paddingVertical:8,
-                    }}
-                >
-                    <Text style={{...FONTS.font,...FONTS.fontBold,color:COLORS.primary}}>Add Address</Text>
-                </TouchableOpacity> */}
         </View>
       </ScrollView>
     </SafeAreaView>

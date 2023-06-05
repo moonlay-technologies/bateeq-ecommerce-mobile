@@ -11,8 +11,10 @@ const userSlice = createSlice({
         setIsLogin: (state, action) => {
             state.isLogin = action.payload
         },
-        hasAccess: (state) => {
-            state.getToken = AsyncStorage.getItem('accessToken')
+        getToken: async (state) => {
+            const token =  await AsyncStorage.getItem('accessToken')
+            state.getToken = token
+            return token
         }
     }
 })
@@ -64,7 +66,7 @@ const cartSlice = createSlice({
 
 export const { setIsOpen } = sidebarSlice.actions
 export const { setCartId, getCartId, setCartData } = cartSlice.actions
-export const { setIsLogin, hasAccess } = userSlice.actions
+export const { setIsLogin, getToken } = userSlice.actions
 
 const rootReducer = {
     sidebar: sidebarSlice.reducer,

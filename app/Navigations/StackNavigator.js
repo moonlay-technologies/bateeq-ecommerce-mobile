@@ -74,6 +74,11 @@ const StackNavigator = ({isAuthenticated}) => {
         />
         <StackComponent.Screen name={'Products'} component={Products} />
         <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
+        <StackComponent.Screen name={'Address'} component={Address} />
+        <StackComponent.Screen
+          name={'AddDeliveryAddress'}
+          component={AddDeliveryAddress}
+        />
         <StackComponent.Screen
           name={'ProductDetail'}
           component={ProductDetail}
@@ -123,9 +128,9 @@ const StackNavigator = ({isAuthenticated}) => {
         />
         <StackComponent.Screen name={'Wishlist'} component={Wishlist} />
         <StackComponent.Screen name={'Profile'} component={Profile} />
+        <StackComponent.Screen name={'Address'} component={Address} />
         <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
         <StackComponent.Screen name={'Coupons'} component={Coupons} />
-        <StackComponent.Screen name={'Address'} component={Address} />
         <StackComponent.Screen name={'Payment'} component={Payment} />
         <StackComponent.Screen
           name={'AddDeliveryAddress'}

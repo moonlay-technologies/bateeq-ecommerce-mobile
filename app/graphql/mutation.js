@@ -102,3 +102,39 @@ mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
     }
 }
 `
+
+export const CREATE_ADDRESS = gql`
+  mutation CreateCustomerAddress(
+    $address: MailingAddressInput!
+    $customerAccessToken: String!
+    ) {
+    customerAddressCreate(
+        address: $address
+        customerAccessToken: $customerAccessToken
+    ) {
+        customerAddress {
+        id
+        address1
+        address2
+        phone
+        country
+        province
+        city
+        zip
+        }
+        customerUserErrors {
+        field
+        message
+        }
+    }
+  }
+
+`
+
+export const REMOVE_CUSTOMER_ADDRESS = gql`
+    mutation customerAddressDelete($customerAccessToken: String!, $id: ID!) {
+    customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {
+        deletedCustomerAddressId
+    }
+  }
+`

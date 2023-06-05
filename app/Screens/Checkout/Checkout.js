@@ -13,29 +13,52 @@ import DeliveryOption from '../../components/DeliveryOption';
 import CustomButton from '../../components/CustomButton';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useQuery } from '@apollo/client';
-import { GET_CART_BY_ID } from '../../graphql/queries';
+import { GET_CART_BY_ID, GET_CUSTOMER_ADDRESS } from '../../graphql/queries';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import LoadingScreen from '../../components/LoadingView';
 import NoContent from '../../components/NoContent';
 import CartList from '../../components/CartList';
+import AuthService from '../../service/auth/auth-service'
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 const Checkout = () => {
   const navigation = useNavigation();
   const cart = useSelector(state=> state.cart)
+
   const [cartList, setCartList] = useState([])
+  const [token, setToken ] = useState('')
+  const [customerAddress, setCustomerAddress] = useState('')
   const { data: cartData, error, loading } = useQuery(GET_CART_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
       id: cart?.id
     }
   })
+  const {data: address, error: errorAddress, loading: loadingAddress} = useQuery(GET_CUSTOMER_ADDRESS, {
+    variables: {
+      fetchPolicy: 'no-cache',
+      accessToken: token,
+      limit: 1
+    }
+  })
 
   useEffect(() => {
       setCartList(cartData?.cart?.lines?.edges?.map(i => i.node))
-  }, [cartData, loading, cart])
+      setCustomerAddress(address?.customer?.addresses?.edges[0]?.node || '')
+      AuthService.getToken().then(result=>{
+        setToken(result)
+      }).catch(err => {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: err.originalError?.message || 'something went wrong'
+        })
+      })
+      
+  }, [cartData, loading, cart, address, errorAddress, loadingAddress])
 
   return (
     <SafeAreaView
@@ -118,9 +141,7 @@ const Checkout = () => {
               placeholderTextColor="gray"
               numberOfLines={5}
               multiline={true}
-              value={
-                'PT Moonlay Technologies\n\nSCBD, Equity Tower 25th Floor, Suite H.\nJl. Jend. Sudirman Kav. 52-53, South Jakarta,\nIndonesia 12190'
-              }
+              value={customerAddress?.address1}
               style={{
                 borderWidth: 1,
                 textAlignVertical: 'top',

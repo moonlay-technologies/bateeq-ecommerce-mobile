@@ -27,6 +27,7 @@ import {useNavigation} from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsOpen } from '../../store/reducer'
 import { GET_TOTAL_QUANTITY_CART } from '../../graphql/queries';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 // const TopSelectionData = [
 //   {
@@ -252,7 +253,7 @@ const MainHome = ({navigation}) => {
   ]);
 
   useEffect(() => {
-    getDataProducts();
+    // getDataProducts();
     // getDataCustomCollections();
   }, []);
 
@@ -260,12 +261,17 @@ const MainHome = ({navigation}) => {
     setIsLoading(true);
     ProductApi.get()
       .then(res => {
+
         setIsLoading(false);
         setProductData(res.products);
       })
       .catch(error => {
         setIsLoading(false);
-        console.log('error', error);
+        Toast.show({
+          type: 'error', 
+          text1: 'Oops!',
+          text2: error?.originalError?.message || 'something went wrong'
+        })
       });
   };
 

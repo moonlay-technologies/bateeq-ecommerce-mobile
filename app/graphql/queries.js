@@ -132,3 +132,23 @@ export const GET_TOTAL_QUANTITY_CART = gql`
         }
     }
 `
+
+export const GET_CUSTOMER_ADDRESS = gql`
+  query ($accessToken: String!,$limit: Int!) {
+    customer(customerAccessToken: $accessToken) {
+      addresses(first: $limit) {
+        edges {
+            node {
+                id
+                address1
+                address2
+                city
+                province
+                country
+                zip
+            }
+        }
+        }   
+    }
+  }
+`
