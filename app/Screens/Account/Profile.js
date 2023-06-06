@@ -185,7 +185,7 @@ const Profile = () => {
           </Text>
           <View style={GlobalStyleSheet.container}>
             {loading ? (
-              <LoadingScreen Loading2 />
+              <LoadingScreen type='circle' />
             ) : (
               <View
                 style={{

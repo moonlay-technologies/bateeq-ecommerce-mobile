@@ -170,7 +170,7 @@ const SignUp = props => {
                 </View> */}
         <HeaderBateeq signin />
         <View style={{marginVertical: 20}}>
-          {isLoading && <LoadingScreen Loading2 />}
+          {isLoading && <LoadingScreen type='circle' />}
           {handleErrorMessage && (
             <Text style={{color: 'red', fontSize: 16}}>
               {handleErrorMessage}

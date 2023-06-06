@@ -160,8 +160,6 @@ const AddDeliveryAddress = ({navigation}) => {
             text2: error?.message|| 'something went wrong'
           });
         }
-     
-      
       })
       .catch(err => {
         if(err.name === 'ValidationError') {

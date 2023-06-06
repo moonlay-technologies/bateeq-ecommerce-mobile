@@ -119,7 +119,7 @@ const Address = () => {
             ]}>
             Select Address
           </Text>
-          {isLoading && <LoadingComponent Loading2/>}
+          {isLoading && <LoadingComponent type='circle'/>}
           <Modal 
             text={`${showModal?.data?.company || 'this address' } will be deleted from your adresses list`} 
             onOpen={showModal.show}
@@ -143,7 +143,7 @@ const Address = () => {
               ]}
               onPress={() => handleSelectAddress(item)}
               key={index}>
-              {isLoadingDelete && showModal?.data?.id === id ? <LoadingComponent Loading2 key={id}/> : (
+              {isLoadingDelete && showModal?.data?.id === id ? <LoadingComponent type='circle' key={id}/> : (
                 <View>
                     <Text style={styles.name}>{company}</Text>
                     <Text style={styles.address}>{address1}</Text>

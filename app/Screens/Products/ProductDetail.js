@@ -252,7 +252,7 @@ const ProductDetail = ({ navigation, route }) => {
         </View>
         <View style={{paddingHorizontal: 20}}>
         {isLoading ? 
-        <LoadingScreen Loading2 /> : (
+        <LoadingScreen type='circle' /> : (
                  <Swiper
                  style={{height: 500}}
                  dotStyle={{

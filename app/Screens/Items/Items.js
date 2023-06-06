@@ -373,7 +373,7 @@ const Items = ({navigation, route}) => {
             style={styles.paginationButton}
             onPress={handleNextPage}>
             {isLoadingMore ? (
-              <LoadingScreen Loading2 />
+              <LoadingScreen type='circle' />
             ) : (
               <AntDesignIcon name="right" size={20} color={COLORS.black} />
             )}

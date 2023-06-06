@@ -76,7 +76,7 @@ const Checkout = () => {
       </View>
       <ScrollView>
       {loading 
-        ? <LoadingScreen Loading2 /> 
+        ? <LoadingScreen type='circle' /> 
         : cartList?.length > 0 
         ? cartList.map((data) => {
             const { 
@@ -166,12 +166,12 @@ const Checkout = () => {
               ]}
               showChangeButton={true}
             />
-            <DeliveryOption
+            {/* <DeliveryOption
               title="Rewards"
               items={[
                 {label: 'No Reward Applied', value: 'norewardapplied'},
               ]}
-            />
+            /> */}
             <View style={styles.wrapperTotal}>
               <View style={styles.subtotal}>
                 <Text

@@ -379,7 +379,7 @@ const MainHome = ({navigation}) => {
         <View style={styles.menuContainer}>{renderMainMenu()}</View>
       {/* </ScrollView> */}
       <ScrollView>
-        {dataImageBannerLoading && <LoadingScreen Loading2 />}
+        {dataImageBannerLoading && <LoadingScreen type='circle' />}
         <Swiper
           autoplay={true}
           autoplayTimeout={6}
@@ -422,7 +422,7 @@ const MainHome = ({navigation}) => {
             {pageStory?.title}
           </Text>
           {loading ? (
-            <LoadingScreen Loading2 />
+            <LoadingScreen type='circle' />
           ) : (
             <CustomHTML htmlContent={pageStory?.body} blog_id />
           )}
@@ -468,7 +468,7 @@ const MainHome = ({navigation}) => {
           }}></View>
         <View>
           {isLoading ? (
-            <LoadingScreen Loading2 />
+            <LoadingScreen type='circle' />
           ) : (
             <View style={{marginBottom: 40, paddingHorizontal: 25}}>
               <View
@@ -536,7 +536,7 @@ const MainHome = ({navigation}) => {
           )}
         </View>
         {latestCollectionLoading ? (
-          <LoadingScreen Loading2 />
+          <LoadingScreen type='circle' />
         ) : (
           <View
             style={{
@@ -561,23 +561,6 @@ const MainHome = ({navigation}) => {
             />
           </View>
         )}
-        {/* {PopularItemsData.map((data, index) => (
-          <ProductListItem
-            onPress={() =>
-              navigation.navigate('ProductDetail', {
-                item: data,
-                category: 'Appliances',
-              })
-            }
-            key={index}
-            image={data.imagePath}
-            title={data.title}  
-            desc={data.desc}
-            price={data.price}
-            oldPrice={data.oldPrice}
-            offer={data.offer}
-          />
-        ))} */}
         <View>
           <Text
             style={{

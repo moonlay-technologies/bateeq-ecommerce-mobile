@@ -23,6 +23,7 @@ const Cart = ({navigation}) => {
     show: false,
     data: ''
   })
+  console.log('cart', cart)
   const { data: cartData, error, loading, refetch } = useQuery(GET_CART_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
@@ -124,7 +125,7 @@ const Cart = ({navigation}) => {
       <View style={{flex: 1, padding: 10}}>
         <ScrollView>
           {loading ? 
-              <LoadingScreen Loading2 /> : cartList?.length > 0 ? cartList.map((data) => {
+              <LoadingScreen type='circle' /> : cartList?.length > 0 ? cartList.map((data) => {
             const { 
               quantity,
               attributes,
