@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Image,
   // ImageBackground,
@@ -9,25 +9,24 @@ import {
   View,
   // TextInput,
 } from 'react-native';
-import {IconButton} from 'react-native-paper';
-import FeatherIcon from 'react-native-vector-icons/Feather';
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS} from '../../constants/theme';
 import Swiper from 'react-native-swiper';
+import { useQuery, gql } from '@apollo/client';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { COLORS, FONTS } from '../../constants/theme';
 import ProductCardStyle1 from '../../components/ProductCardStyle1';
 import FeaturedCard from '../../components/FeaturedCard';
-import {GlobalStyleSheet} from '../../constants/StyleSheet';
-import {Footer} from '../../components/Footer';
-import {ProductApi, CollectionsApi} from '../../service/shopify-api';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import { Footer } from '../../components/Footer';
+import { ProductApi, CollectionsApi } from '../../service/shopify-api';
 import CustomHTML from '../../components/CustomHtml';
 import LoadingScreen from '../../components/LoadingView';
-import {useQuery, gql} from '@apollo/client';
-import {useNavigation} from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import { setIsOpen } from '../../store/reducer'
-import { GET_TOTAL_QUANTITY_CART } from '../../graphql/queries';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { setIsOpen } from '../../store/reducer';
+import HeaderCartComponent from '../../components/HeaderCartComponent';
 
 // const TopSelectionData = [
 //   {
@@ -152,8 +151,8 @@ const GET_MAIN_MENU_NAVIGATION = gql`
   }
 `;
 
-const MainHome = ({navigation}) => {
-  const cart = useSelector(state => state.cart)
+function MainHome({ navigation }) {
+  const cart = useSelector(state => state.cart);
   const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState(null);
   // const [dataCustomCollection, setDataCustomCollection] = useState([]);
@@ -164,59 +163,47 @@ const MainHome = ({navigation}) => {
   const [imageCollection, setImageCollection] = useState([]);
   const [dataCategories, setDataCategories] = useState([]);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
-  const [cartQuantity, setCartQuantity] = useState(0)
+
   const navigations = useNavigation();
 
   const toggleSubMenu = menuId => {
-    setActiveSubMenu(prevActiveMenu =>
-      prevActiveMenu === menuId ? null : menuId,
-    );
+    setActiveSubMenu(prevActiveMenu => (prevActiveMenu === menuId ? null : menuId));
   };
 
-  const {data, loading} = useQuery(GET_PAGE_STORY);
-  const {data: latestCollectionData, loading: latestCollectionLoading} =
-    useQuery(GET_LATEST_COLLECTION, {
-      variables: {
-        handle: 'latest-collection',
-      },
-    });
-  const {data: dataImageBanner, loading: dataImageBannerLoading} = useQuery(
-    GET_BANNER_SLIDER,
-    {
-      variables: {
-        handle: 'banner',
-      },
+  const { data, loading } = useQuery(GET_PAGE_STORY);
+  const { data: latestCollectionData, loading: latestCollectionLoading } = useQuery(GET_LATEST_COLLECTION, {
+    variables: {
+      handle: 'latest-collection',
     },
-  );
-  const {data: dataImageCollection} = useQuery(GET_BANNER_SLIDER, {
+  });
+  const { data: dataImageBanner, loading: dataImageBannerLoading } = useQuery(GET_BANNER_SLIDER, {
+    variables: {
+      handle: 'banner',
+    },
+  });
+  const { data: dataImageCollection } = useQuery(GET_BANNER_SLIDER, {
     variables: {
       handle: 'slider-collection',
     },
   });
-  const {data: dataListCategories} = useQuery(GET_LIST_CATEGORIES, {
+  const { data: dataListCategories } = useQuery(GET_LIST_CATEGORIES, {
     variables: {
       first: 5,
       query: 'categories',
     },
   });
-  const {data: getAllProduct} = useQuery(GET_LIST_CATEGORIES, {
+  const { data: getAllProduct } = useQuery(GET_LIST_CATEGORIES, {
     variables: {
       first: 5,
       query: '',
     },
   });
-  const {data: dataSideMenuNavigation} = useQuery(GET_MAIN_MENU_NAVIGATION, {
+  const { data: dataSideMenuNavigation } = useQuery(GET_MAIN_MENU_NAVIGATION, {
     variables: {
       first: 5,
       handle: 'main-menu',
     },
   });
-
-  const {data: cartData} = useQuery(GET_TOTAL_QUANTITY_CART, {
-    variables:{
-      id: cart?.id
-    }
-  })
 
   useEffect(() => {
     if (data) {
@@ -239,18 +226,7 @@ const MainHome = ({navigation}) => {
     if (dataListCategories) {
       setDataCategories(dataListCategories.products.edges);
     }
-    if(cartData) {
-      setCartQuantity(cartData?.cart?.totalQuantity)
-    }
-  }, [
-    data,
-    latestCollectionData,
-    dataImageBanner,
-    dataListCategories,
-    dataImageCollection,
-    getAllProduct,
-    cartData
-  ]);
+  }, [data, latestCollectionData, dataImageBanner, dataListCategories, dataImageCollection, getAllProduct]);
 
   useEffect(() => {
     // getDataProducts();
@@ -261,35 +237,25 @@ const MainHome = ({navigation}) => {
     setIsLoading(true);
     ProductApi.get()
       .then(res => {
-
         setIsLoading(false);
         setProductData(res.products);
       })
       .catch(error => {
         setIsLoading(false);
         Toast.show({
-          type: 'error', 
+          type: 'error',
           text1: 'Oops!',
-          text2: error?.originalError?.message || 'something went wrong'
-        })
+          text2: error?.originalError?.message || 'something went wrong',
+        });
       });
-  };
-
-  const handlePress = () => {
-    navigation.navigate('Home');
   };
 
   const renderSubMenu = subMenu => {
     return subMenu.map(item => (
-      <TouchableOpacity
-        style={styles.subMenuItem}
-        key={item.id}
-        onPress={() => toggleSubMenu(item.id)}>
+      <TouchableOpacity style={styles.subMenuItem} key={item.id} onPress={() => toggleSubMenu(item.id)}>
         <Text style={styles.subMenuText}>{item.title}</Text>
         {item.items && activeSubMenu === item.id && (
-          <View style={styles.nestedSubMenuContainer}>
-            {renderSubMenu(item.items)}
-          </View>
+          <View style={styles.nestedSubMenuContainer}>{renderSubMenu(item.items)}</View>
         )}
       </TouchableOpacity>
     ));
@@ -298,15 +264,11 @@ const MainHome = ({navigation}) => {
   const renderMainMenu = () => {
     return dataSideMenuNavigation?.menu?.items?.map(item => (
       <View key={item?.id} style={styles.menuItem}>
-        <TouchableOpacity
-          style={styles.menuItemButton}
-          onPress={() => toggleSubMenu(item.id)}>
+        <TouchableOpacity style={styles.menuItemButton} onPress={() => toggleSubMenu(item.id)}>
           <Text style={styles.menuText}>{item?.title}</Text>
         </TouchableOpacity>
         {item.items && activeSubMenu === item.id && (
-          <View style={styles.subMenuContainer}>
-            {renderSubMenu(item?.items)}
-          </View>
+          <View style={styles.subMenuContainer}>{renderSubMenu(item?.items)}</View>
         )}
       </View>
     ));
@@ -317,79 +279,25 @@ const MainHome = ({navigation}) => {
       style={{
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
-      }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          justifyContent: 'space-between',
-        }}>
-        <IconButton
-          icon={() => (
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}>
-              <FeatherIcon color={COLORS.title} size={18} name="menu" />
-            </View>
-          )}
-          size={25}
-          onPress={() => navigations.openDrawer()}
-          // onPress={handleDrawer}
-        />
-        <TouchableOpacity onPress={handlePress}>
-          <Image
-            style={{width: 70, height: 35}}
-            source={require('../../assets/images/logo.png')}
-          />
-        </TouchableOpacity>
-        <IconButton
-          onPress={() => navigation.navigate('Cart')}
-          icon={() => (
-            <View>
-              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              {cartQuantity > 0 && <View
-                style={{
-                  height: 14,
-                  width: 14,
-                  borderRadius: 14,
-                  backgroundColor: COLORS.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'absolute',
-                  top: -4,
-                  right: -6,
-                }}>
-                <Text
-                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  {cartQuantity}
-                </Text>
-              </View> }
-            </View>
-          )}
-          size={25}
-        />
-      </View>
+      }}
+    >
+      <HeaderCartComponent />
       {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
-        <View style={styles.menuContainer}>{renderMainMenu()}</View>
+      <View style={styles.menuContainer}>{renderMainMenu()}</View>
       {/* </ScrollView> */}
       <ScrollView>
-        {dataImageBannerLoading && <LoadingScreen type='circle' />}
+        {dataImageBannerLoading && <LoadingScreen type="circle" />}
         <Swiper
-          autoplay={true}
+          autoplay
           autoplayTimeout={6}
-          height={'auto'}
-          dotColor={'rgba(255,255,255,.3)'}
+          height="auto"
+          dotColor="rgba(255,255,255,.3)"
           activeDotColor={COLORS.white}
-          paginationStyle={{bottom: 10}}>
+          paginationStyle={{ bottom: 10 }}
+        >
           {dataBanner.map(data => {
             return (
-              <View key={data.node.id} style={{zIndex: 1}}>
+              <View key={data.node.id} style={{ zIndex: 1 }}>
                 <LinearGradient
                   colors={['transparent', 'transparent', 'rgba(0,0,0,.4)']}
                   style={{
@@ -397,37 +305,34 @@ const MainHome = ({navigation}) => {
                     height: '100%',
                     width: '100%',
                     zIndex: 1,
-                  }}></LinearGradient>
+                  }}
+                />
                 <Image
                   style={{
                     width: '100%',
                     height: '100%',
                     aspectRatio: 7 / 4,
                   }}
-                  source={{uri: data?.node?.url}}
+                  source={{ uri: data?.node?.url }}
                 />
               </View>
             );
           })}
         </Swiper>
-        <View
-          style={{padding: 16, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ padding: 16, justifyContent: 'center', alignItems: 'center' }}>
           <Text
             style={{
               fontSize: 20,
               color: COLORS.title,
               marginBottom: 16,
               ...FONTS.fontSatoshiBold,
-            }}>
+            }}
+          >
             {pageStory?.title}
           </Text>
-          {loading ? (
-            <LoadingScreen type='circle' />
-          ) : (
-            <CustomHTML htmlContent={pageStory?.body} blog_id />
-          )}
+          {loading ? <LoadingScreen type="circle" /> : <CustomHTML htmlContent={pageStory?.body} blog_id />}
           <TouchableOpacity
-            onPress={() => navigation.navigate('PageOurStory', {pageStory})}
+            onPress={() => navigation.navigate('PageOurStory', { pageStory })}
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
@@ -435,13 +340,15 @@ const MainHome = ({navigation}) => {
               paddingHorizontal: 16,
               borderWidth: 1,
               borderColor: 'black',
-            }}>
+            }}
+          >
             <Text
               style={{
                 color: COLORS.title,
                 ...FONTS.fontSatoshiRegular,
                 fontSize: 16,
-              }}>
+              }}
+            >
               Learn More
             </Text>
             <Ionicons
@@ -465,22 +372,24 @@ const MainHome = ({navigation}) => {
             alignItems: 'center',
             paddingTop: 18,
             paddingBottom: 10,
-          }}></View>
+          }}
+        />
         <View>
           {isLoading ? (
-            <LoadingScreen type='circle' />
+            <LoadingScreen type="circle" />
           ) : (
-            <View style={{marginBottom: 40, paddingHorizontal: 25}}>
+            <View style={{ marginBottom: 40, paddingHorizontal: 25 }}>
               <View
                 style={{
                   marginBottom: 25,
                   flexDirection: 'row',
                   flexWrap: 'wrap',
                   justifyContent: 'space-between',
-                }}>
+                }}
+              >
                 {dataAllProduct?.slice(0, 4) &&
                   dataAllProduct?.slice(0, 4)?.map(product => {
-                    console.log('product', product)
+                    console.log('product', product);
                     return (
                       <View
                         key={product.node.id}
@@ -488,7 +397,8 @@ const MainHome = ({navigation}) => {
                           width: 150,
                           marginRight: 10,
                           marginBottom: 20,
-                        }}>
+                        }}
+                      >
                         <ProductCardStyle1
                           onPress={() =>
                             navigation.navigate('ProductDetail', {
@@ -497,13 +407,8 @@ const MainHome = ({navigation}) => {
                           }
                           imageSrc={product.node.images.edges[0].node.url}
                           title={product.node.title}
-                          price={
-                            product?.node?.variants?.edges[0].node.price.amount
-                          }
-                          oldPrice={
-                            product?.node?.variants?.edges[0]?.node
-                              ?.compareAtPrice?.amount
-                          }
+                          price={product?.node?.variants?.edges[0].node.price.amount}
+                          oldPrice={product?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount}
                           // offer={data.offer}
                         />
                       </View>
@@ -511,9 +416,9 @@ const MainHome = ({navigation}) => {
                   })}
                 {/* </ScrollView> */}
               </View>
-              <View style={{justifyContent: 'center', alignItems: 'center'}}>
+              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('Items', {query: ''})}
+                  onPress={() => navigation.navigate('Items', { query: '' })}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -521,13 +426,15 @@ const MainHome = ({navigation}) => {
                     borderWidth: 1,
                     width: 200,
                     height: 48,
-                  }}>
+                  }}
+                >
                   <Text
                     style={{
                       ...FONTS.fontSatoshiBold,
                       color: COLORS.title,
                       marginRight: 2,
-                    }}>
+                    }}
+                  >
                     See More
                   </Text>
                 </TouchableOpacity>
@@ -536,13 +443,14 @@ const MainHome = ({navigation}) => {
           )}
         </View>
         {latestCollectionLoading ? (
-          <LoadingScreen type='circle' />
+          <LoadingScreen type="circle" />
         ) : (
           <View
             style={{
               ...GlobalStyleSheet.container,
               borderTopColor: COLORS.borderColor,
-            }}>
+            }}
+          >
             <Text
               style={{
                 ...FONTS.fontSatoshiBold,
@@ -550,7 +458,8 @@ const MainHome = ({navigation}) => {
                 marginBottom: 16,
                 fontSize: 18,
                 textAlign: 'center',
-              }}>
+              }}
+            >
               {dataLatestCollection?.title}
             </Text>
             <FeaturedCard
@@ -569,7 +478,8 @@ const MainHome = ({navigation}) => {
               textAlign: 'center',
               color: COLORS.title,
               marginBottom: 20,
-            }}>
+            }}
+          >
             Our Category
           </Text>
           <View
@@ -577,9 +487,10 @@ const MainHome = ({navigation}) => {
               flexDirection: 'row',
               flexWrap: 'wrap',
               justifyContent: 'space-between',
-            }}>
+            }}
+          >
             {dataCategories?.map(item => (
-              <View style={{width: 180, padding: 10}} key={item.node.id}>
+              <View style={{ width: 180, padding: 10 }} key={item.node.id}>
                 <FeaturedCard
                   image={item.node.images.edges[0]?.node.url}
                   title={item.node.description}
@@ -591,22 +502,22 @@ const MainHome = ({navigation}) => {
             ))}
           </View>
         </View>
-        <View style={{marginTop: 20}}>
+        <View style={{ marginTop: 20 }}>
           <Swiper
-            autoplay={true}
+            autoplay
             autoplayTimeout={6}
-            height={'auto'}
-            dotColor={'rgba(255,255,255,.3)'}
+            height="auto"
+            dotColor="rgba(255,255,255,.3)"
             activeDotColor={COLORS.white}
-            paginationStyle={{bottom: 10}}>
+            paginationStyle={{ bottom: 10 }}
+          >
             {imageCollection.map(data => {
               return (
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('Items', {query: 'Miwiti'})
-                  }
+                  onPress={() => navigation.navigate('Items', { query: 'Miwiti' })}
                   key={data.node.id}
-                  style={{zIndex: 1}}>
+                  style={{ zIndex: 1 }}
+                >
                   <LinearGradient
                     colors={['transparent', 'transparent', 'rgba(0,0,0,.4)']}
                     style={{
@@ -614,14 +525,15 @@ const MainHome = ({navigation}) => {
                       height: '100%',
                       width: '100%',
                       zIndex: 1,
-                    }}></LinearGradient>
+                    }}
+                  />
                   <Image
                     style={{
                       width: '100%',
                       height: '100%',
                       aspectRatio: 7 / 4,
                     }}
-                    source={{uri: data?.node?.url}}
+                    source={{ uri: data?.node?.url }}
                   />
                   <View
                     style={{
@@ -631,7 +543,8 @@ const MainHome = ({navigation}) => {
                       height: '100%',
                       justifyContent: 'center',
                       alignItems: 'flex-start',
-                    }}>
+                    }}
+                  >
                     <View
                       style={{
                         position: 'absolute',
@@ -652,27 +565,28 @@ const MainHome = ({navigation}) => {
                         fontSize: 36,
                         letterSpacing: 16,
                         marginHorizontal: -52,
-                      }}>
+                      }}
+                    >
                       MIWITI
                     </Text>
                     <TouchableOpacity
-                      onPress={() =>
-                        navigations.navigate('Items', {query: 'Miwiti'})
-                      }
+                      onPress={() => navigations.navigate('Items', { query: 'Miwiti' })}
                       style={{
                         paddingHorizontal: 12,
                         paddingVertical: 10,
                         borderWidth: 1,
                         borderColor: COLORS.white,
                         marginTop: 10,
-                      }}>
+                      }}
+                    >
                       <Text
                         style={{
                           ...FONTS.fontSatoshiBold,
                           color: COLORS.white,
                           paddingVertical: 8,
                           paddingHorizontal: 12,
-                        }}>
+                        }}
+                      >
                         SHOP NOW
                       </Text>
                     </TouchableOpacity>
@@ -686,7 +600,7 @@ const MainHome = ({navigation}) => {
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
 const styles = {
   menuContainer: {
