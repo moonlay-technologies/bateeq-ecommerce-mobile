@@ -5,36 +5,53 @@ import {
   Text,
   TouchableOpacity,
   View,
+  StyleSheet
 } from 'react-native';
 import OcticonsIcon from 'react-native-vector-icons/Octicons';
+import FeatherIcon from 'react-native-vector-icons/Feather'
 import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
 import { useEffect } from 'react';
+import Modal from '../../components/Modal/OptionBar';
 import { GET_CUSTOMER_ADDRESS } from '../../graphql/queries';
 import AuthService from '../../service/auth/auth-service';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import LoadingComponent from '../../components/LoadingView'
+import { useDispatch, useSelector } from 'react-redux';
+import { setAddress } from '../../store/reducer';
+import { useNavigation } from '@react-navigation/native';
+import { REMOVE_CUSTOMER_ADDRESS } from '../../graphql/mutation';
 
-const Address = ({navigation, route}) => {
-  let { params } = route
+const Address = () => {
+  const navigation = useNavigation()
+  const dispatch = useDispatch()
+  const { userAddress } = useSelector(state => state.user)
   const [token, setToken]=useState('')
   const [customerAddress, setCustomerAddress] = useState([])
-  const {data: address, error: errorAddress, loading: loadingAddress, refetch: refetchAdress} = useQuery(GET_CUSTOMER_ADDRESS, {
+  const [isLoading, setIsLoading] = useState(false)
+  const [addressSelected, setAddressSelected]=useState()
+  const [isLoadingDelete,setIsLoadingDelete] = useState(false)
+  const [showModal, setShowModal] = useState({
+    show: false,
+    data: ''
+  })
+  const {data: address, error: errorAddress, loading: loadingAddress, refetch } = useQuery(GET_CUSTOMER_ADDRESS, {
     variables: {
       fetchPolicy: 'no-cache',
       accessToken: token,
       limit: 20
     }
   })
+  const [customerAddressDelete] = useMutation(REMOVE_CUSTOMER_ADDRESS)
 
   useEffect(()=>{
-    if(params?.refetch) {
-      refetchAdress()
-    }
+    setIsLoading(true)
     AuthService?.getToken()
       .then(result => {
         setToken(result|| '')
+        setIsLoading(false)
       })
       .catch(err => {
         Toast.show({
@@ -42,11 +59,48 @@ const Address = ({navigation, route}) => {
           text1: 'Oops!',
           text2: err?.originalError?.message || 'something went wrong'
         })
-      })
-    setCustomerAddress(address?.customer?.addresses?.edges.map(i=>i.node) || [])
-  },[address, errorAddress, loadingAddress, params])
+        setIsLoading(false)
+      })   
+  }, [])
 
-  console.log('customerAddress', [customerAddress, token])
+  useEffect(()=>{
+    if(address?.customer){
+      setCustomerAddress(address?.customer?.addresses?.edges.map(i=>({
+        ...i.node,
+        // selected:false
+      })) || [])
+    }
+   
+  }, [address])
+
+  const handleSelectAddress = (address) => {
+    dispatch(setAddress(''))
+    setAddressSelected(address)
+  }
+
+  const handleDelete = async () => {
+    setIsLoadingDelete(true)
+    await customerAddressDelete({
+      variables: {
+        id: showModal?.data?.id,
+        customerAccessToken: token
+      }
+    })
+    refetch()
+    setShowModal(prev => ({
+      ...prev,
+      show: !prev.show
+    }))
+    setIsLoadingDelete(false)
+  }
+
+  const onSubmit = () => {
+    setIsLoading(true)
+    dispatch(setAddress(addressSelected))
+    setIsLoading(false)
+    navigation.pop()
+  }
+
   return (
     <SafeAreaView
       style={{
@@ -65,52 +119,55 @@ const Address = ({navigation, route}) => {
             ]}>
             Select Address
           </Text>
-          {customerAddress?.length > 0 && customerAddress?.map(({address1, address2, status=true}, index) => (
+          {isLoading && <LoadingComponent Loading2/>}
+          <Modal 
+            text={`${showModal?.data?.company || 'this address' } will be deleted from your adresses list`} 
+            onOpen={showModal.show}
+            visible={showModal.show}
+            toggle={()=>setShowModal(prev => ({
+              ...prev,
+              show: !prev.show
+            }))}
+            submitText={isLoading ? 'Deleting ...' : 'Delete'}
+            disabled={isLoading}
+            onContinue={handleDelete}
+        />
+          {customerAddress?.length > 0 && customerAddress?.map((item, index) => {
+            const {company, address1, city, id} = item
+           
+            return (
             <TouchableOpacity
-              style={{
-                padding: 12,
-                borderWidth: 1,
-                borderColor: COLORS.borderColor,
-                borderRadius: 6,
-                marginBottom: 10,
-              }}
+              style={[
+                styles.card,
+                addressSelected?.address1 === address ? styles.selectedCard : null,
+              ]}
+              onPress={() => handleSelectAddress(item)}
               key={index}>
-              <View
-                style={{
-                  marginBottom: 8,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={{
-                    ...FONTS.fontSatoshiBold,
-                    fontSize: 14,
-                    color: COLORS.title,
-                  }}>
-                  {address1}
-                </Text>
-                {status && (
-                  <View
-                    style={{
-                      backgroundColor: '#F2F2F2',
-                      paddingHorizontal: 10,
-                      paddingTop: 6,
-                      paddingBottom: 4,
-                      borderRadius: 15,
-                    }}>
-                    <Text style={{...FONTS.fontXs, ...FONTS.fontSatoshiBold}}>
-                      selected
-                    </Text>
-                  </View>
-                )}
-              </View>
-              {/* <Text style={FONTS.font}>Mokshita dairy near bsnl circle {`\n`}Rk puram{`\n`}Kota -324009{`\n`}Rajasthan{`\n`}{`\n`}Mobile: 0123 4567 891</Text> */}
-              <Text style={{...FONTS.fontSatoshiRegular, fontSize: 14}}>
-                {address2}
-              </Text>
+              {isLoadingDelete && showModal?.data?.id === id ? <LoadingComponent Loading2 key={id}/> : (
+                <View>
+                    <Text style={styles.name}>{company}</Text>
+                    <Text style={styles.address}>{address1}</Text>
+                    <Text style={styles.city}>{city}</Text>
+                    {[addressSelected?.address1 === address1, userAddress?.address1 === address1].some(i => i === true) && (
+                      <View style={styles.tag}>
+                        <Text style={styles.tagText}>Selected</Text>
+                      </View>
+                    )}
+                </View>
+              )}
+         
+
+             <FeatherIcon     
+               onPress={() => setShowModal(prev =>({
+                      data: { id , company },
+                      show: !prev.show
+                    }))}  
+                style={styles.icon} 
+                name='trash-2' 
+                size={16} 
+              />
             </TouchableOpacity>
-          ))}
+          )})}
           <View
             style={{
               marginTop: 12,
@@ -142,6 +199,7 @@ const Address = ({navigation, route}) => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
+              onPress={onSubmit}
               style={{
                 flex: 1,
                 padding: 12,
@@ -156,7 +214,7 @@ const Address = ({navigation, route}) => {
                   width: '80%',
                 }}>
                 <Text style={{...FONTS.fontSatoshiBold, color: COLORS.white}}>
-                  Select Address
+                  {isLoading ? 'Saving ...' : 'Select Address'}
                 </Text>
                 <OcticonsIcon color={COLORS.white} size={18} name="check" />
               </View>
@@ -169,3 +227,50 @@ const Address = ({navigation, route}) => {
 };
 
 export default Address;
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  selectedCard: {
+    borderColor: '#f00',
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  address: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  city: {
+    fontSize: 16,
+    color: '#888',
+  },
+  tag: {
+    backgroundColor: '#585858',
+    marginTop:20 ,
+    padding: 4,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+  tagText: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  icon: {
+    right: 16,
+    bottom: 20,
+    position: 'absolute',
+    color: 'red'
+  }
+});

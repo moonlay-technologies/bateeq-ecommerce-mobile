@@ -142,6 +142,32 @@ export const GET_CUSTOMER_ADDRESS = gql`
                 id
                 address1
                 address2
+                company
+                city
+                province
+                country
+                zip
+            }
+        }
+        }   
+    }
+  }
+`
+export const GET_CUSTOMER_INFO = gql`
+ query ($accessToken: String!) {
+    customer(customerAccessToken: $accessToken) {
+      id
+      firstName
+      lastName
+      acceptsMarketing
+      email
+      phone
+      addresses(first: 10) {
+        edges {
+            node {
+                id
+                address1
+                address2
                 city
                 province
                 country

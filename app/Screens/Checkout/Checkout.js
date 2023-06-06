@@ -27,7 +27,7 @@ import { Toast } from 'react-native-toast-message/lib/src/Toast';
 const Checkout = () => {
   const navigation = useNavigation();
   const cart = useSelector(state=> state.cart)
-
+  const { userAddress } = useSelector(state => state.user)
   const [cartList, setCartList] = useState([])
   const [token, setToken ] = useState('')
   const [customerAddress, setCustomerAddress] = useState('')
@@ -47,7 +47,12 @@ const Checkout = () => {
 
   useEffect(() => {
       setCartList(cartData?.cart?.lines?.edges?.map(i => i.node))
-      setCustomerAddress(address?.customer?.addresses?.edges[0]?.node || '')
+      if (userAddress?.address1) {
+        setCustomerAddress(userAddress)
+      } else {
+        setCustomerAddress(address?.customer?.addresses?.edges[0]?.node || '')
+      }
+
       AuthService.getToken().then(result=>{
         setToken(result)
       }).catch(err => {

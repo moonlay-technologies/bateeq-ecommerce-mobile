@@ -117,6 +117,7 @@ export const CREATE_ADDRESS = gql`
         address1
         address2
         phone
+        company
         country
         province
         city
@@ -137,4 +138,19 @@ export const REMOVE_CUSTOMER_ADDRESS = gql`
         deletedCustomerAddressId
     }
   }
+`
+export const CUSTOMER_UPDATE_DEFAULT_UPDATE = gql`
+ mutation customerUpdateDefaultAddress($addressId: ID!, $customerId: ID!) {
+  customerUpdateDefaultAddress(addressId: $addressId, customerId: $customerId) {
+    customer {
+      defaultAddress {
+        id
+      }
+    }
+    userErrors {
+      message
+    }
+  }
+}
+
 `

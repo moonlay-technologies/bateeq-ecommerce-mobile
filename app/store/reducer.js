@@ -6,6 +6,7 @@ const userSlice = createSlice({
     initialState: {
         isLogin: false,
         getToken: '',
+        userAddress: ''
     },
     reducers: {
         setIsLogin: (state, action) => {
@@ -15,7 +16,11 @@ const userSlice = createSlice({
             const token =  await AsyncStorage.getItem('accessToken')
             state.getToken = token
             return token
+        },
+        setAddress: (state, action) => {
+            state.userAddress = action.payload
         }
+
     }
 })
 
@@ -66,7 +71,7 @@ const cartSlice = createSlice({
 
 export const { setIsOpen } = sidebarSlice.actions
 export const { setCartId, getCartId, setCartData } = cartSlice.actions
-export const { setIsLogin, getToken } = userSlice.actions
+export const { setIsLogin, getToken, setAddress } = userSlice.actions
 
 const rootReducer = {
     sidebar: sidebarSlice.reducer,
