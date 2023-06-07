@@ -1,11 +1,11 @@
 import React from 'react';
-import {Image, ScrollView, Text, View} from 'react-native';
-import CustomButton from '../../components/CustomButton';
-import {GlobalStyleSheet} from '../../constants/StyleSheet';
-import {COLORS, FONTS, IMAGES} from '../../constants/theme';
+import { Image, ScrollView, Text, View } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import FontAwesome5Brands from 'react-native-vector-icons/FontAwesome5Pro';
 import Swiper from 'react-native-swiper';
+import CustomButton from '../../components/CustomButton';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import { COLORS, FONTS, IMAGES } from '../../constants/theme';
 
 const SwiperData = [
   {
@@ -22,17 +22,18 @@ const SwiperData = [
   },
 ];
 
-const Welcome = props => {
+function Welcome(props) {
   return (
-    <ScrollView contentContainerStyle={{flexGrow: 1}}>
-      <View style={{flex: 1, backgroundColor: COLORS.white}}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <View style={{ flex: 1, backgroundColor: COLORS.white }}>
         <View
           style={{
             alignItems: 'center',
             flex: 1,
             justifyContent: 'center',
             paddingVertical: 30,
-          }}>
+          }}
+        >
           <Image
             style={{
               height: 100,
@@ -52,7 +53,7 @@ const Welcome = props => {
         <View>
           <Swiper
             loop={false}
-            height={'100%'}
+            height="100%"
             dotStyle={{
               height: 10,
               width: 10,
@@ -67,12 +68,11 @@ const Welcome = props => {
             paginationStyle={{
               bottom: 28,
             }}
-            showsButtons={false}>
+            showsButtons={false}
+          >
             {SwiperData.map((data, index) => {
               return (
-                <View
-                  style={{paddingHorizontal: 30, paddingBottom: 70}}
-                  key={index}>
+                <View style={{ paddingHorizontal: 30, paddingBottom: 70 }} key={index}>
                   <Text
                     style={{
                       ...FONTS.fontSatoshiBold,
@@ -81,14 +81,11 @@ const Welcome = props => {
                       textAlign: 'center',
                       textTransform: 'capitalize',
                       marginBottom: 8,
-                    }}>
+                    }}
+                  >
                     {data.title}
                   </Text>
-                  <Text
-                    style={[
-                      FONTS.fontSatoshiRegular,
-                      {textAlign: 'center', color: 'rgba(0,0,0,.7)'},
-                    ]}>
+                  <Text style={[FONTS.fontSatoshiRegular, { textAlign: 'center', color: 'rgba(0,0,0,.7)' }]}>
                     {data.desc}
                   </Text>
                 </View>
@@ -98,11 +95,11 @@ const Welcome = props => {
         </View>
 
         <View style={GlobalStyleSheet.container}>
-          <View style={{marginBottom: 10}}>
+          <View style={{ marginBottom: 10 }}>
             <CustomButton
               onPress={() => props.navigation.navigate('SignIn')}
-              icon={<FeatherIcon name="mail" color={'#fff'} size={22} />}
-              title={'Continue with Email'}
+              icon={<FeatherIcon name="mail" color="#fff" size={22} />}
+              title="Continue with Email"
             />
           </View>
           {/* <View style={{marginBottom: 10}}>
@@ -118,18 +115,16 @@ const Welcome = props => {
           <View>
             <CustomButton
               onPress={() => props.navigation.navigate('SignIn')}
-              icon={
-                <Image style={{height: 22, width: 22}} source={IMAGES.google} />
-              }
-              textColor={'#282828'}
-              color={'#fff'}
-              title={'Sign in With Google'}
+              icon={<Image style={{ height: 22, width: 22 }} source={IMAGES.google} />}
+              textColor="#282828"
+              color="#fff"
+              title="Sign in With Google"
             />
           </View>
         </View>
       </View>
     </ScrollView>
   );
-};
+}
 
 export default Welcome;

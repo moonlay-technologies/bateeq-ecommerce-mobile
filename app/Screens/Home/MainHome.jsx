@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { COLORS, FONTS } from '../../constants/theme';
-import ProductCardStyle1 from '../../components/ProductCardStyle1';
+import ProductCardStyle1 from '../../components/ProductCardStyle';
 import FeaturedCard from '../../components/FeaturedCard';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { Footer } from '../../components/Footer';
@@ -403,8 +403,7 @@ function MainHome({ navigation }) {
                           onPress={() =>
                             navigation.navigate('ProductDetail', {
                               id: product.node.id,
-                            })
-                          }
+                            })}
                           imageSrc={product.node.images.edges[0].node.url}
                           title={product.node.title}
                           price={product?.node?.variants?.edges[0].node.price.amount}

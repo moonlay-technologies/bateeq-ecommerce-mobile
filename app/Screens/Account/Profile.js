@@ -1,29 +1,21 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import HeaderBateeq from '../../components/Headers/HeaderBateeq';
-import {GlobalStyleSheet} from '../../constants/StyleSheet';
-import {COLORS, FONTS, IMAGES} from '../../constants/theme';
+import { gql, useQuery } from '@apollo/client';
+import { useDispatch } from 'react-redux';
+import HeaderBateeq from '../../components/HeaderBateeq';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import { COLORS, FONTS, IMAGES } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
 import UnitedStates from '../../assets/images/flags/UnitedStates.png';
 import german from '../../assets/images/flags/german.png';
 import italian from '../../assets/images/flags/italian.png';
 import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
-import {gql, useQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
-import { useDispatch } from 'react-redux';
 import { setCartId } from '../../store/reducer';
 
 const languagetData = [
@@ -62,13 +54,13 @@ const getDataCustomerByToken = gql`
   }
 `;
 
-const Profile = () => {
-  const navigation = useNavigation()
+function Profile() {
+  const navigation = useNavigation();
   const [dataAccount, setDataAccount] = useState(null);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
   const [accessToken, setAccessToken] = useState('');
 
   useEffect(() => {
@@ -86,9 +78,9 @@ const Profile = () => {
     getAccessToken();
   }, []);
 
-  const {data, loading, error} = useQuery(getDataCustomerByToken, {
+  const { data, loading, error } = useQuery(getDataCustomerByToken, {
     variables: {
-      accessToken: accessToken,
+      accessToken,
     },
   });
 
@@ -113,7 +105,7 @@ const Profile = () => {
     <>
       <RBSheet
         ref={RBSheetLanguage}
-        closeOnDragDown={true}
+        closeOnDragDown
         height={400}
         openDuration={300}
         customStyles={{
@@ -125,7 +117,8 @@ const Profile = () => {
             borderTopLeftRadius: 15,
             borderTopRightRadius: 15,
           },
-        }}>
+        }}
+      >
         <View
           style={{
             alignItems: 'center',
@@ -133,11 +126,11 @@ const Profile = () => {
             borderColor: COLORS.borderColor,
             paddingBottom: 8,
             paddingTop: 4,
-          }}>
-          <Text style={{...FONTS.h5, color: COLORS.title}}>Language</Text>
+          }}
+        >
+          <Text style={{ ...FONTS.h5, color: COLORS.title }}>Language</Text>
         </View>
-        <ScrollView
-          contentContainerStyle={{paddingBottom: 20, paddingHorizontal: 15}}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 15 }}>
           {languagetData.map((data, index) => (
             <TouchableOpacity
               onPress={() => RBSheetLanguage.current.close()}
@@ -148,7 +141,8 @@ const Profile = () => {
                 borderColor: COLORS.borderColor,
                 flexDirection: 'row',
                 alignItems: 'center',
-              }}>
+              }}
+            >
               <Image
                 style={{
                   height: 20,
@@ -157,9 +151,7 @@ const Profile = () => {
                 }}
                 source={data.flag}
               />
-              <Text style={{...FONTS.fontLg, color: COLORS.title, flex: 1}}>
-                {data.name}
-              </Text>
+              <Text style={{ ...FONTS.fontLg, color: COLORS.title, flex: 1 }}>{data.name}</Text>
               <FeatherIcon name="chevron-right" color={COLORS.text} size={24} />
             </TouchableOpacity>
           ))}
@@ -170,7 +162,8 @@ const Profile = () => {
         style={{
           flex: 1,
           backgroundColor: COLORS.backgroundColor,
-        }}>
+        }}
+      >
         <HeaderBateeq />
         <ScrollView>
           <Text
@@ -180,19 +173,21 @@ const Profile = () => {
               fontSize: 24,
               paddingHorizontal: 20,
               paddingVertical: 10,
-            }}>
+            }}
+          >
             Account Details
           </Text>
           <View style={GlobalStyleSheet.container}>
             {loading ? (
-              <LoadingScreen type='circle' />
+              <LoadingScreen type="circle" />
             ) : (
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
                   marginBottom: 20,
-                }}>
+                }}
+              >
                 <Image
                   style={{
                     height: 80,
@@ -206,19 +201,16 @@ const Profile = () => {
                   style={{
                     flex: 1,
                     marginTop: 20,
-                  }}>
-                  <Text style={{...FONTS.h6}}>
-                    {dataAccount?.default_address?.name || ''}
-                  </Text>
-                  <Text style={{...FONTS.font}}>{dataAccount?.email}</Text>
-                  <Text style={{...FONTS.font}}>
-                    {dataAccount?.default_address?.phone || ''}
-                  </Text>
+                  }}
+                >
+                  <Text style={{ ...FONTS.h6 }}>{dataAccount?.default_address?.name || ''}</Text>
+                  <Text style={{ ...FONTS.font }}>{dataAccount?.email}</Text>
+                  <Text style={{ ...FONTS.font }}>{dataAccount?.default_address?.phone || ''}</Text>
                 </View>
               </View>
             )}
           </View>
-          <View style={{...GlobalStyleSheet.container, marginTop: -20}}>
+          <View style={{ ...GlobalStyleSheet.container, marginTop: -20 }}>
             <View>
               <TouchableOpacity
                 onPress={() => navigation.navigate('EditProfile')}
@@ -228,21 +220,19 @@ const Profile = () => {
                   paddingVertical: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   Account Details
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigation.navigate('Address')}
@@ -252,21 +242,19 @@ const Profile = () => {
                   paddingVertical: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   Address List
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
@@ -275,21 +263,19 @@ const Profile = () => {
                   paddingVertical: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   App Setting
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <TouchableOpacity
                 style={{
@@ -299,33 +285,31 @@ const Profile = () => {
                   marginBottom: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   FAQ & Help
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <CustomButton
-                arrowIcon={true}
+                arrowIcon
                 title="Log Out"
-                color={'#FF3544'}
+                color="#FF3544"
                 onPress={async () => {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
-                  dispatch(setCartId(''))
+                  dispatch(setCartId(''));
                   navigation.navigate('SignIn');
                 }}
-                logout={true}
+                logout
               />
             </View>
           </View>
@@ -333,6 +317,6 @@ const Profile = () => {
       </SafeAreaView>
     </>
   );
-};
+}
 
 export default Profile;

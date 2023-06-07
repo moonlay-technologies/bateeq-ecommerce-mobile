@@ -1,12 +1,12 @@
-import { configureStore } from "@reduxjs/toolkit";
-import rootReducer from "./reducer";
+import { configureStore } from '@reduxjs/toolkit';
+import rootReducer from './reducer';
 
 const store = configureStore({
-    reducer: {
-        open: rootReducer.sidebar,
-        cart: rootReducer.cart,
-        user: rootReducer.user
-    }
-})
+  reducer: {
+    open: rootReducer.sidebar,
+    cart: rootReducer.cart,
+    user: rootReducer.user,
+  },
+});
 
-export default store
+export default store;

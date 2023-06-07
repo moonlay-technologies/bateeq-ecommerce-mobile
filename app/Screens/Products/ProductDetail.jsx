@@ -3,14 +3,13 @@ import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'r
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
-import ProductCardStyle1 from '../../components/ProductCardStyle1';
-import HeaderBateeq from '../../components/Headers/HeaderBateeq';
+import ProductCardStyle1 from '../../components/ProductCardStyle';
 import Button from '../../components/CustomButton';
 import SelectInput from '../../components/SelectInput';
 import CustomHTML from '../../components/CustomHtml';
@@ -18,8 +17,9 @@ import Header from '../../layout/Header';
 import { COLORS, FONTS } from '../../constants/theme';
 import { formatWithCommas } from '../../utils/helper';
 import { findVariantIdByOptions } from './helper';
+import { CART_REMOVE_ITEM, CREATE_CART, ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
-import { ADD_TO_CART } from '../../graphql/mutation';
+import { setCartId } from '../../store/reducer';
 import LoadingScreen from '../../components/LoadingView';
 import HeaderCartComponent from '../../components/HeaderCartComponent';
 
@@ -45,15 +45,18 @@ function ProductDetail({ navigation, route }) {
   });
 
   const { id } = route.params;
+  const dispatch = useDispatch();
+  const cartStore = useSelector(state => state.cart);
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_TO_CART);
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [productRecommendations, setProductRecommendations] = useState([]);
+  const [cartCreate] = useMutation(CREATE_CART);
   const [snackText] = useState('Loading...');
   const [errors, setErrors] = useState({});
   const [qty, setQty] = useState(1);
   const cart = useSelector(state => state.cart);
-  const [cartId, setCartId] = useState();
+  // const [cartId, setCartId] = useState();
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
   const [product, setProduct] = useState({
     id: '',
@@ -101,6 +104,30 @@ function ProductDetail({ navigation, route }) {
       productId: id,
     },
   });
+
+  console.log('cartStore', cartStore);
+  useEffect(() => {
+    if (cart?.id) {
+      console.log('ada cart id', cart?.id);
+    } else {
+      console.log('gapunya cart id', cart?.id);
+      handleCreateCart();
+    }
+  }, [cart]);
+
+  const handleCreateCart = async () => {
+    const { data: cartCreated } = await cartCreate({
+      variables: {
+        input: {
+          note: '',
+        },
+      },
+    });
+    if (cartCreated?.cartCreate?.cart) {
+      const { id: cartId } = cartCreated.cartCreate.cart;
+      dispatch(setCartId(cartId));
+    }
+  };
 
   const isLoading = [productDataLoad, optionDataLoad, productRecommendationLoad].some(i => i === true);
   const isError = [productRecommendationError, productDataError, getOptionsError].some(i => i);
@@ -165,9 +192,9 @@ function ProductDetail({ navigation, route }) {
         color: colorOptions || [],
         size: sizeOptions || [],
       });
-      if (cart) {
-        setCartId(cart?.id);
-      }
+      // if (cart) {
+      // setCartId(cart?.id);
+      // }
     } else if (isError) {
       Toast.show({
         type: 'error',
@@ -204,12 +231,13 @@ function ProductDetail({ navigation, route }) {
       size: variants.size,
       color: variants.color,
       variant_id: variantId,
-      cartId: cartId || '',
+      // cartId: cartId || '',
     };
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
         console.log('result', result);
+
         const { data } = await cartLinesAdd({
           variables: {
             cartId: result.cartId,

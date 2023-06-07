@@ -1,22 +1,13 @@
-import React, {useState} from 'react';
-import {
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useState } from 'react';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import CheckBox from '@react-native-community/checkbox';
 import Collapsible from 'react-native-collapsible';
-import {COLORS, FONTS} from '../../constants/theme';
+import { COLORS, FONTS } from '../../constants/theme';
 import Header from '../../layout/Header';
-import {GlobalStyleSheet} from '../../constants/StyleSheet';
-//import Button from '../../../components/Button/Button';
-//import CustomInput from '../../../components/Input/CustomInput';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+// import Button from '../../../components/Button/Button';
+// import CustomInput from '../../../components/Input/CustomInput';
 import discount from '../../assets/images/icons/discount.png';
 import cash from '../../assets/images/icons/cash.png';
 import card from '../../assets/images/icons/card.png';
@@ -27,9 +18,9 @@ import personal from '../../assets/images/icons/personal.png';
 import gift from '../../assets/images/icons/gift.png';
 import phonepe from '../../assets/images/icons/phonepe.png';
 import CustomButton from '../../components/CustomButton';
-//import DropShadow from 'react-native-drop-shadow';
+// import DropShadow from 'react-native-drop-shadow';
 
-const Payment = props => {
+function Payment(props) {
   const [paymentOption, setPaymentOption] = useState('');
 
   const [payActive, setPayActive] = useState('');
@@ -50,630 +41,554 @@ const Payment = props => {
   ];
 
   return (
-    <>
-      <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
-        <View style={{paddingHorizontal: 20}}>
-          <Header titleLeft leftIcon={'back'} title={'Payment'} />
-        </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
+      <View style={{ paddingHorizontal: 20 }}>
+        <Header titleLeft leftIcon="back" title="Payment" />
+      </View>
 
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: COLORS.white,
-          }}>
-          <ScrollView contentContainerStyle={{flexGrow: 1}}>
-            <View style={[GlobalStyleSheet.container]}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 8,
-                }}>
-                <Image
-                  style={{height: 20, width: 20, marginRight: 10}}
-                  source={discount}
-                />
-                <Text style={{...FONTS.h6}}>Bank Offer</Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <View
-                  style={{
-                    height: 3,
-                    width: 3,
-                    borderRadius: 3,
-                    backgroundColor: COLORS.text,
-                    marginRight: 10,
-                    opacity: 0.5,
-                    marginTop: 8,
-                  }}
-                />
-                <Text style={{...FONTS.font, color: COLORS.text}}>
-                  10% instant Savings on Citi Credit and Debit Cards on a min
-                  spend of Rs 3,0000. TCA
-                </Text>
-              </View>
-            </View>
-            <View
-              style={{
-                backgroundColor: '#eee',
-                paddingHorizontal: 15,
-                paddingBottom: 10,
-                paddingTop: 15,
-              }}>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.text}}>
-                Payment Options
-              </Text>
-            </View>
-
-            <View
-              style={{borderBottomWidth: 1, borderColor: COLORS.borderColor}}>
-              <TouchableOpacity
-                onPress={() =>
-                  setPaymentOption(paymentOption === 'Cash' ? '' : 'Cash')
-                }
-                style={[styles.list]}>
-                <Image
-                  style={[styles.listImg, {tintColor: COLORS.title}]}
-                  source={cash}
-                />
-                <Text style={[styles.listTitle, {color: COLORS.title}]}>
-                  Cash On Delivery(Cash/UPI)
-                </Text>
-                <FeatherIcon
-                  color={COLORS.title}
-                  name={'chevron-down'}
-                  size={22}
-                />
-              </TouchableOpacity>
-              <Collapsible
-                collapsed={
-                  paymentOption === 'Cash' ? false : true
-                }></Collapsible>
-            </View>
-
-            <View
-              style={{borderBottomWidth: 1, borderColor: COLORS.borderColor}}>
-              <TouchableOpacity
-                onPress={() =>
-                  setPaymentOption(paymentOption === 'Credit' ? '' : 'Credit')
-                }
-                style={[styles.list]}>
-                <Image
-                  style={[styles.listImg, {tintColor: COLORS.title}]}
-                  source={card}
-                />
-                <Text style={[styles.listTitle, {color: COLORS.title}]}>
-                  Credit / Debit Card
-                </Text>
-                <FeatherIcon
-                  color={COLORS.title}
-                  name={'chevron-down'}
-                  size={22}
-                />
-              </TouchableOpacity>
-              <Collapsible
-                collapsed={paymentOption === 'Credit' ? false : true}>
-                <View
-                  style={{
-                    paddingHorizontal: 15,
-                    paddingBottom: 30,
-                  }}>
-                  <Text
-                    style={{
-                      ...FONTS.font,
-                      color: COLORS.text,
-                      marginBottom: 10,
-                    }}>
-                    Please ensure your card can be used for online transactions.
-                  </Text>
-                  <View style={{marginBottom: 15}}>
-                    <TextInput
-                      style={GlobalStyleSheet.formControl}
-                      placeholder="Card Number"
-                      placeholderTextColor={COLORS.label}
-                    />
-                  </View>
-                  <View style={{marginBottom: 15}}>
-                    <TextInput
-                      style={GlobalStyleSheet.formControl}
-                      placeholder="Name on card"
-                      placeholderTextColor={COLORS.label}
-                    />
-                  </View>
-                  <View style={[GlobalStyleSheet.row]}>
-                    <View style={[GlobalStyleSheet.col50]}>
-                      <TextInput
-                        style={GlobalStyleSheet.formControl}
-                        placeholder="Valid Thru(MM/YY)"
-                        placeholderTextColor={COLORS.label}
-                      />
-                    </View>
-                    <View style={[GlobalStyleSheet.col50]}>
-                      <TextInput
-                        style={GlobalStyleSheet.formControl}
-                        placeholder="CVV"
-                        placeholderTextColor={COLORS.label}
-                      />
-                    </View>
-                  </View>
-                </View>
-              </Collapsible>
-            </View>
-
-            <View
-              style={{borderBottomWidth: 1, borderColor: COLORS.borderColor}}>
-              <TouchableOpacity
-                onPress={() =>
-                  setPaymentOption(paymentOption === 'PhonePe' ? '' : 'PhonePe')
-                }
-                style={[styles.list]}>
-                <Image
-                  style={[styles.listImg, {tintColor: COLORS.title}]}
-                  source={pay}
-                />
-                <Text style={[styles.listTitle, {color: COLORS.title}]}>
-                  PhonePe/ Google Pay/ BHIM UPI
-                </Text>
-                <FeatherIcon
-                  color={COLORS.title}
-                  name={'chevron-down'}
-                  size={22}
-                />
-              </TouchableOpacity>
-              <Collapsible
-                collapsed={paymentOption === 'PhonePe' ? false : true}>
-                <View style={{paddingBottom: 20}}>
-                  {PhonePeOption.map((data, index) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() => setPayActive(data.title)}
-                        key={index}
-                        style={[
-                          styles.payList,
-                          {
-                            borderBottomColor: COLORS.borderColor,
-                          },
-                          PhonePeOption.length - 1 === index && {
-                            borderBottomWidth: 0,
-                          },
-                        ]}>
-                        <View
-                          style={[
-                            styles.listRadio,
-                            {
-                              borderColor: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              borderColor: COLORS.primary,
-                            },
-                          ]}>
-                          {payActive === data.title && (
-                            <View style={styles.listRadioCircle} />
-                          )}
-                        </View>
-                        <View
-                          style={[
-                            styles.payMedia,
-                            {
-                              borderColor: COLORS.borderColor,
-                            },
-                          ]}>
-                          <Image style={styles.payImg} source={data.image} />
-                        </View>
-                        <Text
-                          style={[
-                            {
-                              ...FONTS.font,
-                              color: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              ...FONTS.fontBold,
-                              color: COLORS.title,
-                            },
-                          ]}>
-                          {data.title}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </Collapsible>
-            </View>
-
-            <View
-              style={{borderBottomWidth: 1, borderColor: COLORS.borderColor}}>
-              <TouchableOpacity
-                onPress={() =>
-                  setPaymentOption(
-                    paymentOption === 'PaytmWallet' ? '' : 'PaytmWallet',
-                  )
-                }
-                style={[styles.list]}>
-                <Image
-                  style={[styles.listImg, {tintColor: COLORS.title}]}
-                  source={wallet}
-                />
-                <Text style={[styles.listTitle, {color: COLORS.title}]}>
-                  Paytm/ Wallets
-                </Text>
-                <FeatherIcon
-                  color={COLORS.title}
-                  name={'chevron-down'}
-                  size={22}
-                />
-              </TouchableOpacity>
-              <Collapsible
-                collapsed={paymentOption === 'PaytmWallet' ? false : true}>
-                <View style={{paddingBottom: 20}}>
-                  {PhonePeOption.map((data, index) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() => setPayActive(data.title)}
-                        key={index}
-                        style={[
-                          styles.payList,
-                          {
-                            borderBottomColor: COLORS.borderColor,
-                          },
-                          PhonePeOption.length - 1 === index && {
-                            borderBottomWidth: 0,
-                          },
-                        ]}>
-                        <View
-                          style={[
-                            styles.listRadio,
-                            {
-                              borderColor: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              borderColor: COLORS.primary,
-                            },
-                          ]}>
-                          {payActive === data.title && (
-                            <View style={styles.listRadioCircle} />
-                          )}
-                        </View>
-                        <View
-                          style={[
-                            styles.payMedia,
-                            {
-                              borderColor: COLORS.borderColor,
-                            },
-                          ]}>
-                          <Image style={styles.payImg} source={data.image} />
-                        </View>
-                        <Text
-                          style={[
-                            {
-                              ...FONTS.font,
-                              color: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              ...FONTS.fontBold,
-                              color: COLORS.title,
-                            },
-                          ]}>
-                          {data.title}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </Collapsible>
-            </View>
-
-            <View
-              style={{borderBottomWidth: 1, borderColor: COLORS.borderColor}}>
-              <TouchableOpacity
-                onPress={() =>
-                  setPaymentOption(
-                    paymentOption === 'Netbanking' ? '' : 'Netbanking',
-                  )
-                }
-                style={[styles.list]}>
-                <Image
-                  style={[styles.listImg, {tintColor: COLORS.title}]}
-                  source={bank}
-                />
-                <Text style={[styles.listTitle, {color: COLORS.title}]}>
-                  Net Banking
-                </Text>
-                <FeatherIcon
-                  color={COLORS.title}
-                  name={'chevron-down'}
-                  size={22}
-                />
-              </TouchableOpacity>
-              <Collapsible
-                collapsed={paymentOption === 'Netbanking' ? false : true}>
-                <View style={{paddingBottom: 20}}>
-                  {PhonePeOption.map((data, index) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() => setPayActive(data.title)}
-                        key={index}
-                        style={[
-                          styles.payList,
-                          {
-                            borderBottomColor: COLORS.borderColor,
-                          },
-                          PhonePeOption.length - 1 === index && {
-                            borderBottomWidth: 0,
-                          },
-                        ]}>
-                        <View
-                          style={[
-                            styles.listRadio,
-                            {
-                              borderColor: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              borderColor: COLORS.primary,
-                            },
-                          ]}>
-                          {payActive === data.title && (
-                            <View style={styles.listRadioCircle} />
-                          )}
-                        </View>
-                        <View
-                          style={[
-                            styles.payMedia,
-                            {
-                              borderColor: COLORS.borderColor,
-                            },
-                          ]}>
-                          <Image style={styles.payImg} source={data.image} />
-                        </View>
-                        <Text
-                          style={[
-                            {
-                              ...FONTS.font,
-                              color: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              ...FONTS.fontBold,
-                              color: COLORS.title,
-                            },
-                          ]}>
-                          {data.title}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </Collapsible>
-            </View>
-
-            <View
-              style={{borderBottomWidth: 1, borderColor: COLORS.borderColor}}>
-              <TouchableOpacity
-                onPress={() =>
-                  setPaymentOption(paymentOption === 'EMI' ? '' : 'EMI')
-                }
-                style={[styles.list]}>
-                <Image
-                  style={[styles.listImg, {tintColor: COLORS.title}]}
-                  source={personal}
-                />
-                <Text style={[styles.listTitle, {color: COLORS.title}]}>
-                  EMI/ Pay Later
-                </Text>
-                <FeatherIcon
-                  color={COLORS.title}
-                  name={'chevron-down'}
-                  size={22}
-                />
-              </TouchableOpacity>
-              <Collapsible collapsed={paymentOption === 'EMI' ? false : true}>
-                <View style={{paddingBottom: 20}}>
-                  {PhonePeOption.map((data, index) => {
-                    return (
-                      <TouchableOpacity
-                        onPress={() => setPayActive(data.title)}
-                        key={index}
-                        style={[
-                          styles.payList,
-                          {
-                            borderBottomColor: COLORS.borderColor,
-                          },
-                          PhonePeOption.length - 1 === index && {
-                            borderBottomWidth: 0,
-                          },
-                        ]}>
-                        <View
-                          style={[
-                            styles.listRadio,
-                            {
-                              borderColor: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              borderColor: COLORS.primary,
-                            },
-                          ]}>
-                          {payActive === data.title && (
-                            <View style={styles.listRadioCircle} />
-                          )}
-                        </View>
-                        <View
-                          style={[
-                            styles.payMedia,
-                            {
-                              borderColor: COLORS.borderColor,
-                            },
-                          ]}>
-                          <Image style={styles.payImg} source={data.image} />
-                        </View>
-                        <Text
-                          style={[
-                            {
-                              ...FONTS.font,
-                              color: COLORS.text,
-                            },
-                            payActive === data.title && {
-                              ...FONTS.fontBold,
-                              color: COLORS.title,
-                            },
-                          ]}>
-                          {data.title}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </Collapsible>
-            </View>
-
-            <View style={[GlobalStyleSheet.container]}>
-              <View
-                style={{
-                  paddingHorizontal: 15,
-                  paddingVertical: 15,
-                  backgroundColor: '#eee',
-                  borderRadius: 10,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                }}>
-                <Image
-                  style={{
-                    height: 18,
-                    width: 18,
-                    marginRight: 12,
-                    tintColor: COLORS.title,
-                  }}
-                  source={gift}
-                />
-                <Text style={[styles.listTitle, {color: COLORS.title}]}>
-                  Have a Gift Card?
-                </Text>
-                <TouchableOpacity>
-                  <Text
-                    style={{
-                      ...FONTS.font,
-                      color: COLORS.info,
-                      ...FONTS.fontBold,
-                    }}>
-                    APPLY
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={[GlobalStyleSheet.container]}>
-              <View
-                style={{
-                  borderBottomWidth: 1,
-                  borderBottomColor: COLORS.borderColor,
-                  paddingBottom: 10,
-                  marginBottom: 10,
-                }}>
-                <Text
-                  style={{
-                    ...FONTS.font,
-                    ...FONTS.fontBold,
-                    color: COLORS.title,
-                  }}>
-                  Price Details(1 item)
-                </Text>
-              </View>
-              <View style={styles.detailList}>
-                <Text style={{...FONTS.font, color: COLORS.text}}>
-                  Total MRP
-                </Text>
-                <Text style={{...FONTS.font, color: COLORS.text}}>
-                  1,079,200
-                </Text>
-              </View>
-              <View style={styles.detailList}>
-                <Text style={{...FONTS.font, color: COLORS.text}}>
-                  Discount on MRP
-                </Text>
-                <Text style={{...FONTS.font, color: COLORS.success}}>
-                  -79,200
-                </Text>
-              </View>
-              <View style={styles.detailList}>
-                <Text style={{...FONTS.font, color: COLORS.text}}>
-                  Coupon Discount
-                </Text>
-                <Text style={{...FONTS.font, color: COLORS.success}}>
-                  -208,000
-                </Text>
-              </View>
-              <View
-                style={{
-                  borderTopWidth: 1,
-                  borderTopColor: COLORS.borderColor,
-                  paddingTop: 8,
-                  marginTop: 10,
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                }}>
-                <Text
-                  style={{
-                    ...FONTS.font,
-                    ...FONTS.fontBold,
-                    color: COLORS.title,
-                  }}>
-                  Total Amount
-                </Text>
-                <Text
-                  style={{
-                    ...FONTS.font,
-                    ...FONTS.fontBold,
-                    color: COLORS.title,
-                  }}>
-                  792,000
-                </Text>
-              </View>
-            </View>
-          </ScrollView>
-          <View
-            style={[
-              GlobalStyleSheet.container,
-              {
-                borderTopWidth: 1,
-                borderColor: COLORS.borderColor,
-              },
-            ]}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: COLORS.white,
+        }}
+      >
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <View style={GlobalStyleSheet.container}>
             <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-              }}>
-              <View style={{width: 120}}>
+                marginBottom: 8,
+              }}
+            >
+              <Image style={{ height: 20, width: 20, marginRight: 10 }} source={discount} />
+              <Text style={{ ...FONTS.h6 }}>Bank Offer</Text>
+            </View>
+            <View style={{ flexDirection: 'row' }}>
+              <View
+                style={{
+                  height: 3,
+                  width: 3,
+                  borderRadius: 3,
+                  backgroundColor: COLORS.text,
+                  marginRight: 10,
+                  opacity: 0.5,
+                  marginTop: 8,
+                }}
+              />
+              <Text style={{ ...FONTS.font, color: COLORS.text }}>
+                10% instant Savings on Citi Credit and Debit Cards on a min spend of Rs 3,0000. TCA
+              </Text>
+            </View>
+          </View>
+          <View
+            style={{
+              backgroundColor: '#eee',
+              paddingHorizontal: 15,
+              paddingBottom: 10,
+              paddingTop: 15,
+            }}
+          >
+            <Text style={{ ...FONTS.font, ...FONTS.fontBold, color: COLORS.text }}>Payment Options</Text>
+          </View>
+
+          <View style={{ borderBottomWidth: 1, borderColor: COLORS.borderColor }}>
+            <TouchableOpacity
+              onPress={() => setPaymentOption(paymentOption === 'Cash' ? '' : 'Cash')}
+              style={styles.list}
+            >
+              <Image style={[styles.listImg, { tintColor: COLORS.title }]} source={cash} />
+              <Text style={[styles.listTitle, { color: COLORS.title }]}>Cash On Delivery(Cash/UPI)</Text>
+              <FeatherIcon color={COLORS.title} name="chevron-down" size={22} />
+            </TouchableOpacity>
+            <Collapsible collapsed={paymentOption !== 'Cash'} />
+          </View>
+
+          <View style={{ borderBottomWidth: 1, borderColor: COLORS.borderColor }}>
+            <TouchableOpacity
+              onPress={() => setPaymentOption(paymentOption === 'Credit' ? '' : 'Credit')}
+              style={styles.list}
+            >
+              <Image style={[styles.listImg, { tintColor: COLORS.title }]} source={card} />
+              <Text style={[styles.listTitle, { color: COLORS.title }]}>Credit / Debit Card</Text>
+              <FeatherIcon color={COLORS.title} name="chevron-down" size={22} />
+            </TouchableOpacity>
+            <Collapsible collapsed={paymentOption !== 'Credit'}>
+              <View
+                style={{
+                  paddingHorizontal: 15,
+                  paddingBottom: 30,
+                }}
+              >
                 <Text
                   style={{
-                    ...FONTS.fontSatoshiBold,
-                    fontSize: 18,
-                    color: COLORS.title,
-                  }}>
-                  Rp792,000
+                    ...FONTS.font,
+                    color: COLORS.text,
+                    marginBottom: 10,
+                  }}
+                >
+                  Please ensure your card can be used for online transactions.
                 </Text>
-                <TouchableOpacity>
-                  <Text
-                    style={{
-                      ...FONTS.fontSatoshiRegular,
-                      color: COLORS.title,
-                      lineHeight: 16,
-                    }}>
-                    View Details
-                  </Text>
-                </TouchableOpacity>
+                <View style={{ marginBottom: 15 }}>
+                  <TextInput
+                    style={GlobalStyleSheet.formControl}
+                    placeholder="Card Number"
+                    placeholderTextColor={COLORS.label}
+                  />
+                </View>
+                <View style={{ marginBottom: 15 }}>
+                  <TextInput
+                    style={GlobalStyleSheet.formControl}
+                    placeholder="Name on card"
+                    placeholderTextColor={COLORS.label}
+                  />
+                </View>
+                <View style={GlobalStyleSheet.row}>
+                  <View style={GlobalStyleSheet.col50}>
+                    <TextInput
+                      style={GlobalStyleSheet.formControl}
+                      placeholder="Valid Thru(MM/YY)"
+                      placeholderTextColor={COLORS.label}
+                    />
+                  </View>
+                  <View style={GlobalStyleSheet.col50}>
+                    <TextInput
+                      style={GlobalStyleSheet.formControl}
+                      placeholder="CVV"
+                      placeholderTextColor={COLORS.label}
+                    />
+                  </View>
+                </View>
               </View>
-              <View style={{flex: 1}}>
-                <CustomButton
-                  onPress={() => props.navigation.navigate('DeliveryTracking')}
-                  title={'Pay now'}
-                  color={COLORS.title}
-                />
+            </Collapsible>
+          </View>
+
+          <View style={{ borderBottomWidth: 1, borderColor: COLORS.borderColor }}>
+            <TouchableOpacity
+              onPress={() => setPaymentOption(paymentOption === 'PhonePe' ? '' : 'PhonePe')}
+              style={styles.list}
+            >
+              <Image style={[styles.listImg, { tintColor: COLORS.title }]} source={pay} />
+              <Text style={[styles.listTitle, { color: COLORS.title }]}>PhonePe/ Google Pay/ BHIM UPI</Text>
+              <FeatherIcon color={COLORS.title} name="chevron-down" size={22} />
+            </TouchableOpacity>
+            <Collapsible collapsed={paymentOption !== 'PhonePe'}>
+              <View style={{ paddingBottom: 20 }}>
+                {PhonePeOption.map((data, index) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => setPayActive(data.title)}
+                      key={index}
+                      style={[
+                        styles.payList,
+                        {
+                          borderBottomColor: COLORS.borderColor,
+                        },
+                        PhonePeOption.length - 1 === index && {
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.listRadio,
+                          {
+                            borderColor: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            borderColor: COLORS.primary,
+                          },
+                        ]}
+                      >
+                        {payActive === data.title && <View style={styles.listRadioCircle} />}
+                      </View>
+                      <View
+                        style={[
+                          styles.payMedia,
+                          {
+                            borderColor: COLORS.borderColor,
+                          },
+                        ]}
+                      >
+                        <Image style={styles.payImg} source={data.image} />
+                      </View>
+                      <Text
+                        style={[
+                          {
+                            ...FONTS.font,
+                            color: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            ...FONTS.fontBold,
+                            color: COLORS.title,
+                          },
+                        ]}
+                      >
+                        {data.title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
+            </Collapsible>
+          </View>
+
+          <View style={{ borderBottomWidth: 1, borderColor: COLORS.borderColor }}>
+            <TouchableOpacity
+              onPress={() => setPaymentOption(paymentOption === 'PaytmWallet' ? '' : 'PaytmWallet')}
+              style={styles.list}
+            >
+              <Image style={[styles.listImg, { tintColor: COLORS.title }]} source={wallet} />
+              <Text style={[styles.listTitle, { color: COLORS.title }]}>Paytm/ Wallets</Text>
+              <FeatherIcon color={COLORS.title} name="chevron-down" size={22} />
+            </TouchableOpacity>
+            <Collapsible collapsed={paymentOption !== 'PaytmWallet'}>
+              <View style={{ paddingBottom: 20 }}>
+                {PhonePeOption.map((data, index) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => setPayActive(data.title)}
+                      key={index}
+                      style={[
+                        styles.payList,
+                        {
+                          borderBottomColor: COLORS.borderColor,
+                        },
+                        PhonePeOption.length - 1 === index && {
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.listRadio,
+                          {
+                            borderColor: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            borderColor: COLORS.primary,
+                          },
+                        ]}
+                      >
+                        {payActive === data.title && <View style={styles.listRadioCircle} />}
+                      </View>
+                      <View
+                        style={[
+                          styles.payMedia,
+                          {
+                            borderColor: COLORS.borderColor,
+                          },
+                        ]}
+                      >
+                        <Image style={styles.payImg} source={data.image} />
+                      </View>
+                      <Text
+                        style={[
+                          {
+                            ...FONTS.font,
+                            color: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            ...FONTS.fontBold,
+                            color: COLORS.title,
+                          },
+                        ]}
+                      >
+                        {data.title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </Collapsible>
+          </View>
+
+          <View style={{ borderBottomWidth: 1, borderColor: COLORS.borderColor }}>
+            <TouchableOpacity
+              onPress={() => setPaymentOption(paymentOption === 'Netbanking' ? '' : 'Netbanking')}
+              style={styles.list}
+            >
+              <Image style={[styles.listImg, { tintColor: COLORS.title }]} source={bank} />
+              <Text style={[styles.listTitle, { color: COLORS.title }]}>Net Banking</Text>
+              <FeatherIcon color={COLORS.title} name="chevron-down" size={22} />
+            </TouchableOpacity>
+            <Collapsible collapsed={paymentOption !== 'Netbanking'}>
+              <View style={{ paddingBottom: 20 }}>
+                {PhonePeOption.map((data, index) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => setPayActive(data.title)}
+                      key={index}
+                      style={[
+                        styles.payList,
+                        {
+                          borderBottomColor: COLORS.borderColor,
+                        },
+                        PhonePeOption.length - 1 === index && {
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.listRadio,
+                          {
+                            borderColor: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            borderColor: COLORS.primary,
+                          },
+                        ]}
+                      >
+                        {payActive === data.title && <View style={styles.listRadioCircle} />}
+                      </View>
+                      <View
+                        style={[
+                          styles.payMedia,
+                          {
+                            borderColor: COLORS.borderColor,
+                          },
+                        ]}
+                      >
+                        <Image style={styles.payImg} source={data.image} />
+                      </View>
+                      <Text
+                        style={[
+                          {
+                            ...FONTS.font,
+                            color: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            ...FONTS.fontBold,
+                            color: COLORS.title,
+                          },
+                        ]}
+                      >
+                        {data.title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </Collapsible>
+          </View>
+
+          <View style={{ borderBottomWidth: 1, borderColor: COLORS.borderColor }}>
+            <TouchableOpacity
+              onPress={() => setPaymentOption(paymentOption === 'EMI' ? '' : 'EMI')}
+              style={styles.list}
+            >
+              <Image style={[styles.listImg, { tintColor: COLORS.title }]} source={personal} />
+              <Text style={[styles.listTitle, { color: COLORS.title }]}>EMI/ Pay Later</Text>
+              <FeatherIcon color={COLORS.title} name="chevron-down" size={22} />
+            </TouchableOpacity>
+            <Collapsible collapsed={paymentOption !== 'EMI'}>
+              <View style={{ paddingBottom: 20 }}>
+                {PhonePeOption.map((data, index) => {
+                  return (
+                    <TouchableOpacity
+                      onPress={() => setPayActive(data.title)}
+                      key={index}
+                      style={[
+                        styles.payList,
+                        {
+                          borderBottomColor: COLORS.borderColor,
+                        },
+                        PhonePeOption.length - 1 === index && {
+                          borderBottomWidth: 0,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={[
+                          styles.listRadio,
+                          {
+                            borderColor: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            borderColor: COLORS.primary,
+                          },
+                        ]}
+                      >
+                        {payActive === data.title && <View style={styles.listRadioCircle} />}
+                      </View>
+                      <View
+                        style={[
+                          styles.payMedia,
+                          {
+                            borderColor: COLORS.borderColor,
+                          },
+                        ]}
+                      >
+                        <Image style={styles.payImg} source={data.image} />
+                      </View>
+                      <Text
+                        style={[
+                          {
+                            ...FONTS.font,
+                            color: COLORS.text,
+                          },
+                          payActive === data.title && {
+                            ...FONTS.fontBold,
+                            color: COLORS.title,
+                          },
+                        ]}
+                      >
+                        {data.title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </Collapsible>
+          </View>
+
+          <View style={GlobalStyleSheet.container}>
+            <View
+              style={{
+                paddingHorizontal: 15,
+                paddingVertical: 15,
+                backgroundColor: '#eee',
+                borderRadius: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}
+            >
+              <Image
+                style={{
+                  height: 18,
+                  width: 18,
+                  marginRight: 12,
+                  tintColor: COLORS.title,
+                }}
+                source={gift}
+              />
+              <Text style={[styles.listTitle, { color: COLORS.title }]}>Have a Gift Card?</Text>
+              <TouchableOpacity>
+                <Text
+                  style={{
+                    ...FONTS.font,
+                    color: COLORS.info,
+                    ...FONTS.fontBold,
+                  }}
+                >
+                  APPLY
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <View style={GlobalStyleSheet.container}>
+            <View
+              style={{
+                borderBottomWidth: 1,
+                borderBottomColor: COLORS.borderColor,
+                paddingBottom: 10,
+                marginBottom: 10,
+              }}
+            >
+              <Text
+                style={{
+                  ...FONTS.font,
+                  ...FONTS.fontBold,
+                  color: COLORS.title,
+                }}
+              >
+                Price Details(1 item)
+              </Text>
+            </View>
+            <View style={styles.detailList}>
+              <Text style={{ ...FONTS.font, color: COLORS.text }}>Total MRP</Text>
+              <Text style={{ ...FONTS.font, color: COLORS.text }}>1,079,200</Text>
+            </View>
+            <View style={styles.detailList}>
+              <Text style={{ ...FONTS.font, color: COLORS.text }}>Discount on MRP</Text>
+              <Text style={{ ...FONTS.font, color: COLORS.success }}>-79,200</Text>
+            </View>
+            <View style={styles.detailList}>
+              <Text style={{ ...FONTS.font, color: COLORS.text }}>Coupon Discount</Text>
+              <Text style={{ ...FONTS.font, color: COLORS.success }}>-208,000</Text>
+            </View>
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderTopColor: COLORS.borderColor,
+                paddingTop: 8,
+                marginTop: 10,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Text
+                style={{
+                  ...FONTS.font,
+                  ...FONTS.fontBold,
+                  color: COLORS.title,
+                }}
+              >
+                Total Amount
+              </Text>
+              <Text
+                style={{
+                  ...FONTS.font,
+                  ...FONTS.fontBold,
+                  color: COLORS.title,
+                }}
+              >
+                792,000
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+        <View
+          style={[
+            GlobalStyleSheet.container,
+            {
+              borderTopWidth: 1,
+              borderColor: COLORS.borderColor,
+            },
+          ]}
+        >
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <View style={{ width: 120 }}>
+              <Text
+                style={{
+                  ...FONTS.fontSatoshiBold,
+                  fontSize: 18,
+                  color: COLORS.title,
+                }}
+              >
+                Rp792,000
+              </Text>
+              <TouchableOpacity>
+                <Text
+                  style={{
+                    ...FONTS.fontSatoshiRegular,
+                    color: COLORS.title,
+                    lineHeight: 16,
+                  }}
+                >
+                  View Details
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <View style={{ flex: 1 }}>
+              <CustomButton
+                onPress={() => props.navigation.navigate('DeliveryTracking')}
+                title="Pay now"
+                color={COLORS.title}
+              />
             </View>
           </View>
         </View>
-      </SafeAreaView>
-    </>
+      </View>
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   stepItem: {

@@ -4,7 +4,7 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import Button from '../Button/Button';
+import Button from '../../component-template/Button/Button';
 import CustomInput from '../Input/CustomInput';
 
 function RegisterSheet() {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView} from 'react-native';
+import { ScrollView } from 'react-native';
 import CartItem from '../../components/CartItem';
 import pic1 from '../../assets/images/shop/pic1.png';
 
@@ -17,7 +17,7 @@ const CartData = [
   },
 ];
 
-const Completed = () => {
+function Completed() {
   return (
     <ScrollView>
       {CartData.map((data, index) => (
@@ -36,6 +36,6 @@ const Completed = () => {
       ))}
     </ScrollView>
   );
-};
+}
 
 export default Completed;

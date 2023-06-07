@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   SafeAreaView,
   // ScrollView,
@@ -12,9 +12,12 @@ import {
 // import Octicons from 'react-native-vector-icons/Octicons';
 // import FeatherIcon from 'react-native-vector-icons/Feather';
 // import RBSheet from 'react-native-raw-bottom-sheet';
-import {COLORS, FONTS} from '../../constants/theme';
-import Header from '../../layout/Header';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { List, RadioButton, Snackbar } from 'react-native-paper';
+import { gql, useQuery, useLazyQuery } from '@apollo/client';
+import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import { COLORS, FONTS } from '../../constants/theme';
+import Header from '../../layout/Header';
 import ProductItem from '../../components/ProductItem';
 import pic1 from '../../assets/images/product/pic1.jpg';
 import pic2 from '../../assets/images/product/pic2.jpg';
@@ -24,12 +27,11 @@ import pic5 from '../../assets/images/product/pic5.jpg';
 import pic6 from '../../assets/images/product/pic6.jpg';
 import pic7 from '../../assets/images/product/pic7.jpg';
 import pic8 from '../../assets/images/product/pic8.jpg';
-import {List, RadioButton, Snackbar} from 'react-native-paper';
-import {ProductApi} from '../../service/shopify-api';
+import { ProductApi } from '../../service/shopify-api';
 // import Ripple from 'react-native-material-ripple';
 // import CheckBox from '@react-native-community/checkbox';
 // import {GlobalStyleSheet} from '../../constants/StyleSheet';
-// import CustomButton from '../../components/CustomButton';
+// import CustomButton from '../../../components/CustomButton';
 import MobilesData from '../../JSON/Mobiles.json';
 import ElectronicsData from '../../JSON/Electronics.json';
 import FashionData from '../../JSON/Fashion.json';
@@ -37,9 +39,7 @@ import FurnitureData from '../../JSON/Furniture.json';
 import GroceryData from '../../JSON/Grocery.json';
 import AppliancesData from '../../JSON/Appliances.json';
 import BooksToysData from '../../JSON/BooksToys.json';
-import {gql, useQuery, useLazyQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
-import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 
 const ProductData = [
   {
@@ -221,8 +221,8 @@ const GET_LIST_PRODUCTS_CATEGORIES = gql`
   }
 `;
 
-const Items = ({navigation, route}) => {
-  const {type, query, categories, colletionTitle} = route.params;
+function Items({ navigation, route }) {
+  const { type, query, categories, colletionTitle } = route.params;
   const [itemView, setItemView] = useState('grid');
   const [dataCategories, setDataCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(null);
@@ -253,22 +253,19 @@ const Items = ({navigation, route}) => {
 
   const [itemData, setItemData] = useState(Products);
 
-  const {data, fetchMore, loading} = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+  const { data, fetchMore, loading } = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
     variables: {
       first: 10,
       query: valSearch || query,
     },
   });
 
-  const [filterSearch, {loading: loadingSearch}] = useLazyQuery(
-    GET_LIST_PRODUCTS_CATEGORIES,
-    {
-      onCompleted: ({products}) => {
-        const results = products?.edges || [];
-        setDataCategories(results);
-      },
+  const [filterSearch, { loading: loadingSearch }] = useLazyQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+    onCompleted: ({ products }) => {
+      const results = products?.edges || [];
+      setDataCategories(results);
     },
-  );
+  });
 
   const handleSearchButton = () => {
     filterSearch({
@@ -294,7 +291,7 @@ const Items = ({navigation, route}) => {
   };
 
   const handleItemLike = val => {
-    let items = itemData.map(data => {
+    const items = itemData.map(data => {
       if (val === data.id) {
         if (data.isLike) {
           setSnackText('Item removed to Favourite.');
@@ -302,7 +299,7 @@ const Items = ({navigation, route}) => {
           setSnackText('Item add to Favourite.');
         }
         setIsSnackbar(true);
-        return {...data, isLike: !data.isLike};
+        return { ...data, isLike: !data.isLike };
       }
       return data;
     });
@@ -316,18 +313,15 @@ const Items = ({navigation, route}) => {
         const result = await fetchMore({
           variables: {
             first: 10,
-            query: query,
+            query,
             after: data.products.pageInfo.endCursor,
           },
-          updateQuery: (prev, {fetchMoreResult}) => {
+          updateQuery: (prev, { fetchMoreResult }) => {
             if (!fetchMoreResult) return prev;
             return {
               products: {
                 ...fetchMoreResult.products,
-                edges: [
-                  ...prev.products.edges,
-                  ...fetchMoreResult.products.edges,
-                ],
+                edges: [...prev.products.edges, ...fetchMoreResult.products.edges],
               },
             };
           },
@@ -355,36 +349,30 @@ const Items = ({navigation, route}) => {
   const renderPaginationButtons = () => {
     if (currentPage === 1 && data && data.products.pageInfo.hasNextPage) {
       return (
-        <TouchableOpacity
-          style={styles.paginationButton}
-          onPress={handleNextPage}>
+        <TouchableOpacity style={styles.paginationButton} onPress={handleNextPage}>
           <AntDesignIcon name="right" size={20} color={COLORS.black} />
         </TouchableOpacity>
       );
-    } else if (currentPage > 1 && data && data.products.pageInfo.hasNextPage) {
+    }
+    if (currentPage > 1 && data && data.products.pageInfo.hasNextPage) {
       return (
         <>
-          <TouchableOpacity
-            style={styles.paginationButton}
-            onPress={handlePrevPage}>
+          <TouchableOpacity style={styles.paginationButton} onPress={handlePrevPage}>
             <AntDesignIcon name="left" size={20} color={COLORS.black} />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.paginationButton}
-            onPress={handleNextPage}>
+          <TouchableOpacity style={styles.paginationButton} onPress={handleNextPage}>
             {isLoadingMore ? (
-              <LoadingScreen type='circle' />
+              <LoadingScreen type="circle" />
             ) : (
               <AntDesignIcon name="right" size={20} color={COLORS.black} />
             )}
           </TouchableOpacity>
         </>
       );
-    } else if (currentPage > 1 && !data.products.pageInfo.hasNextPage) {
+    }
+    if (currentPage > 1 && !data.products.pageInfo.hasNextPage) {
       return (
-        <TouchableOpacity
-          style={styles.paginationButton}
-          onPress={handlePrevPage}>
+        <TouchableOpacity style={styles.paginationButton} onPress={handlePrevPage}>
           <AntDesignIcon name="left" size={20} color={COLORS.black} />
         </TouchableOpacity>
       );
@@ -392,7 +380,7 @@ const Items = ({navigation, route}) => {
     return null;
   };
 
-  const renderItem = ({item}) => (
+  const renderItem = ({ item }) => (
     // <View
     //   style={{
     //     width: itemView == 'list' ? '100%' : '50%',
@@ -413,22 +401,20 @@ const Items = ({navigation, route}) => {
     //     itemName={item.title}
     //   />
     // </View>
-    <View style={{width: '50%', paddingHorizontal: 5}}>
+    <View style={{ width: '50%', paddingHorizontal: 5 }}>
       <ProductItem
         onPress={() =>
           navigation.navigate('ProductDetail', {
             item: {
               title: item.node.title,
               images: item.node.images.edges,
-              oldPrice:
-                item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount,
+              oldPrice: item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount,
               price: item.node.variants.edges[0].node.price.amount,
               desc: item.node.descriptionHtml,
               variant: item.node.variants.edges,
             },
             // category: type,
-          })
-        }
+          })}
         imgLength
         id={item.node.id}
         imageSrc={item.node.images.edges[0].node.url}
@@ -621,19 +607,10 @@ const Items = ({navigation, route}) => {
         style={{
           flex: 1,
           backgroundColor: COLORS.backgroundColor,
-        }}>
-        <View style={{paddingHorizontal: 20}}>
-          <Header
-            titleLeft
-            leftIcon={'back'}
-            title={
-              categories
-                ? query
-                : colletionTitle
-                ? colletionTitle
-                : 'All Product'
-            }
-          />
+        }}
+      >
+        <View style={{ paddingHorizontal: 20 }}>
+          <Header titleLeft leftIcon="back" title={categories ? query : colletionTitle || 'All Product'} />
         </View>
         {/* <View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -741,7 +718,7 @@ const Items = ({navigation, route}) => {
             </View>
           </View> */}
 
-        <View style={{height: '100%'}}>
+        <View style={{ height: '100%' }}>
           <TouchableOpacity
             style={{
               borderWidth: 1,
@@ -753,22 +730,19 @@ const Items = ({navigation, route}) => {
               marginBottom: 10,
               marginHorizontal: 17,
             }}
-            onPress={handleFilterButtonClick}>
+            onPress={handleFilterButtonClick}
+          >
             <Text
               style={{
                 textAlign: 'center',
                 marginRight: 10,
                 marginVertical: 3,
                 ...FONTS.fontSatoshiBold,
-              }}>
+              }}
+            >
               Filter
             </Text>
-            <AntDesignIcon
-              color={'#374957'}
-              size={20}
-              name="filter"
-              style={{textAlign: 'center', marginVertical: 3}}
-            />
+            <AntDesignIcon color="#374957" size={20} name="filter" style={{ textAlign: 'center', marginVertical: 3 }} />
           </TouchableOpacity>
           {showInput && (
             <View>
@@ -781,7 +755,7 @@ const Items = ({navigation, route}) => {
                   marginHorizontal: 17,
                 }}
                 placeholder="Search"
-                autoFocus={true}
+                autoFocus
                 value={valSearch}
                 onChangeText={handleValChange}
               />
@@ -790,7 +764,8 @@ const Items = ({navigation, route}) => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginBottom: 8,
-                }}>
+                }}
+              >
                 <TouchableOpacity
                   style={{
                     backgroundColor: '#333333',
@@ -803,14 +778,16 @@ const Items = ({navigation, route}) => {
                     alignItems: 'center',
                     height: 38,
                   }}
-                  onPress={handleSearchButton}>
+                  onPress={handleSearchButton}
+                >
                   <Text
                     style={{
                       color: COLORS.white,
                       ...FONTS.fontSatoshiBold,
                       textAlign: 'center',
                       alignItems: 'center',
-                    }}>
+                    }}
+                  >
                     Search
                   </Text>
                   <Ionicons
@@ -829,8 +806,7 @@ const Items = ({navigation, route}) => {
             </View>
           )}
           {loadingSearch || isLoading ? (
-            <View
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
               <LoadingScreen />
             </View>
           ) : (
@@ -851,9 +827,7 @@ const Items = ({navigation, route}) => {
               ListFooterComponent={
                 data &&
                 data.products.pageInfo.hasNextPage && (
-                  <View style={styles.paginationContainer}>
-                    {renderPaginationButtons()}
-                  </View>
+                  <View style={styles.paginationContainer}>{renderPaginationButtons()}</View>
                 )
               }
               onEndReached={handleLoadMore}
@@ -870,13 +844,14 @@ const Items = ({navigation, route}) => {
             onPress: () => {
               navigation.navigate('Wishlist');
             },
-          }}>
+          }}
+        >
           {snackText}
         </Snackbar>
       </SafeAreaView>
     </>
   );
-};
+}
 
 // const styles = StyleSheet.create({
 //   badge: {

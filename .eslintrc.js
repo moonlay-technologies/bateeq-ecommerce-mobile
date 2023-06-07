@@ -1,13 +1,4 @@
 module.exports = {
-  // root: true,
-  // extends: '@react-native-community',
-  // 'prettier/prettier': [
-  //   'error',
-  //   {
-  //     'singleQuote': true,
-  //     'parser': 'flow',
-  //   },
-  // ],
   extends: ['airbnb', 'plugin:prettier/recommended'],
   plugins: [
     'react',
@@ -25,16 +16,6 @@ module.exports = {
   },
   rules: {
     'prettier/prettier': 2,
-    // [
-    //   'error',
-    //   {
-    //     endOfLine: 'auto',
-    //     // tabWidth: 2,
-    //     trailingComma: 'all',
-    //     singleQuote: true,
-    //     parser: 'flow',
-    //   },
-    // ],
     'no-nested-ternary': [0],
     'react/jsx-wrap-multilines': ['error', { declaration: false, assignment: false }],
     'arrow-body-style': 'off',
