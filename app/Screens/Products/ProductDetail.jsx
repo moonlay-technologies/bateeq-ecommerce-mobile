@@ -3,7 +3,7 @@ import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'r
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -17,7 +17,7 @@ import Header from '../../layout/Header';
 import { COLORS, FONTS } from '../../constants/theme';
 import { formatWithCommas } from '../../utils/helper';
 import { findVariantIdByOptions } from './helper';
-import { CART_REMOVE_ITEM, CREATE_CART, ADD_TO_CART } from '../../graphql/mutation';
+import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
 import LoadingScreen from '../../components/LoadingView';
@@ -44,19 +44,16 @@ function ProductDetail({ navigation, route }) {
     cartId: yup.string().required(),
   });
 
-  const { id } = route.params;
-  const dispatch = useDispatch();
+  const { id: prodcutId } = route.params;
   const cartStore = useSelector(state => state.cart);
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_TO_CART);
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [productRecommendations, setProductRecommendations] = useState([]);
-  const [cartCreate] = useMutation(CREATE_CART);
   const [snackText] = useState('Loading...');
   const [errors, setErrors] = useState({});
   const [qty, setQty] = useState(1);
   const cart = useSelector(state => state.cart);
-  // const [cartId, setCartId] = useState();
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
   const [product, setProduct] = useState({
     id: '',
@@ -82,7 +79,7 @@ function ProductDetail({ navigation, route }) {
   } = useQuery(GET_PRODUCT_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
-      id,
+      id: prodcutId,
     },
   });
   const {
@@ -92,7 +89,7 @@ function ProductDetail({ navigation, route }) {
   } = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
-      id,
+      id: prodcutId,
     },
   });
   const {
@@ -101,33 +98,9 @@ function ProductDetail({ navigation, route }) {
     loading: productRecommendationLoad,
   } = useQuery(GET_PRODUCT_RECOMMENDATION, {
     variables: {
-      productId: id,
+      prodcutId,
     },
   });
-
-  console.log('cartStore', cartStore);
-  useEffect(() => {
-    if (cart?.id) {
-      console.log('ada cart id', cart?.id);
-    } else {
-      console.log('gapunya cart id', cart?.id);
-      handleCreateCart();
-    }
-  }, [cart]);
-
-  const handleCreateCart = async () => {
-    const { data: cartCreated } = await cartCreate({
-      variables: {
-        input: {
-          note: '',
-        },
-      },
-    });
-    if (cartCreated?.cartCreate?.cart) {
-      const { id: cartId } = cartCreated.cartCreate.cart;
-      dispatch(setCartId(cartId));
-    }
-  };
 
   const isLoading = [productDataLoad, optionDataLoad, productRecommendationLoad].some(i => i === true);
   const isError = [productRecommendationError, productDataError, getOptionsError].some(i => i);
@@ -143,7 +116,7 @@ function ProductDetail({ navigation, route }) {
         title,
         images: { edges },
         variants: { edges: variantEdge },
-      } = productData?.product;
+      } = productData.product;
 
       const [
         {
@@ -168,9 +141,9 @@ function ProductDetail({ navigation, route }) {
 
       setProductRecommendations(productRecommendation || []);
 
-      const options = optionData?.product?.options || [];
+      const optionsVariant = optionData?.product?.options || [];
 
-      options.forEach(option => {
+      optionsVariant.forEach(option => {
         if (option.name.toLowerCase() === 'color') {
           colorOptions.push(
             ...option.values.map(i => ({
@@ -192,9 +165,9 @@ function ProductDetail({ navigation, route }) {
         color: colorOptions || [],
         size: sizeOptions || [],
       });
-      // if (cart) {
-      // setCartId(cart?.id);
-      // }
+      if (cart) {
+        setCartId(cart?.id);
+      }
     } else if (isError) {
       Toast.show({
         type: 'error',
@@ -206,7 +179,7 @@ function ProductDetail({ navigation, route }) {
           'something went wrong',
       });
     }
-  }, [id, isLoading, isError, cart]);
+  }, [isLoading, isError, cart]);
 
   const onSelectValue = (type, value) => {
     if (type === 'size') {
@@ -231,14 +204,14 @@ function ProductDetail({ navigation, route }) {
       size: variants.size,
       color: variants.color,
       variant_id: variantId,
-      // cartId: cartId || '',
+      cartId: cartStore?.id || '',
     };
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
         console.log('result', result);
 
-        const { data } = await cartLinesAdd({
+        const { data: addLine } = await cartLinesAdd({
           variables: {
             cartId: result.cartId,
             lines: [
@@ -259,7 +232,7 @@ function ProductDetail({ navigation, route }) {
             ],
           },
         });
-        if (data?.cartLinesAdd?.cart.id) {
+        if (addLine?.cartLinesAdd?.cart.id) {
           setErrors({});
           setOptions({
             color: [],
@@ -376,7 +349,7 @@ function ProductDetail({ navigation, route }) {
                 >
                   {amount.currencyCode} 
 {' '}
-{formatWithCommas(Number(amount.original_price).toLocaleString())}
+{formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}
                 </Text>
               )}
               <Text
@@ -386,9 +359,9 @@ function ProductDetail({ navigation, route }) {
                   fontSize: 20,
                 }}
               >
-                {amount.currencyCode} 
-{' '}
-{formatWithCommas(Number(amount.discounted_price).toLocaleString())}
+                {amount.currencyCode}
+
+                {formatWithCommas(Number(amount.discounted_price * qty).toLocaleString())}
               </Text>
             </View>
             {product && <CustomHTML htmlContent={product.descriptionHtml} />}

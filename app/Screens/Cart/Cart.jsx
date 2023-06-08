@@ -3,16 +3,16 @@ import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useMutation, useQuery } from '@apollo/client';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { GET_CART_BY_ID } from '../../graphql/queries';
 import { COLORS, FONTS } from '../../constants/theme';
 import CartList from '../../components/CartList';
-import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import Modal from '../../components/ActionModalComponent';
 import { CART_REMOVE_ITEM } from '../../graphql/mutation';
-import ButtonSm from '../../component-template/Button/ButtonSm';
 import Header from '../../layout/Header';
 import NoContent from '../../components/NoContent';
+import Button from '../../components/ButtonComponent';
 
 function Cart({ navigation }) {
   const cart = useSelector(state => state.cart);
@@ -24,7 +24,7 @@ function Cart({ navigation }) {
     show: false,
     data: '',
   });
-  console.log('cart', cart);
+  console.log('cart', cartList);
   const {
     data: cartData,
     error,
@@ -174,7 +174,8 @@ function Cart({ navigation }) {
                     refreshCartData={refreshCartData}
                     merchandiseId={merchandiseId}
                     addComponent={
-                      <ButtonSm
+                      <Button
+                        size="sm"
                         title="Delete"
                         color="#e63f31"
                         style={{
@@ -191,7 +192,8 @@ function Cart({ navigation }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))}
+                          }))
+                        }
                       />
                     }
                   />
@@ -228,11 +230,13 @@ function Cart({ navigation }) {
               height: 100,
             }}
           >
-            <CustomButton
+            <Button
               onPress={() => navigation.navigate('Checkout')}
               title="Checkout"
-              customWidth={200}
-              arrowIcon
+              size="xxl"
+              icon={Ionicons}
+              iconName="md-arrow-forward"
+              textColor="#fff"
             />
           </View>
         </ScrollView>

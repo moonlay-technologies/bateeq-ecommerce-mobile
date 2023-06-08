@@ -389,7 +389,6 @@ function MainHome({ navigation }) {
               >
                 {dataAllProduct?.slice(0, 4) &&
                   dataAllProduct?.slice(0, 4)?.map(product => {
-                    console.log('product', product);
                     return (
                       <View
                         key={product.node.id}
@@ -403,7 +402,8 @@ function MainHome({ navigation }) {
                           onPress={() =>
                             navigation.navigate('ProductDetail', {
                               id: product.node.id,
-                            })}
+                            })
+                          }
                           imageSrc={product.node.images.edges[0].node.url}
                           title={product.node.title}
                           price={product?.node?.variants?.edges[0].node.price.amount}

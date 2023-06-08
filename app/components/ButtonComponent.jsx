@@ -3,28 +3,53 @@ import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 
 function Button(props) {
-  const { onPress, style, color, btnSquare, btnRounded, textColor, title, size = '' } = props;
+  const {
+    onPress,
+    style,
+    color,
+    textStyle,
+    title,
+    size = '',
+    icon: Icon,
+    iconName = '',
+    iconSize = 18,
+    iconStyles = {
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 4,
+      marginLeft: 20,
+    },
+  } = props;
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => onPress && onPress()}
-      style={
-        (size === 'lg' ? styles.lg : size === 'sm' ? styles.sm : styles.default,
-        {
-          ...style,
-          backgroundColor: color || COLORS.primary,
-          alignItems: 'center',
-        })
-      }
+      style={{
+        ...style,
+        ...(size === 'lg' ? styles.lg : size === 'sm' ? styles.sm : size === 'xxl' ? styles.xxl : styles.default),
+        backgroundColor: style?.backgroundColor
+          ? style.backgroundColor
+          : color || (size === 'xxl' ? '#333333' : COLORS.primary),
+        alignItems: 'center',
+      }}
     >
       <Text
-        style={
-          (size === 'lg' ? styles.lgText : size === 'sm' ? styles.smText : { ...styles.defaultText },
-          [{ color: COLORS.white, ...(textColor && { color: textColor }) }])
-        }
+        style={{
+          ...(size === 'lg'
+            ? styles.lgText
+            : size === 'sm'
+            ? styles.smText
+            : size === 'xxl'
+            ? styles.xxlText
+            : { ...styles.defaultText }),
+          color: textStyle?.color ? textStyle.color : COLORS.white,
+          fontWeight: textStyle?.fontWeight ? textStyle.fontWeight : '500',
+        }}
       >
         {title}
       </Text>
+      {Icon && <Icon name={iconName} size={iconSize} color={COLORS.white} styles={iconStyles} />}
     </TouchableOpacity>
   );
 }
@@ -35,7 +60,7 @@ const styles = StyleSheet.create({
   default: {
     paddingHorizontal: 18,
     paddingVertical: 12,
-    borderRadius: 30,
+    borderRadius: 20,
   },
   defaultText: {
     ...FONTS.h6,
@@ -43,7 +68,7 @@ const styles = StyleSheet.create({
   lg: {
     paddingHorizontal: 10,
     paddingVertical: 16,
-    borderRadius: 40,
+    borderRadius: 15,
   },
   lgText: {
     ...FONTS.h5,
@@ -52,10 +77,28 @@ const styles = StyleSheet.create({
   sm: {
     paddingHorizontal: 10,
     paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: SIZES.radius_sm,
   },
   smText: {
     ...FONTS.fontSm,
     ...FONTS.fontPoppins,
+  },
+  xxl: {
+    height: 50,
+    width: 200,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    shadowColor: COLORS.title,
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+    elevation: 8,
+  },
+  xxlText: {
+    fontSize: 14,
+    ...FONTS.fontSatoshiBold,
   },
 });
