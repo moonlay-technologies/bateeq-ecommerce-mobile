@@ -19,20 +19,25 @@ function Button(props) {
       marginTop: 4,
       marginLeft: 20,
     },
+    disabled = false,
   } = props;
 
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={() => onPress && onPress()}
-      style={{
-        ...style,
-        ...(size === 'lg' ? styles.lg : size === 'sm' ? styles.sm : size === 'xxl' ? styles.xxl : styles.default),
-        backgroundColor: style?.backgroundColor
-          ? style.backgroundColor
-          : color || (size === 'xxl' ? '#333333' : COLORS.primary),
-        alignItems: 'center',
-      }}
+      onPress={() => (disabled ? null : onPress())}
+      style={[
+        style,
+        size === 'lg' ? styles.lg : size === 'sm' ? styles.sm : size === 'xxl' ? styles.xxl : styles.default,
+        {
+          backgroundColor: style?.backgroundColor
+            ? style.backgroundColor
+            : color || (size === 'xxl' ? '#333333' : COLORS.primary),
+        },
+        { alignItems: 'center' },
+        disabled && styles.disabled,
+      ]}
+      disabled={disabled}
     >
       <Text
         style={{
@@ -100,5 +105,8 @@ const styles = StyleSheet.create({
   xxlText: {
     fontSize: 14,
     ...FONTS.fontSatoshiBold,
+  },
+  disabled: {
+    opacity: 0.5,
   },
 });

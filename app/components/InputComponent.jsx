@@ -8,6 +8,7 @@ function Input({
   secureTextEntry = false,
   onSubmitEditing,
   handleInputChange,
+  value = '',
   keyboardType = 'default',
   label = '',
   errors = {},
@@ -22,6 +23,7 @@ function Input({
         placeholder={placeholder}
         secureTextEntry={secureTextEntry}
         onChangeText={handleInputChange}
+        defaultValue={value}
         onSubmitEditing={onSubmitEditing}
         style={GlobalStyleSheet.formControl}
         placeholderTextColor={COLORS.label}

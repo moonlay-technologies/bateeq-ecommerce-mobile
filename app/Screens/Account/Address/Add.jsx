@@ -3,17 +3,17 @@ import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import * as yup from 'yup';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { useMutation } from '@apollo/client';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { COLORS, FONTS } from '../../constants/theme';
-import Header from '../../layout/Header';
-import CustomButton from '../../components/CustomButton';
-import Input from '../../components/InputComponent';
-import InputTextArea from '../../components/InputTextArea';
+import { useSelector } from 'react-redux';
+import { GlobalStyleSheet } from '../../../constants/StyleSheet';
+import { COLORS, FONTS } from '../../../constants/theme';
+import Header from '../../../layout/Header';
+import CustomButton from '../../../components/CustomButton';
+import Input from '../../../components/InputComponent';
+import InputTextArea from '../../../components/InputTextArea';
 
-import { CountriesApi } from '../../service/shopify-api';
-import AsyncSelectComponent from '../../components/SelectAsyncComponent';
-import { CREATE_ADDRESS } from '../../graphql/mutation';
-import AuthService from '../../service/auth/auth-service';
+import { CountriesApi } from '../../../service/shopify-api';
+import AsyncSelectComponent from '../../../components/SelectAsyncComponent';
+import { CREATE_ADDRESS } from '../../../graphql/mutation';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -29,6 +29,7 @@ const schema = yup.object().shape({
 });
 
 function AddDeliveryAddress({ navigation }) {
+  const { customerInfo, getToken } = useSelector(state => state.user);
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -136,7 +137,7 @@ function AddDeliveryAddress({ navigation }) {
               company: result.company,
               zip: result.postal_code,
             },
-            customerAccessToken: await AuthService.getToken(),
+            customerAccessToken: getToken,
           },
         });
 
@@ -218,6 +219,7 @@ function AddDeliveryAddress({ navigation }) {
               name="first_name"
               label="First Name"
               placeholder="e.g. John"
+              value={customerInfo?.first_name}
               handleInputChange={val => handleFieldChange(val, 'first_name')}
               errors={errors}
             />
@@ -225,6 +227,7 @@ function AddDeliveryAddress({ navigation }) {
               name="last_name"
               label="Last Name"
               placeholder="e.g. Doe"
+              value={customerInfo?.last_name}
               handleInputChange={val => handleFieldChange(val, 'last_name')}
               errors={errors}
             />
@@ -233,6 +236,7 @@ function AddDeliveryAddress({ navigation }) {
               label="Phone Number"
               placeholder="e.g. +628123456789"
               keyboardType="phone-pad"
+              value={customerInfo?.phone}
               handleInputChange={val => handleFieldChange(val, 'phone_number')}
               errors={errors}
             />

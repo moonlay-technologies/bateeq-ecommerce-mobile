@@ -161,6 +161,17 @@ export const GET_CUSTOMER_INFO = gql`
       acceptsMarketing
       email
       phone
+      defaultAddress {
+        address1
+        address2
+        company
+        phone
+        name
+        city
+        province
+        country
+        zip
+      }
       addresses(first: 10) {
         edges {
           node {

@@ -15,6 +15,7 @@ const userSlice = createSlice({
       last_name: '',
       phone: '',
     },
+    defaultAddress: '',
   },
   reducers: {
     setIsLogin: (state, action) => {
@@ -25,6 +26,9 @@ const userSlice = createSlice({
     },
     setAddress: (state, action) => {
       state.userAddress = action.payload;
+    },
+    setDefaultAddress: (state, action) => {
+      state.defaultAddress = action.payload;
     },
     setCustomerInfo: (state, action) => {
       state.customerInfo = action.payload;
@@ -79,7 +83,7 @@ const cartSlice = createSlice({
 
 export const { setIsOpen } = sidebarSlice.actions;
 export const { setCartId, getCartId, setCartData } = cartSlice.actions;
-export const { setIsLogin, setToken, setAddress, setCustomerInfo } = userSlice.actions;
+export const { setIsLogin, setToken, setAddress, setCustomerInfo, setDefaultAddress } = userSlice.actions;
 
 const rootReducer = {
   sidebar: sidebarSlice.reducer,

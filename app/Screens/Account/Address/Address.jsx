@@ -6,22 +6,20 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { COLORS, FONTS } from '../../constants/theme';
-import Header from '../../layout/Header';
+import { GlobalStyleSheet } from '../../../constants/StyleSheet';
+import { COLORS, FONTS } from '../../../constants/theme';
+import Header from '../../../layout/Header';
 
-import Modal from '../../components/ActionModalComponent';
-import { GET_CUSTOMER_ADDRESS } from '../../graphql/queries';
-import AuthService from '../../service/auth/auth-service';
-import LoadingComponent from '../../components/LoadingView';
-import { setAddress } from '../../store/reducer';
-import { REMOVE_CUSTOMER_ADDRESS } from '../../graphql/mutation';
+import Modal from '../../../components/ActionModalComponent';
+import { GET_CUSTOMER_ADDRESS } from '../../../graphql/queries';
+import LoadingComponent from '../../../components/LoadingView';
+import { setAddress } from '../../../store/reducer';
+import { CUSTOMER_DEFAULT_ADDRESS_UPDATE, REMOVE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
 
 function Address() {
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { userAddress } = useSelector(state => state.user);
-  const [token, setToken] = useState('');
+  const { userAddress, getToken, defaultAddress } = useSelector(state => state.user);
   const [customerAddress, setCustomerAddress] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [addressSelected, setAddressSelected] = useState();
@@ -38,29 +36,16 @@ function Address() {
   } = useQuery(GET_CUSTOMER_ADDRESS, {
     variables: {
       fetchPolicy: 'no-cache',
-      accessToken: token,
+      accessToken: getToken,
       limit: 20,
     },
   });
-  console.log('address', address);
+
   const [customerAddressDelete] = useMutation(REMOVE_CUSTOMER_ADDRESS);
+  const [customerDefaultAddressUpdate] = useMutation(CUSTOMER_DEFAULT_ADDRESS_UPDATE);
 
   useEffect(() => {
-    setIsLoading(true);
-    refetch();
-    AuthService?.getToken()
-      .then(result => {
-        setToken(result || '');
-        setIsLoading(false);
-      })
-      .catch(err => {
-        Toast.show({
-          type: 'error',
-          text1: 'Oops!',
-          text2: err?.originalError?.message || 'something went wrong',
-        });
-        setIsLoading(false);
-      });
+    // refetch();
   }, []);
 
   useEffect(() => {
@@ -74,9 +59,9 @@ function Address() {
     }
   }, [address]);
 
-  const handleSelectAddress = address => {
+  const handleSelectAddress = value => {
     dispatch(setAddress(''));
-    setAddressSelected(address);
+    setAddressSelected(value);
   };
 
   const handleDelete = async () => {
@@ -84,7 +69,7 @@ function Address() {
     await customerAddressDelete({
       variables: {
         id: showModal?.data?.id,
-        customerAccessToken: token,
+        customerAccessToken: getToken,
       },
     });
     refetch();
@@ -94,12 +79,30 @@ function Address() {
     }));
     setIsLoadingDelete(false);
   };
-
-  const onSubmit = () => {
+  console.log('addressSekected', addressSelected);
+  const onSubmit = async () => {
     setIsLoading(true);
-    dispatch(setAddress(addressSelected));
-    setIsLoading(false);
-    navigation.pop();
+
+    const { data, errors } = await customerDefaultAddressUpdate({
+      variables: {
+        addressId: addressSelected?.id,
+        customerAccessToken: getToken,
+      },
+    });
+    console.log('onSubmit data', data);
+    if (data) {
+      dispatch(setAddress(addressSelected));
+      setIsLoading(false);
+      navigation.pop();
+    }
+    if (errors) {
+      setIsLoading(false);
+      Toast.show({
+        type: 'error',
+        text1: 'Oops',
+        text2: 'errors',
+      });
+    }
   };
 
   return (
@@ -138,7 +141,14 @@ function Address() {
 
               return (
                 <TouchableOpacity
-                  style={[styles.card, addressSelected?.address1 === address ? styles.selectedCard : null]}
+                  style={[
+                    styles.card,
+                    !addressSelected && defaultAddress?.address1 === address1
+                      ? styles.selectedCard
+                      : addressSelected?.address1 === address1
+                      ? styles.selectedCard
+                      : null,
+                  ]}
                   onPress={() => handleSelectAddress(item)}
                   key={index}
                 >
@@ -152,6 +162,11 @@ function Address() {
                       {[addressSelected?.address1 === address1, userAddress?.address1 === address1].some(
                         i => i === true
                       ) && (
+                        <View style={styles.tag}>
+                          <Text style={styles.tagText}>Selected</Text>
+                        </View>
+                      )}
+                      {!userAddress?.address1 && !addressSelected && defaultAddress?.address1 === address1 && (
                         <View style={styles.tag}>
                           <Text style={styles.tagText}>Selected</Text>
                         </View>

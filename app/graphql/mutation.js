@@ -123,16 +123,32 @@ export const REMOVE_CUSTOMER_ADDRESS = gql`
     }
   }
 `;
-export const CUSTOMER_UPDATE_DEFAULT_UPDATE = gql`
-  mutation customerUpdateDefaultAddress($addressId: ID!, $customerId: ID!) {
-    customerUpdateDefaultAddress(addressId: $addressId, customerId: $customerId) {
+export const CUSTOMER_DEFAULT_ADDRESS_UPDATE = gql`
+  mutation customerDefaultAddressUpdate($addressId: ID!, $customerAccessToken: String!) {
+    customerDefaultAddressUpdate(addressId: $addressId, customerAccessToken: $customerAccessToken) {
       customer {
-        defaultAddress {
-          id
-        }
+        id
       }
-      userErrors {
+      customerUserErrors {
         message
+      }
+    }
+  }
+`;
+
+export const CREATE_CHECKOUT = gql`
+  mutation CheckoutCreate($input: CheckoutCreateInput!) {
+    checkoutCreate(input: $input) {
+      checkout {
+        id
+        webUrl
+        createdAt
+        updatedAt
+        note
+      }
+      checkoutUserErrors {
+        message
+        field
       }
     }
   }

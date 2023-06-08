@@ -10,7 +10,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import SplashScreen from '../components/SplashScreen';
 import StackNavigator from './StackNavigator';
 import { GET_CUSTOMER_INFO } from '../graphql/queries';
-import { setIsLogin, setCustomerInfo, setToken, setCartId } from '../store/reducer';
+import { setIsLogin, setCustomerInfo, setToken, setCartId, setDefaultAddress } from '../store/reducer';
 import { CREATE_CART } from '../graphql/mutation';
 
 function Routes() {
@@ -21,13 +21,12 @@ function Routes() {
   const { isLogin, getToken } = useSelector(state => state.user);
 
   const cart = useSelector(state => state.cart);
-  const [createLineAdd] = useState();
   const { data } = useQuery(GET_CUSTOMER_INFO, {
     variables: {
       accessToken: getToken,
     },
   });
-  console.log('data', data);
+  console.log('GET_CUSTOMER_INFO', data);
   const [cartCreate] = useMutation(CREATE_CART);
 
   useEffect(() => {
@@ -48,7 +47,6 @@ function Routes() {
         const token = await AsyncStorage.getItem('accessToken');
         if (isLogin || token) {
           const accessToken = token;
-          console.log('accessToken', accessToken);
           if (cart?.id) {
             console.log('CART ID', cart);
           } else {
@@ -65,6 +63,19 @@ function Routes() {
                   first_name: data?.customer?.firstName,
                   last_name: data?.customer?.lastName,
                   phone: data?.customer?.phone,
+                })
+              );
+              dispatch(
+                setDefaultAddress({
+                  address1: data?.customer?.defaultAddress?.address1,
+                  address2: data?.customer?.defaultAddress?.address2,
+                  city: data?.customer?.defaultAddress?.city,
+                  company: data?.customer?.defaultAddress?.company,
+                  country: data?.customer?.defaultAddress?.country,
+                  name: data?.customer?.defaultAddress?.name,
+                  phone: data?.customer?.defaultAddress?.phone,
+                  province: data?.customer?.defaultAddress?.province,
+                  zip: data?.customer?.defaultAddress?.zip,
                 })
               );
             }
