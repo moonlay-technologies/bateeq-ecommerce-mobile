@@ -1,5 +1,6 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 
 function Button(props) {
@@ -39,6 +40,7 @@ function Button(props) {
       ]}
       disabled={disabled}
     >
+      {/* <FontAwesome5Icon name="circle-notch" color="#d0d0d0" solid /> */}
       <Text
         style={{
           ...(size === 'lg'

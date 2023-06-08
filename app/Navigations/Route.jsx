@@ -56,6 +56,7 @@ function Routes() {
           batch(() => {
             dispatch(setToken(accessToken));
             dispatch(setIsLogin(!!accessToken));
+
             if (data?.customer) {
               dispatch(
                 setCustomerInfo({
@@ -75,7 +76,7 @@ function Routes() {
                   country: data?.customer?.defaultAddress?.country,
                   name: data?.customer?.defaultAddress?.name,
                   firstName: data?.customer?.defaultAddress?.firstName,
-                  lasttName: data?.customer?.defaultAddress?.lastName,
+                  lastName: data?.customer?.defaultAddress?.lastName,
                   phone: data?.customer?.defaultAddress?.phone,
                   province: data?.customer?.defaultAddress?.province,
                   zip: data?.customer?.defaultAddress?.zip,

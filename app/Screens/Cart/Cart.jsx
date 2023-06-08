@@ -6,13 +6,13 @@ import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { GET_CART_BY_ID } from '../../graphql/queries';
 import { COLORS, FONTS } from '../../constants/theme';
-import CartList from '../../components/CartList';
-import LoadingScreen from '../../components/LoadingView';
 import Modal from '../../components/ActionModalComponent';
 import { CART_REMOVE_ITEM, CREATE_CHECKOUT } from '../../graphql/mutation';
 import Header from '../../layout/Header';
+import CartList from '../../components/CartList';
 import NoContent from '../../components/NoContent';
 import Button from '../../components/ButtonComponent';
+import LoadingScreen from '../../components/LoadingView';
 import { setCheckoutData } from '../../store/reducer';
 
 function Cart({ navigation }) {
@@ -50,7 +50,7 @@ function Cart({ navigation }) {
       },
     }
   );
-  const [CheckoutCreate, { error: createCheckoutError }] = useMutation(CREATE_CHECKOUT);
+  const [checkoutCreate, { error: createCheckoutError }] = useMutation(CREATE_CHECKOUT);
 
   useEffect(() => {
     setCartList(cartData?.cart?.lines?.edges?.map(i => i.node));
@@ -94,43 +94,34 @@ function Cart({ navigation }) {
   const handleSubmit = async () => {
     setIsLoading(true);
     if (cartList?.length > 0) {
-      // console.log(
-      //   'cartlist map',
-      //   cartList?.map(i => ({
-      //     variantId: i.merchandise.product.id,
-      //     quantity: i.quantity,
-      //   }))
-      // );
-      // console.log('defaultAddress', defaultAddress);
-      // console.log('customerInfo', customerInfo);
-      // console.log('createCheckoutError', createCheckoutError);
-      const { data: checkoutData } = await CheckoutCreate({
+      const body = {
+        email: customerInfo.email,
+        note,
+        shippingAddress: {
+          address1: defaultAddress?.address1,
+          city: defaultAddress?.city,
+          province: defaultAddress?.province,
+          zip: defaultAddress?.zip,
+          country: defaultAddress?.country,
+          firstName: defaultAddress?.firstName,
+          lastName: defaultAddress?.lastName,
+        },
+        lineItems: cartList?.map(i => ({
+          variantId: i.merchandise.id,
+          quantity: i.quantity,
+        })),
+      };
+
+      const { data } = await checkoutCreate({
         variables: {
-          input: {
-            email: customerInfo.email,
-            note,
-            shippingAddress: {
-              address1: defaultAddress?.address1,
-              city: defaultAddress?.city,
-              province: defaultAddress?.province,
-              zip: defaultAddress?.zip,
-              country: defaultAddress?.country,
-              firstName: defaultAddress?.firstName,
-              lastName: defaultAddress?.lastName,
-            },
-            lineItems: cartList?.map(i => ({
-              variantId: i.merchandise.product.id,
-              quantity: i.quantity,
-            })),
-          },
+          input: body,
         },
       });
-      console.log('checkoutData', checkoutData);
-      if (checkoutData?.checkoutCreate) {
+      if (data?.checkoutCreate) {
         dispatch(
           setCheckoutData({
-            id: checkoutData.checkoutCreate.checkout.id,
-            webUrl: checkoutData.checkoutCreate.checkout.webUrl,
+            id: data?.checkoutCreate?.checkout?.id,
+            webUrl: data?.checkoutCreate?.checkout?.webUrl,
           })
         );
         setIsLoading(false);
@@ -138,6 +129,7 @@ function Cart({ navigation }) {
       }
     }
   };
+
   return (
     <SafeAreaView
       style={{
@@ -153,7 +145,8 @@ function Cart({ navigation }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))}
+          }))
+        }
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -236,8 +229,7 @@ function Cart({ navigation }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))
-                        }
+                          }))}
                       />
                     }
                   />
@@ -276,12 +268,12 @@ function Cart({ navigation }) {
           >
             <Button
               onPress={() => handleSubmit()}
-              title="Checkout"
+              title={isLoading ? 'Loading ...' : 'Checkout'}
               size="xxl"
               icon={Ionicons}
               iconName="md-arrow-forward"
               textColor="#fff"
-              disabled={isDisabled}
+              disabled={isDisabled || isLoading}
             />
           </View>
         </ScrollView>

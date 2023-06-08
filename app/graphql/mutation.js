@@ -137,7 +137,7 @@ export const CUSTOMER_DEFAULT_ADDRESS_UPDATE = gql`
 `;
 
 export const CREATE_CHECKOUT = gql`
-  mutation CheckoutCreate($input: CheckoutCreateInput!) {
+  mutation checkoutCreate($input: CheckoutCreateInput!) {
     checkoutCreate(input: $input) {
       checkout {
         id
