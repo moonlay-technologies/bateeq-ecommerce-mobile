@@ -45,10 +45,11 @@ function Routes() {
     const checkAccessToken = async () => {
       try {
         const token = await AsyncStorage.getItem('accessToken');
+        const cartLocal = await AsyncStorage.getItem('cartId');
         if (isLogin || token) {
           const accessToken = token;
-          if (cart?.id) {
-            console.log('CART ID', cart);
+          if (cartLocal) {
+            dispatch(setCartId(cartLocal));
           } else {
             handleCreateCart(accessToken);
           }
@@ -73,6 +74,8 @@ function Routes() {
                   company: data?.customer?.defaultAddress?.company,
                   country: data?.customer?.defaultAddress?.country,
                   name: data?.customer?.defaultAddress?.name,
+                  firstName: data?.customer?.defaultAddress?.firstName,
+                  lasttName: data?.customer?.defaultAddress?.lastName,
                   phone: data?.customer?.defaultAddress?.phone,
                   province: data?.customer?.defaultAddress?.province,
                   zip: data?.customer?.defaultAddress?.zip,
@@ -103,6 +106,7 @@ function Routes() {
     });
     if (cartCreated?.cartCreate?.cart) {
       const { id: cartId } = cartCreated.cartCreate.cart;
+      await AsyncStorage.setItem('cartId', cartId);
       dispatch(setCartId(cartId));
     }
   };

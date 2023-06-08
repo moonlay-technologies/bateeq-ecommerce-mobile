@@ -44,7 +44,7 @@ function ProductDetail({ navigation, route }) {
     cartId: yup.string().required(),
   });
 
-  const { id: prodcutId } = route.params;
+  const { id } = route.params;
   const cartStore = useSelector(state => state.cart);
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_TO_CART);
@@ -62,6 +62,7 @@ function ProductDetail({ navigation, route }) {
     images: [],
     variants: [],
   });
+
   const [amount, setAmount] = useState({
     currencyCode: '',
     original_price: '',
@@ -79,7 +80,7 @@ function ProductDetail({ navigation, route }) {
   } = useQuery(GET_PRODUCT_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
-      id: prodcutId,
+      id,
     },
   });
   const {
@@ -89,7 +90,7 @@ function ProductDetail({ navigation, route }) {
   } = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
-      id: prodcutId,
+      id,
     },
   });
   const {
@@ -98,7 +99,7 @@ function ProductDetail({ navigation, route }) {
     loading: productRecommendationLoad,
   } = useQuery(GET_PRODUCT_RECOMMENDATION, {
     variables: {
-      prodcutId,
+      prodcutId: id,
     },
   });
 
@@ -111,7 +112,7 @@ function ProductDetail({ navigation, route }) {
       const sizeOptions = [];
 
       const {
-        id,
+        id: productID,
         descriptionHtml,
         title,
         images: { edges },
@@ -129,8 +130,7 @@ function ProductDetail({ navigation, route }) {
         original_price: price?.amount,
         discounted_price: compareAtPrice?.amount,
       });
-      setProduct({ id, descriptionHtml, title, images: edges, variants: variantEdge });
-
+      setProduct({ id: productID, descriptionHtml, title, images: edges, variants: variantEdge });
       const productRecommendation = data?.productRecommendations.map(d => ({
         id: d.id,
         title: d.title,
@@ -180,6 +180,7 @@ function ProductDetail({ navigation, route }) {
       });
     }
   }, [isLoading, isError, cart]);
+  console.log('productRecommendations', productRecommendations);
 
   const onSelectValue = (type, value) => {
     if (type === 'size') {
@@ -347,9 +348,7 @@ function ProductDetail({ navigation, route }) {
                     fontSize: 16,
                   }}
                 >
-                  {amount.currencyCode} 
-{' '}
-{formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}
+                  {amount.currencyCode} {formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}
                 </Text>
               )}
               <Text

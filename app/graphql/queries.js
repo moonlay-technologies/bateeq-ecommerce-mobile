@@ -166,6 +166,8 @@ export const GET_CUSTOMER_INFO = gql`
         address2
         company
         phone
+        firstName
+        lastName
         name
         city
         province

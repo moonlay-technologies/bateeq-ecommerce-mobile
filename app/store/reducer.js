@@ -59,24 +59,20 @@ const cartSlice = createSlice({
       state.id = action.payload;
       AsyncStorage.setItem('cart', action.payload);
     },
-    extraReducers: builder => {
-      console.log('builder', builder);
-      builder.addCase('@@INIT', () => {
-        AsyncStorage.getItem('cart')
-          .then(cartId => {
-            console.log('cartId extraReducers', cartId);
-            // If cart ID exists in local storage, dispatch the setCartId action to update the state
-            if (cartId) {
-              store.dispatch(setCartId(cartId));
-            }
-          })
-          .catch(error => {
-            console.log('Error  local storage:', error);
-          });
-      });
-    },
     setCartData: (state, action) => {
       state.cartData = action.payload;
+    },
+  },
+});
+
+const checkoutSlice = createSlice({
+  name: 'checkout',
+  initialState: {
+    checkoutData: '',
+  },
+  reducers: {
+    setCheckoutData: (state, action) => {
+      state.checkoutData = action.payload;
     },
   },
 });
@@ -84,11 +80,13 @@ const cartSlice = createSlice({
 export const { setIsOpen } = sidebarSlice.actions;
 export const { setCartId, getCartId, setCartData } = cartSlice.actions;
 export const { setIsLogin, setToken, setAddress, setCustomerInfo, setDefaultAddress } = userSlice.actions;
+export const { setCheckoutData } = checkoutSlice.actions;
 
 const rootReducer = {
   sidebar: sidebarSlice.reducer,
   cart: cartSlice.reducer,
   user: userSlice.reducer,
+  checkout: checkoutSlice.reducer,
 };
 
 export default rootReducer;

@@ -6,6 +6,7 @@ const store = configureStore({
     open: rootReducer.sidebar,
     cart: rootReducer.cart,
     user: rootReducer.user,
+    checkout: rootReducer.checkout,
   },
 });
 

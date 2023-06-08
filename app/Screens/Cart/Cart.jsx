@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useMutation, useQuery } from '@apollo/client';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -9,22 +9,26 @@ import { COLORS, FONTS } from '../../constants/theme';
 import CartList from '../../components/CartList';
 import LoadingScreen from '../../components/LoadingView';
 import Modal from '../../components/ActionModalComponent';
-import { CART_REMOVE_ITEM } from '../../graphql/mutation';
+import { CART_REMOVE_ITEM, CREATE_CHECKOUT } from '../../graphql/mutation';
 import Header from '../../layout/Header';
 import NoContent from '../../components/NoContent';
 import Button from '../../components/ButtonComponent';
+import { setCheckoutData } from '../../store/reducer';
 
 function Cart({ navigation }) {
-  const cart = useSelector(state => state.cart);
+  const dispatch = useDispatch();
+  const cartStore = useSelector(state => state.cart);
+  const { customerInfo, defaultAddress } = useSelector(state => state.user);
   const [cartList, setCartList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isChange, setIsChange] = useState(false);
-
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [note, setNote] = useState('');
   const [showModal, setShowModal] = useState({
     show: false,
     data: '',
   });
-  console.log('cart', cartList);
+
   const {
     data: cartData,
     error,
@@ -33,7 +37,7 @@ function Cart({ navigation }) {
   } = useQuery(GET_CART_BY_ID, {
     fetchPolicy: 'no-cache',
     variables: {
-      id: cart?.id,
+      id: cartStore?.id,
     },
   });
 
@@ -41,28 +45,21 @@ function Cart({ navigation }) {
     CART_REMOVE_ITEM,
     {
       variables: {
-        cartId: cart?.id,
+        cartId: cartStore?.id,
         lineIds: showModal?.data?.lineId,
       },
     }
   );
+  const [CheckoutCreate, { error: createCheckoutError }] = useMutation(CREATE_CHECKOUT);
 
   useEffect(() => {
     setCartList(cartData?.cart?.lines?.edges?.map(i => i.node));
-    // } else {
-    //     setCartList(prev => {
-    //       if (lineIndex !== -1)
-    //       return prev.map((item, index) => {
-    //         if(index === lineIndex) {
-    //           return {
-    //             ...item,
-    //             quantity: cart?.cartData?.quantity
-    //           }
-    //         }
-    //         return item
-    //       })
-    //     })
-    // }
+    // refetch();
+    if (cartList?.length === 0) {
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
 
     if (error) {
       Toast.show({
@@ -71,7 +68,7 @@ function Cart({ navigation }) {
         text2: error?.originalError?.message || 'something went wrong',
       });
     }
-  }, [loading, error, isLoading, cart, isChange, mutationData, cartData]);
+  }, [loading, error, isLoading, cartStore, isChange, mutationData, cartData]);
 
   const refreshCartData = () => {
     refetch();
@@ -81,7 +78,7 @@ function Cart({ navigation }) {
     setIsLoading(true);
     await cartLinesRemove({
       variables: {
-        cartId: cart?.id,
+        cartId: cartStore?.id,
         lineIds: showModal?.data?.lineIds,
       },
     });
@@ -94,6 +91,53 @@ function Cart({ navigation }) {
     setIsLoading(false);
   };
 
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    if (cartList?.length > 0) {
+      // console.log(
+      //   'cartlist map',
+      //   cartList?.map(i => ({
+      //     variantId: i.merchandise.product.id,
+      //     quantity: i.quantity,
+      //   }))
+      // );
+      // console.log('defaultAddress', defaultAddress);
+      // console.log('customerInfo', customerInfo);
+      // console.log('createCheckoutError', createCheckoutError);
+      const { data: checkoutData } = await CheckoutCreate({
+        variables: {
+          input: {
+            email: customerInfo.email,
+            note,
+            shippingAddress: {
+              address1: defaultAddress?.address1,
+              city: defaultAddress?.city,
+              province: defaultAddress?.province,
+              zip: defaultAddress?.zip,
+              country: defaultAddress?.country,
+              firstName: defaultAddress?.firstName,
+              lastName: defaultAddress?.lastName,
+            },
+            lineItems: cartList?.map(i => ({
+              variantId: i.merchandise.product.id,
+              quantity: i.quantity,
+            })),
+          },
+        },
+      });
+      console.log('checkoutData', checkoutData);
+      if (checkoutData?.checkoutCreate) {
+        dispatch(
+          setCheckoutData({
+            id: checkoutData.checkoutCreate.checkout.id,
+            webUrl: checkoutData.checkoutCreate.checkout.webUrl,
+          })
+        );
+        setIsLoading(false);
+        navigation.navigate('Checkout');
+      }
+    }
+  };
   return (
     <SafeAreaView
       style={{
@@ -163,7 +207,7 @@ function Cart({ navigation }) {
                     title={title}
                     size={attributes.find(i => i.key === 'Size')?.value}
                     attributes={attributes.map(({ __typename, ...rest }) => rest)}
-                    cartId={cart?.id}
+                    cartId={cartStore?.id}
                     quantity={quantity}
                     price={amount}
                     originalPrice={original_price}
@@ -213,8 +257,8 @@ function Cart({ navigation }) {
               placeholderTextColor="gray"
               numberOfLines={5}
               multiline
-              // onChangeText={handleInstructionChange}
-              // value={instruction}
+              onChangeText={val => setNote(val)}
+              value={note}
               style={{
                 borderWidth: 1,
                 textAlignVertical: 'top',
@@ -231,12 +275,13 @@ function Cart({ navigation }) {
             }}
           >
             <Button
-              onPress={() => navigation.navigate('Checkout')}
+              onPress={() => handleSubmit()}
               title="Checkout"
               size="xxl"
               icon={Ionicons}
               iconName="md-arrow-forward"
               textColor="#fff"
+              disabled={isDisabled}
             />
           </View>
         </ScrollView>
