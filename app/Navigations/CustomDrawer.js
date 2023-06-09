@@ -8,25 +8,6 @@ import {useSelector} from 'react-redux';
 const CustomDrawer = ({navigation}) => {
   const dataAccount = useSelector(state => state.customer.customerData);
 
-  // useEffect(() => {
-  //   getDetailCustomer();
-  // }, []);
-
-  // const getDetailCustomer = async () => {
-  //   // setIsLoading(true);
-  //   const customerId = await AsyncStorage.getItem('customerIdString');
-
-  //   AuthenApi.getDataAccount(customerId)
-  //     .then(res => {
-  //       // setIsLoading(false);
-  //       setDataAccount(res.customer);
-  //     })
-  //     .catch(error => {
-  //       // setIsLoading(false);
-  //       console.log('error', error);
-  //     });
-  // };
-
   const navItem = [
     {
       icon: 'home',

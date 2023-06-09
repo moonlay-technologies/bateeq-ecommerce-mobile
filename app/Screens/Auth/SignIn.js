@@ -65,6 +65,10 @@ const SignIn = props => {
           text1: 'Login Success',
           visibilityTime: 2000,
         });
+        batch(() => {
+          dispatch(setToken(accessToken));
+          dispatch(setIsLogin(!!accessToken));
+        });
         await AsyncStorage.setItem('accessToken', accessToken);
         navigation.dispatch(
           CommonActions.reset({
@@ -91,210 +95,208 @@ const SignIn = props => {
   };
 
   return (
-    <>
+    <ScrollView contentContainerStyle={{flexGrow: 1}}>
+      <HeaderBateeq signin />
       {isLoading ? (
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <LoadingScreen />
         </View>
       ) : (
-        <ScrollView contentContainerStyle={{flexGrow: 1}}>
-          <HeaderBateeq signin />
-          <View
-            style={{
-              ...GlobalStyleSheet.container,
-              flex: 1,
-              backgroundColor: COLORS.white,
-            }}>
-            <View style={{marginBottom: 20}}>
-              <Text
-                style={{
-                  ...FONTS.fontSatoshiBold,
-                  color: COLORS.title,
-                  fontSize: 24,
-                  marginBottom: 16,
-                }}>
-                Login
-              </Text>
-              <Text style={{...FONTS.fontSatoshiRegular, color: COLORS.title}}>
-                Log into your bateeq account to enjoy benefits from our
-                membership.
-              </Text>
-            </View>
-            <Formik
-              initialValues={{
-                customer: {
-                  email: '',
-                  password: '',
-                },
-              }}
-              onSubmit={values => {
-                handleOnSubmit(values);
-              }}
-              validationSchema={ValidateSchema}>
-              {({
-                values,
-                handleChange,
-                handleSubmit,
-                handleBlur,
-                errors,
-                touched,
-              }) => {
-                return (
-                  <>
-                    <View style={GlobalStyleSheet.inputGroup}>
-                      <Text
-                        style={{
-                          ...FONTS.fontSatoshiBold,
-                          color: COLORS.title,
-                          marginBottom: 8,
-                        }}>
-                        Email
+        <View
+          style={{
+            ...GlobalStyleSheet.container,
+            flex: 1,
+            backgroundColor: COLORS.white,
+          }}>
+          <View style={{marginBottom: 20}}>
+            <Text
+              style={{
+                ...FONTS.fontSatoshiBold,
+                color: COLORS.title,
+                fontSize: 24,
+                marginBottom: 16,
+              }}>
+              Login
+            </Text>
+            <Text style={{...FONTS.fontSatoshiRegular, color: COLORS.title}}>
+              Log into your bateeq account to enjoy benefits from our
+              membership.
+            </Text>
+          </View>
+          <Formik
+            initialValues={{
+              customer: {
+                email: '',
+                password: '',
+              },
+            }}
+            onSubmit={values => {
+              handleOnSubmit(values);
+            }}
+            validationSchema={ValidateSchema}>
+            {({
+              values,
+              handleChange,
+              handleSubmit,
+              handleBlur,
+              errors,
+              touched,
+            }) => {
+              return (
+                <>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text
+                      style={{
+                        ...FONTS.fontSatoshiBold,
+                        color: COLORS.title,
+                        marginBottom: 8,
+                      }}>
+                      Email
+                    </Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        isFocused && GlobalStyleSheet.activeInput,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      onFocus={() => setisFocused(true)}
+                      onBlur={handleBlur('customer.email')}
+                      placeholder="e.g. bateeq@gmail.com"
+                      placeholderTextColor={COLORS.label}
+                      value={values.customer.email}
+                      onChangeText={handleChange('customer.email')}
+                    />
+                    {errors?.customer?.email && touched?.customer?.email && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.customer.email}
                       </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text
+                      style={{
+                        ...FONTS.font,
+                        color: COLORS.title,
+                        marginBottom: 8,
+                      }}>
+                      Password
+                    </Text>
+                    <View>
+                      <TouchableOpacity
+                        onPress={() => setHandlePassword(!handlePassword)}
+                        style={{
+                          position: 'absolute',
+                          zIndex: 1,
+                          height: 50,
+                          width: 50,
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          right: 0,
+                        }}>
+                        {handlePassword ? (
+                          <FeatherIcon
+                            name="eye-off"
+                            color={COLORS.secondary}
+                            size={22}
+                          />
+                        ) : (
+                          <FeatherIcon
+                            name="eye"
+                            color={COLORS.secondary}
+                            size={22}
+                          />
+                        )}
+                      </TouchableOpacity>
                       <TextInput
                         style={[
                           GlobalStyleSheet.formControl,
-                          isFocused && GlobalStyleSheet.activeInput,
+                          isFocused2 && GlobalStyleSheet.activeInput,
                           {...FONTS.font, color: COLORS.title},
                         ]}
-                        onFocus={() => setisFocused(true)}
-                        onBlur={handleBlur('customer.email')}
-                        placeholder="e.g. bateeq@gmail.com"
+                        onFocus={() => setisFocused2(true)}
+                        onBlur={handleBlur('customer.password')}
+                        secureTextEntry={handlePassword}
+                        placeholder="Enter your password"
                         placeholderTextColor={COLORS.label}
-                        value={values.customer.email}
-                        onChangeText={handleChange('customer.email')}
+                        value={values.customer.password}
+                        onChangeText={handleChange('customer.password')}
                       />
-                      {errors?.customer?.email && touched?.customer?.email && (
-                        <Text style={GlobalStyleSheet.errorMessage}>
-                          {errors.customer.email}
-                        </Text>
-                      )}
+                      {touched?.customer?.password &&
+                        errors?.customer?.password && (
+                          <Text style={GlobalStyleSheet.errorMessage}>
+                            {errors.customer.password}
+                          </Text>
+                        )}
                     </View>
-                    <View style={GlobalStyleSheet.inputGroup}>
-                      <Text
-                        style={{
-                          ...FONTS.font,
-                          color: COLORS.title,
-                          marginBottom: 8,
-                        }}>
-                        Password
-                      </Text>
-                      <View>
-                        <TouchableOpacity
-                          onPress={() => setHandlePassword(!handlePassword)}
-                          style={{
-                            position: 'absolute',
-                            zIndex: 1,
-                            height: 50,
-                            width: 50,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            right: 0,
-                          }}>
-                          {handlePassword ? (
-                            <FeatherIcon
-                              name="eye-off"
-                              color={COLORS.secondary}
-                              size={22}
-                            />
-                          ) : (
-                            <FeatherIcon
-                              name="eye"
-                              color={COLORS.secondary}
-                              size={22}
-                            />
-                          )}
-                        </TouchableOpacity>
-                        <TextInput
-                          style={[
-                            GlobalStyleSheet.formControl,
-                            isFocused2 && GlobalStyleSheet.activeInput,
-                            {...FONTS.font, color: COLORS.title},
-                          ]}
-                          onFocus={() => setisFocused2(true)}
-                          onBlur={handleBlur('customer.password')}
-                          secureTextEntry={handlePassword}
-                          placeholder="Enter your password"
-                          placeholderTextColor={COLORS.label}
-                          value={values.customer.password}
-                          onChangeText={handleChange('customer.password')}
-                        />
-                        {touched?.customer?.password &&
-                          errors?.customer?.password && (
-                            <Text style={GlobalStyleSheet.errorMessage}>
-                              {errors.customer.password}
-                            </Text>
-                          )}
-                      </View>
-                    </View>
-                    <View
+                  </View>
+                  <View
+                    style={{
+                      marginTop: -10,
+                      marginBottom: 15,
+                      flexDirection: 'row',
+                    }}>
+                    <Text
                       style={{
-                        marginTop: -10,
-                        marginBottom: 15,
-                        flexDirection: 'row',
+                        ...FONTS.font,
+                        color: COLORS.title,
+                        textAlign: 'center',
+                        marginBottom: 12,
+                        marginRight: 5,
                       }}>
+                      Forgot password?
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        Linking.openURL(
+                          'https://bateeqshop.myshopify.com/account/login?return_url=%2Faccount',
+                        )
+                      }>
                       <Text
                         style={{
                           ...FONTS.font,
                           color: COLORS.title,
-                          textAlign: 'center',
-                          marginBottom: 12,
-                          marginRight: 5,
+                          textDecorationLine: 'underline',
                         }}>
-                        Forgot password?
+                        Reset here
                       </Text>
-                      <TouchableOpacity
-                        onPress={() =>
-                          Linking.openURL(
-                            'https://bateeqshop.myshopify.com/account/login?return_url=%2Faccount',
-                          )
-                        }>
-                        <Text
-                          style={{
-                            ...FONTS.font,
-                            color: COLORS.title,
-                            textDecorationLine: 'underline',
-                          }}>
-                          Reset here
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    <CustomButton
-                      onPress={handleSubmit}
-                      title="Login"
-                      arrowIcon={true}
-                      logout
-                    />
-                  </>
-                );
-              }}
-            </Formik>
-            <View style={{marginTop: 8, flexDirection: 'row'}}>
+                    </TouchableOpacity>
+                  </View>
+                  <CustomButton
+                    onPress={handleSubmit}
+                    title="Login"
+                    arrowIcon={true}
+                    logout
+                  />
+                </>
+              );
+            }}
+          </Formik>
+          <View style={{marginTop: 8, flexDirection: 'row'}}>
+            <Text
+              style={{
+                ...FONTS.font,
+                color: COLORS.title,
+                textAlign: 'center',
+                marginBottom: 12,
+                marginRight: 5,
+              }}>
+              Don’t have an account?
+            </Text>
+            <TouchableOpacity
+              onPress={() => props.navigation.navigate('SignUp')}>
               <Text
                 style={{
                   ...FONTS.font,
                   color: COLORS.title,
-                  textAlign: 'center',
-                  marginBottom: 12,
-                  marginRight: 5,
+                  textDecorationLine: 'underline',
                 }}>
-                Don’t have an account?
+                Register here
               </Text>
-              <TouchableOpacity
-                onPress={() => props.navigation.navigate('SignUp')}>
-                <Text
-                  style={{
-                    ...FONTS.font,
-                    color: COLORS.title,
-                    textDecorationLine: 'underline',
-                  }}>
-                  Register here
-                </Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       )}
-    </>
+    </ScrollView>
   );
 };
 

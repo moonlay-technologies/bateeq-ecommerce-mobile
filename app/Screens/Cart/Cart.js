@@ -1,86 +1,133 @@
-import React, {useState, useEffect} from 'react';
-import {
-  // Image,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  // TouchableOpacity,
-  View,
-} from 'react-native';
-// import {IconButton} from 'react-native-paper';
-// import FeatherIcon from 'react-native-vector-icons/Feather';
-import CheckoutItem from '../../components/CheckoutItem';
-import {COLORS, FONTS} from '../../constants/theme';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { useMutation, useQuery } from '@apollo/client';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { GET_CART_BY_ID } from '../../graphql/queries';
+import { COLORS, FONTS } from '../../constants/theme';
+import Modal from '../../components/ActionModalComponent';
+import { CART_REMOVE_ITEM, CREATE_CHECKOUT } from '../../graphql/mutation';
 import Header from '../../layout/Header';
-import pic1 from '../../assets/images/product/product1.jpg';
-import pic2 from '../../assets/images/product/product2.jpg';
-import pic3 from '../../assets/images/product/product3.jpg';
-// import {GlobalStyleSheet} from '../../constants/StyleSheet';
-import CustomButton from '../../components/CustomButton';
-import {CartApi} from '../../service/shopify-api';
+import CartList from '../../components/CartList';
+import NoContent from '../../components/NoContent';
+import Button from '../../components/ButtonComponent';
+import LoadingScreen from '../../components/LoadingView';
+import { setCheckoutData } from '../../store/reducer';
 
-const CheckoutData = [
-  {
-    image: pic1,
-    title: 'JACQUARD NALIKA 014',
-    size: 'XS',
-    quantity: 1,
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,000',
-  },
-  {
-    image: pic2,
-    title: 'JACQUARD NALIKA 014',
-    size: 'XS',
-    quantity: 1,
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,000',
-  },
-  {
-    image: pic3,
-    title: 'JACQUARD NALIKA 014',
-    size: 'XS',
-    quantity: 1,
-    price: 'Rp792,000',
-    oldPrice: 'Rp1,079,000',
-  },
-];
-
-const Cart = ({navigation}) => {
-  const handlePress = () => {
-    navigation.navigate('Home');
-  };
-
-  const [instruction, setInstructuction] = useState('');
+function Cart({ navigation }) {
+  const dispatch = useDispatch();
+  const cartStore = useSelector(state => state.cart);
+  const { customerInfo, defaultAddress } = useSelector(state => state.user);
+  const [cartList, setCartList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [dataCart, setDataCart] = useState(null);
-  const [filterData, setFilterData] = useState({
-    limit: 5,
+  const [isChange, setIsChange] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [note, setNote] = useState('');
+  const [showModal, setShowModal] = useState({
+    show: false,
+    data: '',
   });
 
-  const handleInstructionChange = text => {
-    setInstructuction(text);
-  };
+  const {
+    data: cartData,
+    error,
+    loading,
+    refetch,
+  } = useQuery(GET_CART_BY_ID, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      id: cartStore?.id,
+    },
+  });
+
+  const [cartLinesRemove, { error: mutationERror, loading: mutationLoad, data: mutationData }] = useMutation(
+    CART_REMOVE_ITEM,
+    {
+      variables: {
+        cartId: cartStore?.id,
+        lineIds: showModal?.data?.lineId,
+      },
+    }
+  );
+  const [checkoutCreate, { error: createCheckoutError }] = useMutation(CREATE_CHECKOUT);
 
   useEffect(() => {
-    getListCart();
-  }, []);
+    setCartList(cartData?.cart?.lines?.edges?.map(i => i.node));
+    // refetch();
+    if (cartList?.length === 0) {
+      setIsDisabled(true);
+    } else {
+      setIsDisabled(false);
+    }
 
-  const getListCart = () => {
-    setIsLoading(true);
-    CartApi.get(filterData)
-      .then(res => {
-        console.log('resss cart', res.checkouts);
-        // console.log(res.products[0].images.map(src => src.src));
-        setIsLoading(false);
-        setDataCart(res.checkouts.line_items);
-        // setProductData(res.products);
-      })
-      .catch(error => {
-        setIsLoading(false);
-        console.log('errorrr', error);
+    if (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'oops!',
+        text2: error?.originalError?.message || 'something went wrong',
       });
+    }
+  }, [loading, error, isLoading, cartStore, isChange, mutationData, cartData]);
+
+  const refreshCartData = () => {
+    refetch();
+  };
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+    await cartLinesRemove({
+      variables: {
+        cartId: cartStore?.id,
+        lineIds: showModal?.data?.lineIds,
+      },
+    });
+    refreshCartData();
+    setShowModal(prev => ({
+      ...prev,
+      show: !prev.show,
+    }));
+    setIsChange(!isChange);
+    setIsLoading(false);
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    if (cartList?.length > 0) {
+      const body = {
+        email: customerInfo.email,
+        note,
+        shippingAddress: {
+          address1: defaultAddress?.address1,
+          city: defaultAddress?.city,
+          province: defaultAddress?.province,
+          zip: defaultAddress?.zip,
+          country: defaultAddress?.country,
+          firstName: defaultAddress?.firstName,
+          lastName: defaultAddress?.lastName,
+        },
+        lineItems: cartList?.map(i => ({
+          variantId: i.merchandise.id,
+          quantity: i.quantity,
+        })),
+      };
+
+      const { data } = await checkoutCreate({
+        variables: {
+          input: body,
+        },
+      });
+      if (data?.checkoutCreate) {
+        dispatch(
+          setCheckoutData({
+            id: data?.checkoutCreate?.checkout?.id,
+            webUrl: data?.checkoutCreate?.checkout?.webUrl,
+          })
+        );
+        setIsLoading(false);
+        navigation.navigate('Checkout');
+      }
+    }
   };
 
   return (
@@ -88,80 +135,24 @@ const Cart = ({navigation}) => {
       style={{
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
-      }}>
-      {/* <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          justifyContent: 'space-between',
-          borderBottomWidth:1,
-          borderBottomColor:COLORS.borderColor,
-        }}>
-        <IconButton
-          icon={() => (
-            <View
-              style={{
-                borderWidth:1,
-                borderColor:COLORS.borderColor,
-                height: 30,
-                width: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}>
-              <FeatherIcon color={COLORS.title} size={18} name="menu" />
-            </View>
-          )}
-          size={25}
-          onPress={() => navigation.openDrawer()}
-        />
-        <Text style={{...FONTS.fontSatoshiBold,color:COLORS.title,flex:1, fontSize: 18,justifyContent:'center',alignItems:'center', textAlign: 'center',marginLeft:5}}>bateeq</Text>
-        <TouchableOpacity onPress={handlePress}>
-          <Image
-            style={{width: 70, height: 35}}
-            source={require('../../assets/images/logo.png')}
-          />
-        </TouchableOpacity>
-        <IconButton
-                    icon={() => <FeatherIcon color={COLORS.title} size={20} name='search'/>}
-                    size={25}
-                    onPress={() => navigation.navigate('Search')}
-                />
-        <IconButton
-                    icon={() => <FeatherIcon color={COLORS.title} size={20} name='heart'/>}
-                    size={25}
-                    onPress={() => navigation.navigate('Wishlist')}
-                />
-        <IconButton
-          onPress={() => navigation.navigate('Cart')}
-          icon={() => (
-            <View>
-              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              <View
-                style={{
-                  height: 14,
-                  width: 14,
-                  borderRadius: 14,
-                  backgroundColor: COLORS.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'absolute',
-                  top: -4,
-                  right: -6,
-                }}>
-                <Text
-                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
-                </Text>
-              </View>
-            </View>
-          )}
-          size={25}
-        />
-      </View> */}
-      <View style={{paddingHorizontal: 20}}>
-      <Header titleLeft leftIcon={'back'} title={'Back'} />
+      }}
+    >
+      <Modal
+        text={`${showModal?.data?.title || ''} will be deleted from your cart`}
+        onOpen={showModal.show}
+        visible={showModal.show}
+        toggle={() =>
+          setShowModal(prev => ({
+            ...prev,
+            show: !prev.show,
+          }))
+        }
+        submitText={isLoading ? 'Deleting ...' : 'Delete'}
+        disabled={isLoading}
+        onContinue={handleDelete}
+      />
+      <View style={{ paddingHorizontal: 20 }}>
+        <Header backAction={() => navigation.goBack()} titleLeft title="back" leftIcon="back" />
       </View>
       <Text
         style={{
@@ -170,180 +161,96 @@ const Cart = ({navigation}) => {
           ...FONTS.fontSatoshiBold,
           paddingHorizontal: 20,
           paddingTop: 20,
-        }}>
+        }}
+      >
         My Cart
       </Text>
-      {/* <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 15,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderColor: COLORS.borderColor,
-        }}>
-        <Image
-          style={{
-            height: 35,
-            width: 35,
-            borderRadius: 20,
-            marginRight: 10,
-          }}
-          source={IMAGES.user}
-        />
-        <Text
-          style={{
-            ...FONTS.fontSm,
-            ...FONTS.fontBold,
-            color: COLORS.title,
-            flex: 1,
-          }}>
-          Deliver to Yatin
-        </Text>
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}>
-          <Text
-            style={{...FONTS.fontSm, ...FONTS.fontBold, color: COLORS.primary}}>
-            Ram krishan, puram
-          </Text>
-          <FeatherIcon
-            color={COLORS.primary}
-            style={{marginLeft: 2, top: 1}}
-            size={16}
-            name="chevron-down"
-          />
-        </TouchableOpacity>
-      </View> */}
-      <View style={{flex: 1, padding: 10}}>
+
+      <View style={{ flex: 1, padding: 10 }}>
         <ScrollView>
-          {CheckoutData.map((data, index) => (
-            <CheckoutItem
-              onPress={() =>
-                navigation.navigate('ProductDetail', {
-                  item: {
-                    imagePath: data.image,
-                    title: data.title,
-                    price: data.price,
-                    oldPrice: data.oldPrice,
-                  },
-                  category: 'Fashion',
-                })
-              }
-              key={index}
-              image={data.image}
-              title={data.title}
-              size={data.size}
-              quantity={data.quantity}
-              price={data.price}
-              oldPrice={data.oldPrice}
-            />
-          ))}
-          {/* <View style={GlobalStyleSheet.container}>
-            <Text style={{...FONTS.fontSm, ...FONTS.fontBold, marginBottom: 6}}>
-              Have a coupon code ? enter here
-            </Text>
+          {loading ? (
+            <LoadingScreen type="circle" />
+          ) : cartList?.length > 0 ? (
+            cartList.map(data => {
+              const {
+                quantity,
+                attributes,
+                id: lineId,
+                merchandise: {
+                  id: merchandiseId,
+                  image,
+                  product: { id, title },
+                },
+                cost: {
+                  totalAmount: { amount, currencyCode },
+                  compareAtAmountPerQuantity: { amount: original_price },
+                },
+              } = data;
+
+              return (
+                <View key={`${lineId}-${id}`}>
+                  <CartList
+                    // onPress={() =>
+                    //   navigation.navigate('ProductDetail', {
+                    //     item: { product_id: id }
+                    //   })
+                    // }
+                    withIncrementDecrement
+                    image={{ uri: image?.url }}
+                    title={title}
+                    size={attributes.find(i => i.key === 'Size')?.value}
+                    attributes={attributes.map(({ __typename, ...rest }) => rest)}
+                    cartId={cartStore?.id}
+                    quantity={quantity}
+                    price={amount}
+                    originalPrice={original_price}
+                    currencyCode={currencyCode}
+                    lineId={lineId}
+                    setIsChange={setIsChange}
+                    isChange={isChange}
+                    refreshCartData={refreshCartData}
+                    merchandiseId={merchandiseId}
+                    addComponent={
+                      <Button
+                        size="sm"
+                        title="Delete"
+                        color="#e63f31"
+                        style={{
+                          width: 80,
+                          backgroundColor: '#fbfbfb',
+                          borderColor: '#c42b1c',
+                          borderWidth: 1,
+                        }}
+                        textStyle={{
+                          color: '#c42b1c',
+                          fontWeight: '900',
+                        }}
+                        onPress={() =>
+                          setShowModal(prev => ({
+                            data: { lineIds: [lineId], title },
+                            show: !prev.show,
+                          }))}
+                      />
+                    }
+                  />
+                </View>
+              );
+            })
+          ) : (
             <View>
-              <FeatherIcon
-                style={{position: 'absolute', left: 18, top: 16}}
-                size={18}
-                color={COLORS.primary}
-                name="scissors"
-              />
-              <TextInput
-                style={{
-                  ...FONTS.font,
-                  ...FONTS.fontBold,
-                  color: COLORS.title,
-                  borderWidth: 1,
-                  borderColor: COLORS.borderColor,
-                  borderRadius: 8,
-                  paddingHorizontal: 18,
-                  paddingLeft: 50,
-                  borderStyle: 'dashed',
-                }}
-                defaultValue="B2GET150"
-              />
-              <TouchableOpacity
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  padding: 13,
-                }}>
-                <FeatherIcon
-                  size={22}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
-              </TouchableOpacity>
+              <NoContent to={() => navigation.navigate('Home')} />
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 8,
-                marginTop: 12,
-              }}>
-              <Text style={{...FONTS.font}}>Price : </Text>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.title}}>
-                $158.2
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 8,
-              }}>
-              <Text style={{...FONTS.font}}>Tax : </Text>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.title}}>
-                0.5%
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 8,
-              }}>
-              <Text style={{...FONTS.font}}>Delivery Fee :</Text>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.title}}>
-                0.5%
-              </Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginBottom: 10,
-                marginTop: 5,
-                alignItems: 'center',
-                borderTopWidth: 1,
-                borderStyle: 'dashed',
-                borderColor: COLORS.borderColor,
-                paddingTop: 8,
-              }}>
-              <Text style={{...FONTS.font}}>Total : </Text>
-              <Text style={{...FONTS.h4, color: COLORS.primary}}>$215.5</Text>
-            </View>
-          </View> */}
-          <View style={{padding: 20}}>
-            <Text style={{...FONTS.fontSatoshiBold, marginBottom: 12}}>
-              Special Instruction
-            </Text>
+          )}
+          <View style={{ padding: 20 }}>
+            <Text style={{ ...FONTS.fontSatoshiBold, marginBottom: 12 }}>Special Instruction</Text>
             <TextInput
               underlineColorAndroid="transparent"
               placeholder="Write Instruction Here..."
               placeholderTextColor="gray"
               numberOfLines={5}
-              multiline={true}
-              onChangeText={handleInstructionChange}
-              value={instruction}
+              multiline
+              onChangeText={val => setNote(val)}
+              value={note}
               style={{
                 borderWidth: 1,
                 textAlignVertical: 'top',
@@ -351,97 +258,28 @@ const Cart = ({navigation}) => {
                 ...FONTS.fontSatoshiRegular,
               }}
             />
-            {/* <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            marginTop: 20,
-          }}>
-          <TouchableOpacity
-            style={{
-              backgroundColor: '#1A120B',
-              gap: 12,
-              paddingVertical: 16,
-              paddingHorizontal: 24,
-              flexDirection: 'row',
-              width: 200,
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            onPress={handleCheckout}>
-            <Text
-              style={{
-                color: '#fff',
-                fontFamily: FontFamily.satoshiBold,
-                textAlign: 'center',
-                alignItems: 'center',
-              }}>
-              Checkout
-            </Text>
-            <IconAwesome
-              name="arrow-right"
-              size={12}
-              color="#fff"
-              style={{
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginTop: 2,
-              }}
-            />
-          </TouchableOpacity>
-        </View> */}
           </View>
           <View
             style={{
               justifyContent: 'center',
               alignItems: 'center',
               height: 100,
-            }}>
-            <CustomButton
-              // btnSm
-              // onPress={() => navigation.navigate('AddDeliveryAddress')}
-              onPress={() => navigation.navigate('Checkout')}
-              title="Checkout"
-              customWidth={200}
-              arrowIcon={true}
+            }}
+          >
+            <Button
+              onPress={() => handleSubmit()}
+              title={isLoading ? 'Loading ...' : 'Checkout'}
+              size="xxl"
+              icon={Ionicons}
+              iconName="md-arrow-forward"
+              textColor="#fff"
+              disabled={isDisabled || isLoading}
             />
           </View>
         </ScrollView>
       </View>
-      {/* <View
-        style={{
-          flexDirection: 'row',
-          paddingHorizontal: 15,
-          paddingVertical: 10,
-          borderTopWidth: 1,
-          borderColor: COLORS.borderColor,
-        }}>
-        <View style={{flex: 1}}>
-          <Text style={{...FONTS.h4}}>$215.5</Text>
-          <TouchableOpacity
-            style={{
-              marginTop: -4,
-            }}>
-            <Text
-              style={{
-                ...FONTS.fontXs,
-                color: COLORS.primary,
-                ...FONTS.fontBold,
-              }}>
-              View price details
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{flex: 1}}>
-          <CustomButton
-            btnSm
-            onPress={() => navigation.navigate('AddDeliveryAddress')}
-            title="Checkout"
-          />
-        </View>
-      </View> */}
     </SafeAreaView>
   );
-};
+}
 
 export default Cart;

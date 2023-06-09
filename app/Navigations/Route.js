@@ -1,110 +1,35 @@
-// import React from 'react';
-// import {View, Animated} from 'react-native';
-// import {NavigationContainer} from '@react-navigation/native';
-// import StackNavigator from './StackNavigator'
-// import {SafeAreaProvider} from 'react-native-safe-area-context';
-// import Toast from 'react-native-toast-message';
-// import SplashScreen from '../components/SplashScreen';
-
-// const Routes = ({ isAuthenticated, setIsAuthenticated }) => {
-//   const [showSplashScreen, setShowSplashScreen] = React.useState(true);
-//   const fadeAnim = React.useRef(new Animated.Value(1)).current;
-
-//   React.useEffect(() => {
-//     setTimeout(() => {
-//       Animated.timing(fadeAnim, {
-//         toValue: 0,
-//         duration: 500,
-//         useNativeDriver: true,
-//       }).start(() => {
-//         setShowSplashScreen(false);
-//       });
-//     }, 3000);
-//   }, []);
-
-//   return (
-//     // <ApolloProvider client={client}>
-//       <SafeAreaProvider>
-//            {showSplashScreen ? (
-//         <Animated.View style={{flex: 1, opacity: fadeAnim}}>
-//           <SplashScreen />
-//         </Animated.View>
-//       ) : (
-//         <NavigationContainer>
-//           <StackNavigator  isAuthenticated={isAuthenticated}
-//             setIsAuthenticated={setIsAuthenticated}/>
-//         </NavigationContainer>
-//           )}
-//         <Toast />
-//       </SafeAreaProvider>
-//     // </ApolloProvider>
-//   );
-// };
-// export default Routes;
-
-import React from 'react';
-import {Animated} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import StackNavigator from './StackNavigator';
-import {SafeAreaProvider} from 'react-native-safe-area-context';
+import React, { useEffect, useState, useRef } from 'react';
+import { Animated } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
+import { Provider as PaperProvider } from 'react-native-paper';
+import { batch, useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMutation, useQuery } from '@apollo/client';
 import SplashScreen from '../components/SplashScreen';
-import {
-  ApolloProvider,
-  ApolloClient,
-  ApolloLink,
-  InMemoryCache,
-  createHttpLink,
-  split,
-} from '@apollo/client';
-import {Provider as PaperProvider} from 'react-native-paper';
-import {Provider} from 'react-redux';
-import store from '../stores/store/configureStore';
+import StackNavigator from './StackNavigator';
+import { GET_CUSTOMER_INFO } from '../graphql/queries';
+import { setIsLogin, setCustomerInfo, setToken, setCartId, setDefaultAddress } from '../store/reducer';
+import { CREATE_CART } from '../graphql/mutation';
 
-const httpLink = createHttpLink({
-  uri: 'https://bateeqshop.myshopify.com/api/2023-04/graphql.json',
-  headers: {
-    'X-Shopify-storefront-Access-Token': '495ecfe37736105432f1550487fd9028',
-  },
-});
+function Routes() {
+  const [showSplashScreen, setShowSplashScreen] = useState(true);
+  const dispatch = useDispatch();
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isLogin, getToken } = useSelector(state => state.user);
 
-const httpLink2 = createHttpLink({
-  uri: 'https://bateeqshop.myshopify.com/admin/api/2023-04/graphql.json',
-  headers: {
-    'X-Shopify-Access-Token': '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',
-  },
-});
-
-const cache = new InMemoryCache({
-  typePolicies: {
-    Query: {
-      fields: {
-        GetProducts: {
-          merge(existing, incoming) {
-            return incoming;
-          },
-        },
-      },
+  const cart = useSelector(state => state.cart);
+  const { data } = useQuery(GET_CUSTOMER_INFO, {
+    variables: {
+      accessToken: getToken,
     },
-  },
-});
+  });
+  console.log('GET_CUSTOMER_INFO', data);
+  const [cartCreate] = useMutation(CREATE_CART);
 
-// Create an Apollo Client instance
-const client = new ApolloClient({
-  link: ApolloLink.split(
-    operation => operation.getContext().clientName === 'httpLink2',
-    httpLink2,
-    httpLink,
-  ),
-
-  cache: cache,
-});
-
-const Routes = ({isAuthenticated, setIsAuthenticated}) => {
-  const [showSplashScreen, setShowSplashScreen] = React.useState(true);
-  const fadeAnim = React.useRef(new Animated.Value(1)).current;
-
-  React.useEffect(() => {
+  useEffect(() => {
     setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -116,29 +41,93 @@ const Routes = ({isAuthenticated, setIsAuthenticated}) => {
     }, 3000);
   }, []);
 
+  useEffect(() => {
+    const checkAccessToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        const cartLocal = await AsyncStorage.getItem('cartId');
+        if (isLogin || token) {
+          const accessToken = token;
+          if (cartLocal) {
+            dispatch(setCartId(cartLocal));
+          } else {
+            handleCreateCart(accessToken);
+          }
+          batch(() => {
+            dispatch(setToken(accessToken));
+            dispatch(setIsLogin(!!accessToken));
+
+            if (data?.customer) {
+              dispatch(
+                setCustomerInfo({
+                  id: data?.customer?.id,
+                  email: data?.customer?.email,
+                  first_name: data?.customer?.firstName,
+                  last_name: data?.customer?.lastName,
+                  phone: data?.customer?.phone,
+                })
+              );
+              dispatch(
+                setDefaultAddress({
+                  address1: data?.customer?.defaultAddress?.address1,
+                  address2: data?.customer?.defaultAddress?.address2,
+                  city: data?.customer?.defaultAddress?.city,
+                  company: data?.customer?.defaultAddress?.company,
+                  country: data?.customer?.defaultAddress?.country,
+                  name: data?.customer?.defaultAddress?.name,
+                  firstName: data?.customer?.defaultAddress?.firstName,
+                  lastName: data?.customer?.defaultAddress?.lastName,
+                  phone: data?.customer?.defaultAddress?.phone,
+                  province: data?.customer?.defaultAddress?.province,
+                  zip: data?.customer?.defaultAddress?.zip,
+                })
+              );
+            }
+          });
+
+          setIsAuthenticated(!!accessToken);
+        }
+      } catch (error) {
+        console.log('Error reading access token from AsyncStorage:', error);
+      }
+    };
+    checkAccessToken();
+  }, [cart, data]);
+
+  const handleCreateCart = async token => {
+    const { data: cartCreated } = await cartCreate({
+      variables: {
+        input: {
+          buyerIdentity: {
+            customerAccessToken: token,
+          },
+          note: '',
+        },
+      },
+    });
+    if (cartCreated?.cartCreate?.cart) {
+      const { id: cartId } = cartCreated.cartCreate.cart;
+      await AsyncStorage.setItem('cartId', cartId);
+      dispatch(setCartId(cartId));
+    }
+  };
+
   return (
-    <Provider store={store}>
-      <ApolloProvider client={client}>
-        <PaperProvider>
-          <SafeAreaProvider>
-            {showSplashScreen ? (
-              <Animated.View style={{flex: 1, opacity: fadeAnim}}>
-                <SplashScreen />
-              </Animated.View>
-            ) : (
-              <NavigationContainer>
-                <StackNavigator
-                  isAuthenticated={isAuthenticated}
-                  setIsAuthenticated={setIsAuthenticated}
-                />
-              </NavigationContainer>
-            )}
-            <Toast />
-          </SafeAreaProvider>
-        </PaperProvider>
-      </ApolloProvider>
-    </Provider>
+    <PaperProvider>
+      <SafeAreaProvider>
+        {showSplashScreen ? (
+          <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+            <SplashScreen />
+          </Animated.View>
+        ) : (
+          <NavigationContainer>
+            <StackNavigator isAuthenticated={isAuthenticated} />
+          </NavigationContainer>
+        )}
+        <Toast />
+      </SafeAreaProvider>
+    </PaperProvider>
   );
-};
+}
 
 export default Routes;

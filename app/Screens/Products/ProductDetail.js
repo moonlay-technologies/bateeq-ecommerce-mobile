@@ -169,7 +169,6 @@ const ProductDetail = ({navigation, route}) => {
               borderRadius: 10,
             }}>
             {item?.images?.map((data, index) => {
-              console.log('dataImage', data);
               return (
                 <View key={index}>
                   <Image
