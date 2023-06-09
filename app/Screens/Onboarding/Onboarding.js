@@ -1,7 +1,7 @@
 import React from 'react';
-import { Image, Text, View } from 'react-native';
+import {Image, Text, View} from 'react-native';
+import {COLORS, FONTS, IMAGES, SIZES} from '../../constants/theme';
 import Swiper from 'react-native-swiper';
-import { COLORS, FONTS, IMAGES, SIZES } from '../../constants/theme';
 import CustomButton from '../../components/CustomButton';
 
 const SwiperData = [
@@ -22,9 +22,9 @@ const SwiperData = [
   },
 ];
 
-function Onboarding(props) {
+const Onboarding = props => {
   return (
-    <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+    <View style={{flex: 1, backgroundColor: COLORS.white}}>
       <Swiper
         loop={false}
         dotStyle={{
@@ -41,11 +41,10 @@ function Onboarding(props) {
         paginationStyle={{
           bottom: 28,
         }}
-        showsButtons={false}
-      >
+        showsButtons={false}>
         {SwiperData.map((data, index) => {
           return (
-            <View style={{ flex: 1, padding: 20, paddingBottom: 70 }} key={index}>
+            <View style={{flex: 1, padding: 20, paddingBottom: 70}} key={index}>
               <Image
                 style={{
                   flex: 1,
@@ -58,8 +57,7 @@ function Onboarding(props) {
               <View
                 style={{
                   padding: 10,
-                }}
-              >
+                }}>
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
@@ -67,11 +65,12 @@ function Onboarding(props) {
                     color: COLORS.title,
                     textAlign: 'center',
                     marginBottom: 8,
-                  }}
-                >
+                  }}>
                   {data.title}
                 </Text>
-                <Text style={[FONTS.fontSatoshiRegular, { textAlign: 'center' }]}>{data.desc}</Text>
+                <Text style={[FONTS.fontSatoshiRegular, {textAlign: 'center'}]}>
+                  {data.desc}
+                </Text>
               </View>
             </View>
           );
@@ -83,8 +82,7 @@ function Onboarding(props) {
           paddingBottom: 15,
           justifyContent: 'center',
           alignItems: 'center',
-        }}
-      >
+        }}>
         <CustomButton
           onPress={() => props.navigation.navigate('SignIn')}
           title="Get Started"
@@ -94,6 +92,6 @@ function Onboarding(props) {
       </View>
     </View>
   );
-}
+};
 
 export default Onboarding;

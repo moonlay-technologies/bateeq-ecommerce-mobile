@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { Formik } from 'formik';
+import React, {useEffect, useState} from 'react';
+import {SafeAreaView, ScrollView, Text, TextInput, View} from 'react-native';
 import CustomButton from '../../components/CustomButton';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { COLORS } from '../../constants/theme';
+import {GlobalStyleSheet} from '../../constants/StyleSheet';
+import {COLORS} from '../../constants/theme';
 import Header from '../../layout/Header';
-import { AuthenApi } from '../../service/shopify-login';
+import {AuthenApi} from '../../service/shopify-login';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
+import {Formik} from 'formik';
 
-function EditProfile(props) {
+const EditProfile = props => {
   const [dataAccount, setDataAccount] = useState(null);
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
@@ -119,7 +119,10 @@ function EditProfile(props) {
       };
     }
 
-    if (values.customer.default_address.name !== initialValues.customer.default_address.name) {
+    if (
+      values.customer.default_address.name !==
+      initialValues.customer.default_address.name
+    ) {
       changedValues.customer = {
         ...changedValues.customer,
         default_address: {
@@ -129,7 +132,10 @@ function EditProfile(props) {
       };
     }
 
-    if (values.customer.default_address.address1 !== initialValues.customer.default_address.address1) {
+    if (
+      values.customer.default_address.address1 !==
+      initialValues.customer.default_address.address1
+    ) {
       changedValues.customer = {
         ...changedValues.customer,
         default_address: {
@@ -166,18 +172,16 @@ function EditProfile(props) {
       style={{
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
-      }}
-    >
-      <View style={{ paddingHorizontal: 20 }}>
-        <Header titleLeft leftIcon="back" title="Manage Profile" />
+      }}>
+      <View style={{paddingHorizontal: 20}}>
+        <Header titleLeft leftIcon={'back'} title={'Manage Profile'} />
       </View>
       <Formik
         initialValues={initialValues}
         onSubmit={values => {
           handleOnSubmit(values);
         }}
-        validate={validateForm}
-      >
+        validate={validateForm}>
         {({
           handleChange,
           handleBlur,
@@ -188,15 +192,20 @@ function EditProfile(props) {
           // touched,
         }) => (
           <>
-            <View style={{ flex: 1 }}>
+            <View style={{flex: 1}}>
               <ScrollView>
                 <View style={GlobalStyleSheet.container}>
                   <View style={GlobalStyleSheet.inputGroup}>
                     <Text style={GlobalStyleSheet.label}>Mobile Number</Text>
                     <TextInput
-                      style={[GlobalStyleSheet.formControl, isFocused && GlobalStyleSheet.activeInput]}
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        isFocused && GlobalStyleSheet.activeInput,
+                      ]}
                       defaultValue={dataAccount?.phone}
-                      onChangeText={handleChange('customer.phone')}
+                      onChangeText={handleChange(
+                        'customer.phone',
+                      )}
                       onFocus={() => setisFocused(true)}
                       onBlur={handleBlur('customer.phone')}
                       placeholder="Type Mobile number"
@@ -206,9 +215,14 @@ function EditProfile(props) {
                   <View style={GlobalStyleSheet.inputGroup}>
                     <Text style={GlobalStyleSheet.label}>Full Name</Text>
                     <TextInput
-                      style={[GlobalStyleSheet.formControl, isFocused2 && GlobalStyleSheet.activeInput]}
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        isFocused2 && GlobalStyleSheet.activeInput,
+                      ]}
                       defaultValue={dataAccount?.default_address?.name}
-                      onChangeText={handleChange('customer.default_address.name')}
+                      onChangeText={handleChange(
+                        'customer.default_address.name',
+                      )}
                       onFocus={() => setisFocused2(true)}
                       onBlur={handleBlur('customer.default_address.name')}
                       placeholder="Type your name"
@@ -218,7 +232,10 @@ function EditProfile(props) {
                   <View style={GlobalStyleSheet.inputGroup}>
                     <Text style={GlobalStyleSheet.label}>Email</Text>
                     <TextInput
-                      style={[GlobalStyleSheet.formControl, isFocused3 && GlobalStyleSheet.activeInput]}
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        isFocused3 && GlobalStyleSheet.activeInput,
+                      ]}
                       defaultValue={dataAccount?.email}
                       onChangeText={handleChange('customer.email')}
                       onFocus={() => setisFocused3(true)}
@@ -233,14 +250,14 @@ function EditProfile(props) {
                       style={[
                         GlobalStyleSheet.formControl,
                         isFocused4 && GlobalStyleSheet.activeInput,
-                        { height: 80, textAlignVertical: 'top' },
+                        {height: 80, textAlignVertical: 'top'},
                       ]}
-                      defaultValue={`${dataAccount?.default_address?.address1 || ''} ${
-                        dataAccount?.default_address?.city || ''
-                      } ${dataAccount?.default_address?.province || ''}`}
-                      onChangeText={handleChange('customer.default_address.address1')}
+                      defaultValue={`${dataAccount?.default_address?.address1 || ''} ${dataAccount?.default_address?.city || ''} ${dataAccount?.default_address?.province || ''}`}
+                      onChangeText={handleChange(
+                        'customer.default_address.address1',
+                      )}
                       onFocus={() => setisFocused4(true)}
-                      multiline
+                      multiline={true}
                       onBlur={handleBlur('customer.default_address.address1')}
                       placeholder="Type your location"
                       placeholderTextColor={COLORS.label}
@@ -248,7 +265,10 @@ function EditProfile(props) {
                   </View>
                 </View>
               </ScrollView>
-              <CustomButton title="Save Details" onPress={() => handleOnSubmit(values)} />
+              <CustomButton
+                title={'Save Details'}
+                onPress={() => handleOnSubmit(values)}
+              />
             </View>
             {/* <View style={GlobalStyleSheet.container}> */}
             {/* </View> */}
@@ -257,6 +277,6 @@ function EditProfile(props) {
       </Formik>
     </SafeAreaView>
   );
-}
+};
 
 export default EditProfile;

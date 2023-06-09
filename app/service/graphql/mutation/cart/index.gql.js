@@ -36,13 +36,7 @@ mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
 }
 `
 
-/**
- * @name CART_ADD
- * @type {DocumentNode}
- */
-export const CART_ADD = gql`
-mutation ($cartId: ID!, $lines: [CartLineInput!]!, $country: CountryCode= ZZ, $language: LanguageCode)
-@inContext(country: $country, language: $language) {
+export const CART_ADD = gql`mutation addNewLine($cartId: ID!, $lines: [CartLineInput!]!){
     cartLinesAdd(cartId: $cartId, lines: $lines) {
         cart {
             id
@@ -69,6 +63,61 @@ export const CART_CLEAR = gql``
  * @type {DocumentNode}
  */
 export const GET_CART_LIST = gql`
+    query GetProductInCart($first:Int!,$id: ID!){
+        cart(id: $id){
+            id
+            totalQuantity
+            lines(first:$first){
+                edges{
+                    node{
+                        id
+                        quantity
+                        merchandise{
+                            __typename
+                        }
+                        discountAllocations {
+                            ... on CartDiscountAllocation{
+                                __typename
+                            }
+                        }
+                        __typename
+                        attributes{
+                            ... on Attribute{
+                                key
+                                value
+                            }
+                        }
+                        # sellingPlanAllocation
+                        cost{
+                            ... on CartLineCost{
+                                totalAmount{
+                                    ... on MoneyV2{
+                                        amount
+                                        currencyCode
+                                    }
+                                }
+                                compareAtAmountPerQuantity{
+                                    ... on MoneyV2{
+                                        amount
+                                        currencyCode
+                                    }
+                                }
+
+                                subtotalAmount {
+                                    ... on MoneyV2{
+                                        amount
+                                        currencyCode
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+`
+export const GQL_GET_CART_LIST = `
     query GetProductInCart($first:Int!,$id: ID!){
         cart(id: $id){
             id
