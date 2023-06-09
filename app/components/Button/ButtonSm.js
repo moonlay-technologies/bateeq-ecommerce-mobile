@@ -13,6 +13,7 @@ const ButtonSm = (props) => {
                 alignItems:'center',
                 borderRadius: props.btnSquare ? 0 : props.btnRounded ? 20 : SIZES.radius_sm,
             }]}
+            onPress={props.onPress}
         >
             <Text style={{...FONTS.fontSm,...FONTS.fontPoppins,color:COLORS.white}}>{props.title}</Text>
         </TouchableOpacity>

@@ -18,7 +18,7 @@ import pic2 from '../../assets/images/product/product2.jpg';
 import pic3 from '../../assets/images/product/product3.jpg';
 // import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import CustomButton from '../../components/CustomButton';
-import { CartApi } from '../../service/shopify-api';
+import {CartApi} from '../../service/shopify-api';
 
 const CheckoutData = [
   {
@@ -54,7 +54,7 @@ const Cart = ({navigation}) => {
 
   const [instruction, setInstructuction] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [dataCart, setDataCart] = useState(null)
+  const [dataCart, setDataCart] = useState(null);
   const [filterData, setFilterData] = useState({
     limit: 5,
   });
@@ -74,7 +74,7 @@ const Cart = ({navigation}) => {
         console.log('resss cart', res.checkouts);
         // console.log(res.products[0].images.map(src => src.src));
         setIsLoading(false);
-        setDataCart(res.checkouts.line_items)
+        setDataCart(res.checkouts.line_items);
         // setProductData(res.products);
       })
       .catch(error => {
@@ -161,12 +161,7 @@ const Cart = ({navigation}) => {
         />
       </View> */}
       <View style={{paddingHorizontal: 20}}>
-        <Header
-          backAction={() => navigation.navigate('Home')}
-          titleLeft
-          title={'back'}
-          leftIcon={'back'}
-        />
+      <Header titleLeft leftIcon={'back'} title={'Back'} />
       </View>
       <Text
         style={{

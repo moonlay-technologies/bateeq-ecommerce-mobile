@@ -1,10 +1,12 @@
 import React from 'react';
 import {Image, Text, View} from 'react-native';
 import {COLORS, FONTS} from '../constants/theme';
+import moment from 'moment/moment';
 
 const CartItem = ({
   productId,
   image,
+  imageSrc,
   title,
   quantity,
   size,
@@ -12,6 +14,10 @@ const CartItem = ({
   // desc,
   date,
 }) => {
+
+  const dateOrders = moment(date)
+  const formattedDate = dateOrders.format("MMMM Do YYYY");
+
   return (
     <View style={{flex: 1, paddingHorizontal: 15, marginVertical: 20}}>
       <View
@@ -24,10 +30,10 @@ const CartItem = ({
         }}>
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={{...FONTS.fontSatoshiBold, color: COLORS.title}}>
-            {date}
+            {formattedDate}
           </Text>
           <Text style={{...FONTS.fontSatoshiBold, color: COLORS.title}}>
-            {productId}
+            {productId || "NO SKUs yet"}
           </Text>
         </View>
         <View
@@ -45,7 +51,7 @@ const CartItem = ({
               // borderRadius:8,
               marginRight: 12,
             }}
-            source={image}
+           source={{uri: imageSrc}}
           />
           <View style={{flex: 1, paddingBottom: 7}}>
             <Text
@@ -158,13 +164,13 @@ const CartItem = ({
             paddingVertical: 10,
             borderRadius: 10,
             borderColor:
-              status === 'Confirmed'
+              status === 'PENDING'
                 ? '#FFE600'
                 : status === 'Canceled'
                 ? '#FFB8B8'
                 : '#659C5C',
             backgroundColor:
-              status === 'Confirmed'
+              status === 'PENDING'
                 ? '#FFFDE7'
                 : status === 'Canceled'
                 ? '#FFB8B8'
@@ -176,13 +182,13 @@ const CartItem = ({
               ...FONTS.fontSatoshiBold,
               fontSize: 16,
               color:
-                status === 'Confirmed'
+                status === 'PENDING'
                   ? '#FF8A00'
                   : status === 'Canceled'
                   ? '#FF3544'
                   : '#4F7E48',
             }}>
-            {status}
+            {status === "PAID" ? "COMPLETE" : status === "PENDING" ? "CONFIRM" : "CANCELED"}
           </Text>
         </View>
       </View>

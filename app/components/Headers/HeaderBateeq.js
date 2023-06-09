@@ -39,7 +39,7 @@ const HeaderBateeq = ({signin}) => {
             </View>
           )}
           size={25}
-          onPress={() => navigation.openDrawer()}
+          onPress={() => navigation?.openDrawer()}
         />
       )}
       {/* <Text style={{...FONTS.fontSatoshiBold,color:COLORS.title,flex:1, fontSize: 18,justifyContent:'center',alignItems:'center', textAlign: 'center',marginLeft:5}}>bateeq</Text> */}

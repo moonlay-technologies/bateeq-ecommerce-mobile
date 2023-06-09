@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   useWindowDimensions,
@@ -16,24 +16,49 @@ import AllCart from './AllCart';
 import Canceled from './Canceled';
 import Completed from './Completed';
 import OnDelivery from './OnDelivery';
+import Confirm from './Confirm';
+import {useQuery} from '@apollo/client';
+import {GET_ORDERS} from '../../service/admin-graphql/query/orders';
 
 const renderScene = SceneMap({
   All: AllCart,
   OnDelivery: OnDelivery,
+  Confirm: Confirm,
   Completed: Completed,
   Canceled: Canceled,
 });
 
 const Orders = ({navigation}) => {
   const layout = useWindowDimensions();
+  const [dataOrders, setDataOrders] = useState([])
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     {key: 'All', title: 'All'},
-    {key: 'OnDelivery', title: 'On Delivery'},
+    // {key: 'OnDelivery', title: 'On Delivery'},
+    {key: 'Confirm', title: 'Confirm'},
     {key: 'Completed', title: 'Completed'},
     {key: 'Canceled', title: 'Canceled'},
   ]);
+
+  const {data, loading} = useQuery(GET_ORDERS, {
+    variables: {
+      customerId: 'gid://shopify/Customer/7132117664027',
+      query: 'financial_status:paid',
+    },
+    context: {
+      clientName: 'httpLink2',
+    },
+  });
+
+  console.log('data httplink2', data?.customer?.orders);
+
+  useEffect(() => {
+    if(data) {
+      setDataOrders(data.customer.orders)
+    }
+  },[data])
+
 
   const handlePress = () => {
     navigation.navigate('Home');
@@ -70,7 +95,7 @@ const Orders = ({navigation}) => {
             </View>
           )}
           size={25}
-          onPress={() => navigation.openDrawer()}
+          onPress={() => navigation?.openDrawer()}
         />
         {/* <Text style={{...FONTS.fontSatoshiBold,color:COLORS.title,flex:1, fontSize: 18,justifyContent:'center',alignItems:'center', textAlign: 'center',marginLeft:5}}>bateeq</Text> */}
         <TouchableOpacity onPress={handlePress}>

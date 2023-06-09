@@ -23,6 +23,12 @@ import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
 import {gql, useQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
+import {GET_DETAIL_ACCOUNT} from '../../service/graphql/query/profile/profile';
+import {GET_PAGE_STORY} from '../../service/graphql/query/main-home';
+import {gqlError} from '../../utils/error-handling';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
+import {useDispatch, useSelector} from 'react-redux';
+import {setCustomerData} from '../../stores/reducers/customerReducer';
 
 const languagetData = [
   {
@@ -47,25 +53,15 @@ const languagetData = [
   },
 ];
 
-const getDataCustomerByToken = gql`
-  query ($accessToken: String!) {
-    customer(customerAccessToken: $accessToken) {
-      id
-      firstName
-      lastName
-      acceptsMarketing
-      email
-      phone
-    }
-  }
-`;
-
 const Profile = ({navigation}) => {
-  const [dataAccount, setDataAccount] = useState(null);
+  // const [dataAccount, setDataAccount] = useState(null);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
   const [accessToken, setAccessToken] = useState('');
+  const [dataFaq, setDataFaq] = useState(null);
+  const dispatch = useDispatch();
+  const dataAccount = useSelector(state => state.customer.customerData);
 
   useEffect(() => {
     const getAccessToken = async () => {
@@ -75,16 +71,44 @@ const Profile = ({navigation}) => {
           setAccessToken(token);
         }
       } catch (error) {
-        console.log('error', error);
+        onError(error);
       }
     };
 
     getAccessToken();
   }, []);
 
-  const {data, loading, error} = useQuery(getDataCustomerByToken, {
+  const onError = err => {
+    gqlError({error: err, Toast});
+  };
+
+  const {loading: loadingFAQ} = useQuery(GET_PAGE_STORY, {
+    fetchPolicy: 'no-cache',
     variables: {
-      accessToken: accessToken,
+      handle: 'f-a-q',
+    },
+    onCompleted: ({page}) => {
+      if (page) {
+        setDataFaq(page);
+      }
+    },
+    onError: err => {
+      onError(err);
+    },
+  });
+
+  const {loading} = useQuery(GET_DETAIL_ACCOUNT, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      customerAccessToken: accessToken,
+    },
+    onCompleted: ({customer}) => {
+      if (customer) {
+        dispatch(setCustomerData(customer));
+      }
+    },
+    onError: err => {
+      onError(err);
     },
   });
 
@@ -92,15 +116,7 @@ const Profile = ({navigation}) => {
     if (isLoggedOut && isFocused) {
       navigation.navigate('SignIn');
     }
-  }, [isLoggedOut, isFocused, navigation]);
-
-  useEffect(() => {
-    if (error) {
-      console.log('error', error);
-    } else if (data) {
-      setDataAccount(data.customer);
-    }
-  }, [data, loading, error]);
+  }, [isLoggedOut, isFocused]);
 
   if (loading) {
     return <LoadingScreen />;
@@ -203,12 +219,14 @@ const Profile = ({navigation}) => {
                     flex: 1,
                     marginTop: 20,
                   }}>
-                  <Text style={{...FONTS.h6}}>
-                    {dataAccount?.default_address?.name || ''}
+                  <Text style={{...FONTS.h6, color: COLORS.title}}>
+                    {dataAccount?.firstName || ''} {dataAccount?.lastName || ''}
                   </Text>
-                  <Text style={{...FONTS.font}}>{dataAccount?.email}</Text>
-                  <Text style={{...FONTS.font}}>
-                    {dataAccount?.default_address?.phone || ''}
+                  <Text style={{...FONTS.font, color: COLORS.title}}>
+                    {dataAccount?.email}
+                  </Text>
+                  <Text style={{...FONTS.font, color: COLORS.title}}>
+                    {dataAccount?.phone || ''}
                   </Text>
                 </View>
               </View>
@@ -241,7 +259,9 @@ const Profile = ({navigation}) => {
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Address')}
+                onPress={() =>
+                  navigation.navigate('Address', {accessToken: accessToken})
+                }
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -295,7 +315,13 @@ const Profile = ({navigation}) => {
                   marginBottom: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+                onPress={() =>
+                  navigation.navigate('AllPages', {
+                    dataPages: dataFaq,
+                    loadingFAQ,
+                  })
+                }>
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,

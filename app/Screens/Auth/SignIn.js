@@ -15,24 +15,26 @@ import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import HeaderBateeq from '../../components/Headers/HeaderBateeq';
 import {Formik} from 'formik';
+import * as Yup from 'yup';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import LoadingScreen from '../../components/LoadingView';
-import {gql, useMutation} from '@apollo/client';
+import {useMutation} from '@apollo/client';
 import {useNavigation, CommonActions} from '@react-navigation/native';
+import {authenticate} from '../../service/graphql/mutation/authentication/authentication';
+import {useEffect} from 'react';
 
-const customerAccessTokenCreate = gql`
-  mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
-    customerAccessTokenCreate(input: {email: $email, password: $password}) {
-      customerAccessToken {
-        accessToken
-      }
-      customerUserErrors {
-        message
-      }
-    }
-  }
-`;
+const ValidateSchema = Yup.object().shape({
+  customer: Yup.object().shape({
+    email: Yup.string()
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        'Please enter a valid email',
+      )
+      .required('Email Address is required'),
+    password: Yup.string().required('Password is required'),
+  }),
+});
 
 const SignIn = props => {
   const [isFocused, setisFocused] = useState(false);
@@ -41,29 +43,14 @@ const SignIn = props => {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
 
-  const validateForm = values => {
-    const errors = {};
-
-    if (!values.customer.email) {
-      errors.customer = {...errors.customer, email: 'Required'};
-    }
-
-    if (!values.customer.password) {
-      errors.customer = {...errors.customer, password: 'Required'};
-    }
-
-    return errors;
-  };
-
-  const [CustomerAccessTokenCreateMutation] = useMutation(
-    customerAccessTokenCreate,
-  );
+  const [CustomerAccessTokenCreateMutation] = useMutation(authenticate);
 
   const handleOnSubmit = async values => {
     try {
       setIsLoading(true);
 
       const {data} = await CustomerAccessTokenCreateMutation({
+        fetchPolicy: 'no-cache',
         variables: {
           email: values.customer.email,
           password: values.customer.password,
@@ -71,8 +58,6 @@ const SignIn = props => {
       });
       const accessToken =
         data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
-
-      console.log('access token', accessToken);
 
       if (accessToken) {
         Toast.show({
@@ -130,7 +115,7 @@ const SignIn = props => {
                 }}>
                 Login
               </Text>
-              <Text style={{...FONTS.fontSatoshiRegular}}>
+              <Text style={{...FONTS.fontSatoshiRegular, color: COLORS.title}}>
                 Log into your bateeq account to enjoy benefits from our
                 membership.
               </Text>
@@ -145,7 +130,7 @@ const SignIn = props => {
               onSubmit={values => {
                 handleOnSubmit(values);
               }}
-              validate={validateForm}>
+              validationSchema={ValidateSchema}>
               {({
                 values,
                 handleChange,
@@ -163,34 +148,31 @@ const SignIn = props => {
                           color: COLORS.title,
                           marginBottom: 8,
                         }}>
-                        Username
+                        Email
                       </Text>
                       <TextInput
                         style={[
                           GlobalStyleSheet.formControl,
                           isFocused && GlobalStyleSheet.activeInput,
-                          {...FONTS.fontSatoshiRegular},
+                          {...FONTS.font, color: COLORS.title},
                         ]}
                         onFocus={() => setisFocused(true)}
                         onBlur={handleBlur('customer.email')}
-                        placeholder="e.g. bateeq_foryou"
+                        placeholder="e.g. bateeq@gmail.com"
                         placeholderTextColor={COLORS.label}
                         value={values.customer.email}
                         onChangeText={handleChange('customer.email')}
                       />
-                      {!isFocused &&
-                        !values.customer.email &&
-                        touched?.customer?.email &&
-                        errors?.customer?.email && (
-                          <Text style={GlobalStyleSheet.errorMessage}>
-                            {errors.customer.email}
-                          </Text>
-                        )}
+                      {errors?.customer?.email && touched?.customer?.email && (
+                        <Text style={GlobalStyleSheet.errorMessage}>
+                          {errors.customer.email}
+                        </Text>
+                      )}
                     </View>
                     <View style={GlobalStyleSheet.inputGroup}>
                       <Text
                         style={{
-                          ...FONTS.fontSatoshiBold,
+                          ...FONTS.font,
                           color: COLORS.title,
                           marginBottom: 8,
                         }}>
@@ -226,7 +208,7 @@ const SignIn = props => {
                           style={[
                             GlobalStyleSheet.formControl,
                             isFocused2 && GlobalStyleSheet.activeInput,
-                            {...FONTS.fontSatoshiRegular},
+                            {...FONTS.font, color: COLORS.title},
                           ]}
                           onFocus={() => setisFocused2(true)}
                           onBlur={handleBlur('customer.password')}
@@ -252,7 +234,7 @@ const SignIn = props => {
                       }}>
                       <Text
                         style={{
-                          ...FONTS.fontSatoshiRegular,
+                          ...FONTS.font,
                           color: COLORS.title,
                           textAlign: 'center',
                           marginBottom: 12,
@@ -263,13 +245,14 @@ const SignIn = props => {
                       <TouchableOpacity
                         onPress={() =>
                           Linking.openURL(
-                            'https://bateeqshop.myshopify.com/account/login#',
+                            'https://bateeqshop.myshopify.com/account/login?return_url=%2Faccount',
                           )
                         }>
                         <Text
                           style={{
-                            ...FONTS.fontSatoshiBold,
+                            ...FONTS.font,
                             color: COLORS.title,
+                            textDecorationLine: 'underline',
                           }}>
                           Reset here
                         </Text>
@@ -288,7 +271,7 @@ const SignIn = props => {
             <View style={{marginTop: 8, flexDirection: 'row'}}>
               <Text
                 style={{
-                  ...FONTS.fontSatoshiRegular,
+                  ...FONTS.font,
                   color: COLORS.title,
                   textAlign: 'center',
                   marginBottom: 12,
@@ -298,7 +281,12 @@ const SignIn = props => {
               </Text>
               <TouchableOpacity
                 onPress={() => props.navigation.navigate('SignUp')}>
-                <Text style={{...FONTS.fontSatoshiBold, color: COLORS.title}}>
+                <Text
+                  style={{
+                    ...FONTS.font,
+                    color: COLORS.title,
+                    textDecorationLine: 'underline',
+                  }}>
                   Register here
                 </Text>
               </TouchableOpacity>

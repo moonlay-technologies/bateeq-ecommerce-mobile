@@ -1,20 +1,15 @@
 import React, {useRef, useState, useEffect} from 'react';
 import {
   SafeAreaView,
-  // ScrollView,
   TextInput,
+  TouchableOpacity,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
   FlatList,
 } from 'react-native';
-// import Octicons from 'react-native-vector-icons/Octicons';
-// import FeatherIcon from 'react-native-vector-icons/Feather';
-// import RBSheet from 'react-native-raw-bottom-sheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProductItem from '../../components/ProductItem';
 import pic1 from '../../assets/images/product/pic1.jpg';
 import pic2 from '../../assets/images/product/pic2.jpg';
@@ -24,12 +19,7 @@ import pic5 from '../../assets/images/product/pic5.jpg';
 import pic6 from '../../assets/images/product/pic6.jpg';
 import pic7 from '../../assets/images/product/pic7.jpg';
 import pic8 from '../../assets/images/product/pic8.jpg';
-import {List, RadioButton, Snackbar} from 'react-native-paper';
-import {ProductApi} from '../../service/shopify-api';
-// import Ripple from 'react-native-material-ripple';
-// import CheckBox from '@react-native-community/checkbox';
-// import {GlobalStyleSheet} from '../../constants/StyleSheet';
-// import CustomButton from '../../components/CustomButton';
+import {Snackbar} from 'react-native-paper';
 import MobilesData from '../../JSON/Mobiles.json';
 import ElectronicsData from '../../JSON/Electronics.json';
 import FashionData from '../../JSON/Fashion.json';
@@ -37,9 +27,10 @@ import FurnitureData from '../../JSON/Furniture.json';
 import GroceryData from '../../JSON/Grocery.json';
 import AppliancesData from '../../JSON/Appliances.json';
 import BooksToysData from '../../JSON/BooksToys.json';
-import {gql, useQuery, useLazyQuery} from '@apollo/client';
+import {useQuery, useLazyQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import {GET_LIST_PRODUCTS_CATEGORIES} from '../../service/graphql/query/products';
 
 const ProductData = [
   {
@@ -179,56 +170,13 @@ const ProductData = [
 //   },
 // ];
 
-const GET_LIST_PRODUCTS_CATEGORIES = gql`
-  query GetProducts($first: Int!, $query: String!, $after: String) {
-    products(first: $first, query: $query, after: $after) {
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-      edges {
-        node {
-          id
-          title
-          description
-          descriptionHtml
-          images(first: 1) {
-            edges {
-              node {
-                url
-              }
-            }
-          }
-          variants(first: 5) {
-            edges {
-              node {
-                price {
-                  amount
-                }
-                compareAtPrice {
-                  amount
-                }
-                selectedOptions {
-                  name
-                  value
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 const Items = ({navigation, route}) => {
   const {type, query, categories, colletionTitle} = route.params;
   const [itemView, setItemView] = useState('grid');
   const [dataCategories, setDataCategories] = useState([]);
-  const [isLoading, setIsLoading] = useState(null);
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [snackText, setSnackText] = useState('Loading...');
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showInput, setShowInput] = useState(false);
   const [valSearch, setValSearch] = useState('');
@@ -253,9 +201,13 @@ const Items = ({navigation, route}) => {
 
   const [itemData, setItemData] = useState(Products);
 
-  const {data, fetchMore, loading} = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+  const {
+    data,
+    fetchMore,
+    loading: loadingGetProducts,
+  } = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
     variables: {
-      first: 10,
+      first: 5,
       query: valSearch || query,
     },
   });
@@ -277,13 +229,56 @@ const Items = ({navigation, route}) => {
         query: valSearch,
       },
     });
+
+    // const [filterByAvailability, {data: dataFilterAvailability, loading: loadingSearch}] = useLazyQuery(
+    //   FILTER_PRODUCT_BY_AVAILABILITY,
+    // );
+
+    // const handleApplyFilters = (filters) => {
+    //   const { availability, minPrice, maxPrice } = filters;
+
+    //     if(availability.some((item) => item.label === "in Stock" && item.checked)) {
+    //       filterByAvailability({
+    //         variables: {
+    //           handle: "monez",
+    //           first: 10,
+    //           isAvailable: true
+    //         }
+    //       })
+    //     }
+    // if (!minPrice && !maxPrice) {
+    //   return true
+    // }
+    // Filter by price range
+    // const filteredByPrice = filteredByAvailability.filter((product) => {
+    //   if (!minPrice && !maxPrice) {
+    //     return true; // If no price range is specified, include all products
+    //   }
+
+    //   if (minPrice && maxPrice) {
+    //     return product.price >= minPrice && product.price <= maxPrice;
+    //   }
+
+    //   if (minPrice) {
+    //     return product.price >= minPrice;
+    //   }
+
+    //   if (maxPrice) {
+    //     return product.price <= maxPrice;
+    //   }
+    // });
+
+    // setFilteredProducts(filteredByPrice);
   };
 
   useEffect(() => {
     if (data) {
       setDataCategories(data?.products?.edges || []);
     }
-  }, []);
+    // if (dataFilterAvailability) {
+    //   setDataCategories(data?.collection?.products?.nodes || []);
+    // }
+  }, [data]);
 
   const handleValChange = val => {
     setValSearch(val);
@@ -310,12 +305,12 @@ const Items = ({navigation, route}) => {
   };
 
   const handleLoadMore = async () => {
-    if (data.products.pageInfo.hasNextPage) {
+    if (data && data?.products?.pageInfo?.hasNextPage) {
       setIsLoadingMore(true);
       try {
         const result = await fetchMore({
           variables: {
-            first: 10,
+            first: 5,
             query: query,
             after: data.products.pageInfo.endCursor,
           },
@@ -325,7 +320,7 @@ const Items = ({navigation, route}) => {
               products: {
                 ...fetchMoreResult.products,
                 edges: [
-                  ...prev.products.edges,
+                  ...prev?.products?.edges,
                   ...fetchMoreResult.products.edges,
                 ],
               },
@@ -341,78 +336,7 @@ const Items = ({navigation, route}) => {
     }
   };
 
-  const handleNextPage = () => {
-    setCurrentPage(prevPage => prevPage + 1);
-    handleLoadMore();
-  };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prevPage => prevPage - 1);
-    }
-  };
-
-  const renderPaginationButtons = () => {
-    if (currentPage === 1 && data && data.products.pageInfo.hasNextPage) {
-      return (
-        <TouchableOpacity
-          style={styles.paginationButton}
-          onPress={handleNextPage}>
-          <AntDesignIcon name="right" size={20} color={COLORS.black} />
-        </TouchableOpacity>
-      );
-    } else if (currentPage > 1 && data && data.products.pageInfo.hasNextPage) {
-      return (
-        <>
-          <TouchableOpacity
-            style={styles.paginationButton}
-            onPress={handlePrevPage}>
-            <AntDesignIcon name="left" size={20} color={COLORS.black} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.paginationButton}
-            onPress={handleNextPage}>
-            {isLoadingMore ? (
-              <LoadingScreen Loading2 />
-            ) : (
-              <AntDesignIcon name="right" size={20} color={COLORS.black} />
-            )}
-          </TouchableOpacity>
-        </>
-      );
-    } else if (currentPage > 1 && !data.products.pageInfo.hasNextPage) {
-      return (
-        <TouchableOpacity
-          style={styles.paginationButton}
-          onPress={handlePrevPage}>
-          <AntDesignIcon name="left" size={20} color={COLORS.black} />
-        </TouchableOpacity>
-      );
-    }
-    return null;
-  };
-
   const renderItem = ({item}) => (
-    // <View
-    //   style={{
-    //     width: itemView == 'list' ? '100%' : '50%',
-    //     paddingHorizontal: 10,
-    //     marginBottom: 8,
-    //   }}>
-    //   <ItemCard
-    //     listView={itemView == 'list' ? true : false}
-    //     id={item.id}
-    //     subCategory="MEN - LS - REGULER"
-    //     imageSrc={item.images[0].src}
-    //     images={item.images}
-    //     price={item.variants[0].price}
-    //     oldPrice={item.variants[0].compare_at_price}
-    //     title={item.title}
-    //     description={item.description}
-    //     shopBtn={false}
-    //     itemName={item.title}
-    //   />
-    // </View>
     <View style={{width: '50%', paddingHorizontal: 5}}>
       <ProductItem
         onPress={() =>
@@ -430,7 +354,6 @@ const Items = ({navigation, route}) => {
           })
         }
         imgLength
-        id={item.node.id}
         imageSrc={item.node.images.edges[0].node.url}
         // images={item.images}
         title={item.node.title}
@@ -445,178 +368,8 @@ const Items = ({navigation, route}) => {
       />
     </View>
   );
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  // const [sortVal, setSortVal] = useState('');
-  // const [sheetType, setSheetType] = useState('');
-  // const [brandFilter, setBrandFilter] = useState(brandFilterData);
-  // const [discountFilter, setDiscountFilter] = useState(discountFilterData);
-  // const [filterData, setFilterData] = useState([]);
-
-  // const handleFilterSelected = val => {
-  //   let Brand = brandFilter.map(data => {
-  //     if (val === data.title) {
-  //       return {...data, selected: !data.selected};
-  //     }
-  //     return data;
-  //   });
-  //   let Discount = discountFilter.map(data => {
-  //     if (val === data.title) {
-  //       return {...data, selected: !data.selected};
-  //     }
-  //     return data;
-  //   });
-  //   setBrandFilter(Brand);
-  //   setDiscountFilter(Discount);
-  //   setFilterData(
-  //     sheetType == 'brand' ? Brand : sheetType == 'discount' ? Discount : [],
-  //   );
-  // };
-
   return (
     <>
-      {/* <RBSheet
-        ref={sheetRef}
-        height={
-          sheetType === 'sort'
-            ? 250
-            : sheetType === 'discount'
-            ? 310
-            : sheetType === 'brand'
-            ? 400
-            : 300
-        }
-        closeOnDragDown={true}
-        closeOnPressMask={true}>
-        {sheetType == 'sort' ? (
-          <RadioButton.Group
-            onValueChange={value => {
-              setSortVal(value);
-              sheetRef.current.close();
-            }}
-            value={sortVal}>
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="What's new"
-              value="newest"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Price - high to low"
-              value="price-hightolow"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Price - low to hight"
-              value="price-lowtohigh"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Popularity"
-              value="popularity"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Discount"
-              value="discount"
-            />
-          </RadioButton.Group>
-        ) : (
-          <>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 5,
-                marginTop: -10,
-                marginBottom: 5,
-              }}>
-              <TouchableOpacity
-                onPress={() => sheetRef.current.close()}
-                style={{
-                  padding: 10,
-                  marginRight: 3,
-                }}>
-                <FeatherIcon color={COLORS.title} size={24} name="x" />
-              </TouchableOpacity>
-              <Text style={{...FONTS.h6, top: 1}}>Filters</Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-              }}>
-              {filterData.map((data, index) => (
-                <View
-                  key={index}
-                  style={{
-                    width: '50%',
-                  }}>
-                  <List.Item
-                    style={{paddingVertical: 2}}
-                    onPress={() => handleFilterSelected(data.title)}
-                    left={() => (
-                      <CheckBox
-                        tintColors={{true: COLORS.primary, false: COLORS.text}}
-                        style={{left: 10}}
-                        value={data.selected}
-                        disabled
-                      />
-                    )}
-                    title={() => (
-                      <Text
-                        style={{
-                          ...FONTS.font,
-                          ...FONTS.fontMedium,
-                          top: -1,
-                          color: COLORS.title,
-                        }}>
-                        {data.title}
-                      </Text>
-                    )}
-                  />
-                </View>
-              ))}
-            </View>
-            <View style={GlobalStyleSheet.container}>
-              <View style={GlobalStyleSheet.row}>
-                <View style={GlobalStyleSheet.col50}>
-                  <TouchableOpacity
-                    style={{
-                      borderWidth: 1,
-                      borderColor: COLORS.borderColor,
-                      paddingHorizontal: 15,
-                      alignItems: 'center',
-                      paddingVertical: 14,
-                      borderRadius: SIZES.radius,
-                    }}>
-                    <Text style={{...FONTS.fontLg, color: COLORS.primary}}>
-                      Clear
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={GlobalStyleSheet.col50}>
-                  <CustomButton title={'Apply'} />
-                </View>
-              </View>
-            </View>
-          </>
-        )}
-      </RBSheet> */}
-
       <SafeAreaView
         style={{
           flex: 1,
@@ -631,117 +384,14 @@ const Items = ({navigation, route}) => {
                 ? query
                 : colletionTitle
                 ? colletionTitle
-                : 'All Product'
+                : query === ''
+                ? 'All Product'
+                : query
             }
           />
         </View>
-        {/* <View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View
-              style={{
-                paddingHorizontal: 15,
-                paddingVertical: 10,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Ripple
-                onPress={() => {
-                  setSheetType('sort');
-                  sheetRef.current.open();
-                }}
-                style={styles.badge}>
-                <Octicons size={16} style={{marginRight: 6}} name="sort-desc" />
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  Sort By
-                </Text>
-                <FeatherIcon
-                  style={{marginLeft: 2, marginRight: -6}}
-                  size={18}
-                  name="chevron-down"
-                />
-              </Ripple>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Filter')}
-                style={styles.badge}>
-                <FeatherIcon style={{marginRight: 8}} size={15} name="filter" />
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  Filter
-                </Text>
-              </TouchableOpacity>
-              <Ripple
-                onPress={() => {
-                  setSheetType('brand');
-                  setFilterData(brandFilter);
-                  sheetRef.current.open();
-                }}
-                style={styles.badge}>
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  Brand
-                </Text>
-                <FeatherIcon
-                  style={{marginLeft: 2, marginRight: -6}}
-                  size={18}
-                  name="chevron-down"
-                />
-              </Ripple>
-              <Ripple
-                onPress={() => {
-                  setSheetType('discount');
-                  setFilterData(discountFilter);
-                  sheetRef.current.open();
-                }}
-                style={styles.badge}>
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  discount
-                </Text>
-                <FeatherIcon
-                  style={{marginLeft: 2, marginRight: -6}}
-                  size={18}
-                  name="chevron-down"
-                />
-              </Ripple>
-            </View>
-          </ScrollView>
-        </View> */}
-        {/* <ScrollView> */}
-        {/* <View
-            style={{
-              paddingTop: 5,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                paddingHorizontal: 5,
-              }}>
-              {itemData.map((data, index) => (
-                <View key={index} style={{width: '50%', paddingHorizontal: 5}}>
-                  <ProductItem
-                    onPress={() =>
-                      navigation.navigate('ProductDetail', {
-                        item: data,
-                        category: type,
-                      })
-                    }
-                    imgLength={type == 'Fashion'}
-                    id={data.id}
-                    imageSrc={data.image}
-                    title={data.title}
-                    desc={data.desc}
-                    status={data.status}
-                    price={data.price}
-                    oldPrice={data.oldPrice}
-                    rating={data.rating}
-                    reviews={data.reviews}
-                    isLike={data.isLike}
-                    handleItemLike={handleItemLike}
-                  />
-                </View>
-              ))}
-            </View>
-          </View> */}
-
         <View style={{height: '100%'}}>
+          {/* <FilterPopover onApplyFilters={handleApplyFilters}/> */}
           <TouchableOpacity
             style={{
               borderWidth: 1,
@@ -759,7 +409,8 @@ const Items = ({navigation, route}) => {
                 textAlign: 'center',
                 marginRight: 10,
                 marginVertical: 3,
-                ...FONTS.fontSatoshiBold,
+                color: 'black',
+                ...FONTS.font,
               }}>
               Filter
             </Text>
@@ -779,6 +430,7 @@ const Items = ({navigation, route}) => {
                   paddingVertical: 2,
                   marginBottom: 10,
                   marginHorizontal: 17,
+                  color: 'black',
                 }}
                 placeholder="Search"
                 autoFocus={true}
@@ -790,77 +442,56 @@ const Items = ({navigation, route}) => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginBottom: 8,
-                }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: '#333333',
-                    gap: 6,
-                    paddingVertical: 6,
-                    paddingHorizontal: 24,
-                    flexDirection: 'row',
-                    width: 100,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: 38,
-                  }}
-                  onPress={handleSearchButton}>
-                  <Text
-                    style={{
-                      color: COLORS.white,
-                      ...FONTS.fontSatoshiBold,
-                      textAlign: 'center',
-                      alignItems: 'center',
-                    }}>
-                    Search
-                  </Text>
-                  <Ionicons
-                    name="md-arrow-forward"
-                    size={12}
-                    color={COLORS.white}
-                    style={{
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      marginTop: 4,
-                      marginLeft: 18,
-                    }}
-                  />
-                </TouchableOpacity>
-              </View>
+                }}></View>
             </View>
           )}
-          {loadingSearch || isLoading ? (
+          {loadingSearch || loadingGetProducts ? (
             <View
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '70%',
+              }}>
               <LoadingScreen />
+            </View>
+          ) : dataCategories.length === 0 ? (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '70%',
+              }}>
+              <Text style={{color: 'black', fontSize: 16, fontWeight: 'bold'}}>
+                Product Not Found
+              </Text>
             </View>
           ) : (
             <FlatList
               data={dataCategories}
               renderItem={renderItem}
               ref={flatListRef}
-              keyExtractor={item => item.node.id.toString()}
+              keyExtractor={item => String(item.node.id)}
               numColumns={itemView === 'grid' ? 2 : 1}
               initialNumToRender={10}
               maxToRenderPerBatch={10}
               windowSize={10}
               contentContainerStyle={{
+                minHeight: '100%',
                 paddingHorizontal: 8,
-                marginBottom: 10,
+                paddingBottom: 90,
               }}
               showsVerticalScrollIndicator={false}
               ListFooterComponent={
-                data &&
-                data.products.pageInfo.hasNextPage && (
-                  <View style={styles.paginationContainer}>
-                    {renderPaginationButtons()}
+                isLoadingMore && (
+                  <View style={{marginBottom: 90}}>
+                    <LoadingScreen Loading2 />
                   </View>
                 )
               }
-              onEndReached={handleLoadMore}
+              onEndReached={() => handleLoadMore()}
             />
           )}
         </View>
-        {/* </ScrollView> */}
         <Snackbar
           visible={isSnackbar}
           duration={3000}
@@ -877,20 +508,6 @@ const Items = ({navigation, route}) => {
     </>
   );
 };
-
-// const styles = StyleSheet.create({
-//   badge: {
-//     borderWidth: 1,
-//     borderColor: COLORS.borderColor,
-//     backgroundColor: '#f5f5f5',
-//     paddingHorizontal: 15,
-//     paddingVertical: 6,
-//     borderRadius: 20,
-//     marginRight: 12,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//   },
-// });
 
 const styles = StyleSheet.create({
   container: {

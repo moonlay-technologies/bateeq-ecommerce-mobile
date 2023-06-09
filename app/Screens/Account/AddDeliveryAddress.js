@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   ScrollView,
@@ -11,26 +11,117 @@ import CustomButton from '../../components/CustomButton';
 import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
-import SelectInput from '../../components/SelectInput';
+// import SelectInput from '../../components/SelectInput';
+import {gqlError} from '../../utils/error-handling';
+import {Toast} from 'react-native-toast-message/lib/src/Toast';
+import {ADD_ADDRESS} from '../../service/graphql/mutation/profile';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Yup from 'yup';
+import {useMutation, useQuery} from '@apollo/client';
+import {Formik} from 'formik';
+import {useDispatch} from 'react-redux';
+import {setCustomerData} from '../../stores/reducers/customerReducer';
+import {GET_DETAIL_ACCOUNT} from '../../service/graphql/query/profile/profile';
 
-const Country = [
-  {label: 'indonesia', value: 'indonesia'},
-  {label: 'Jepang', value: 'jepang'},
-  {label: 'Malaysia', value: 'malaysia'},
-];
-
-const Province = [
-  {label: 'DKI Jakarta', value: 'jakarta'},
-  {label: 'Jawa Barat', value: 'jawabarat'},
-  {label: 'Jawa Timur', value: 'jawatimur'},
-];
+const ValidationSchema = Yup.object().shape({
+  firstName: Yup.string().required('Please input your first name'),
+  lastName: Yup.string(),
+  phone: Yup.string()
+    .matches(
+      /^(?:\+?\d{1,3}\s?)?(?:\(\d{1,}\)\s?)?(?:\d+(?:[-.\s]?)\d+)$/,
+      'Please enter a valid phone number',
+    )
+    .required('Phone number is required'),
+  company: Yup.string().required('Please input your company'),
+  country: Yup.string().required('Please input your country'),
+  province: Yup.string().required('Please input your province'),
+  city: Yup.string().required('Please input your city'),
+  zip: Yup.string().required('Please input your zip'),
+  address1: Yup.string().required('Please input your address1'),
+});
 
 const AddDeliveryAddress = ({navigation}) => {
-  const [defaultAddress, setAddress] = useState('Home');
-  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [isFocused, setIsFocused] = useState(false);
+  const dispatch = useDispatch();
+  const [accessToken, setAccessToken] = useState('');
 
-  const handleCountrySelect = value => {
-    setSelectedCountry(value);
+  const initialValues = {
+    firstName: '',
+    lastName: '',
+    phone: '',
+    company: '',
+    country: '',
+    province: '',
+    city: '',
+    address1: '',
+    zip: '',
+  };
+
+  const onError = err => {
+    gqlError({error: err, Toast});
+  };
+
+  useEffect(() => {
+    const getAccessToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('accessToken');
+        if (token !== null) {
+          setAccessToken(token);
+        }
+      } catch (error) {
+        onError(error);
+      }
+    };
+
+    getAccessToken();
+  }, []);
+
+  const [CustomerAddAddress] = useMutation(ADD_ADDRESS, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      address: '',
+      customerAccessToken: accessToken,
+    },
+  });
+
+  const {loading: loadingUpdate, refetch: updateAddressUser} = useQuery(GET_DETAIL_ACCOUNT, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      customerAccessToken: accessToken,
+    },
+    onCompleted: ({customer}) => {
+      if (customer) {
+        dispatch(setCustomerData(customer));
+      }
+    },
+    onError: err => {
+      onError(err);
+    },
+  });
+
+  const handleOnSubmit = async values => {
+    try {
+      const {data} = await CustomerAddAddress({
+        fetchPolicy: 'no-cache',
+        variables: {
+          address: values,
+          customerAccessToken: accessToken,
+        },
+      });
+      if (data.customerAddressCreate.customerAddress) {
+        await updateAddressUser();
+        Toast.show({
+          type: 'success',
+          text1: 'Create Address success',
+          visibilityTime: 3000,
+        });
+        navigation.navigate('Address', {loading: loadingUpdate});
+      } else {
+        onError(data.customerAddressCreate.customerUserErrors[0].message);
+      }
+    } catch (error) {
+      onError(error);
+    }
   };
 
   return (
@@ -42,58 +133,123 @@ const AddDeliveryAddress = ({navigation}) => {
       <View style={{paddingHorizontal: 20}}>
         <Header titleLeft leftIcon={'back'} title={'Back'} />
       </View>
-      <View style={{flex: 1}}>
-        <ScrollView>
-          <View style={GlobalStyleSheet.container}>
-            <View
-              style={{
-                // borderBottomWidth:1,
-                // borderBottomColor:COLORS.borderColor,
-                paddingBottom: 10,
-                marginBottom: 20,
-              }}>
-              <Text
-                style={{
-                  ...FONTS.fontSatoshiBold,
-                  fontSize: 24,
-                  color: COLORS.title,
-                }}>
-                Add Address
-              </Text>
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>First Name</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="e.g. John"
-                placeholderTextColor={COLORS.label}
-              />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Last Name</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="e.g. Doe"
-                placeholderTextColor={COLORS.label}
-              />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Phone Number</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="e.g. +628123456789"
-                placeholderTextColor={COLORS.label}
-              />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Company</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="e.g. PT Bateeq"
-                placeholderTextColor={COLORS.label}
-              />
-            </View>
-            {/* <View style={GlobalStyleSheet.inputGroup}>
+      <Formik
+        initialValues={initialValues}
+        onSubmit={values => {
+          handleOnSubmit(values);
+        }}
+        validationSchema={ValidationSchema}>
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          // setFieldValue,
+          values,
+          errors,
+          touched,
+        }) => (
+          <>
+            <View style={{flex: 1}}>
+              <ScrollView>
+                <View style={GlobalStyleSheet.container}>
+                  <View
+                    style={{
+                      // borderBottomWidth:1,
+                      // borderBottomColor:COLORS.borderColor,
+                      paddingBottom: 10,
+                      marginBottom: 20,
+                    }}>
+                    <Text
+                      style={{
+                        ...FONTS.fontSatoshiBold,
+                        fontSize: 24,
+                        color: COLORS.title,
+                      }}>
+                      Add Address
+                    </Text>
+                  </View>
+
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>First Name</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. John"
+                      placeholderTextColor={COLORS.label}
+                      value={values.firstName}
+                      onChangeText={handleChange('firstName')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('firstName')}
+                    />
+                    {touched.firstName && errors.firstName && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.firstName}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>Last Name</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholderTextColor={COLORS.label}
+                      value={values.lastName}
+                      onChangeText={handleChange('lastName')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('lastName')}
+                      placeholder="e.g. Doe"
+                    />
+                    {touched.lastName && errors.lastName && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.lastName}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>Phone Number</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. +628123456789"
+                      placeholderTextColor={COLORS.label}
+                      value={values.phone || '+628'}
+                      onChangeText={handleChange('phone')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('phone')}
+                    />
+                    {touched.phone && errors.phone && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.phone}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>Company</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. PT Bateeq"
+                      placeholderTextColor={COLORS.label}
+                      value={values.company}
+                      onChangeText={handleChange('company')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('company')}
+                    />
+                    {touched.company && errors.company && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.company}
+                      </Text>
+                    )}
+                  </View>
+                  {/* <View style={GlobalStyleSheet.inputGroup}>
               <Text style={GlobalStyleSheet.label}>Address</Text>
               <TextInput
                 style={{
@@ -111,37 +267,119 @@ const AddDeliveryAddress = ({navigation}) => {
                 multiline={true}
               />
             </View> */}
-            <View style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
-              <SelectInput
+                  {/* <View style={{flex: 1, backgroundColor: COLORS.backgroundColor}}> */}
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    {/* <SelectInput
                 label="Country"
                 options={Country}
                 onSelect={handleCountrySelect}
-              />
-            </View>
-            <View style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
-              <SelectInput
+              /> */}
+                    <Text style={GlobalStyleSheet.label}>Country</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. Indonesia"
+                      placeholderTextColor={COLORS.label}
+                      value={values.country}
+                      onChangeText={handleChange('country')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('country')}
+                    />
+                    {touched.country && errors.country && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.country}
+                      </Text>
+                    )}
+                  </View>
+                  {/* <View style={{flex: 1, backgroundColor: COLORS.backgroundColor}}> */}
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    {/* <SelectInput
                 label="Province"
                 options={Province}
                 onSelect={handleCountrySelect}
-              />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>City</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="e.g. Jakarta Selatan"
-                placeholderTextColor={COLORS.label}
-              />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Postal Code</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="e.g. 12190"
-                placeholderTextColor={COLORS.label}
-              />
-            </View>
-            {/* <View style={GlobalStyleSheet.inputGroup}>
+              /> */}
+                    <Text style={GlobalStyleSheet.label}>Province</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. Jawa Barat"
+                      placeholderTextColor={COLORS.label}
+                      value={values.province}
+                      onChangeText={handleChange('province')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('province')}
+                    />
+                    {touched.province && errors.province && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.province}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>City</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. Jakarta Selatan"
+                      placeholderTextColor={COLORS.label}
+                      value={values.city}
+                      onChangeText={handleChange('city')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('city')}
+                    />
+                    {touched.city && errors.city && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.city}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>Address</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. Jalan maung biru"
+                      placeholderTextColor={COLORS.label}
+                      value={values.address1}
+                      onChangeText={handleChange('address1')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('address1')}
+                    />
+                    {touched.address1 && errors.address1 && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.address1}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>Postal Code</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        {...FONTS.font, color: COLORS.title},
+                      ]}
+                      placeholder="e.g. 12190"
+                      placeholderTextColor={COLORS.label}
+                      value={values.zip}
+                      onChangeText={handleChange('zip')}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={handleBlur('zip')}
+                    />
+                    {touched.zip && errors.zip && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.zip}
+                      </Text>
+                    )}
+                  </View>
+                  {/* <View style={GlobalStyleSheet.inputGroup}>
               <Text style={GlobalStyleSheet.label}>Country</Text>
               <TextInput
                 style={GlobalStyleSheet.formControl}
@@ -149,7 +387,7 @@ const AddDeliveryAddress = ({navigation}) => {
                 placeholderTextColor={COLORS.label}
               />
             </View> */}
-            {/* <View style={[GlobalStyleSheet.row]}>
+                  {/* <View style={[GlobalStyleSheet.row]}>
               <View style={[GlobalStyleSheet.col50]}>
                 <View style={GlobalStyleSheet.inputGroup}>
                   <Text style={GlobalStyleSheet.label}>City/District</Text>
@@ -171,7 +409,7 @@ const AddDeliveryAddress = ({navigation}) => {
                 </View>
               </View>
             </View> */}
-            {/* <View
+                  {/* <View
               style={{
                 borderBottomWidth: 1,
                 borderBottomColor: COLORS.borderColor,
@@ -183,7 +421,7 @@ const AddDeliveryAddress = ({navigation}) => {
                 Save Address As
               </Text>
             </View> */}
-            {/* <View
+                  {/* <View
               style={{
                 flexDirection: 'row',
               }}>
@@ -233,20 +471,23 @@ const AddDeliveryAddress = ({navigation}) => {
                 </Text>
               </TouchableOpacity>
             </View> */}
-          </View>
-        </ScrollView>
-      </View>
-      <View
-        style={[
-          GlobalStyleSheet.container,
-          {justifyContent: 'center', alignItems: 'center'},
-        ]}>
-        <CustomButton
-          onPress={() => navigation.navigate('Address')}
-          title={'Save Address'}
-          customWidth={200}
-        />
-      </View>
+                </View>
+              </ScrollView>
+            </View>
+            <View
+              style={[
+                GlobalStyleSheet.container,
+                {justifyContent: 'center', alignItems: 'center'},
+              ]}>
+              <CustomButton
+                onPress={handleSubmit}
+                title={'Save Address'}
+                customWidth={200}
+              />
+            </View>
+          </>
+        )}
+      </Formik>
     </SafeAreaView>
   );
 };

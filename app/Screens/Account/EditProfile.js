@@ -2,169 +2,93 @@ import React, {useEffect, useState} from 'react';
 import {SafeAreaView, ScrollView, Text, TextInput, View} from 'react-native';
 import CustomButton from '../../components/CustomButton';
 import {GlobalStyleSheet} from '../../constants/StyleSheet';
-import {COLORS} from '../../constants/theme';
+import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
-import {AuthenApi} from '../../service/shopify-login';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import {Formik} from 'formik';
+import {useMutation} from '@apollo/client';
+import {EDIT_DETAIL_ACCOUNT} from '../../service/graphql/mutation/profile';
+import {gqlError} from '../../utils/error-handling';
+import * as Yup from 'yup';
+import {useNavigation} from '@react-navigation/native';
+import {useDispatch, useSelector} from 'react-redux';
+import {setCustomerData} from '../../stores/reducers/customerReducer';
 
-const EditProfile = props => {
-  const [dataAccount, setDataAccount] = useState(null);
+
+const EditProfile = ({props, route}) => {
+  // const {dataAccount, setDataAccount} = route.params;
+  const navigation = useNavigation();
+  // const [dataAccount, setDataAccount] = useState(null);
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [isFocused3, setisFocused3] = useState(false);
   const [isFocused4, setisFocused4] = useState(false);
+  const dispatch = useDispatch();
+  const dataAccount = useSelector(state => state.customer.customerData);
+
+  const [CustomerUpdateDetailAccount] = useMutation(EDIT_DETAIL_ACCOUNT, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      customer: '',
+      customerAccessToken: '',
+    },
+  });
 
   const initialValues = {
-    customer: {
-      email: '',
-      phone: '',
-      default_address: {
-        name: '',
-        address1: '',
-      },
-    },
+    email: dataAccount?.email || '',
+    firstName: dataAccount?.firstName || '',
+    lastName: dataAccount?.lastName || '',
+    phone: dataAccount?.phone || '',
   };
 
-  useEffect(() => {
-    getDetailAccount();
-  }, []);
+  const ValidationSchema = Yup.object().shape({
+    firstName: Yup.string().required('Please input your first name'),
+    lastName: Yup.string(),
+    phone: Yup.string()
+      .matches(
+        /^(?:\+?\d{1,3}\s?)?(?:\(\d{1,}\)\s?)?(?:\d+(?:[-.\s]?)\d+)$/,
+        'Please enter a valid phone number',
+      )
+      .required('Phone number is required'),
+    email: Yup.string()
+      .matches(
+        /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+        'Please enter a valid email',
+      )
+      .required('Email Address is required'),
+  });
 
-  const getDetailAccount = async () => {
-    const customerId = await AsyncStorage.getItem('customerIdString');
-    const token = await AsyncStorage.getItem('tokenAccess');
-    console.log('token', token);
-
-    AuthenApi.getDataAccount(customerId)
-      .then(res => {
-        setDataAccount(res.customer);
-      })
-      .catch(error => {
-        console.log('error', error);
-      });
+  const onError = err => {
+    gqlError({error: err, Toast});
   };
-
-  const validateForm = values => {
-    const errors = {};
-
-    if (!values.customer.default_address.name) {
-      errors.customer = {
-        ...errors.customer,
-        default_address: {
-          ...errors.customer?.default_address,
-          name: 'Required',
-        },
-      };
-    }
-
-    if (!values.customer.default_address.address1) {
-      errors.customer = {
-        ...errors.customer,
-        default_address: {
-          ...errors.customer?.default_address,
-          address1: 'Required',
-        },
-      };
-    }
-
-    if (!values.customer.default_address.phone) {
-      errors.customer = {
-        ...errors.customer,
-        default_address: {
-          ...errors.customer?.default_address,
-          phone: 'Required',
-        },
-      };
-    }
-
-    if (!values.customer.email) {
-      errors.customer = {
-        ...errors.customer,
-        email: 'Required',
-      };
-    }
-
-    return errors;
-  };
-
-  // const handleOnSubmit = async(values) => {
-  //   const customerId = await AsyncStorage.getItem('customerIdString');
-  //   // console.log('Mobile Number:', values.customer.default_address.phone);
-  //   // console.log('Full Name:', values.customer.default_address.name);
-  //   // console.log('Email:', values.customer.email);
-  //   // console.log('Location:', values.customer.default_address.address1);
-  //   AuthenApi.update(customerId, {
-  //   })
-  //   console.log('Values:', values);
-  // };
 
   const handleOnSubmit = async values => {
-    const customerId = await AsyncStorage.getItem('customerIdString');
+    const accessToken = await AsyncStorage.getItem('accessToken');
 
-    const changedValues = {};
-
-    // Compare with initial values and extract changed fields
-    if (values.customer.email !== initialValues.customer.email) {
-      changedValues.customer = {
-        ...changedValues.customer,
-        phone: values.customer.email,
-      };
-    }
-    if (values.customer.phone !== initialValues.customer.phone) {
-      changedValues.customer = {
-        ...changedValues.customer,
-
-        phone: values.customer.default_address.phone,
-      };
-    }
-
-    if (
-      values.customer.default_address.name !==
-      initialValues.customer.default_address.name
-    ) {
-      changedValues.customer = {
-        ...changedValues.customer,
-        default_address: {
-          ...changedValues.customer?.default_address,
-          name: values.customer.default_address.name,
+    try {
+      const {data} = await CustomerUpdateDetailAccount({
+        fetchPolicy: 'no-cache',
+        variables: {
+          customer: values,
+          customerAccessToken: accessToken,
         },
-      };
-    }
+      });
 
-    if (
-      values.customer.default_address.address1 !==
-      initialValues.customer.default_address.address1
-    ) {
-      changedValues.customer = {
-        ...changedValues.customer,
-        default_address: {
-          ...changedValues.customer?.default_address,
-          address1: values.customer.default_address.name,
-        },
-      };
-    }
-
-    AuthenApi.update(customerId, changedValues)
-      .then(() => {
+      if (data.customerUpdate.customer) {
+        dispatch(setCustomerData(data.customerUpdate.customer));
         Toast.show({
           type: 'success',
           text1: 'Save data success',
           visibilityTime: 3000,
         });
-        props.navigation.navigate('Profile');
-      })
-      .catch(e => {
-        Toast.show({
-          type: 'error',
-          text1: e,
-          visibilityTime: 3000,
-        });
-      });
-
-    // Repeat the same process for other fields if needed
-
-    // console.log('changeValue', changedValues)
+        navigation.navigate('Profile');
+      } else {
+        onError(data.customerUpdate.customerUserErrors[0].message);
+      }
+    } catch (error) {
+      onError(error);
+    }
   };
 
   return (
@@ -181,15 +105,15 @@ const EditProfile = props => {
         onSubmit={values => {
           handleOnSubmit(values);
         }}
-        validate={validateForm}>
+        validationSchema={ValidationSchema}>
         {({
           handleChange,
           handleBlur,
-          // handleSubmit,
+          handleSubmit,
           // setFieldValue,
           values,
-          // errors,
-          // touched,
+          errors,
+          touched,
         }) => (
           <>
             <View style={{flex: 1}}>
@@ -201,33 +125,62 @@ const EditProfile = props => {
                       style={[
                         GlobalStyleSheet.formControl,
                         isFocused && GlobalStyleSheet.activeInput,
+                        {...FONTS.font, color: COLORS.title}
                       ]}
-                      defaultValue={dataAccount?.phone}
-                      onChangeText={handleChange(
-                        'customer.phone',
-                      )}
+                      value={values.phone || '+628'}
+                      onChangeText={handleChange('phone')}
                       onFocus={() => setisFocused(true)}
-                      onBlur={handleBlur('customer.phone')}
+                      onBlur={handleBlur('phone')}
                       placeholder="Type Mobile number"
                       placeholderTextColor={COLORS.label}
                     />
+                    {touched.phone && errors.phone && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.phone}
+                      </Text>
+                    )}
                   </View>
                   <View style={GlobalStyleSheet.inputGroup}>
-                    <Text style={GlobalStyleSheet.label}>Full Name</Text>
+                    <Text style={GlobalStyleSheet.label}>First Name</Text>
                     <TextInput
                       style={[
                         GlobalStyleSheet.formControl,
                         isFocused2 && GlobalStyleSheet.activeInput,
+                        {...FONTS.font, color: COLORS.title}
                       ]}
-                      defaultValue={dataAccount?.default_address?.name}
-                      onChangeText={handleChange(
-                        'customer.default_address.name',
-                      )}
+                      value={values.firstName}
+                      onChangeText={handleChange('firstName')}
                       onFocus={() => setisFocused2(true)}
-                      onBlur={handleBlur('customer.default_address.name')}
-                      placeholder="Type your name"
+                      onBlur={handleBlur('firstName')}
+                      placeholder="Type your firstName"
                       placeholderTextColor={COLORS.label}
                     />
+                    {touched.firstName && errors.firstName && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.firstName}
+                      </Text>
+                    )}
+                  </View>
+                  <View style={GlobalStyleSheet.inputGroup}>
+                    <Text style={GlobalStyleSheet.label}>Last Name</Text>
+                    <TextInput
+                      style={[
+                        GlobalStyleSheet.formControl,
+                        isFocused2 && GlobalStyleSheet.activeInput,
+                        {...FONTS.font, color: COLORS.title}
+                      ]}
+                      value={values.lastName}
+                      onChangeText={handleChange('lastName')}
+                      onFocus={() => setisFocused2(true)}
+                      onBlur={handleBlur('lastName')}
+                      placeholder="Type your firstName"
+                      placeholderTextColor={COLORS.label}
+                    />
+                    {touched.lastName && errors.lastName && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.lastName}
+                      </Text>
+                    )}
                   </View>
                   <View style={GlobalStyleSheet.inputGroup}>
                     <Text style={GlobalStyleSheet.label}>Email</Text>
@@ -235,14 +188,20 @@ const EditProfile = props => {
                       style={[
                         GlobalStyleSheet.formControl,
                         isFocused3 && GlobalStyleSheet.activeInput,
+                        {...FONTS.font, color: COLORS.title}
                       ]}
-                      defaultValue={dataAccount?.email}
-                      onChangeText={handleChange('customer.email')}
+                      value={values.email}
+                      onChangeText={handleChange('email')}
                       onFocus={() => setisFocused3(true)}
-                      onBlur={handleBlur('customer.email')}
+                      onBlur={handleBlur('email')}
                       placeholder="Type your email"
                       placeholderTextColor={COLORS.label}
                     />
+                    {touched.email && errors.email && (
+                      <Text style={GlobalStyleSheet.errorMessage}>
+                        {errors.email}
+                      </Text>
+                    )}
                   </View>
                   <View style={GlobalStyleSheet.inputGroup}>
                     <Text style={GlobalStyleSheet.label}>Location</Text>
@@ -250,25 +209,19 @@ const EditProfile = props => {
                       style={[
                         GlobalStyleSheet.formControl,
                         isFocused4 && GlobalStyleSheet.activeInput,
-                        {height: 80, textAlignVertical: 'top'},
+                        {height: 80, textAlignVertical: 'top', ...FONTS.font, color: COLORS.title},
                       ]}
-                      defaultValue={`${dataAccount?.default_address?.address1 || ''} ${dataAccount?.default_address?.city || ''} ${dataAccount?.default_address?.province || ''}`}
-                      onChangeText={handleChange(
-                        'customer.default_address.address1',
-                      )}
+                      value={dataAccount?.defaultAddress?.address1 || ''}
                       onFocus={() => setisFocused4(true)}
                       multiline={true}
-                      onBlur={handleBlur('customer.default_address.address1')}
-                      placeholder="Type your location"
+                      placeholder=""
                       placeholderTextColor={COLORS.label}
+                      editable={false}
                     />
                   </View>
                 </View>
               </ScrollView>
-              <CustomButton
-                title={'Save Details'}
-                onPress={() => handleOnSubmit(values)}
-              />
+              <CustomButton title={'Save Details'} onPress={handleSubmit} />
             </View>
             {/* <View style={GlobalStyleSheet.container}> */}
             {/* </View> */}

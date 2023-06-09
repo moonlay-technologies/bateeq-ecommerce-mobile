@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   Image,
   SafeAreaView,
@@ -27,6 +27,9 @@ import SelectInput from '../../components/SelectInput';
 import {Footer, ShowHideProductDetail} from '../../components/Footer';
 import {formatWithCommas} from '../../utils/helper';
 import CustomHTML from '../../components/CustomHtml.js';
+import {GET_PRODUCT_RECOMMENDATION} from '../../service/graphql/query/products';
+import {useQuery} from '@apollo/client';
+import LoadingScreen from '../../components/LoadingView';
 
 const SuggestData = [
   {
@@ -49,8 +52,6 @@ const SuggestData = [
 
 const ProductDetail = ({navigation, route}) => {
   const {item, category} = route.params;
-  const productColors = ['#A29698', '#80C6A9', '#8E84CA', '#E5907D'];
-  // console.log('colors', item.colors);
 
   const [isLike, setIsLike] = useState(false);
   const [isSnackbar, setIsSnackbar] = useState(false);
@@ -58,6 +59,23 @@ const ProductDetail = ({navigation, route}) => {
   const [selectedVal, setSelectedVal] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [itemQuantity, setItemQuantity] = useState(1);
+  const [productRecommendation, setDataProductRecemmendation] = useState([]);
+
+  const {data: getDataRecommendation, loading: loadingDataRecommendation} =
+    useQuery(GET_PRODUCT_RECOMMENDATION, {
+      fetchPolicy: 'no-cache',
+      variables: {
+        productId: item?.id,
+      },
+    });
+
+  useEffect(() => {
+    if (getDataRecommendation) {
+      setDataProductRecemmendation(
+        getDataRecommendation.productRecommendations,
+      );
+    }
+  }, [getDataRecommendation]);
 
   const handleSelectSize = value => {
     setSelectedVal(value);
@@ -72,38 +90,35 @@ const ProductDetail = ({navigation, route}) => {
     ratingArry.push(i);
   }
 
-  
   const chooseColor = [];
   const chooseSize = [];
-  
+
   item?.variant?.forEach(variant => {
-    const colorOption = variant?.node?.selectedOptions?.find(option => option.name === "Color");
-    const sizeOption = variant?.node?.selectedOptions?.find(option => option.name === "Size");
-    
+    const colorOption = variant?.node?.selectedOptions?.find(
+      option => option.name === 'Color',
+    );
+    const sizeOption = variant?.node?.selectedOptions?.find(
+      option => option.name === 'Size',
+    );
+
     if (colorOption && colorOption.value) {
       const color = colorOption.value;
       if (!chooseColor.some(item => item.value === color)) {
-        chooseColor.push({ label: color, value: color });
+        chooseColor.push({label: color, value: color});
       }
     } else {
       console.log('Color is empty');
-      // Handle the error condition for empty color
     }
-  
+
     if (sizeOption && sizeOption.value) {
       const size = sizeOption.value;
       if (!chooseSize.some(item => item.value === size)) {
-        chooseSize.push({ label: size, value: size });
+        chooseSize.push({label: size, value: size});
       }
     } else {
       console.log('Size is empty');
-      // Handle the error condition for empty size
     }
   });
-  
-
-
-  console.log('choseee seize', chooseSize)
 
   const scrollViewRef = React.useRef(null);
 
@@ -118,6 +133,17 @@ const ProductDetail = ({navigation, route}) => {
     setIsSnackbar(true);
     setIsLike(!isLike);
   };
+
+  const shuffleArray = (array) => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+    }
+    return newArray;
+  };
+
+  const shuffledRecommendations = shuffleArray(productRecommendation);
 
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
@@ -143,11 +169,13 @@ const ProductDetail = ({navigation, route}) => {
               borderRadius: 10,
             }}>
             {item?.images?.map((data, index) => {
-              console.log('dataImage', data)
+              console.log('dataImage', data);
               return (
                 <View key={index}>
                   <Image
-                    source={item.imagePath ? item.imagePath : {uri: data.node.url}}
+                    source={
+                      item.imagePath ? item.imagePath : {uri: data.node.url}
+                    }
                     style={{
                       width: '100%',
                       height: undefined,
@@ -445,11 +473,8 @@ const ProductDetail = ({navigation, route}) => {
               }}>
               You May Like
             </Text>
-            {/* <Text style={{...FONTS.font, color: COLORS.text}}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-              eiusmod tempor incididunt ut labore et
-            </Text> */}
             <View style={{marginBottom: 10}}>
+              {loadingDataRecommendation && <LoadingScreen Loading2 />}
               <View
                 style={{
                   marginBottom: 25,
@@ -457,40 +482,53 @@ const ProductDetail = ({navigation, route}) => {
                   flexWrap: 'wrap',
                   justifyContent: 'space-between',
                 }}>
-                {/* <ScrollView
-            contentContainerStyle={{paddingLeft: 15}}
-            horizontal
-            showsHorizontalScrollIndicator={false}> */}
-                {SuggestData.map(({image, title, price, oldPrice}, index) => {
-                  return (
-                    <View
-                      key={index}
-                      style={{
-                        width: 150,
-                        marginRight: 10,
-                        marginBottom: 20,
-                      }}>
-                      <ProductCardStyle1
-                        onPress={() =>
-                          navigation.navigate('ProductDetail', {
-                            item: {
-                              title: title,
-                              image: image,
-                              oldPrice: oldPrice,
-                              price: price,
-                            },
-                            // category : "Appliances"
-                          })
-                        }
-                        imageSrc={image}
-                        title={title}
-                        price={price}
-                        oldPrice={oldPrice}
-                        // offer={data.offer}
-                      />
-                    </View>
-                  );
-                })}
+                {shuffledRecommendations?.slice(0, 2) &&
+                  shuffledRecommendations
+                    ?.slice(0, 2)
+                    ?.map(
+                      ({
+                        id,
+                        featuredImage,
+                        title,
+                        variants,
+                        descriptionHtml,
+                      }) => {
+                        return (
+                          <View
+                            key={id}
+                            style={{
+                              width: 150,
+                              marginRight: 10,
+                              marginBottom: 20,
+                            }}>
+                            <ProductCardStyle1
+                              onPress={() =>
+                                navigation.navigate('ProductDetail', {
+                                  item: {
+                                    id: id,
+                                    title: title,
+                                    image: featuredImage?.url,
+                                    oldPrice:
+                                      variants?.edges[0]?.node?.compareAtPrice
+                                        ?.amount,
+                                    price:
+                                      variants?.edges[0]?.node?.price?.amount,
+                                    desc: descriptionHtml,
+                                    variant: variants.edges,
+                                  },
+                                })
+                              }
+                              imageSrc={featuredImage?.url}
+                              title={title}
+                              price={variants?.edges[0]?.node?.price?.amount}
+                              oldPrice={
+                                variants?.edges[0]?.node?.compareAtPrice?.amount
+                              }
+                            />
+                          </View>
+                        );
+                      },
+                    )}
                 {/* </ScrollView> */}
               </View>
               {/* <View style={{justifyContent: 'center', alignItems: 'center'}}>

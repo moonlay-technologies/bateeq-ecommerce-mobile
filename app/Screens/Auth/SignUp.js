@@ -1,11 +1,9 @@
 import React, {useState, useEffect} from 'react';
 import {
-  // Image,
   ScrollView,
   Text,
   TextInput,
-  //   TouchableOpacity,
-  // TouchableOpacity,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {Formik} from 'formik';
@@ -17,6 +15,8 @@ import {COLORS, FONTS} from '../../constants/theme';
 import CheckBox from '@react-native-community/checkbox';
 import {AuthenApi} from '../../service/shopify-login';
 import LoadingScreen from '../../components/LoadingView';
+import * as Yup from 'yup';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
 const SignUp = props => {
   const [isFocused, setisFocused] = useState(false);
@@ -24,86 +24,51 @@ const SignUp = props => {
   const [isFocused3, setisFocused3] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
   const [handlePassword2, setHandlePassword2] = useState(true);
-  const [handleErrorMessage, setHandleErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [passwordsMatched, setPasswordsMatched] = useState(false);
-  // const [inputEmail, setInputEmail] = useState(null);
-  // const [inputName, setInputName] = useState(null);
-  // const [inputPhoneNumber, setInputPhoneNumber] = useState(null);
-  // const [inputPassword, setInputPassword] = useState(null);
-  // const [inputPasswordConfirmation, setInputPasswordConfirmation] =
-  //   useState(null);
 
-  const validateForm = values => {
-    const errors = {};
+  const ValidationSchema = Yup.object().shape({
+    customer: Yup.object().shape({
+      first_name: Yup.string().required('Please input your first name'),
+      last_name: Yup.string(),
+      phone: Yup.string()
+        .matches(
+          /^(?:\+?\d{1,3}\s?)?(?:\(\d{1,}\)\s?)?(?:\d+(?:[-.\s]?)\d+)$/,
+          'Please enter a valid phone number',
+        )
+        .required('Phone number is required'),
+      email: Yup.string()
+        .matches(
+          /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+          'Please enter a valid email',
+        )
+        .required('Email Address is required'),
+      password: Yup.string().required('Password is required'),
+      password_confirmation: Yup.string()
+        .oneOf([Yup.ref('password'), null], 'Passwords must match')
+        .required('Password confirmation is required'),
+      agreement: Yup.boolean()
+        .oneOf([true], 'Please accept the Terms and Conditions')
+        .required('Please accept the Terms and Conditions'),
+    }),
+  });
 
-    if (!values.customer.first_name) {
-      errors.customer = {...errors.customer, first_name: 'Required'};
-    }
-
-    if (!values.customer.phone) {
-      errors.customer = {...errors.customer, phone: 'Required'};
-    }
-
-    if (!values.customer.email) {
-      errors.customer = {...errors.customer, email: 'Required'};
-    } else if (!/\S+@\S+\.\S+/.test(values.customer.email)) {
-      errors.customer = {...errors.customer, email: 'Invalid email address'};
-    }
-
-    if (!values.customer.password) {
-      errors.customer = {...errors.customer, password: 'Required'};
-    } else if (values.customer.password.length < 8) {
-      errors.customer = {
-        ...errors.customer,
-        password: 'Password must be at least 8 characters long',
-      };
-    }
-
-    if (!values.customer.password_confirmation) {
-      errors.customer = {...errors.customer, password_confirmation: 'Required'};
-    } else if (
-      values?.customer?.password_confirmation === values?.customer?.password
-    ) {
-      if (!passwordsMatched) {
-        Toast.show({
-          type: 'success',
-          text1: 'Passwords match',
-          visibilityTime: 2000,
-        });
-        setPasswordsMatched(true);
-      }
-    } else {
-      if (passwordsMatched) {
-        Toast.show({
-          type: 'error',
-          text1: 'Passwords do not match',
-          visibilityTime: 2000,
-        });
-        setPasswordsMatched(false);
-      }
-      errors.customer = {
-        ...errors.customer,
-        password_confirmation: 'Passwords do not match',
-      };
-    }
-
-    if (!values.customer.agreement) {
-      errors.customer = {
-        ...errors.customer,
-        agreement: 'Please accept the terms and conditions',
-      };
-    }
-
-    return errors;
-  };
-
-  const showToast = () => {
+  const showToastSuccess = () => {
     Toast.show({
       type: 'success',
       text1: 'Register success',
       text2: 'Please check your email for verification',
-      visibilityTime: 5000,
+      visibilityTime: 3000,
+    });
+  };
+  const showToastErrors = error => {
+    Toast.show({
+      type: 'error',
+      text1: error.email
+        ? 'email has already been registered'
+        : error.phone
+        ? 'phone has already been registered'
+        : 'email & phone has already been registered',
+      visibilityTime: 3000,
     });
   };
 
@@ -113,22 +78,13 @@ const SignUp = props => {
       .then(res => {
         if (res.status === 201) {
           setIsLoading(false);
-          showToast();
+          showToastSuccess();
           props.navigation.navigate('SignIn');
         }
 
-        if (res?.data?.errors?.email) {
+        if (res.data.errors) {
           setIsLoading(false);
-          setHandleErrorMessage(`email has already been registered`);
-        } else if (res?.errors?.phone) {
-          setIsLoading(false);
-          setHandleErrorMessage(`phone has already been registered`);
-        } else if (res?.data?.errors?.email && res?.data?.errors?.phone) {
-          setIsLoading(false);
-          setHandleErrorMessage('email & phone has already been registered');
-        } else {
-          setIsLoading(false);
-          return res;
+          showToastErrors(res.data.errors);
         }
       })
       .catch(err => {
@@ -141,14 +97,6 @@ const SignUp = props => {
       });
   };
 
-  useEffect(() => {
-    if (handleErrorMessage) {
-      setTimeout(() => {
-        setHandleErrorMessage(null);
-      }, 3000);
-    }
-  }, [handleErrorMessage]);
-
   return (
     <ScrollView contentContainerStyle={{flexGrow: 1}}>
       <View
@@ -157,35 +105,19 @@ const SignUp = props => {
           flex: 1,
           backgroundColor: COLORS.white,
         }}>
-        {/* <View
-                    style={{
-                        alignItems:'center',
-                        paddingVertical:30,
-                    }}
-                >
-                    <Image
-                        style={{height:70,resizeMode:'contain'}}
-                        source={IMAGES.logo}
-                    />
-                </View> */}
         <HeaderBateeq signin />
         <View style={{marginVertical: 20}}>
           {isLoading && <LoadingScreen Loading2 />}
-          {handleErrorMessage && (
-            <Text style={{color: 'red', fontSize: 16}}>
-              {handleErrorMessage}
-            </Text>
-          )}
           <Text
             style={{
-              ...FONTS.fontSatoshiBold,
+              ...FONTS.font,
               fontSize: 24,
               color: COLORS.title,
               marginBottom: 16,
             }}>
             Register
           </Text>
-          <Text style={{...FONTS.fontSatoshiRegular}}>
+          <Text style={{...FONTS.font}}>
             Register your bateeq account to enjoy benefits from our membership.{' '}
           </Text>
         </View>
@@ -194,6 +126,7 @@ const SignUp = props => {
           initialValues={{
             customer: {
               first_name: '',
+              last_name: '',
               email: '',
               phone: '',
               password: '',
@@ -206,7 +139,7 @@ const SignUp = props => {
           onSubmit={values => {
             handleOnSubmit(values);
           }}
-          validate={validateForm}>
+          validationSchema={ValidationSchema}>
           {({
             handleChange,
             handleBlur,
@@ -220,17 +153,18 @@ const SignUp = props => {
               <View style={GlobalStyleSheet.inputGroup}>
                 <Text
                   style={{
-                    ...FONTS.fontSatoshiBold,
+                    ...FONTS.font,
                     fontSize: 14,
                     color: COLORS.title,
                     marginBottom: 8,
                   }}>
-                  Your Name*
+                  First Name*
                 </Text>
                 <TextInput
                   style={[
                     GlobalStyleSheet.formControl,
                     isFocused && GlobalStyleSheet.activeInput,
+                    {...FONTS.font, color: COLORS.title},
                   ]}
                   value={values.customer.first_name}
                   onChangeText={handleChange('customer.first_name')}
@@ -239,14 +173,41 @@ const SignUp = props => {
                   placeholder="Type Username Here"
                   placeholderTextColor={COLORS.label}
                 />
-                {!isFocused &&
-                  !values.customer?.first_name &&
-                  touched.customer?.first_name &&
+                {touched.customer?.first_name &&
                   errors.customer?.first_name && (
                     <Text style={GlobalStyleSheet.errorMessage}>
                       {errors.customer?.first_name}
                     </Text>
                   )}
+              </View>
+              <View style={GlobalStyleSheet.inputGroup}>
+                <Text
+                  style={{
+                    ...FONTS.fontSatoshiBold,
+                    fontSize: 14,
+                    color: COLORS.title,
+                    marginBottom: 8,
+                  }}>
+                  Last Name*
+                </Text>
+                <TextInput
+                  style={[
+                    GlobalStyleSheet.formControl,
+                    isFocused && GlobalStyleSheet.activeInput,
+                    {...FONTS.font, color: COLORS.title},
+                  ]}
+                  value={values.customer.last_name}
+                  onChangeText={handleChange('customer.last_name')}
+                  onFocus={() => setisFocused(true)}
+                  onBlur={handleBlur('customer.last_name')}
+                  placeholder="Type last name Here"
+                  placeholderTextColor={COLORS.label}
+                />
+                {touched.customer?.last_name && errors.customer?.last_name && (
+                  <Text style={GlobalStyleSheet.errorMessage}>
+                    {errors.customer.last_name}
+                  </Text>
+                )}
               </View>
               <View style={GlobalStyleSheet.inputGroup}>
                 <Text
@@ -262,6 +223,7 @@ const SignUp = props => {
                   style={[
                     GlobalStyleSheet.formControl,
                     isFocused && GlobalStyleSheet.activeInput,
+                    {...FONTS.font, color: COLORS.title},
                   ]}
                   value={values.customer.email}
                   onChangeText={handleChange('customer.email')}
@@ -273,14 +235,11 @@ const SignUp = props => {
                   placeholder="Type Username Here"
                   placeholderTextColor={COLORS.label}
                 />
-                {!isFocused &&
-                  !values.customer?.email &&
-                  touched.customer?.email &&
-                  errors.customer?.email && (
-                    <Text style={GlobalStyleSheet.errorMessage}>
-                      {errors.customer?.email}
-                    </Text>
-                  )}
+                {touched.customer?.email && errors.customer?.email && (
+                  <Text style={GlobalStyleSheet.errorMessage}>
+                    {errors.customer?.email}
+                  </Text>
+                )}
               </View>
               <View style={GlobalStyleSheet.inputGroup}>
                 <Text
@@ -296,6 +255,7 @@ const SignUp = props => {
                   style={[
                     GlobalStyleSheet.formControl,
                     isFocused && GlobalStyleSheet.activeInput,
+                    {...FONTS.font, color: COLORS.title},
                   ]}
                   value={values.customer.phone}
                   onChangeText={handleChange('customer.phone')}
@@ -307,14 +267,11 @@ const SignUp = props => {
                   placeholder="Type Username Here"
                   placeholderTextColor={COLORS.label}
                 />
-                {!isFocused &&
-                  !values.customer?.phone &&
-                  touched.customer?.phone &&
-                  errors.customer?.phone && (
-                    <Text style={GlobalStyleSheet.errorMessage}>
-                      {errors.customer?.phone}
-                    </Text>
-                  )}
+                {touched.customer?.phone && errors.customer?.phone && (
+                  <Text style={GlobalStyleSheet.errorMessage}>
+                    {errors.customer?.phone}
+                  </Text>
+                )}
               </View>
               <View style={GlobalStyleSheet.inputGroup}>
                 <Text
@@ -327,28 +284,36 @@ const SignUp = props => {
                   Password*
                 </Text>
                 <View>
-                  {/* <TouchableOpacity
-                              onPress={() => setHandlePassword(!handlePassword)}
-                              style={{
-                                  position:'absolute',
-                                  zIndex:1,
-                                  height:50,
-                                  width:50,
-                                  alignItems:'center',
-                                  justifyContent:'center',
-                                  right:0,
-                              }}
-                          >
-                              {handlePassword ?
-                                  <FeatherIcon name='eye' color={COLORS.secondary} size={22}/>
-                                  :
-                                  <FeatherIcon name='eye-off' color={COLORS.secondary} size={22}/>
-                              }
-                          </TouchableOpacity> */}
+                  <TouchableOpacity
+                    onPress={() => setHandlePassword(!handlePassword)}
+                    style={{
+                      position: 'absolute',
+                      zIndex: 1,
+                      height: 50,
+                      width: 50,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      right: 0,
+                    }}>
+                    {handlePassword ? (
+                      <FeatherIcon
+                        name="eye-off"
+                        color={COLORS.secondary}
+                        size={22}
+                      />
+                    ) : (
+                      <FeatherIcon
+                        name="eye"
+                        color={COLORS.secondary}
+                        size={22}
+                      />
+                    )}
+                  </TouchableOpacity>
                   <TextInput
                     style={[
                       GlobalStyleSheet.formControl,
                       isFocused2 && GlobalStyleSheet.activeInput,
+                      {...FONTS.font, color: COLORS.title},
                     ]}
                     value={values.customer.password}
                     onChangeText={handleChange('customer.password')}
@@ -371,7 +336,7 @@ const SignUp = props => {
               <View style={GlobalStyleSheet.inputGroup}>
                 <Text
                   style={{
-                    ...FONTS.fontSatoshiBold,
+                    ...FONTS.font,
                     fontSize: 14,
                     color: COLORS.title,
                     marginBottom: 8,
@@ -379,28 +344,36 @@ const SignUp = props => {
                   Confirm Password*
                 </Text>
                 <View>
-                  {/* <TouchableOpacity
-                              onPress={() => setHandlePassword2(!handlePassword2)}
-                              style={{
-                                  position:'absolute',
-                                  zIndex:1,
-                                  height:50,
-                                  width:50,
-                                  alignItems:'center',
-                                  justifyContent:'center',
-                                  right:0,
-                              }}
-                          >
-                              {handlePassword2 ?
-                                  <FeatherIcon name='eye' color={COLORS.secondary} size={22}/>
-                                  :
-                                  <FeatherIcon name='eye-off' color={COLORS.secondary} size={22}/>
-                              }
-                          </TouchableOpacity> */}
+                  <TouchableOpacity
+                    onPress={() => setHandlePassword2(!handlePassword2)}
+                    style={{
+                      position: 'absolute',
+                      zIndex: 1,
+                      height: 50,
+                      width: 50,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      right: 0,
+                    }}>
+                    {handlePassword2 ? (
+                      <FeatherIcon
+                        name="eye-off"
+                        color={COLORS.secondary}
+                        size={22}
+                      />
+                    ) : (
+                      <FeatherIcon
+                        name="eye"
+                        color={COLORS.secondary}
+                        size={22}
+                      />
+                    )}
+                  </TouchableOpacity>
                   <TextInput
                     style={[
                       GlobalStyleSheet.formControl,
                       isFocused3 && GlobalStyleSheet.activeInput,
+                      {...FONTS.font, color: COLORS.title},
                     ]}
                     value={values.customer.password_confirmation}
                     onChangeText={handleChange(
@@ -414,9 +387,7 @@ const SignUp = props => {
                     placeholder="Confirm Password"
                     placeholderTextColor={COLORS.label}
                   />
-                  {!isFocused &&
-                    !values.customer?.password_confirmation &&
-                    touched.customer?.password_confirmation &&
+                  {touched.customer?.password_confirmation &&
                     errors.customer?.password_confirmation && (
                       <Text style={GlobalStyleSheet.errorMessage}>
                         {errors.customer?.password_confirmation}
@@ -434,7 +405,7 @@ const SignUp = props => {
                   />
                   <Text
                     style={{
-                      ...FONTS.fontSatoshiRegular,
+                      ...FONTS.font,
                       marginBottom: 15,
                       marginTop: 5,
                       marginLeft: 10,
@@ -442,7 +413,7 @@ const SignUp = props => {
                     I agree with{' '}
                     <Text
                       style={{
-                        ...FONTS.fontSatoshiBold,
+                        ...FONTS.font,
                         color: COLORS.title,
                         textAlign: 'center',
                         fontSize: 12,

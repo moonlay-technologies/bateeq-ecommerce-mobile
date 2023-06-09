@@ -83,7 +83,7 @@ export const FONTS = {
   fontMedium: {fontFamily: 'OpenSans-Medium'},
   fontSatoshiLight: {fontFamily: 'Satoshi-Light'},
   fontSatoshiBold: {fontFamily: 'Satoshi-Bold'},
-  fontSatoshiRegular: {fontFamily: 'Satoshi-Regular'},
+  fontSatoshiRegular: {fontFamily: 'Satoshi-Regular', color: COLORS.title},
 };
 
 export const IMAGES = {

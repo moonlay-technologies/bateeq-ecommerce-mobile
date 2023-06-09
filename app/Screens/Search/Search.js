@@ -14,48 +14,9 @@ import ProductItem from '../../components/ProductItem';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {COLORS, FONTS} from '../../constants/theme';
-import {ProductApi} from '../../service/shopify-api';
 import LoadingScreen from '../../components/LoadingView';
-import {gql, useLazyQuery} from '@apollo/client';
-
-const SEARCH_PRODUCTS_QUERY = gql`
-query SearchProducts($query: String!) {
-  products(query: $query, first: 10) {
-    edges {
-      node {
-        id
-        title
-        description
-        images(first: 4) {
-          edges {
-            node {
-              id
-              url
-            }
-          }
-        }
-        variants(first: 1) {
-          edges {
-            node {
-              price {
-                amount
-                currencyCode
-              }
-              compareAtPrice {
-                amount
-                currencyCode
-              }
-            }
-          }
-        }
-        options(first: 2) {
-          values
-        }
-      }
-    }
-  }
-}`
-
+import {useLazyQuery} from '@apollo/client';
+import { SEARCH_PRODUCTS_QUERY } from '../../service/graphql/query/search';
 
 const Search = ({navigation}) => {
   const [valSearch, setValSearch] = useState('');
@@ -101,7 +62,6 @@ const Search = ({navigation}) => {
               variant: item?.options[0]?.values,
               colors: item?.options[1]?.values,
             },
-            // category: type,
           })
         }
         imgLength
@@ -147,7 +107,7 @@ const Search = ({navigation}) => {
             </View>
           )}
           size={25}
-          onPress={() => navigation.openDrawer()}
+          onPress={() => navigation?.openDrawer()}
         />
         <TouchableOpacity onPress={handlePress}>
           <Image
@@ -192,7 +152,7 @@ const Search = ({navigation}) => {
           style={{
             color: COLORS.title,
             fontSize: 14,
-            ...FONTS.fontSatoshiBold,
+            ...FONTS.font,
             marginBottom: 8,
           }}>
           Search Product
@@ -200,6 +160,7 @@ const Search = ({navigation}) => {
         <TextInput
           style={{
             ...FONTS.font,
+            ...COLORS.font,
             flex: 1,
             color: COLORS.title,
             borderWidth: 1,
@@ -240,7 +201,7 @@ const Search = ({navigation}) => {
               name="md-arrow-forward"
               size={12}
               color={COLORS.white}
-              style={{  
+              style={{
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginTop: 4,

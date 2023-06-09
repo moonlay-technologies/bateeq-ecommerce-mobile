@@ -53,43 +53,14 @@ import Slider from '../Screens/Products/BestSellerProduct';
 import Checkout from '../Screens/Checkout/Checkout';
 import MainHome from '../Screens/Home/MainHome';
 import Cart from '../Screens/Cart/Cart';
+import AllPages from '../Screens/Components/Pages';
 import BottomNavigation from './BottomNavigation';
 
 const StackComponent = createNativeStackNavigator();
 
 const StackNavigator = ({isAuthenticated}) => {
-  if (isAuthenticated) {
+  if (!isAuthenticated) {
     return (
-      <StackComponent.Navigator
-        initialRouteName="DrawerNavigation"
-        detachInactiveScreens={true}
-        screenOptions={{
-          headerShown: false,
-          cardStyle: {backgroundColor: 'transparent'},
-        }}>
-        <StackComponent.Screen name="Splash" component={Splash} />
-        <StackComponent.Screen
-          name="DrawerNavigation"
-          component={DrawerNavigation}
-        />
-        <StackComponent.Screen name={'Products'} component={Products} />
-        <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
-        <StackComponent.Screen
-          name={'ProductDetail'}
-          component={ProductDetail}
-        />
-        <StackComponent.Screen name={'Checkout'} component={Checkout} />
-        <StackComponent.Screen name={'Payment'} component={Payment} />
-        <StackComponent.Screen name={'PageOurStory'} component={PageOurStory} />
-        <StackComponent.Screen name={'Items'} component={Items} />
-        <StackComponent.Screen name={'SignIn'} component={SignIn} />
-        <StackComponent.Screen name={'SignUp'} component={SignUp} />
-      </StackComponent.Navigator>
-    );
-  }
-
-  return (
-    <>
       <StackComponent.Navigator
         initialRouteName="Onboarding"
         detachInactiveScreens={true}
@@ -97,39 +68,64 @@ const StackNavigator = ({isAuthenticated}) => {
           headerShown: false,
           cardStyle: {backgroundColor: 'transparent'},
         }}>
-        <StackComponent.Screen name={'Home'} component={MainHome} />
+        <StackComponent.Screen name={'Onboarding'} component={Onboarding} />
+        <StackComponent.Screen
+          name={'DrawerNavigation'}
+          component={DrawerNavigation}
+        />
+        <StackComponent.Screen name="Splash" component={Splash} />
+        <StackComponent.Screen name={'Cart'} component={Cart} />
+        <StackComponent.Screen name={'SignUp'} component={SignUp} />
+        <StackComponent.Screen name={'SignIn'} component={SignIn} />
+      </StackComponent.Navigator>
+    );
+  }
+
+  return (
+    <>
+      <StackComponent.Navigator
+        initialRouteName="DrawerNavigation"
+        detachInactiveScreens={true}
+        screenOptions={{
+          headerShown: false,
+          cardStyle: {backgroundColor: 'transparent'},
+        }}>
         <StackComponent.Screen name={'Cart'} component={Cart} />
         <StackComponent.Screen name={'Splash'} component={Splash} />
-        <StackComponent.Screen name={'Onboarding'} component={Onboarding} />
+
+        <StackComponent.Screen
+          name={'AllPages'}
+          component={AllPages}
+        />
         <StackComponent.Screen name={'Welcome'} component={Welcome} />
-        <StackComponent.Screen name={'SignUp'} component={SignUp} />
+        <StackComponent.Screen name={'Wishlist'} component={Wishlist} />
+        <StackComponent.Screen name={'Home'} component={MainHome} />
+        <StackComponent.Screen name={'Payment'} component={Payment} />
+        <StackComponent.Screen name={'PageOurStory'} component={PageOurStory} />
         <StackComponent.Screen name={'SignIn'} component={SignIn} />
         <StackComponent.Screen
           name={'DrawerNavigation'}
           component={DrawerNavigation}
         />
-        <StackComponent.Screen name={'CategoryHome'} component={CategoryHome} />
         <StackComponent.Screen name={'Products'} component={Products} />
+        <StackComponent.Screen name={'Profile'} component={Profile} />
+        <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
         <StackComponent.Screen
           name={'ProductDetail'}
           component={ProductDetail}
         />
+        <StackComponent.Screen
+          name={'AddDeliveryAddress'}
+          component={AddDeliveryAddress}
+        />
+        <StackComponent.Screen name={'CategoryHome'} component={CategoryHome} />
         <StackComponent.Screen name={'Featured'} component={Featured} />
         <StackComponent.Screen name={'Orders'} component={Orders} />
         <StackComponent.Screen
           name={'DeliveryTracking'}
           component={DeliveryTracking}
         />
-        <StackComponent.Screen name={'Wishlist'} component={Wishlist} />
-        <StackComponent.Screen name={'Profile'} component={Profile} />
-        <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
         <StackComponent.Screen name={'Coupons'} component={Coupons} />
-        <StackComponent.Screen name={'Address'} component={Address} />
-        <StackComponent.Screen name={'Payment'} component={Payment} />
-        <StackComponent.Screen
-          name={'AddDeliveryAddress'}
-          component={AddDeliveryAddress}
-        />
         <StackComponent.Screen name={'Filter'} component={Filter} />
         <StackComponent.Screen name={'Search'} component={Search} />
         <StackComponent.Screen name={'Components'} component={Components} />
@@ -138,6 +134,7 @@ const StackNavigator = ({isAuthenticated}) => {
         <StackComponent.Screen name={'ActionModals'} component={ActionModals} />
         <StackComponent.Screen name={'Buttons'} component={Buttons} />
         <StackComponent.Screen name={'Charts'} component={Charts} />
+        <StackComponent.Screen name={'Address'} component={Address} />
         <StackComponent.Screen name={'Chips'} component={Chips} />
         <StackComponent.Screen
           name={'CollapseElements'}
@@ -165,6 +162,7 @@ const StackNavigator = ({isAuthenticated}) => {
         <StackComponent.Screen name={'Toggles'} component={Toggles} />
         <StackComponent.Screen name={'SliderBestProduct'} component={Slider} />
         <StackComponent.Screen name={'Checkout'} component={Checkout} />
+        <StackComponent.Screen name={'Items'} component={Items} />
       </StackComponent.Navigator>
     </>
   );

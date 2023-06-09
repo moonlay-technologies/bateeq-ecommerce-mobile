@@ -1,6 +1,10 @@
 import React, {useState} from 'react';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 import {COLORS, FONTS} from '../constants/theme';
+import {useNavigation} from '@react-navigation/native';
+import { useQuery } from '@apollo/client';
+import { GET_PAGE_STORY } from '../service/graphql/query/main-home';
+import { gqlError } from '../utils/error-handling';
 
 const ExpandableSection = ({title, children}) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -41,29 +45,85 @@ const ExpandableSection = ({title, children}) => {
   );
 };
 
-export const Footer = () => {
+export const Footer = ({dataPagesStory}) => {
+  const navigation = useNavigation();
+  const [dataPages, setDataPages] = useState(null)
+
+  const {loading: loadingPages} = useQuery(GET_PAGE_STORY, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      handle: 'contact',
+    },
+    onCompleted: ({page}) => {
+      if (page) {
+        setDataPages(page);
+      }
+    },
+    onError: err => {
+      onError(err);
+    },
+  });
+
+
   return (
     <View style={{padding: 30, backgroundColor: '#EEEEEE'}}>
       <ExpandableSection title="Catalogue">
         <View>
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>New Arrival</Text>
+          <TouchableOpacity
+            style={{marginBottom: 10}}
+            onPress={() =>
+              navigation.navigate('Items', {query: 'New Arrival'})
+            }>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              New Arrival
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Men</Text>
+          <TouchableOpacity style={{marginBottom: 10}}  onPress={() =>
+              navigation.navigate('Items', {query: 'Men'})
+            }>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Men
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Women</Text>
+          <TouchableOpacity style={{marginBottom: 10}} onPress={() =>
+              navigation.navigate('Items', {query: 'Women'})
+            }>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Women
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Kids</Text>
+          <TouchableOpacity style={{marginBottom: 10}} onPress={() =>
+              navigation.navigate('Items', {query: 'Kids'})
+            }>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Kids
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Sale</Text>
+          <TouchableOpacity style={{marginBottom: 10}} onPress={() =>
+              navigation.navigate('Items', {query: 'Sale'})
+            }>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Sale
+            </Text>
           </TouchableOpacity>
         </View>
       </ExpandableSection>
@@ -71,23 +131,53 @@ export const Footer = () => {
       <ExpandableSection title="Customer Care">
         <View style={{gap: 10}}>
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>FAQs</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              FAQs
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={{marginBottom: 10}}  onPress={() =>
+                  navigation.navigate('AllPages', {
+                    dataPages: dataPages,
+                    loadingPages,
+                  })
+                }>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Contact Us
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Contact Us</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Shipping & Returns
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Shipping & Returns</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Privacy Policy
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Privacy Policy</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Terms & Conditions</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Terms & Conditions
+            </Text>
           </TouchableOpacity>
         </View>
       </ExpandableSection>
@@ -95,19 +185,25 @@ export const Footer = () => {
       <ExpandableSection title="About Us">
         <View style={{gap: 10}}>
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Our Story</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }} onPress={() =>
+                navigation.navigate('AllPages', {
+                  dataPages: dataPagesStory,
+                  loadingPages,
+                })
+              }>
+              Our Story
+            </Text>
           </TouchableOpacity>
-
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Our Team</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Careers</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Blog</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Blog
+            </Text>
           </TouchableOpacity>
         </View>
       </ExpandableSection>
@@ -120,7 +216,7 @@ export const ShowHideProductDetail = () => {
     <View style={{marginTop: 50}}>
       <ExpandableSection title="Product Size Chart">
         <View style={{marginBottom: 20}}>
-        <Image
+          <Image
             style={{width: 333, height: 333}}
             source={require('../assets/images/size-chart.png')}
           />
@@ -130,35 +226,76 @@ export const ShowHideProductDetail = () => {
       <ExpandableSection title="Product Care">
         <View style={{}}>
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>FAQs</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              FAQs
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Contact Us</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              {' '}
+              Contact Us
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Shipping & Returns</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Shipping & Returns
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Privacy Policy</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Privacy Policy
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Terms & Conditions</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Terms & Conditions
+            </Text>
           </TouchableOpacity>
         </View>
       </ExpandableSection>
 
       <ExpandableSection title="Shipping & Return Policy">
-        <View style={{marginTop: 10, borderBottomWidth: 1, borderBottomColor: COLORS.danger}}>
+        <View
+          style={{
+            marginTop: 10,
+            borderBottomWidth: 1,
+            borderBottomColor: COLORS.danger,
+          }}>
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Careers</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Careers
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={{marginBottom: 10}}>
-            <Text>Blog</Text>
+            <Text
+              style={{
+                color: COLORS.title,
+              }}>
+              Blog
+            </Text>
           </TouchableOpacity>
         </View>
       </ExpandableSection>
@@ -166,6 +303,6 @@ export const ShowHideProductDetail = () => {
   );
 };
 
-const showHideMenu = {Footer, ShowHideProductDetail}
+const showHideMenu = {Footer, ShowHideProductDetail};
 
-export default showHideMenu
+export default showHideMenu;

@@ -2,12 +2,19 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import LottieView from 'lottie-react-native';
 import Loading from '../assets/lotties/Loading.json';
-import LoadingCircle from '../assets/lotties/Loading2.json'
+import LoadingCircle from '../assets/lotties/Loading2.json';
+import LoadingWave from '../assets/lotties/Loading3.json';
 
-const LoadingScreen = ({Loading2}) => {
+const LoadingScreen = ({Loading2, Loading3}) => {
   return (
     <View style={styles.container}>
-      <LottieView source={Loading2 ? LoadingCircle : Loading} autoPlay loop speed={1.5} style={Loading2 ? styles.animation2 : styles.animation} />
+      <LottieView
+        source={Loading2 ? LoadingCircle : Loading3 ? LoadingWave : Loading}
+        autoPlay
+        loop
+        speed={1.5}
+        style={Loading2 ? styles.animation2 : styles.animation}
+      />
     </View>
   );
 };
