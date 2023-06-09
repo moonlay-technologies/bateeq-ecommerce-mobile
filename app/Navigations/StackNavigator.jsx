@@ -44,7 +44,7 @@ import ListScreen from '../component-template/Lists';
 import Paginations from '../component-template/Paginations';
 import Pricings from '../component-template/Pricings';
 import Snackbars from '../component-template/Snakbars';
-import PageOurStory from '../components/PageOurStory.jsx';
+import PageOurStory from '../components/PageOurStory';
 import SwipeableScreen from '../components/Swipeable';
 import Tabs from '../component-template/Tabs';
 import Tables from '../component-template/Tables';

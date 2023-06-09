@@ -52,7 +52,7 @@ function HeaderCartComponent() {
           </View>
         )}
         size={25}
-        onPress={() => navigations.openDrawer()}
+        onPress={() => navigation.openDrawer()}
         // onPress={handleDrawer}
       />
       <TouchableOpacity onPress={handlePress}>
