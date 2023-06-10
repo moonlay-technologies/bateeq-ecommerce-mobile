@@ -57,7 +57,7 @@ import BottomNavigation from './BottomNavigation';
 
 const StackComponent = createNativeStackNavigator();
 
-const StackNavigator = ({ isAuthenticated }) => {
+const StackNavigator = ({isAuthenticated}) => {
   if (isAuthenticated) {
     return (
       <StackComponent.Navigator
@@ -65,9 +65,8 @@ const StackNavigator = ({ isAuthenticated }) => {
         detachInactiveScreens={true}
         screenOptions={{
           headerShown: false,
-          cardStyle: { backgroundColor: 'transparent' },
-        }}
-      >
+          cardStyle: {backgroundColor: 'transparent'},
+        }}>
         <StackComponent.Screen name="Splash" component={Splash} />
         <StackComponent.Screen
           name="DrawerNavigation"
@@ -75,12 +74,17 @@ const StackNavigator = ({ isAuthenticated }) => {
         />
         <StackComponent.Screen name={'Products'} component={Products} />
         <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
+        <StackComponent.Screen name={'Address'} component={Address} />
+        <StackComponent.Screen
+          name={'AddDeliveryAddress'}
+          component={AddDeliveryAddress}
+        />
         <StackComponent.Screen
           name={'ProductDetail'}
           component={ProductDetail}
         />
-         <StackComponent.Screen name={'Checkout'} component={Checkout} />
-         <StackComponent.Screen name={'Payment'} component={Payment} />
+        <StackComponent.Screen name={'Checkout'} component={Checkout} />
+        <StackComponent.Screen name={'Payment'} component={Payment} />
         <StackComponent.Screen name={'PageOurStory'} component={PageOurStory} />
         <StackComponent.Screen name={'Items'} component={Items} />
         <StackComponent.Screen name={'SignIn'} component={SignIn} />
@@ -99,6 +103,10 @@ const StackNavigator = ({ isAuthenticated }) => {
           cardStyle: {backgroundColor: 'transparent'},
         }}>
         <StackComponent.Screen name={'Home'} component={MainHome} />
+        <StackComponent.Screen
+          name={'ProductDetail'}
+          component={ProductDetail}
+        />
         <StackComponent.Screen name={'Cart'} component={Cart} />
         <StackComponent.Screen name={'Splash'} component={Splash} />
         <StackComponent.Screen name={'Onboarding'} component={Onboarding} />
@@ -111,10 +119,7 @@ const StackNavigator = ({ isAuthenticated }) => {
         />
         <StackComponent.Screen name={'CategoryHome'} component={CategoryHome} />
         <StackComponent.Screen name={'Products'} component={Products} />
-        <StackComponent.Screen
-          name={'ProductDetail'}
-          component={ProductDetail}
-        />
+      
         <StackComponent.Screen name={'Featured'} component={Featured} />
         <StackComponent.Screen name={'Orders'} component={Orders} />
         <StackComponent.Screen
@@ -123,9 +128,9 @@ const StackNavigator = ({ isAuthenticated }) => {
         />
         <StackComponent.Screen name={'Wishlist'} component={Wishlist} />
         <StackComponent.Screen name={'Profile'} component={Profile} />
+        <StackComponent.Screen name={'Address'} component={Address} />
         <StackComponent.Screen name={'EditProfile'} component={EditProfile} />
         <StackComponent.Screen name={'Coupons'} component={Coupons} />
-        <StackComponent.Screen name={'Address'} component={Address} />
         <StackComponent.Screen name={'Payment'} component={Payment} />
         <StackComponent.Screen
           name={'AddDeliveryAddress'}

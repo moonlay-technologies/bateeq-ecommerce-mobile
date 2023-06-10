@@ -4,8 +4,10 @@ import {IconButton} from 'react-native-paper';
 import {useNavigation} from '@react-navigation/native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {COLORS, FONTS} from '../../constants/theme';
+import {connect} from "react-redux";
 
-const HeaderBateeq = ({signin}) => {
+const HeaderBateeq = ({signin,...props}) => {
+    let { totalQuantity } = props
   const navigation = useNavigation();
 
   const handlePress = () => {
@@ -79,7 +81,7 @@ const HeaderBateeq = ({signin}) => {
                 }}>
                 <Text
                   style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
+                    {totalQuantity}
                 </Text>
               </View>
             </View>
@@ -91,4 +93,7 @@ const HeaderBateeq = ({signin}) => {
   );
 };
 
-export default HeaderBateeq;
+export default connect(({Cart})=> {
+    let { options } = Cart
+    return { options,totalQuantity: options?.totalQuantity  }
+},{})(React.memo(HeaderBateeq));

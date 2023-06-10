@@ -1,36 +1,36 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {AuthenApi, ProfileApi} from '../api-login';
+// import {AuthenApi, ProfileApi} from '../api-login';
 
-const login = ({username, password}) => {
-  return new Promise((resolve, reject) => {
-    AuthenApi.store({username, password})
-      .then(r => {
-        setToken(r.token);
-        resolve(r);
-      })
-      .catch(e => {
-        reject(e);
-      });
-  });
-};
+// const login = ({username, password}) => {
+//   return new Promise((resolve, reject) => {
+//     AuthenApi.store({username, password})
+//       .then(r => {
+//         setToken(r.token);
+//         resolve(r);
+//       })
+//       .catch(e => {
+//         reject(e);
+//       });
+//   });
+// };
 
-const profile = async () => {
-  try {
-    const token = await AsyncStorage.getItem('token');
-    const r = await ProfileApi.detail(token);
-    setUser(r);
-    return r;
-  } catch (e) {
-    // setUser({
-    //   id: 1,
-    //   email: 'arbomb',
-    //   full_name: 'ardy',
-    //   roles: [{ name: 'CENTRAL_SUPERVISOR' }],
-    // });
-    throw e;
-  }
-};
+// const profile = async () => {
+//   try {
+//     const token = await AsyncStorage.getItem('token');
+//     const r = await ProfileApi.detail(token);
+//     setUser(r);
+//     return r;
+//   } catch (e) {
+//     // setUser({
+//     //   id: 1,
+//     //   email: 'arbomb',
+//     //   full_name: 'ardy',
+//     //   roles: [{ name: 'CENTRAL_SUPERVISOR' }],
+//     // });
+//     throw e;
+//   }
+// };
 
 const setUser = async user => {
   try {
@@ -57,6 +57,7 @@ const isLoggedIn = async () => {
 };
 
 const setToken = async token => {
+  console.log("token authservice", token)
   try {
     await AsyncStorage.setItem('token', token);
   } catch (e) {
@@ -64,13 +65,16 @@ const setToken = async token => {
   }
 };
 
-const getToken = async () => {
-  try {
-    return await AsyncStorage.getItem('token');
-  } catch (e) {
-    console.log('Error retrieving token: ', e);
-    return null;
-  }
+const getToken = () => {
+  return new Promise((resolve, reject) => {
+     AsyncStorage.getItem('accessToken')
+      .then(result=>{
+        resolve(result)
+      })
+      .catch(error => {
+        reject(error)
+      })
+  })
 };
 
 const logout = async () => {
@@ -83,8 +87,8 @@ const logout = async () => {
 };
 
 const AuthService = {
-  login,
-  profile,
+  // login,
+  // profile,
   setUser,
   getUser,
   isLoggedIn,

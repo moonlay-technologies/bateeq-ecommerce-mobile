@@ -25,7 +25,7 @@ const CustomButton = ({
   wishlistIcon,
   bagIcon,
   title,
-  logout
+  logout,
 }) => {
   return (
     <TouchableOpacity

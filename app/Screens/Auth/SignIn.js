@@ -19,28 +19,24 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import {Toast} from 'react-native-toast-message/lib/src/Toast';
 import LoadingScreen from '../../components/LoadingView';
 import {gql, useMutation} from '@apollo/client';
-import { useNavigation, CommonActions } from '@react-navigation/native';
-
-const customerAccessTokenCreate = gql`
-  mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
-    customerAccessTokenCreate(input: {email: $email, password: $password}) {
-      customerAccessToken {
-        accessToken
-      }
-      customerUserErrors {
-        message
-      }
-    }
-  }
-`;
+import {useNavigation, CommonActions} from '@react-navigation/native';
+import { CREATE_CART } from '../../graphql/mutation';
+import { setCartId } from '../../store/reducer';
+import {batch, connect, useDispatch} from 'react-redux';
+import { setIsLogin } from '../../store/reducer';
+import {SignInUser} from "../../store/constants/Auth";
+import {Authentication} from "../../service/graphql/mutation/authentication";
+import {CartGenerateId} from "../../store/actions";
 
 const SignIn = props => {
+  let { CartGenerateId } = props
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const dispatch = useDispatch()
+  const [cartCreate, { error, loading }] = useMutation(CREATE_CART)
   const navigation = useNavigation();
-
   const validateForm = values => {
     const errors = {};
 
@@ -55,39 +51,41 @@ const SignIn = props => {
     return errors;
   };
 
-  const [CustomerAccessTokenCreateMutation] = useMutation(
-    customerAccessTokenCreate,
-  );
-
+  const [ err,callback ] = new Authentication({
+    keyName:['customerAccessTokenCreate','customerAccessToken','accessToken']
+  }).signIn()
   const handleOnSubmit = async values => {
-    try {
-      setIsLoading(true);
-
-      const {data} = await CustomerAccessTokenCreateMutation({
-        variables: {
+    try{
+      const data = await callback({variables: {
           email: values.customer.email,
           password: values.customer.password,
-        },
-      });
-      const accessToken =
-         data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
+        },})
 
-      console.log('access token', accessToken)
-
-      if (accessToken) {
+      if (data) {
         Toast.show({
           type: 'success',
           text1: 'Login Success',
           visibilityTime: 2000,
-        });
-        await AsyncStorage.setItem('accessToken', accessToken);
+        })
+        const cartCreated = await cartCreate({
+          variables: {
+            input: {
+              note: ""
+            }
+          }
+        })
+        const { id } = cartCreated?.data?.cartCreate?.cart
+        batch(() => {
+          dispatch(setIsLogin(!!data))
+          CartGenerateId({id})
+          dispatch(setCartId(id))
+        })
+        await AsyncStorage.setItem('accessToken', data);
         navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [
-              { name: 'DrawerNavigation' }
-            ],
-          })
+            CommonActions.reset({
+              index: 0,
+              routes: [{name: 'DrawerNavigation'}],
+            }),
         );
       } else {
         Toast.show({
@@ -312,4 +310,6 @@ const SignIn = props => {
   );
 };
 
-export default SignIn;
+export default connect(()=> {
+  return {}
+},{SignInUser,CartGenerateId})(React.memo(SignIn));

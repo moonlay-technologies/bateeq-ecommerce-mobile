@@ -23,6 +23,12 @@ import {ProductApi, CollectionsApi} from '../../service/shopify-api';
 import CustomHTML from '../../components/CustomHtml';
 import LoadingScreen from '../../components/LoadingView';
 import {useQuery, gql} from '@apollo/client';
+import {useNavigation} from '@react-navigation/native';
+import {connect, useDispatch, useSelector} from 'react-redux';
+import { setIsOpen } from '../../store/reducer'
+import { GET_TOTAL_QUANTITY_CART } from '../../graphql/queries';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import {CartGetList, CartPutTotalQty} from "../../store/actions";
 
 // const TopSelectionData = [
 //   {
@@ -77,6 +83,7 @@ const GET_LATEST_COLLECTION = gql`
 const GET_BANNER_SLIDER = gql`
   query getDataImageBanner($handle: String!) {
     product(handle: $handle) {
+      description
       images(first: 5) {
         edges {
           node {
@@ -96,10 +103,28 @@ const GET_LIST_CATEGORIES = gql`
           id
           title
           description
-          images(first: 1) {
+          descriptionHtml
+          images(first: 4) {
             edges {
               node {
                 url
+              }
+            }
+          }
+          variants(first: 5) {
+            edges {
+              node {
+                id
+                price {
+                  amount
+                }
+                compareAtPrice {
+                  amount
+                }
+                selectedOptions {
+                  name
+                  value
+                }
               }
             }
           }
@@ -128,59 +153,23 @@ const GET_MAIN_MENU_NAVIGATION = gql`
   }
 `;
 
-const mainMenu = [
-  {
-    id: 1,
-    title: 'SHOP',
-    url: '#',
-    subMenu: [
-      {id: 1, title: 'Submenu 1', url: '#'},
-      {id: 2, title: 'Submenu 2', url: '#'},
-    ],
-  },
-  {
-    id: 3,
-    title: 'BATEEQ HOM',
-    url: '#',
-    subMenu: [
-      {id: 1, title: 'Submenu 1', url: '#'},
-      {id: 2, title: 'Submenu 2', url: '#'},
-    ],
-  },
-  {
-    id: 4,
-    title: 'SALE',
-    url: '#',
-    subMenu: [
-      {id: 1, title: 'Submenu 1', url: '#'},
-      {id: 2, title: 'Submenu 2', url: '#'},
-    ],
-  },
-  {
-    id: 5,
-    title: 'OURSTORY',
-    url: '#',
-    subMenu: [
-      {id: 1, title: 'Submenu 1', url: '#'},
-      {id: 2, title: 'Submenu 2', url: '#'},
-    ],
-  },
-];
-
-const MainHome = ({navigation}) => {
+const MainHome = (props) => {
+  let { navigation,options,CartPutTotalQty,CartGetList } = props
+  console.log({CartGetList})
   const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState(null);
-  const [dataCustomCollection, setDataCustomCollection] = useState([]);
+  const [dataAllProduct, setDataAllProduct] = useState([]);
   const [pageStory, setPageStory] = useState(null);
   const [dataLatestCollection, setDataLatestCollection] = useState(null);
   const [dataBanner, setDataBanner] = useState([]);
+  const [imageCollection, setImageCollection] = useState([]);
   const [dataCategories, setDataCategories] = useState([]);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
+  const navigations = useNavigation();
 
-  const handleSubMenuToggle = itemId => {
-    console.log('itemsId', itemId);
-    setActiveSubMenu(prevActiveSubMenu =>
-      prevActiveSubMenu === itemId ? null : itemId,
+  const toggleSubMenu = menuId => {
+    setActiveSubMenu(prevActiveMenu =>
+      prevActiveMenu === menuId ? null : menuId,
     );
   };
 
@@ -199,10 +188,21 @@ const MainHome = ({navigation}) => {
       },
     },
   );
+  const {data: dataImageCollection} = useQuery(GET_BANNER_SLIDER, {
+    variables: {
+      handle: 'slider-collection',
+    },
+  });
   const {data: dataListCategories} = useQuery(GET_LIST_CATEGORIES, {
     variables: {
       first: 5,
       query: 'categories',
+    },
+  });
+  const {data: getAllProduct} = useQuery(GET_LIST_CATEGORIES, {
+    variables: {
+      first: 5,
+      query: '',
     },
   });
   const {data: dataSideMenuNavigation} = useQuery(GET_MAIN_MENU_NAVIGATION, {
@@ -212,9 +212,18 @@ const MainHome = ({navigation}) => {
     },
   });
 
+  const {data: cartData} = useQuery(GET_TOTAL_QUANTITY_CART, {
+    variables:{
+      id: options?.cartId
+    }
+  })
+
   useEffect(() => {
     if (data) {
       setPageStory(data.page);
+    }
+    if (getAllProduct) {
+      setDataAllProduct(getAllProduct.products.edges);
     }
     if (latestCollectionData) {
       setDataLatestCollection(latestCollectionData.collection);
@@ -224,41 +233,52 @@ const MainHome = ({navigation}) => {
       setDataBanner(dataImageBanner.product.images.edges);
     }
 
+    if (dataImageCollection) {
+      setImageCollection(dataImageCollection.product.images.edges);
+    }
     if (dataListCategories) {
       setDataCategories(dataListCategories.products.edges);
     }
-  }, [data, latestCollectionData, dataImageBanner, dataListCategories]);
+  }, [
+    data,
+    latestCollectionData,
+    dataImageBanner,
+    dataListCategories,
+    dataImageCollection,
+    getAllProduct
+  ]);
+
+  useEffect(()=> {
+    if(cartData) {
+      CartPutTotalQty({totalQuantity:cartData?.cart?.totalQuantity})
+    }
+  },[cartData])
 
   useEffect(() => {
-    getDataProducts();
-    getDataCustomCollections();
+    // getDataProducts();
+    // getDataCustomCollections();
   }, []);
+
+
+  useEffect(()=> {
+      CartGetList({first:50,last:0})
+  },[CartGetList])
 
   const getDataProducts = () => {
     setIsLoading(true);
     ProductApi.get()
       .then(res => {
+
         setIsLoading(false);
         setProductData(res.products);
       })
       .catch(error => {
         setIsLoading(false);
-        console.log('error', error);
-      });
-  };
-
-  const getDataCustomCollections = () => {
-    CollectionsApi.get()
-      .then(res => {
-        setDataCustomCollection(
-          res.custom_collections.map(collection => ({
-            id: collection?.id,
-            title: collection?.title,
-          })),
-        );
-      })
-      .catch(error => {
-        console.log('error', error);
+        Toast.show({
+          type: 'error', 
+          text1: 'Oops!',
+          text2: error?.originalError?.message || 'something went wrong'
+        })
       });
   };
 
@@ -268,8 +288,16 @@ const MainHome = ({navigation}) => {
 
   const renderSubMenu = subMenu => {
     return subMenu.map(item => (
-      <TouchableOpacity style={styles.subMenuItem} key={item?.id}>
-        <Text style={styles.subMenuText}>{item?.title}</Text>
+      <TouchableOpacity
+        style={styles.subMenuItem}
+        key={item.id}
+        onPress={() => toggleSubMenu(item.id)}>
+        <Text style={styles.subMenuText}>{item.title}</Text>
+        {item.items && activeSubMenu === item.id && (
+          <View style={styles.nestedSubMenuContainer}>
+            {renderSubMenu(item.items)}
+          </View>
+        )}
       </TouchableOpacity>
     ));
   };
@@ -279,10 +307,10 @@ const MainHome = ({navigation}) => {
       <View key={item?.id} style={styles.menuItem}>
         <TouchableOpacity
           style={styles.menuItemButton}
-          onPress={() => handleSubMenuToggle(item?.id)}>
+          onPress={() => toggleSubMenu(item.id)}>
           <Text style={styles.menuText}>{item?.title}</Text>
         </TouchableOpacity>
-        {activeSubMenu === item.id && item.items && (
+        {item.items && activeSubMenu === item.id && (
           <View style={styles.subMenuContainer}>
             {renderSubMenu(item?.items)}
           </View>
@@ -318,7 +346,8 @@ const MainHome = ({navigation}) => {
             </View>
           )}
           size={25}
-          onPress={() => navigation.openDrawer()}
+          onPress={() => navigations.openDrawer()}
+          // onPress={handleDrawer}
         />
         <TouchableOpacity onPress={handlePress}>
           <Image
@@ -326,34 +355,40 @@ const MainHome = ({navigation}) => {
             source={require('../../assets/images/logo.png')}
           />
         </TouchableOpacity>
-        <IconButton
-          onPress={() => navigation.navigate('Cart')}
-          icon={() => (
-            <View>
-              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              <View
-                style={{
-                  height: 14,
-                  width: 14,
-                  borderRadius: 14,
-                  backgroundColor: COLORS.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'absolute',
-                  top: -4,
-                  right: -6,
-                }}>
-                <Text
-                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
-                </Text>
-              </View>
-            </View>
-          )}
-          size={25}
-        />
+        {
+          options?.loading ? <Text>Loading...</Text> : (
+              <IconButton
+                  onPress={() => navigation.navigate('Cart')}
+                  icon={() => (
+                      <View>
+                        <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
+                        {options?.totalQuantity > 0 && <View
+                            style={{
+                              height: 14,
+                              width: 14,
+                              borderRadius: 14,
+                              backgroundColor: COLORS.primary,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'absolute',
+                              top: -4,
+                              right: -6,
+                            }}>
+                          <Text
+                              style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
+                            {options?.totalQuantity}
+                          </Text>
+                        </View> }
+                      </View>
+                  )}
+                  size={25}
+              />
+          )
+        }
       </View>
-      <View style={styles.menuContainer}>{renderMainMenu()}</View>
+      {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
+        <View style={styles.menuContainer}>{renderMainMenu()}</View>
+      {/* </ScrollView> */}
       <ScrollView>
         {dataImageBannerLoading && <LoadingScreen Loading2 />}
         <Swiper
@@ -454,12 +489,12 @@ const MainHome = ({navigation}) => {
                   flexWrap: 'wrap',
                   justifyContent: 'space-between',
                 }}>
-                {productData?.slice(0, 4) &&
-                  productData?.slice(0, 4)?.map((product, index) => {
-                    // console.log('product', product.body_html);
+                {dataAllProduct?.slice(0, 4) &&
+                  dataAllProduct?.slice(0, 4)?.map(product => {
+                    console.log('product', product)
                     return (
                       <View
-                        key={index}
+                        key={product.node.id}
                         style={{
                           width: 150,
                           marginRight: 10,
@@ -468,22 +503,18 @@ const MainHome = ({navigation}) => {
                         <ProductCardStyle1
                           onPress={() =>
                             navigation.navigate('ProductDetail', {
-                              item: {
-                                title: product.title,
-                                images: product.images,
-                                oldPrice: product.variants[0].compare_at_price,
-                                price: product.variants[0].price,
-                                desc: product.body_html,
-                                variant: product?.options[0]?.values,
-                                colors: product?.options[1]?.values,
-                              },
-                              // category : "Appliances"
+                              id: product.node.id,
                             })
                           }
-                          imageSrc={product?.images[0]?.src}
-                          title={product.title}
-                          price={product.variants[0].price}
-                          oldPrice={product.variants[0].compare_at_price}
+                          imageSrc={product.node.images.edges[0].node.url}
+                          title={product.node.title}
+                          price={
+                            product?.node?.variants?.edges[0].node.price.amount
+                          }
+                          oldPrice={
+                            product?.node?.variants?.edges[0]?.node
+                              ?.compareAtPrice?.amount
+                          }
                           // offer={data.offer}
                         />
                       </View>
@@ -493,9 +524,7 @@ const MainHome = ({navigation}) => {
               </View>
               <View style={{justifyContent: 'center', alignItems: 'center'}}>
                 <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('Items', {type: 'Fashion'})
-                  }
+                  onPress={() => navigation.navigate('Items', {query: ''})}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -538,12 +567,11 @@ const MainHome = ({navigation}) => {
             <FeaturedCard
               image={dataLatestCollection?.image?.url}
               title={dataLatestCollection?.description}
-              dataCollection={dataCustomCollection}
+              dataCollection={dataLatestCollection}
               hiddenBtn
             />
           </View>
         )}
-        <View></View>
         {/* {PopularItemsData.map((data, index) => (
           <ProductListItem
             onPress={() =>
@@ -578,7 +606,7 @@ const MainHome = ({navigation}) => {
               flexWrap: 'wrap',
               justifyContent: 'space-between',
             }}>
-            {dataCategories.map(item => (
+            {dataCategories?.map(item => (
               <View style={{width: 180, padding: 10}} key={item.node.id}>
                 <FeaturedCard
                   image={item.node.images.edges[0]?.node.url}
@@ -599,9 +627,14 @@ const MainHome = ({navigation}) => {
             dotColor={'rgba(255,255,255,.3)'}
             activeDotColor={COLORS.white}
             paginationStyle={{bottom: 10}}>
-            {dataBanner.map(data => {
+            {imageCollection.map(data => {
               return (
-                <View key={data.node.id} style={{zIndex: 1}}>
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('Items', {query: 'Miwiti'})
+                  }
+                  key={data.node.id}
+                  style={{zIndex: 1}}>
                   <LinearGradient
                     colors={['transparent', 'transparent', 'rgba(0,0,0,.4)']}
                     style={{
@@ -618,7 +651,61 @@ const MainHome = ({navigation}) => {
                     }}
                     source={{uri: data?.node?.url}}
                   />
-                </View>
+                  <View
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      paddingLeft: '35%',
+                      height: '100%',
+                      justifyContent: 'center',
+                      alignItems: 'flex-start',
+                    }}>
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent black color
+                        borderRadius: 8,
+                      }}
+                    />
+                    <Text
+                      style={{
+                        ...FONTS.fontSatoshiLight,
+                        color: COLORS.white,
+                        textAlign: 'left',
+                        fontWeight: '200',
+                        fontSize: 36,
+                        letterSpacing: 16,
+                        marginHorizontal: -52,
+                      }}>
+                      MIWITI
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigations.navigate('Items', {query: 'Miwiti'})
+                      }
+                      style={{
+                        paddingHorizontal: 12,
+                        paddingVertical: 10,
+                        borderWidth: 1,
+                        borderColor: COLORS.white,
+                        marginTop: 10,
+                      }}>
+                      <Text
+                        style={{
+                          ...FONTS.fontSatoshiBold,
+                          color: COLORS.white,
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                        }}>
+                        SHOP NOW
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </TouchableOpacity>
               );
             })}
           </Swiper>
@@ -634,7 +721,7 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 10,
+    paddingVertical: 2,
     zIndex: 50,
     // backgroundColor: '#f1f1f1',
   },
@@ -657,7 +744,14 @@ const styles = {
     paddingVertical: 10,
     paddingHorizontal: 10,
     elevation: 2,
-    zIndex: 2,
+    zIndex: 50,
+  },
+  nestedSubMenuContainer: {
+    backgroundColor: '#fff',
+    marginTop: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    elevation: 2,
   },
   subMenuItem: {
     paddingVertical: 5,
@@ -668,4 +762,7 @@ const styles = {
   },
 };
 
-export default MainHome;
+export default connect(({Cart})=> {
+  let {options} = Cart
+  return { options }
+},{CartPutTotalQty,CartGetList})(React.memo(MainHome));

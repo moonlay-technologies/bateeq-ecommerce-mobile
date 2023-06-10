@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -23,6 +23,8 @@ import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
 import {gql, useQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
+import { useDispatch } from 'react-redux';
+import { setCartId } from '../../store/reducer';
 
 const languagetData = [
   {
@@ -60,11 +62,13 @@ const getDataCustomerByToken = gql`
   }
 `;
 
-const Profile = ({navigation}) => {
+const Profile = () => {
+  const navigation = useNavigation()
   const [dataAccount, setDataAccount] = useState(null);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
+  const dispatch = useDispatch()
   const [accessToken, setAccessToken] = useState('');
 
   useEffect(() => {
@@ -318,6 +322,7 @@ const Profile = ({navigation}) => {
                 onPress={async () => {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
+                  dispatch(setCartId(''))
                   navigation.navigate('SignIn');
                 }}
                 logout={true}

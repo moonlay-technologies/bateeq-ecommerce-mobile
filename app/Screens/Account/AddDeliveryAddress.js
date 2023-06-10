@@ -1,37 +1,186 @@
 import React, {useState} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TextInput,
-  // TouchableOpacity,
-  View,
-} from 'react-native';
-import CustomButton from '../../components/CustomButton';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import * as yup from 'yup';
 import {GlobalStyleSheet} from '../../constants/StyleSheet';
 import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
-import SelectInput from '../../components/SelectInput';
+import CustomButton from '../../components/CustomButton';
+import Input from '../../components/InputComponent';
+import InputTextArea from '../../components/InputTextArea';
+import { useEffect } from 'react';
+import { CountriesApi } from '../../service/shopify-api';
+import AsyncSelectComponent from '../../components/SelectAsyncComponent';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { useMutation } from '@apollo/client';
+import { CREATE_ADDRESS } from '../../graphql/mutation';
+import AuthService from '../../service/auth/auth-service';
 
-const Country = [
-  {label: 'indonesia', value: 'indonesia'},
-  {label: 'Jepang', value: 'jepang'},
-  {label: 'Malaysia', value: 'malaysia'},
-];
-
-const Province = [
-  {label: 'DKI Jakarta', value: 'jakarta'},
-  {label: 'Jawa Barat', value: 'jawabarat'},
-  {label: 'Jawa Timur', value: 'jawatimur'},
-];
+const schema = yup.object().shape({
+  first_name: yup.string().required(),
+  last_name: yup.string().required(),
+  phone_number: yup.string().required(),
+  company: yup.string().required(),
+  first_address: yup.string().required(),
+  second_address: yup.string().required(),
+  country: yup.string().required(),
+  province: yup.string().required(),
+  city: yup.string().required(),
+  postal_code: yup.string().required()
+})
 
 const AddDeliveryAddress = ({navigation}) => {
-  const [defaultAddress, setAddress] = useState('Home');
-  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [errors, setErrors] = useState({})
+  const [countries, setCountries] = useState([])
+  const [isLoading , setIsLoading] = useState(false)
+  const [countryId, setCountryId]= useState('')
+  const [provinces, setProvinces] = useState([])
+  const [state, setState]=useState({
+    first_name: '',
+    last_name: '',
+    phone_number: '',
+    company: '',
+    first_address: '',
+    second_address: '',
+    country: '',
+    province: '',
+    city: '',
+    postal_code: ''
+  })
+  const [customerAddressCreate] = useMutation(CREATE_ADDRESS)
 
-  const handleCountrySelect = value => {
-    setSelectedCountry(value);
+  useEffect(() => {
+    setIsLoading(true)
+    if(countryId !== ''){
+      CountriesApi.getProvinceByCountryId(countryId)
+      .then(result => {
+        setProvinces(result.provinces.map(d => ({
+         label: d.name,
+         value: d.id
+        })))
+        setIsLoading(false)
+        setCountryId('')
+      }).catch(err =>{
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: err?.originalError?.message || err?.message || 'something went wrong'
+        });
+        setIsLoading(false)
+      })
+     
+    } else {
+      CountriesApi.get().then(res => {
+        setCountries(res?.countries?.map(i => ({
+          label: i.name,
+          value: i.id
+        })))
+        setIsLoading(false)
+      }).catch(err => {
+        Toast.show({
+          type: 'error',
+          text1: 'Oops!',
+          text2: err?.originalError?.message || 'something went wrong'
+        })
+        setIsLoading(false)
+      })
+ 
+    }
+  }, [countryId])
+
+  const handleFieldChange = (value, name) => {
+    setState(prev => ({
+      ...prev,
+      [name]: value
+    }))
   };
+
+  const handleChangeCountry = (value, name) => {
+    if(name === 'country') {
+      setCountryId(value.value)
+    }
+  }
+
+  const handleSubmit = () => {
+    let refetch
+    setIsLoading(true)
+   
+    const body = {
+      first_name: state.first_name,
+      last_name: state.last_name,
+      phone_number: state.phone_number || 0,
+      company: state.company,
+      first_address: state.first_address,
+      second_address: state.second_address,
+      country: state.country,
+      province: state.province,
+      city: state.city,
+      postal_code: state.postal_code || 0
+    }
+    schema
+      .validate(body, { abortEarly: false })
+      .then(async result => {
+        const {error, data} = await customerAddressCreate({
+          variables: {
+             address: {
+               address1 : result.first_address,
+               address2: result.second_address,
+               phone: result.phone_number,
+               city : result.city ,
+               province : result.province,
+               country : result.country ,
+               company: result.company,
+               zip : result.postal_code 
+            },
+             customerAccessToken : await AuthService.getToken() 
+          }
+        })
+
+        if(data){
+          setErrors({})
+          setState({
+            first_name: '',
+            last_name: '',
+            phone_number: '',
+            company: '',
+            first_address: '',
+            second_address: '',
+            country: '',
+            province: '',
+            city: '',
+            postal_code: ''
+          })
+          setIsLoading(false)
+          navigation.navigate('Address', {refetch})
+        }
+        if(error) {
+          setIsLoading(false)
+          Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2: error?.message|| 'something went wrong'
+          });
+        }
+     
+      
+      })
+      .catch(err => {
+        if(err.name === 'ValidationError') {
+          const errorsVal = err.inner.reduce((acc, error) => {
+            const { path, message } = error;
+            acc[path] = message;
+            return acc;
+          }, {});
+          setErrors(errorsVal)
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'oops!',
+            text2: err?.originalError?.message || 'something went wrong'
+          })
+        }
+        setIsLoading(false)
+      })
+  }
 
   return (
     <SafeAreaView
@@ -47,8 +196,6 @@ const AddDeliveryAddress = ({navigation}) => {
           <View style={GlobalStyleSheet.container}>
             <View
               style={{
-                // borderBottomWidth:1,
-                // borderBottomColor:COLORS.borderColor,
                 paddingBottom: 10,
                 marginBottom: 20,
               }}>
@@ -61,178 +208,85 @@ const AddDeliveryAddress = ({navigation}) => {
                 Add Address
               </Text>
             </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>First Name</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
+              <Input
+                name='first_name'
+                label="First Name"
                 placeholder="e.g. John"
-                placeholderTextColor={COLORS.label}
+                handleInputChange={(val) => handleFieldChange(val, 'first_name')}
+                errors={errors}
               />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Last Name</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
+              <Input
+                name='last_name'
+                label="Last Name"
                 placeholder="e.g. Doe"
-                placeholderTextColor={COLORS.label}
+                handleInputChange={(val)=> handleFieldChange(val, 'last_name')}
+                errors={errors}
               />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Phone Number</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
+              <Input
+                name='phone_number'
+                label="Phone Number"
                 placeholder="e.g. +628123456789"
-                placeholderTextColor={COLORS.label}
+                keyboardType='phone-pad'
+                handleInputChange={(val)=> handleFieldChange(val, 'phone_number')}
+                errors={errors}
               />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Company</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="e.g. PT Bateeq"
-                placeholderTextColor={COLORS.label}
+              <Input
+                name='company'
+                label="Company"
+                placeholder="e.g. PT ABC"
+                handleInputChange={(val)=> handleFieldChange(val, 'company')}
+                errors={errors}
               />
-            </View>
-            {/* <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Address</Text>
-              <TextInput
-                style={{
-                  backgroundColor: COLORS.input,
-                  height: 100,
-                  borderRadius: SIZES.radius,
-                  borderWidth: 1,
-                  borderColor: COLORS.borderColor,
-                  padding: 12,
-                }}
-                placeholder="e.g. Jl. Sisingamangaraja No. 25, RT003 RW012"
-                textAlignVertical="top"
-                placeholderTextColor={COLORS.label}
-                numberOfLines={5}
-                multiline={true}
+              <InputTextArea
+                name='first_address'
+                label="Address 1"
+                placeholder="e.g. Jl. Taman Anggrek"
+                numberOfLines={4}
+                handleInputChange={(val)=> handleFieldChange(val, 'first_address')}
+                errors={errors}
               />
-            </View> */}
+              <InputTextArea
+                name='second_address'
+                label="Address 2"
+                placeholder="e.g. Jl. Taman Anggrek"
+                numberOfLines={4}
+                handleInputChange={(val)=> handleFieldChange(val, 'second_address')}
+                errors={errors}
+              />
             <View style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
-              <SelectInput
+              <AsyncSelectComponent
+                name='country'
                 label="Country"
-                options={Country}
-                onSelect={handleCountrySelect}
+                options={countries}
+                onChange={(val) => handleChangeCountry(val, 'country')}
+                onSelect={(val)=> handleFieldChange(val, 'country')}
+                errors={errors}
               />
             </View>
             <View style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
-              <SelectInput
+              <AsyncSelectComponent
+                name='province'
                 label="Province"
-                options={Province}
-                onSelect={handleCountrySelect}
+                options={provinces}
+                onSelect={(val)=> handleFieldChange(val, 'province')}
+                errors={errors}
               />
             </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>City</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
+            <Input
+                name='city'
+                label="City"
                 placeholder="e.g. Jakarta Selatan"
-                placeholderTextColor={COLORS.label}
+                handleInputChange={(val)=> handleFieldChange(val, 'city')}
+                errors={errors}
               />
-            </View>
-            <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Postal Code</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
+              <Input
+                name='postal_code'
+                label="Postal Code"
                 placeholder="e.g. 12190"
-                placeholderTextColor={COLORS.label}
+                keyboardType='number-pad'
+                handleInputChange={(val)=> handleFieldChange(val, 'postal_code')}
+                errors={errors}
               />
-            </View>
-            {/* <View style={GlobalStyleSheet.inputGroup}>
-              <Text style={GlobalStyleSheet.label}>Country</Text>
-              <TextInput
-                style={GlobalStyleSheet.formControl}
-                placeholder="Country"
-                placeholderTextColor={COLORS.label}
-              />
-            </View> */}
-            {/* <View style={[GlobalStyleSheet.row]}>
-              <View style={[GlobalStyleSheet.col50]}>
-                <View style={GlobalStyleSheet.inputGroup}>
-                  <Text style={GlobalStyleSheet.label}>City/District</Text>
-                  <TextInput
-                    style={GlobalStyleSheet.formControl}
-                    placeholder="City/District"
-                    placeholderTextColor={COLORS.label}
-                  />
-                </View>
-              </View>
-              <View style={[GlobalStyleSheet.col50]}>
-                <View style={GlobalStyleSheet.inputGroup}>
-                  <Text style={GlobalStyleSheet.label}>State</Text>
-                  <TextInput
-                    style={GlobalStyleSheet.formControl}
-                    placeholder="State"
-                    placeholderTextColor={COLORS.label}
-                  />
-                </View>
-              </View>
-            </View> */}
-            {/* <View
-              style={{
-                borderBottomWidth: 1,
-                borderBottomColor: COLORS.borderColor,
-                paddingBottom: 10,
-                marginBottom: 20,
-              }}>
-              <Text
-                style={{...FONTS.font, ...FONTS.fontBold, color: COLORS.title}}>
-                Save Address As
-              </Text>
-            </View> */}
-            {/* <View
-              style={{
-                flexDirection: 'row',
-              }}>
-              <TouchableOpacity
-                onPress={() => setAddress('Home')}
-                style={[
-                  {
-                    borderWidth: 1,
-                    borderColor: COLORS.borderColor,
-                    borderRadius: 30,
-                    paddingHorizontal: 10,
-                    paddingVertical: 2,
-                    marginRight: 10,
-                  },
-                  defaultAddress === 'Home' && {
-                    borderColor: COLORS.primary,
-                  },
-                ]}>
-                <Text
-                  style={[
-                    {...FONTS.font, color: COLORS.title, paddingBottom: 2},
-                    defaultAddress === 'Home' && {color: COLORS.primary},
-                  ]}>
-                  Home
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setAddress('Work')}
-                style={[
-                  {
-                    borderWidth: 1,
-                    borderColor: COLORS.borderColor,
-                    borderRadius: 30,
-                    paddingHorizontal: 10,
-                    paddingVertical: 2,
-                  },
-                  defaultAddress === 'Work' && {
-                    borderColor: COLORS.primary,
-                  },
-                ]}>
-                <Text
-                  style={[
-                    {...FONTS.font, color: COLORS.title, paddingBottom: 2},
-                    defaultAddress === 'Work' && {color: COLORS.primary},
-                  ]}>
-                  Work
-                </Text>
-              </TouchableOpacity>
-            </View> */}
           </View>
         </ScrollView>
       </View>
@@ -242,8 +296,9 @@ const AddDeliveryAddress = ({navigation}) => {
           {justifyContent: 'center', alignItems: 'center'},
         ]}>
         <CustomButton
-          onPress={() => navigation.navigate('Address')}
-          title={'Save Address'}
+          onPress={handleSubmit}
+          title={isLoading ? 'Saving ...' : 'Save Address'}
+          disabled={isLoading}
           customWidth={200}
         />
       </View>

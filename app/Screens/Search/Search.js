@@ -17,7 +17,7 @@ import {COLORS, FONTS} from '../../constants/theme';
 import {ProductApi} from '../../service/shopify-api';
 import LoadingScreen from '../../components/LoadingView';
 import {gql, useLazyQuery} from '@apollo/client';
-
+import { connect } from 'react-redux'
 const SEARCH_PRODUCTS_QUERY = gql`
 query SearchProducts($query: String!) {
   products(query: $query, first: 10) {
@@ -57,7 +57,8 @@ query SearchProducts($query: String!) {
 }`
 
 
-const Search = ({navigation}) => {
+const Search = ({navigation, ...props}) => {
+    let { options } = props
   const [valSearch, setValSearch] = useState('');
   const [itemView, setItemView] = useState('grid');
   // const [isLoading, setIsLoading] = useState(null);
@@ -174,7 +175,7 @@ const Search = ({navigation}) => {
                 }}>
                 <Text
                   style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
+                    {options?.totalQuantity ?? 0}
                 </Text>
               </View>
             </View>
@@ -275,4 +276,9 @@ const Search = ({navigation}) => {
   );
 };
 
-export default Search;
+export default connect(({Cart})=> {
+    let { options } = Cart
+    return {
+        options
+    }
+},{})(React.memo(Search));

@@ -4,7 +4,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import { COLORS, FONTS, IMAGES } from '../../constants/theme';
 import pic1 from '../../assets/images/product/pic1.jpg';
 import Header from '../../layout/Header';
-import CheckoutItem from '../../components/CheckoutItem';
+import CartList from '../../components/CartList'
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import DeliveryMap from './DeliveryMap';
 
@@ -30,7 +30,7 @@ const DeliveryTracking = () => {
             />
             <ScrollView contentContainerStyle={{paddingTop:10}}>
                 {CheckoutData.map((data,index) => (
-                    <CheckoutItem
+                    <CartList
                         key={index}
                         image={data.image}
                         title={data.title}

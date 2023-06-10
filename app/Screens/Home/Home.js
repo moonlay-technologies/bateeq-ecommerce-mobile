@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { FlatList, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS, FONTS } from '../../constants/theme';
 import FeatherIcon from "react-native-vector-icons/Feather";
@@ -6,6 +6,7 @@ import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import Header from '../../layout/Header';
 import ShopItem from '../../components/ShopItem';
 import ItemCard from '../../components/ItemCard';
+import OrdersGql from "../../service/graphql/mutation/orders";
 
 
 const TopCollection = [
@@ -120,6 +121,19 @@ const Home = (props) => {
         });
         setProductsData2(temp);
     };
+    const [ loading, setLoading ] = useState(false)
+    useEffect(()=> {
+        setLoading(true)
+        new OrdersGql({}).userList()
+            .then((response)=> {
+                console.log({response},'RESPONSE all cart')
+                setLoading(false)
+            })
+            .catch((err)=> {
+                setLoading(false)
+                console.log({err},'ERROR all cart')
+            })
+    },[])
 
     return (
         <SafeAreaView style={{flex:1,backgroundColor:COLORS.backgroundColor}}>

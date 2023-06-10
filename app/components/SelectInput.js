@@ -3,10 +3,18 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import {COLORS, FONTS, SIZES} from '../constants/theme';
 
-const SelectInput = ({label, options, onSelect, placeholder, customDetail}) => {
+const SelectInput = ({ 
+  label, 
+  options, 
+  onSelect, 
+  placeholder, 
+  customDetail, 
+  errors = {},
+  name,
+}) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  
   const handleSelect = option => {
     setSelectedOption(option);
     onSelect(option.value);
@@ -46,9 +54,9 @@ const SelectInput = ({label, options, onSelect, placeholder, customDetail}) => {
       </TouchableOpacity>
       {isDropdownOpen && (
         <View style={styles.optionsContainer}>
-          {options?.map(option => (
+          {options?.map((option, idx) => (
             <TouchableOpacity
-              key={option.value}
+              key={option.value || idx}
               style={[
                 styles.option,
                 selectedOption &&
@@ -69,6 +77,7 @@ const SelectInput = ({label, options, onSelect, placeholder, customDetail}) => {
           ))}
         </View>
       )}
+      <Text style={styles.error}>{ Object.entries(errors).length > 0 && errors[name]}</Text>
     </View>
   );
 };
@@ -126,5 +135,8 @@ const styles = StyleSheet.create({
   },
   selectedOptionLabel: {
     color: COLORS.white,
+  },
+  error: {
+    color: 'red'
   },
 });
