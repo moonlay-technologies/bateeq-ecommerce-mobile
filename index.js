@@ -33,9 +33,10 @@ const cache = new InMemoryCache({
         },
         customer: {
           merge(existing = {}, incoming) {
-            const mergedOrders = existing.orders && incoming.orders
-              ? [...existing.orders, ...incoming.orders]
-              : incoming?.orders || existing.orders;
+            const mergedOrders =
+              existing.orders && incoming.orders
+                ? [...existing.orders, ...incoming.orders]
+                : incoming?.orders || existing.orders;
 
             return {
               ...incoming,
@@ -46,14 +47,11 @@ const cache = new InMemoryCache({
         variants: {
           merge(existing, incoming) {
             if (!existing) return incoming;
-            
+
             // Create a new merged object
             const merged = {
               ...incoming,
-              edges: [
-                ...(existing.edges || []),
-                ...(incoming.edges || [])
-              ],
+              edges: [...(existing.edges || []), ...(incoming.edges || [])],
             };
 
             return merged;
