@@ -1,4 +1,4 @@
 module.exports = {
-    COUNTRIES: 'countries',
-    PROVINCES: 'provinces'
-}
+  COUNTRIES: 'countries',
+  PROVINCES: 'provinces',
+};

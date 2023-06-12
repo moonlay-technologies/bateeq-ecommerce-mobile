@@ -116,6 +116,19 @@ export const CREATE_ADDRESS = gql`
   }
 `;
 
+export const UPDATE_CUSTOMER_ADDRESS = gql`
+  mutation customerAddressUpdate($address: MailingAddressInput!, $customerAccessToken: String!, $id: ID!) {
+    customerAddressUpdate(address: $address, customerAccessToken: $customerAccessToken, id: $id) {
+      customerAddress {
+        id
+      }
+      customerUserErrors {
+        message
+      }
+    }
+  }
+`;
+
 export const REMOVE_CUSTOMER_ADDRESS = gql`
   mutation customerAddressDelete($customerAccessToken: String!, $id: ID!) {
     customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {

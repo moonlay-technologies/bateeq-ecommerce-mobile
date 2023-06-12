@@ -21,7 +21,7 @@ import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
 import LoadingScreen from '../../components/LoadingView';
-import HeaderCartComponent from '../../components/HeaderCartComponent';
+import HeaderCartComponent from '../../components/HeaderComponent';
 
 function ProductDetail({ navigation, route }) {
   const [options, setOptions] = useState({

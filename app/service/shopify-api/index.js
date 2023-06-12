@@ -7,14 +7,6 @@ import TestimonialApi from './resources/testimonial-api';
 import AssetApi from './resources/asset-api';
 
 import CountriesApi from './resources/countries-api';
+import CustomerApi from './resources/customer-api';
 
-export {
-    ProductApi, 
-    CountApi, 
-    CollectionsApi, 
-    CartApi, 
-    BlogApi, 
-    TestimonialApi, 
-    AssetApi, 
-    CountriesApi
-};
+export { ProductApi, CountApi, CollectionsApi, CartApi, BlogApi, TestimonialApi, AssetApi, CountriesApi, CustomerApi };

@@ -10,6 +10,7 @@ function Input({
   handleInputChange,
   keyboardType = 'none',
   label = '',
+  value = '',
   errors = {},
   numberOfLines,
   name,
@@ -20,6 +21,7 @@ function Input({
       <TextInput
         keyboardType={keyboardType}
         placeholder={placeholder}
+        defaultValue={value}
         secureTextEntry={secureTextEntry}
         onChangeText={handleInputChange}
         onSubmitEditing={onSubmitEditing}

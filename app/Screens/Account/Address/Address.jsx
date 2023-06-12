@@ -8,13 +8,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
-import Header from '../../../layout/Header';
 
 import Modal from '../../../components/ActionModalComponent';
 import { GET_CUSTOMER_ADDRESS } from '../../../graphql/queries';
 import LoadingComponent from '../../../components/LoadingView';
 import { setAddress } from '../../../store/reducer';
 import { CUSTOMER_DEFAULT_ADDRESS_UPDATE, REMOVE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
+import HeaderComponent from '../../../components/HeaderComponent';
 
 function Address() {
   const navigation = useNavigation();
@@ -43,10 +43,6 @@ function Address() {
 
   const [customerAddressDelete] = useMutation(REMOVE_CUSTOMER_ADDRESS);
   const [customerDefaultAddressUpdate] = useMutation(CUSTOMER_DEFAULT_ADDRESS_UPDATE);
-
-  useEffect(() => {
-    // refetch();
-  }, []);
 
   useEffect(() => {
     if (address?.customer) {
@@ -113,7 +109,8 @@ function Address() {
       }}
     >
       <View style={{ paddingHorizontal: 20 }}>
-        <Header titleLeft leftIcon="back" title="Back" />
+        {/* <Header titleLeft leftIcon="back" title="Back" /> */}
+        <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
       </View>
       <ScrollView>
         <View style={GlobalStyleSheet.container}>
@@ -129,8 +126,7 @@ function Address() {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))
-            }
+              }))}
             submitText={isLoading ? 'Deleting ...' : 'Delete'}
             disabled={isLoading}
             onContinue={handleDelete}
@@ -173,18 +169,29 @@ function Address() {
                       )}
                     </View>
                   )}
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                    }}
+                  >
+                    <FeatherIcon
+                      onPress={() => navigation.navigate('EditAddress', { id })}
+                      style={{ ...styles.icon, marginRight: 30, color: '#656513' }}
+                      name="edit"
+                      size={16}
+                    />
 
-                  <FeatherIcon
-                    onPress={() =>
-                      setShowModal(prev => ({
-                        data: { id, company },
-                        show: !prev.show,
-                      }))
-                    }
-                    style={styles.icon}
-                    name="trash-2"
-                    size={16}
-                  />
+                    <FeatherIcon
+                      onPress={() =>
+                        setShowModal(prev => ({
+                          data: { id, company },
+                          show: !prev.show,
+                        }))}
+                      style={styles.icon}
+                      name="trash-2"
+                      size={16}
+                    />
+                  </View>
                 </TouchableOpacity>
               );
             })}

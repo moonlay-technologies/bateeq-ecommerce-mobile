@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Splash from '../screens/Onboarding/Splash';
 import Onboarding from '../screens/Onboarding/Onboarding';
 import Welcome from '../screens/Onboarding/Welcome';
@@ -17,7 +16,8 @@ import Profile from '../screens/Account/Profile';
 import EditProfile from '../screens/Account/EditProfile';
 import Coupons from '../screens/Account/Coupons';
 import Address from '../screens/Account/Address/Address';
-import AddDeliveryAddress from '../screens/Account/Address/Add';
+import AddAddress from '../screens/Account/Address/Add';
+import EditAddress from '../screens/Account/Address/Edit';
 import Filter from '../screens/Filter/Filter';
 import Items from '../screens/Items/Items';
 import CategoryHome from '../screens/Categories/CategoryHome';
@@ -53,7 +53,6 @@ import Slider from '../screens/Products/BestSellerProduct';
 import Checkout from '../screens/Checkout/Checkout';
 import MainHome from '../screens/Home/MainHome';
 import Cart from '../screens/Cart/Cart';
-import BottomNavigation from './BottomNavigation';
 
 const StackComponent = createNativeStackNavigator();
 
@@ -73,7 +72,8 @@ function StackNavigator({ isAuthenticated }) {
         <StackComponent.Screen name="Products" component={Products} />
         <StackComponent.Screen name="EditProfile" component={EditProfile} />
         <StackComponent.Screen name="Address" component={Address} />
-        <StackComponent.Screen name="AddDeliveryAddress" component={AddDeliveryAddress} />
+        <StackComponent.Screen name="AddAddress" component={AddAddress} />
+        <StackComponent.Screen name="EditAddress" component={EditAddress} />
         <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
         <StackComponent.Screen name="Checkout" component={Checkout} />
         <StackComponent.Screen name="Payment" component={Payment} />
@@ -115,7 +115,7 @@ function StackNavigator({ isAuthenticated }) {
       <StackComponent.Screen name="EditProfile" component={EditProfile} />
       <StackComponent.Screen name="Coupons" component={Coupons} />
       <StackComponent.Screen name="Payment" component={Payment} />
-      <StackComponent.Screen name="AddDeliveryAddress" component={AddDeliveryAddress} />
+      <StackComponent.Screen name="AddAddress" component={AddAddress} />
       <StackComponent.Screen name="Filter" component={Filter} />
       <StackComponent.Screen name="Search" component={Search} />
       <StackComponent.Screen name="Components" component={Components} />

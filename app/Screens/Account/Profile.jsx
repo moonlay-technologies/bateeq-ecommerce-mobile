@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { gql, useQuery } from '@apollo/client';
-import { useDispatch } from 'react-redux';
-import HeaderBateeq from '../../components/HeaderBateeq';
+import { useDispatch, useSelector } from 'react-redux';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS, IMAGES } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
@@ -17,6 +16,7 @@ import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import { setCartId } from '../../store/reducer';
+import HeaderComponent from '../../components/HeaderComponent';
 
 const languagetData = [
   {
@@ -40,49 +40,15 @@ const languagetData = [
     name: 'Spanish',
   },
 ];
-
-const getDataCustomerByToken = gql`
-  query ($accessToken: String!) {
-    customer(customerAccessToken: $accessToken) {
-      id
-      firstName
-      lastName
-      acceptsMarketing
-      email
-      phone
-    }
-  }
-`;
-
 function Profile() {
   const navigation = useNavigation();
   const [dataAccount, setDataAccount] = useState(null);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
-  const [accessToken, setAccessToken] = useState('');
-
-  useEffect(() => {
-    const getAccessToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('accessToken');
-        if (token !== null) {
-          setAccessToken(token);
-        }
-      } catch (error) {
-        console.log('error', error);
-      }
-    };
-
-    getAccessToken();
-  }, []);
-
-  const { data, loading, error } = useQuery(getDataCustomerByToken, {
-    variables: {
-      accessToken,
-    },
-  });
+  const { customerInfo } = useSelector(state => state.user);
 
   useEffect(() => {
     if (isLoggedOut && isFocused) {
@@ -90,17 +56,7 @@ function Profile() {
     }
   }, [isLoggedOut, isFocused, navigation]);
 
-  useEffect(() => {
-    if (error) {
-      console.log('error', error);
-    } else if (data) {
-      setDataAccount(data.customer);
-    }
-  }, [data, loading, error]);
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  console.log('customerInfo', customerInfo);
   return (
     <>
       <RBSheet
@@ -164,7 +120,7 @@ function Profile() {
           backgroundColor: COLORS.backgroundColor,
         }}
       >
-        <HeaderBateeq />
+        <HeaderComponent />
         <ScrollView>
           <Text
             style={{
@@ -178,7 +134,7 @@ function Profile() {
             Account Details
           </Text>
           <View style={GlobalStyleSheet.container}>
-            {loading ? (
+            {isLoading ? (
               <LoadingScreen type="circle" />
             ) : (
               <View
@@ -203,9 +159,9 @@ function Profile() {
                     marginTop: 20,
                   }}
                 >
-                  <Text style={{ ...FONTS.h6 }}>{dataAccount?.default_address?.name || ''}</Text>
-                  <Text style={{ ...FONTS.font }}>{dataAccount?.email}</Text>
-                  <Text style={{ ...FONTS.font }}>{dataAccount?.default_address?.phone || ''}</Text>
+                  <Text style={{ ...FONTS.h6 }}>{`${customerInfo?.first_name} ${customerInfo?.last_name}` || ''}</Text>
+                  <Text style={{ ...FONTS.font }}>{customerInfo?.email || ''}</Text>
+                  <Text style={{ ...FONTS.font }}>{customerInfo?.phone || ''}</Text>
                 </View>
               </View>
             )}

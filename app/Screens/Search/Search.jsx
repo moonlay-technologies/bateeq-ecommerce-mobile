@@ -17,6 +17,7 @@ import ProductItem from '../../components/ProductItem';
 import { COLORS, FONTS } from '../../constants/theme';
 import { ProductApi } from '../../service/shopify-api';
 import LoadingScreen from '../../components/LoadingView';
+import HeaderComponent from '../../components/HeaderComponent';
 
 const SEARCH_PRODUCTS_QUERY = gql`
   query SearchProducts($query: String!) {
@@ -124,59 +125,7 @@ function Search({ navigation }) {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          justifyContent: 'space-between',
-        }}
-      >
-        <IconButton
-          icon={() => (
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}
-            >
-              <FeatherIcon color={COLORS.title} size={18} name="menu" />
-            </View>
-          )}
-          size={25}
-          onPress={() => navigation.openDrawer()}
-        />
-        <TouchableOpacity onPress={handlePress}>
-          <Image style={{ width: 70, height: 35 }} source={require('../../assets/images/logo.png')} />
-        </TouchableOpacity>
-        <IconButton
-          onPress={() => navigation.navigate('Cart')}
-          icon={() => (
-            <View>
-              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              <View
-                style={{
-                  height: 14,
-                  width: 14,
-                  borderRadius: 14,
-                  backgroundColor: COLORS.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'absolute',
-                  top: -4,
-                  right: -6,
-                }}
-              >
-                <Text style={{ ...FONTS.fontXs, fontSize: 10, color: COLORS.white }}>2</Text>
-              </View>
-            </View>
-          )}
-          size={25}
-        />
-      </View>
+      <HeaderComponent />
       <View
         style={{
           flexDirection: 'column',

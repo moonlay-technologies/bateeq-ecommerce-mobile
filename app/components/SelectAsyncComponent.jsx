@@ -11,12 +11,13 @@ function AsyncSelectComponent({
   onChange = () => {},
   customDetail,
   errors = {},
+  value = '',
   name,
   isEdit = true,
 }) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState(value);
   const [filteredOptions, setFilteredOptions] = useState(options);
 
   const handleSelect = option => {

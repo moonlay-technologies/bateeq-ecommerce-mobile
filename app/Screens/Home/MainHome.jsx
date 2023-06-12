@@ -26,7 +26,7 @@ import { ProductApi, CollectionsApi } from '../../service/shopify-api';
 import CustomHTML from '../../components/CustomHtml';
 import LoadingScreen from '../../components/LoadingView';
 import { setIsOpen } from '../../store/reducer';
-import HeaderCartComponent from '../../components/HeaderCartComponent';
+import HeaderCartComponent from '../../components/HeaderComponent';
 
 // const TopSelectionData = [
 //   {

@@ -11,9 +11,9 @@ import CustomButton from '../../../components/CustomButton';
 import Input from '../../../components/InputComponent';
 import InputTextArea from '../../../components/InputTextArea';
 
-import { CountriesApi } from '../../../service/shopify-api';
+import { CountriesApi, CustomerApi } from '../../../service/shopify-api';
 import AsyncSelectComponent from '../../../components/SelectAsyncComponent';
-import { CREATE_ADDRESS } from '../../../graphql/mutation';
+import { UPDATE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -28,13 +28,15 @@ const schema = yup.object().shape({
   postal_code: yup.string().required(),
 });
 
-function AddAddress({ navigation }) {
+function EditAddress({ navigation, route }) {
+  const { id } = route.params;
   const { customerInfo, getToken } = useSelector(state => state.user);
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [countryId, setCountryId] = useState('');
   const [provinces, setProvinces] = useState([]);
+  const [customerAddressById, setCustomerAddressById] = useState();
   const [state, setState] = useState({
     first_name: '',
     last_name: '',
@@ -47,7 +49,36 @@ function AddAddress({ navigation }) {
     city: '',
     postal_code: '',
   });
-  const [customerAddressCreate] = useMutation(CREATE_ADDRESS);
+
+  const [customerAddressUpdate] = useMutation(UPDATE_CUSTOMER_ADDRESS);
+
+  useEffect(() => {
+    const addressId = id.match(/\/(\d+)\?/)[1];
+    const customerId = customerInfo?.id.match(/\/(\d+)$/)[1];
+    const params = {
+      addressId,
+      customerId,
+    };
+    CustomerApi.getAddressByCustomerAndAddressId(params)
+      .then(result => {
+        setCustomerAddressById(result?.customer_address);
+        setState({
+          first_name: result?.customer_address?.first_name || '',
+          last_name: result?.customer_address?.last_name || '',
+          phone_number: result?.customer_address?.phone || '',
+          company: result?.customer_address?.company || '',
+          first_address: result?.customer_address?.address1 || '',
+          second_address: result?.customer_address?.address2 || '',
+          country: result?.customer_address?.country || '',
+          province: result?.customer_address?.province || '',
+          city: result?.customer_address?.city || '',
+          postal_code: result?.customer_address?.zip || '',
+        });
+      })
+      .catch(err => {
+        Toast.show({ type: 'error', text1: 'Oops!', text2: err?.message });
+      });
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -125,7 +156,7 @@ function AddAddress({ navigation }) {
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
-        const { error, data } = await customerAddressCreate({
+        const { error, data } = await customerAddressUpdate({
           variables: {
             address: {
               address1: result.first_address,
@@ -138,6 +169,7 @@ function AddAddress({ navigation }) {
               zip: result.postal_code,
             },
             customerAccessToken: getToken,
+            id,
           },
         });
 
@@ -212,14 +244,14 @@ function AddAddress({ navigation }) {
                   color: COLORS.title,
                 }}
               >
-                Add Address
+                Edit Address
               </Text>
             </View>
             <Input
               name="first_name"
               label="First Name"
               placeholder="e.g. John"
-              value={customerInfo?.first_name}
+              value={customerAddressById?.first_name}
               handleInputChange={val => handleFieldChange(val, 'first_name')}
               errors={errors}
             />
@@ -227,7 +259,7 @@ function AddAddress({ navigation }) {
               name="last_name"
               label="Last Name"
               placeholder="e.g. Doe"
-              value={customerInfo?.last_name}
+              value={customerAddressById?.last_name}
               handleInputChange={val => handleFieldChange(val, 'last_name')}
               errors={errors}
             />
@@ -236,7 +268,7 @@ function AddAddress({ navigation }) {
               label="Phone Number"
               placeholder="e.g. +628123456789"
               keyboardType="phone-pad"
-              value={customerInfo?.phone}
+              value={customerAddressById?.phone}
               handleInputChange={val => handleFieldChange(val, 'phone_number')}
               errors={errors}
             />
@@ -244,6 +276,7 @@ function AddAddress({ navigation }) {
               name="company"
               label="Company"
               placeholder="e.g. PT ABC"
+              value={customerAddressById?.company}
               handleInputChange={val => handleFieldChange(val, 'company')}
               errors={errors}
             />
@@ -252,6 +285,7 @@ function AddAddress({ navigation }) {
               label="Address 1"
               placeholder="e.g. Jl. Taman Anggrek"
               numberOfLines={4}
+              value={customerAddressById?.address1}
               handleInputChange={val => handleFieldChange(val, 'first_address')}
               errors={errors}
             />
@@ -260,6 +294,7 @@ function AddAddress({ navigation }) {
               label="Address 2"
               placeholder="e.g. Jl. Taman Anggrek"
               numberOfLines={4}
+              value={customerAddressById?.address2}
               handleInputChange={val => handleFieldChange(val, 'second_address')}
               errors={errors}
             />
@@ -268,6 +303,7 @@ function AddAddress({ navigation }) {
                 name="country"
                 label="Country"
                 options={countries}
+                value={{ label: customerAddressById?.country }}
                 onChange={val => handleChangeCountry(val, 'country')}
                 onSelect={val => handleFieldChange(val, 'country')}
                 errors={errors}
@@ -278,6 +314,7 @@ function AddAddress({ navigation }) {
                 name="province"
                 label="Province"
                 options={provinces}
+                value={customerAddressById?.province}
                 onSelect={val => handleFieldChange(val, 'province')}
                 errors={errors}
               />
@@ -286,6 +323,7 @@ function AddAddress({ navigation }) {
               name="city"
               label="City"
               placeholder="e.g. Jakarta Selatan"
+              value={customerAddressById?.city}
               handleInputChange={val => handleFieldChange(val, 'city')}
               errors={errors}
             />
@@ -294,6 +332,7 @@ function AddAddress({ navigation }) {
               label="Postal Code"
               placeholder="e.g. 12190"
               keyboardType="number-pad"
+              value={customerAddressById?.zip}
               handleInputChange={val => handleFieldChange(val, 'postal_code')}
               errors={errors}
             />
@@ -312,4 +351,4 @@ function AddAddress({ navigation }) {
   );
 }
 
-export default AddAddress;
+export default EditAddress;
