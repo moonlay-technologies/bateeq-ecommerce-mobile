@@ -15,6 +15,7 @@ import LoadingComponent from '../../../components/LoadingView';
 import { setAddress } from '../../../store/reducer';
 import { CUSTOMER_DEFAULT_ADDRESS_UPDATE, REMOVE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
 import HeaderComponent from '../../../components/HeaderComponent';
+import Button from '../../../components/ButtonComponent';
 
 function Address() {
   const navigation = useNavigation();
@@ -204,51 +205,23 @@ function Address() {
               paddingHorizontal: 85,
             }}
           >
-            <TouchableOpacity
-              onPress={() => navigation.navigate('AddDeliveryAddress')}
-              style={{
-                flex: 1,
-                padding: 12,
-                marginVertical: 12,
-                alignItems: 'center',
-                borderWidth: 1,
-                borderColor: COLORS.title,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  width: '80%',
-                }}
-              >
-                <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>Add Address</Text>
-                <OcticonsIcon color={COLORS.title} size={18} name="plus" />
-              </View>
-            </TouchableOpacity>
-            <TouchableOpacity
+            <Button
+              onPress={() => navigation.navigate('AddAddress')}
+              title="Add Address"
+              size="xxl"
+              style={{ backgroundColor: COLORS.white, borderColor: COLORS.title, borderWidth: 1, marginBottom: 20 }}
+              textStyle={{ color: COLORS.title }}
+              iconColor={COLORS.title}
+              icon={OcticonsIcon}
+              iconName="plus"
+            />
+            <Button
               onPress={onSubmit}
-              style={{
-                flex: 1,
-                padding: 12,
-                alignItems: 'center',
-                borderWidth: 1,
-                backgroundColor: '#333333',
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  width: '80%',
-                }}
-              >
-                <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.white }}>
-                  {isLoading ? 'Saving ...' : 'Select Address'}
-                </Text>
-                <OcticonsIcon color={COLORS.white} size={18} name="check" />
-              </View>
-            </TouchableOpacity>
+              title={isLoading ? 'Saving ...' : 'Select Address'}
+              size="xxl"
+              icon={OcticonsIcon}
+              iconName="check"
+            />
           </View>
         </View>
       </ScrollView>
@@ -259,9 +232,6 @@ function Address() {
 export default Address;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
   card: {
     backgroundColor: '#fff',
     borderRadius: 8,

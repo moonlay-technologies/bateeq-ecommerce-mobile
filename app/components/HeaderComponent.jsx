@@ -30,11 +30,11 @@ function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo }) {
     navigation.navigate('Home');
   };
 
-  const leftIcon = (i, text) => {
+  const leftIcon = (i, title) => {
     if (i === 'back') {
-      return <FeatherIcon color={COLORS.title} size={18} name="arrow-left" />;
-      // <MaterialIcons name="keyboard-backspace" leftIcon="back" title="Back" />;
+      return <MaterialIcons name="keyboard-backspace" leftIcon="back" title="Back" color="#4E4E4E" size={24} />;
     }
+
     return (
       <View
         style={{
@@ -77,7 +77,7 @@ function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo }) {
   return (
     <View
       style={{
-        ...(title ? '' : { justifyContent: 'space-between' }),
+        ...(title ? { marginLeft: -5, marginTop: 5 } : { justifyContent: 'space-between' }),
         flexDirection: 'row',
         alignItems: 'center',
         height: 45,
@@ -88,7 +88,20 @@ function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo }) {
         size={25}
         onPress={() => (backAction ? navigation.goBack() : navigation.openDrawer())}
       />
-      {title && <Text style={{ fontSize: 20, color: 'black', fontweight: '700' }}>{title}</Text>}
+      {title && (
+        <Text
+          style={{
+            ...FONTS.fontSatoshiBold,
+            color: COLORS.title,
+            fontSize: 17,
+            ...FONTS.h6,
+            top: 1,
+            textAlign: 'left',
+          }}
+        >
+          {title}
+        </Text>
+      )}
       {!withoutCartAndLogo && (
         <>
           <TouchableOpacity onPress={handlePress}>

@@ -45,7 +45,7 @@ function AsyncSelectComponent({
       </Text>
       <View style={styles.inputContainer}>
         <TextInput
-          style={isEdit ? styles.select : { ...styles.select, backgroundColor: '#aeaeae' }}
+          style={isEdit ? styles.select : { ...styles.select, backgroundColor: COLORS.dark }}
           placeholder={placeholder ?? label}
           onChangeText={handleInputChange}
           onTouchStart={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -120,9 +120,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.title,
   },
-  selectText: {
-    color: COLORS.text,
-  },
   optionsContainer: {
     marginTop: 5,
     backgroundColor: COLORS.input,
@@ -153,6 +150,6 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   error: {
-    color: 'red',
+    color: COLORS.danger,
   },
 });

@@ -42,6 +42,6 @@ export default Input;
 
 const styles = StyleSheet.create({
   error: {
-    color: 'red',
+    color: COLORS.danger,
   },
 });

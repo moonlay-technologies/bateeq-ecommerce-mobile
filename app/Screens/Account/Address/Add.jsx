@@ -4,16 +4,17 @@ import * as yup from 'yup';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { useMutation } from '@apollo/client';
 import { useSelector } from 'react-redux';
+import { CREATE_ADDRESS } from '../../../graphql/mutation';
+import { CountriesApi } from '../../../service/shopify-api';
+
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
-import Header from '../../../layout/Header';
-import CustomButton from '../../../components/CustomButton';
-import Input from '../../../components/InputComponent';
-import InputTextArea from '../../../components/InputTextArea';
 
-import { CountriesApi } from '../../../service/shopify-api';
 import AsyncSelectComponent from '../../../components/SelectAsyncComponent';
-import { CREATE_ADDRESS } from '../../../graphql/mutation';
+import HeaderComponent from '../../../components/HeaderComponent';
+import InputTextArea from '../../../components/InputTextArea';
+import Button from '../../../components/ButtonComponent';
+import Input from '../../../components/InputComponent';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -193,8 +194,8 @@ function AddAddress({ navigation }) {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      <View style={{ paddingHorizontal: 20 }}>
-        <Header titleLeft leftIcon="back" title="Back" />
+      <View style={{ paddingHorizontal: 10 }}>
+        <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
       </View>
       <View style={{ flex: 1 }}>
         <ScrollView>
@@ -301,11 +302,11 @@ function AddAddress({ navigation }) {
         </ScrollView>
       </View>
       <View style={[GlobalStyleSheet.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <CustomButton
+        <Button
           onPress={handleSubmit}
-          title={isLoading ? 'Saving ...' : 'Save Address'}
+          size="xxl"
+          title={isLoading ? 'Loading ...' : 'Save Address'}
           disabled={isLoading}
-          customWidth={200}
         />
       </View>
     </SafeAreaView>

@@ -1,12 +1,11 @@
 import React from 'react';
 import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
-import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 
 function Button(props) {
   const {
     onPress,
-    style,
+    style = {},
     color,
     textStyle,
     title,
@@ -14,11 +13,13 @@ function Button(props) {
     icon: Icon,
     iconName = '',
     iconSize = 18,
+    iconColor = '',
     iconStyles = {
+      flexDirection: 'row',
+      marginLeft: 30,
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 4,
-      marginLeft: 20,
     },
     disabled = false,
   } = props;
@@ -56,7 +57,11 @@ function Button(props) {
       >
         {title}
       </Text>
-      {Icon && <Icon name={iconName} size={iconSize} color={COLORS.white} styles={iconStyles} />}
+      {Icon && (
+        <View style={iconStyles}>
+          <Icon name={iconName} size={iconSize} color={iconColor || COLORS.white} />
+        </View>
+      )}
     </TouchableOpacity>
   );
 }

@@ -1,5 +1,6 @@
-import {Dimensions} from 'react-native';
-const {width, height} = Dimensions.get('screen');
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('screen');
 
 export const COLORS = {
   primary: '#FE4487',
@@ -26,16 +27,16 @@ export const SIZES = {
   fontSm: 13,
   fontXs: 12,
 
-  //radius
+  // radius
   radius_sm: 8,
   radius: 12,
   radius_md: 18,
 
-  //space
+  // space
   padding: 15,
   margin: 15,
 
-  //Font Sizes
+  // Font Sizes
   h1: 40,
   h2: 28,
   h3: 24,
@@ -43,7 +44,7 @@ export const SIZES = {
   h5: 18,
   h6: 16,
 
-  //App dimensions
+  // App dimensions
   width,
   height,
 };
@@ -73,17 +74,17 @@ export const FONTS = {
     lineHeight: 14,
     fontFamily: 'OpenSans-Regular',
   },
-  h1: {fontSize: SIZES.h1, color: COLORS.title, fontFamily: 'Poppins-SemiBold'},
-  h2: {fontSize: SIZES.h2, color: COLORS.title, fontFamily: 'Poppins-SemiBold'},
-  h3: {fontSize: SIZES.h3, color: COLORS.title, fontFamily: 'Poppins-SemiBold'},
-  h4: {fontSize: SIZES.h4, color: COLORS.title, fontFamily: 'Poppins-SemiBold'},
-  h5: {fontSize: SIZES.h5, color: COLORS.title, fontFamily: 'Poppins-SemiBold'},
-  h6: {fontSize: SIZES.h6, color: COLORS.title, fontFamily: 'Poppins-SemiBold'},
-  fontBold: {fontFamily: 'OpenSans-SemiBold'},
-  fontMedium: {fontFamily: 'OpenSans-Medium'},
-  fontSatoshiLight: {fontFamily: 'Satoshi-Light'},
-  fontSatoshiBold: {fontFamily: 'Satoshi-Bold'},
-  fontSatoshiRegular: {fontFamily: 'Satoshi-Regular'},
+  h1: { fontSize: SIZES.h1, color: COLORS.title, fontFamily: 'Poppins-SemiBold' },
+  h2: { fontSize: SIZES.h2, color: COLORS.title, fontFamily: 'Poppins-SemiBold' },
+  h3: { fontSize: SIZES.h3, color: COLORS.title, fontFamily: 'Poppins-SemiBold' },
+  h4: { fontSize: SIZES.h4, color: COLORS.title, fontFamily: 'Poppins-SemiBold' },
+  h5: { fontSize: SIZES.h5, color: COLORS.title, fontFamily: 'Poppins-SemiBold' },
+  h6: { fontSize: SIZES.h6, color: COLORS.title, fontFamily: 'Poppins-SemiBold' },
+  fontBold: { fontFamily: 'OpenSans-SemiBold' },
+  fontMedium: { fontFamily: 'OpenSans-Medium' },
+  fontSatoshiLight: { fontFamily: 'Satoshi-Light' },
+  fontSatoshiBold: { fontFamily: 'Satoshi-Bold' },
+  fontSatoshiRegular: { fontFamily: 'Satoshi-Regular' },
 };
 
 export const IMAGES = {
@@ -107,6 +108,6 @@ export const ICONS = {
   email: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
 };
 
-const appTheme = {COLORS, SIZES, FONTS, IMAGES};
+const appTheme = { COLORS, SIZES, FONTS, IMAGES };
 
 export default appTheme;

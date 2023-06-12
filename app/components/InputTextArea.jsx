@@ -42,11 +42,11 @@ export default Input;
 
 const styles = StyleSheet.create({
   error: {
-    color: 'red',
+    color: COLORS.danger,
   },
   textArea: {
     height: 100,
-    borderColor: 'gray',
+    borderColor: COLORS.title,
     borderWidth: 1,
     padding: 10,
   },
