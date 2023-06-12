@@ -9,14 +9,15 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import { IconButton } from 'react-native-paper';
-import FeatherIcon from 'react-native-vector-icons/Feather';
+// import { IconButton } from 'react-native-paper';
+// import FeatherIcon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLORS, FONTS } from '../../constants/theme';
 import LoadingScreen from '../../components/LoadingView';
 import { useLazyQuery } from '@apollo/client';
 import { SEARCH_PRODUCTS_QUERY } from '../../service/graphql/query/search';
 import HeaderCartComponent from '../../components/HeaderCartComponent';
+import ProductItem from '../../components/ProductItem';
 
 const Search = ({ navigation }) => {
   const [valSearch, setValSearch] = useState('');
