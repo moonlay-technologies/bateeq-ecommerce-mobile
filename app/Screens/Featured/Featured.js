@@ -10,47 +10,37 @@ import pic3 from '../../assets/images/featured/pic3.png';
 import pic4 from '../../assets/images/featured/pic4.png';
 
 const FeaturedData = [
-    {
-        image : pic1,
-        title : "Cassual",
-    },
-    {
-        image : pic2,
-        title : "Boyfriend",
-    },
-    {
-        image : pic3,
-        title : "Trendy",
-    },
-    {
-        image : pic4,
-        title : "Stylish",
-    },
-]
+  {
+    image: pic1,
+    title: 'Cassual',
+  },
+  {
+    image: pic2,
+    title: 'Boyfriend',
+  },
+  {
+    image: pic3,
+    title: 'Trendy',
+  },
+  {
+    image: pic4,
+    title: 'Stylish',
+  },
+];
 
-const Featured = () => {
-    return (
-        <SafeAreaView style={{flex:1,backgroundColor:COLORS.backgroundColor}}>
-            <Header
-                leftIcon={'back'}
-                title={'Featured'}
-                rightIcon={'more'}
-            />
-            <ScrollView>
-                <View style={GlobalStyleSheet.container}>
-                    {FeaturedData.map((data,index) => {
-                        return(
-                            <FeaturedCard
-                                key={index}
-                                image={data.image}
-                                title={data.title}
-                            />
-                        )
-                    })}
-                </View>
-            </ScrollView>
-        </SafeAreaView>
-    );
-};
+function Featured() {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
+      <Header leftIcon="back" title="Featured" rightIcon="more" />
+      <ScrollView>
+        <View style={GlobalStyleSheet.container}>
+          {FeaturedData.map((data, index) => {
+            return <FeaturedCard key={index} image={data.image} title={data.title} />;
+          })}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
 
 export default Featured;

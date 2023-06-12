@@ -6,13 +6,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 
 const CustomDrawer = ({navigation}) => {
-  const dataAccount = useSelector(state => state.customer.customerData);
+  const {customerInfo} = useSelector(state => state?.user);
 
   const navItem = [
     {
       icon: 'home',
       name: 'Home',
-      navigate: 'DrawerNavigation',
+      navigate: 'Home',
     },
     {
       icon: 'heart',
@@ -70,11 +70,11 @@ const CustomDrawer = ({navigation}) => {
                 color: COLORS.title,
                 top: 2,
               }}>
-              {dataAccount?.firstName} {dataAccount?.lastName}
+              {customerInfo?.firstName || customerInfo?.first_name} {customerInfo?.lastName || customerInfo?.last_name}
             </Text>
             <Text
               style={{...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)'}}>
-              {dataAccount?.email}
+              {customerInfo?.email}
             </Text>
           </View>
         </View>
@@ -85,6 +85,7 @@ const CustomDrawer = ({navigation}) => {
               <TouchableOpacity
                 onPress={async () => {
                   if (
+                    data.navigate == 'Home' ||
                     data.navigate == 'Cart' ||
                     data.navigate == 'Account' ||
                     data.navigate == 'Favourite' ||

@@ -1,14 +1,6 @@
-import React, {useRef, useState, useEffect} from 'react';
-import {
-  SafeAreaView,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  View,
-  FlatList,
-} from 'react-native';
-import {COLORS, FONTS} from '../../constants/theme';
+import React, { useRef, useState, useEffect } from 'react';
+import { SafeAreaView, TextInput, TouchableOpacity, StyleSheet, Text, View, FlatList } from 'react-native';
+import { COLORS, FONTS } from '../../constants/theme';
 import Header from '../../layout/Header';
 import ProductItem from '../../components/ProductItem';
 import pic1 from '../../assets/images/product/pic1.jpg';
@@ -19,7 +11,7 @@ import pic5 from '../../assets/images/product/pic5.jpg';
 import pic6 from '../../assets/images/product/pic6.jpg';
 import pic7 from '../../assets/images/product/pic7.jpg';
 import pic8 from '../../assets/images/product/pic8.jpg';
-import {Snackbar} from 'react-native-paper';
+import { Snackbar } from 'react-native-paper';
 import MobilesData from '../../JSON/Mobiles.json';
 import ElectronicsData from '../../JSON/Electronics.json';
 import FashionData from '../../JSON/Fashion.json';
@@ -27,10 +19,10 @@ import FurnitureData from '../../JSON/Furniture.json';
 import GroceryData from '../../JSON/Grocery.json';
 import AppliancesData from '../../JSON/Appliances.json';
 import BooksToysData from '../../JSON/BooksToys.json';
-import {useQuery, useLazyQuery} from '@apollo/client';
+import { useQuery, useLazyQuery } from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
-import {GET_LIST_PRODUCTS_CATEGORIES} from '../../service/graphql/query/products';
+import { GET_LIST_PRODUCTS_CATEGORIES } from '../../service/graphql/query/products';
 
 const ProductData = [
   {
@@ -170,8 +162,8 @@ const ProductData = [
 //   },
 // ];
 
-const Items = ({navigation, route}) => {
-  const {type, query, categories, colletionTitle} = route.params;
+const Items = ({ navigation, route }) => {
+  const { type, query, categories, colletionTitle } = route.params;
   const [itemView, setItemView] = useState('grid');
   const [dataCategories, setDataCategories] = useState([]);
   const [isSnackbar, setIsSnackbar] = useState(false);
@@ -212,15 +204,12 @@ const Items = ({navigation, route}) => {
     },
   });
 
-  const [filterSearch, {loading: loadingSearch}] = useLazyQuery(
-    GET_LIST_PRODUCTS_CATEGORIES,
-    {
-      onCompleted: ({products}) => {
-        const results = products?.edges || [];
-        setDataCategories(results);
-      },
+  const [filterSearch, { loading: loadingSearch }] = useLazyQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+    onCompleted: ({ products }) => {
+      const results = products?.edges || [];
+      setDataCategories(results);
     },
-  );
+  });
 
   const handleSearchButton = () => {
     filterSearch({
@@ -289,7 +278,7 @@ const Items = ({navigation, route}) => {
   };
 
   const handleItemLike = val => {
-    let items = itemData.map(data => {
+    const items = itemData.map(data => {
       if (val === data.id) {
         if (data.isLike) {
           setSnackText('Item removed to Favourite.');
@@ -297,7 +286,7 @@ const Items = ({navigation, route}) => {
           setSnackText('Item add to Favourite.');
         }
         setIsSnackbar(true);
-        return {...data, isLike: !data.isLike};
+        return { ...data, isLike: !data.isLike };
       }
       return data;
     });
@@ -314,15 +303,12 @@ const Items = ({navigation, route}) => {
             query: query,
             after: data.products.pageInfo.endCursor,
           },
-          updateQuery: (prev, {fetchMoreResult}) => {
+          updateQuery: (prev, { fetchMoreResult }) => {
             if (!fetchMoreResult) return prev;
             return {
               products: {
                 ...fetchMoreResult.products,
-                edges: [
-                  ...prev?.products?.edges,
-                  ...fetchMoreResult.products.edges,
-                ],
+                edges: [...prev?.products?.edges, ...fetchMoreResult.products.edges],
               },
             };
           },
@@ -336,20 +322,13 @@ const Items = ({navigation, route}) => {
     }
   };
 
-  const renderItem = ({item}) => (
-    <View style={{width: '50%', paddingHorizontal: 5}}>
+  const renderItem = ({ item }) => (
+    <View style={{ width: '50%', paddingHorizontal: 5 }}>
+      {console.log('checkItem', item.node.id)}
       <ProductItem
         onPress={() =>
           navigation.navigate('ProductDetail', {
-            item: {
-              title: item.node.title,
-              images: item.node.images.edges,
-              oldPrice:
-                item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount,
-              price: item.node.variants.edges[0].node.price.amount,
-              desc: item.node.descriptionHtml,
-              variant: item.node.variants.edges,
-            },
+            id: item.node.id,
             // category: type,
           })
         }
@@ -374,23 +353,16 @@ const Items = ({navigation, route}) => {
         style={{
           flex: 1,
           backgroundColor: COLORS.backgroundColor,
-        }}>
-        <View style={{paddingHorizontal: 20}}>
+        }}
+      >
+        <View style={{ paddingHorizontal: 20 }}>
           <Header
             titleLeft
             leftIcon={'back'}
-            title={
-              categories
-                ? query
-                : colletionTitle
-                ? colletionTitle
-                : query === ''
-                ? 'All Product'
-                : query
-            }
+            title={categories ? query : colletionTitle ? colletionTitle : query === '' ? 'All Product' : query}
           />
         </View>
-        <View style={{height: '100%'}}>
+        <View style={{ height: '100%' }}>
           {/* <FilterPopover onApplyFilters={handleApplyFilters}/> */}
           <TouchableOpacity
             style={{
@@ -403,7 +375,8 @@ const Items = ({navigation, route}) => {
               marginBottom: 10,
               marginHorizontal: 17,
             }}
-            onPress={handleFilterButtonClick}>
+            onPress={handleFilterButtonClick}
+          >
             <Text
               style={{
                 textAlign: 'center',
@@ -411,15 +384,11 @@ const Items = ({navigation, route}) => {
                 marginVertical: 3,
                 color: 'black',
                 ...FONTS.font,
-              }}>
+              }}
+            >
               Filter
             </Text>
-            <AntDesignIcon
-              color={'#374957'}
-              size={20}
-              name="filter"
-              style={{textAlign: 'center', marginVertical: 3}}
-            />
+            <AntDesignIcon color="#374957" size={20} name="filter" style={{ textAlign: 'center', marginVertical: 3 }} />
           </TouchableOpacity>
           {showInput && (
             <View>
@@ -433,7 +402,7 @@ const Items = ({navigation, route}) => {
                   color: 'black',
                 }}
                 placeholder="Search"
-                autoFocus={true}
+                autoFocus
                 value={valSearch}
                 onChangeText={handleValChange}
               />
@@ -442,7 +411,8 @@ const Items = ({navigation, route}) => {
                   justifyContent: 'center',
                   alignItems: 'center',
                   marginBottom: 8,
-                }}></View>
+                }}
+              ></View>
             </View>
           )}
           {loadingSearch || loadingGetProducts ? (
@@ -451,7 +421,8 @@ const Items = ({navigation, route}) => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: '70%',
-              }}>
+              }}
+            >
               <LoadingScreen />
             </View>
           ) : dataCategories.length === 0 ? (
@@ -460,10 +431,9 @@ const Items = ({navigation, route}) => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: '70%',
-              }}>
-              <Text style={{color: 'black', fontSize: 16, fontWeight: 'bold'}}>
-                Product Not Found
-              </Text>
+              }}
+            >
+              <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold' }}>Product Not Found</Text>
             </View>
           ) : (
             <FlatList
@@ -483,7 +453,7 @@ const Items = ({navigation, route}) => {
               showsVerticalScrollIndicator={false}
               ListFooterComponent={
                 isLoadingMore && (
-                  <View style={{marginBottom: 90}}>
+                  <View style={{ marginBottom: 90 }}>
                     <LoadingScreen Loading2 />
                   </View>
                 )
@@ -501,7 +471,8 @@ const Items = ({navigation, route}) => {
             onPress: () => {
               navigation.navigate('Wishlist');
             },
-          }}>
+          }}
+        >
           {snackText}
         </Snackbar>
       </SafeAreaView>

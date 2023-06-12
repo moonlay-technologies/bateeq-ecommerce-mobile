@@ -1,34 +1,27 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {
-  Image,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import {useIsFocused} from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import HeaderBateeq from '../../components/Headers/HeaderBateeq';
-import {GlobalStyleSheet} from '../../constants/StyleSheet';
-import {COLORS, FONTS, IMAGES} from '../../constants/theme';
+import { gql, useQuery } from '@apollo/client';
+import HeaderBateeq from '../../components/HeaderBateeq';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import { COLORS, FONTS, IMAGES } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
 import UnitedStates from '../../assets/images/flags/UnitedStates.png';
 import german from '../../assets/images/flags/german.png';
 import italian from '../../assets/images/flags/italian.png';
 import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
-import {gql, useQuery} from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
-import {GET_DETAIL_ACCOUNT} from '../../service/graphql/query/profile/profile';
-import {GET_PAGE_STORY} from '../../service/graphql/query/main-home';
-import {gqlError} from '../../utils/error-handling';
-import {Toast} from 'react-native-toast-message/lib/src/Toast';
-import {useDispatch, useSelector} from 'react-redux';
-import {setCustomerData} from '../../stores/reducers/customerReducer';
+import { GET_DETAIL_ACCOUNT } from '../../service/graphql/query/profile/profile';
+import { GET_PAGE_STORY } from '../../service/graphql/query/main-home';
+import { gqlError } from '../../utils/error-handling';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCustomerInfo } from '../../store/reducer';
+import HeaderCartComponent from '../../components/HeaderCartComponent';
 
 const languagetData = [
   {
@@ -53,41 +46,27 @@ const languagetData = [
   },
 ];
 
-const Profile = ({navigation}) => {
+const Profile = ({ navigation }) => {
   // const [dataAccount, setDataAccount] = useState(null);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
-  const [accessToken, setAccessToken] = useState('');
-  const [dataFaq, setDataFaq] = useState(null);
   const dispatch = useDispatch();
-  const dataAccount = useSelector(state => state.customer.customerData);
-
-  useEffect(() => {
-    const getAccessToken = async () => {
-      try {
-        const token = await AsyncStorage.getItem('accessToken');
-        if (token !== null) {
-          setAccessToken(token);
-        }
-      } catch (error) {
-        onError(error);
-      }
-    };
-
-    getAccessToken();
-  }, []);
+  const [dataFaq, setDataFaq] = useState(null);
+  const { customerInfo, getToken } = useSelector(state => state.user);
+  console.log('customerInfor', customerInfo);
 
   const onError = err => {
-    gqlError({error: err, Toast});
+    gqlError({ error: err, Toast });
   };
 
-  const {loading: loadingFAQ} = useQuery(GET_PAGE_STORY, {
+  const { loading: loadingFAQ } = useQuery(GET_PAGE_STORY, {
     fetchPolicy: 'no-cache',
     variables: {
       handle: 'f-a-q',
     },
-    onCompleted: ({page}) => {
+    onCompleted: ({ page }) => {
+      console.log('page', page);
       if (page) {
         setDataFaq(page);
       }
@@ -97,14 +76,14 @@ const Profile = ({navigation}) => {
     },
   });
 
-  const {loading} = useQuery(GET_DETAIL_ACCOUNT, {
+  const { loading } = useQuery(GET_DETAIL_ACCOUNT, {
     fetchPolicy: 'no-cache',
     variables: {
-      customerAccessToken: accessToken,
+      customerAccessToken: getToken,
     },
-    onCompleted: ({customer}) => {
+    onCompleted: ({ customer }) => {
       if (customer) {
-        dispatch(setCustomerData(customer));
+        dispatch(setCustomerInfo(customer));
       }
     },
     onError: err => {
@@ -125,7 +104,7 @@ const Profile = ({navigation}) => {
     <>
       <RBSheet
         ref={RBSheetLanguage}
-        closeOnDragDown={true}
+        closeOnDragDown
         height={400}
         openDuration={300}
         customStyles={{
@@ -137,7 +116,8 @@ const Profile = ({navigation}) => {
             borderTopLeftRadius: 15,
             borderTopRightRadius: 15,
           },
-        }}>
+        }}
+      >
         <View
           style={{
             alignItems: 'center',
@@ -145,11 +125,11 @@ const Profile = ({navigation}) => {
             borderColor: COLORS.borderColor,
             paddingBottom: 8,
             paddingTop: 4,
-          }}>
-          <Text style={{...FONTS.h5, color: COLORS.title}}>Language</Text>
+          }}
+        >
+          <Text style={{ ...FONTS.h5, color: COLORS.title }}>Language</Text>
         </View>
-        <ScrollView
-          contentContainerStyle={{paddingBottom: 20, paddingHorizontal: 15}}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: 15 }}>
           {languagetData.map((data, index) => (
             <TouchableOpacity
               onPress={() => RBSheetLanguage.current.close()}
@@ -160,7 +140,8 @@ const Profile = ({navigation}) => {
                 borderColor: COLORS.borderColor,
                 flexDirection: 'row',
                 alignItems: 'center',
-              }}>
+              }}
+            >
               <Image
                 style={{
                   height: 20,
@@ -169,9 +150,7 @@ const Profile = ({navigation}) => {
                 }}
                 source={data.flag}
               />
-              <Text style={{...FONTS.fontLg, color: COLORS.title, flex: 1}}>
-                {data.name}
-              </Text>
+              <Text style={{ ...FONTS.fontLg, color: COLORS.title, flex: 1 }}>{customerInfo?.name}</Text>
               <FeatherIcon name="chevron-right" color={COLORS.text} size={24} />
             </TouchableOpacity>
           ))}
@@ -182,8 +161,9 @@ const Profile = ({navigation}) => {
         style={{
           flex: 1,
           backgroundColor: COLORS.backgroundColor,
-        }}>
-        <HeaderBateeq />
+        }}
+      >
+        <HeaderCartComponent />
         <ScrollView>
           <Text
             style={{
@@ -192,19 +172,21 @@ const Profile = ({navigation}) => {
               fontSize: 24,
               paddingHorizontal: 20,
               paddingVertical: 10,
-            }}>
+            }}
+          >
             Account Details
           </Text>
           <View style={GlobalStyleSheet.container}>
             {loading ? (
-              <LoadingScreen Loading2 />
+              <LoadingScreen type="circle" />
             ) : (
               <View
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
                   marginBottom: 20,
-                }}>
+                }}
+              >
                 <Image
                   style={{
                     height: 80,
@@ -218,21 +200,18 @@ const Profile = ({navigation}) => {
                   style={{
                     flex: 1,
                     marginTop: 20,
-                  }}>
-                  <Text style={{...FONTS.h6, color: COLORS.title}}>
-                    {dataAccount?.firstName || ''} {dataAccount?.lastName || ''}
+                  }}
+                >
+                  <Text style={{ ...FONTS.h6, color: COLORS.title }}>
+                    {customerInfo?.firstName || customerInfo?.first_name || ''} {customerInfo?.lastName || customerInfo?.last_name || ''}
                   </Text>
-                  <Text style={{...FONTS.font, color: COLORS.title}}>
-                    {dataAccount?.email}
-                  </Text>
-                  <Text style={{...FONTS.font, color: COLORS.title}}>
-                    {dataAccount?.phone || ''}
-                  </Text>
+                  <Text style={{ ...FONTS.font, color: COLORS.title }}>{customerInfo?.email}</Text>
+                  <Text style={{ ...FONTS.font, color: COLORS.title }}>{customerInfo?.phone || ''}</Text>
                 </View>
               </View>
             )}
           </View>
-          <View style={{...GlobalStyleSheet.container, marginTop: -20}}>
+          <View style={{ ...GlobalStyleSheet.container, marginTop: -20 }}>
             <View>
               <TouchableOpacity
                 onPress={() => navigation.navigate('EditProfile')}
@@ -242,71 +221,63 @@ const Profile = ({navigation}) => {
                   paddingVertical: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   Account Details
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() =>
-                  navigation.navigate('Address', {accessToken: accessToken})
-                }
+                onPress={() => navigation.navigate('Address', { accessToken: getToken })}
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
                   paddingVertical: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   Address List
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
                   paddingVertical: 20,
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
-                }}>
+                }}
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   App Setting
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
-              </TouchableOpacity>
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
+              </TouchableOpacity> */}
               <TouchableOpacity
                 style={{
                   flexDirection: 'row',
@@ -317,36 +288,36 @@ const Profile = ({navigation}) => {
                   borderBottomColor: '#FAFAFA',
                 }}
                 onPress={() =>
-                  navigation.navigate('AllPages', {
+                  navigation.navigate('ContactUs', {
                     dataPages: dataFaq,
-                    loadingFAQ,
+                    title: 'FAQ',
+                    loading: loadingFAQ,
                   })
-                }>
+                }
+              >
                 <Text
                   style={{
                     ...FONTS.fontSatoshiBold,
                     fontSize: 20,
                     color: COLORS.title,
                     flex: 1,
-                  }}>
+                  }}
+                >
                   FAQ & Help
                 </Text>
-                <FeatherIcon
-                  size={20}
-                  color={COLORS.title}
-                  name="chevron-right"
-                />
+                <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <CustomButton
-                arrowIcon={true}
+                arrowIcon
                 title="Log Out"
-                color={'#FF3544'}
+                color="#FF3544"
                 onPress={async () => {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
+                  dispatch(setCartId(''));
                   navigation.navigate('SignIn');
                 }}
-                logout={true}
+                logout
               />
             </View>
           </View>

@@ -4,8 +4,8 @@ import {COLORS, FONTS} from '../../constants/theme';
 import Header from '../../layout/Header';
 import CustomHTML from '../../components/CustomHtml';
 
-const PageOurStory = ({route}) => {
-  const {pageStory} = route.params;
+const Pages = ({route}) => {
+  const {dataPages} = route.params;
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
@@ -14,9 +14,9 @@ const PageOurStory = ({route}) => {
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
             <Text
               style={{fontSize: 20, color: COLORS.title, ...FONTS.fontBold}}>
-              {pageStory?.title}
+              {dataPages?.title}
             </Text>
-            <CustomHTML htmlContent={pageStory?.body} />
+            <CustomHTML htmlContent={dataPages?.body} />
           </View>
         </ScrollView>
       </SafeAreaView>
@@ -24,4 +24,4 @@ const PageOurStory = ({route}) => {
   );
 };
 
-export default PageOurStory;
+export default Pages;

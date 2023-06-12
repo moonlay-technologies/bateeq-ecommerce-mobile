@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   Text,
@@ -6,19 +6,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {Formik} from 'formik';
+import { Formik } from 'formik';
 import Toast from 'react-native-toast-message';
-import HeaderBateeq from '../../components/Headers/HeaderBateeq';
-import CustomButton from '../../components/CustomButton';
-import {GlobalStyleSheet} from '../../constants/StyleSheet';
-import {COLORS, FONTS} from '../../constants/theme';
 import CheckBox from '@react-native-community/checkbox';
-import {AuthenApi} from '../../service/shopify-login';
+import HeaderBateeq from '../../components/HeaderBateeq';
+import CustomButton from '../../components/CustomButton';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import { COLORS, FONTS } from '../../constants/theme';
+import { AuthenApi } from '../../service/shopify-login';
 import LoadingScreen from '../../components/LoadingView';
 import * as Yup from 'yup';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
-const SignUp = props => {
+function SignUp(props) {
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [isFocused3, setisFocused3] = useState(false);
@@ -98,7 +98,7 @@ const SignUp = props => {
   };
 
   return (
-    <ScrollView contentContainerStyle={{flexGrow: 1}}>
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
       <View
         style={{
           ...GlobalStyleSheet.container,
@@ -114,7 +114,8 @@ const SignUp = props => {
               fontSize: 24,
               color: COLORS.title,
               marginBottom: 16,
-            }}>
+            }}
+          >
             Register
           </Text>
           <Text style={{...FONTS.font}}>
@@ -175,9 +176,7 @@ const SignUp = props => {
                 />
                 {touched.customer?.first_name &&
                   errors.customer?.first_name && (
-                    <Text style={GlobalStyleSheet.errorMessage}>
-                      {errors.customer?.first_name}
-                    </Text>
+                    <Text style={GlobalStyleSheet.errorMessage}>{errors.customer?.first_name}</Text>
                   )}
               </View>
               <View style={GlobalStyleSheet.inputGroup}>
@@ -248,7 +247,8 @@ const SignUp = props => {
                     fontSize: 14,
                     color: COLORS.title,
                     marginBottom: 8,
-                  }}>
+                  }}
+                >
                   Phone Number*
                 </Text>
                 <TextInput
@@ -280,7 +280,8 @@ const SignUp = props => {
                     fontSize: 14,
                     color: COLORS.title,
                     marginBottom: 8,
-                  }}>
+                  }}
+                >
                   Password*
                 </Text>
                 <View>
@@ -327,9 +328,7 @@ const SignUp = props => {
                     placeholderTextColor={COLORS.label}
                   />
                   {touched.customer?.password && errors?.customer?.password && (
-                    <Text style={GlobalStyleSheet.errorMessage}>
-                      {errors.customer?.password}
-                    </Text>
+                    <Text style={GlobalStyleSheet.errorMessage}>{errors.customer?.password}</Text>
                   )}
                 </View>
               </View>
@@ -340,7 +339,8 @@ const SignUp = props => {
                     fontSize: 14,
                     color: COLORS.title,
                     marginBottom: 8,
-                  }}>
+                  }}
+                >
                   Confirm Password*
                 </Text>
                 <View>
@@ -376,9 +376,7 @@ const SignUp = props => {
                       {...FONTS.font, color: COLORS.title},
                     ]}
                     value={values.customer.password_confirmation}
-                    onChangeText={handleChange(
-                      'customer.password_confirmation',
-                    )}
+                    onChangeText={handleChange('customer.password_confirmation')}
                     onFocus={() => setisFocused3(true)}
                     onBlur={() => {
                       handleBlur('customer.password_confirmation');
@@ -389,14 +387,12 @@ const SignUp = props => {
                   />
                   {touched.customer?.password_confirmation &&
                     errors.customer?.password_confirmation && (
-                      <Text style={GlobalStyleSheet.errorMessage}>
-                        {errors.customer?.password_confirmation}
-                      </Text>
+                      <Text style={GlobalStyleSheet.errorMessage}>{errors.customer?.password_confirmation}</Text>
                     )}
                 </View>
               </View>
               <View>
-                <View style={{flexDirection: 'row'}}>
+                <View style={{ flexDirection: 'row' }}>
                   <CheckBox
                     value={values.customer.agreement}
                     onValueChange={value => {
@@ -409,34 +405,30 @@ const SignUp = props => {
                       marginBottom: 15,
                       marginTop: 5,
                       marginLeft: 10,
-                    }}>
-                    I agree with{' '}
+                    }}
+                  >
+                    I agree with
+{' '}
                     <Text
                       style={{
                         ...FONTS.font,
                         color: COLORS.title,
                         textAlign: 'center',
                         fontSize: 12,
-                      }}>
+                      }}
+                    >
                       Terms and Conditions
-                    </Text>{' '}
+                    </Text>
+{' '}
                     by bateeq.
                   </Text>
                 </View>
-                {touched?.customer?.agreement &&
-                  errors?.customer?.agreement && (
-                    <View>
-                      <Text style={GlobalStyleSheet.errorMessage}>
-                        {errors?.customer?.agreement}
-                      </Text>
-                    </View>
-                  )}
-                <CustomButton
-                  onPress={handleSubmit}
-                  title="Register"
-                  arrowIcon={true}
-                  logout={true}
-                />
+                {touched?.customer?.agreement && errors?.customer?.agreement && (
+                  <View>
+                    <Text style={GlobalStyleSheet.errorMessage}>{errors?.customer?.agreement}</Text>
+                  </View>
+                )}
+                <CustomButton onPress={handleSubmit} title="Register" arrowIcon logout />
               </View>
             </>
           )}
@@ -492,6 +484,6 @@ const SignUp = props => {
       </View>
     </ScrollView>
   );
-};
+}
 
 export default SignUp;

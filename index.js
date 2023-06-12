@@ -3,17 +3,11 @@
  */
 
 import 'react-native-gesture-handler';
-import {AppRegistry} from 'react-native';
-import {Provider} from 'react-redux';
-import {
-  ApolloProvider,
-  ApolloClient,
-  InMemoryCache,
-  createHttpLink,
-  ApolloLink,
-} from '@apollo/client';
+import { AppRegistry } from 'react-native';
+import { Provider } from 'react-redux';
+import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink, ApolloLink, Reference } from '@apollo/client';
 import App from './App';
-import {name as appName} from './app.json';
+import { name as appName } from './app.json';
 import store from './app/store';
 
 const httpLink = createHttpLink({
@@ -35,8 +29,34 @@ const cache = new InMemoryCache({
     Query: {
       fields: {
         GetProducts: {
+          merge: true,
+        },
+        customer: {
+          merge(existing = {}, incoming) {
+            const mergedOrders = existing.orders && incoming.orders
+              ? [...existing.orders, ...incoming.orders]
+              : incoming.orders || existing.orders;
+
+            return {
+              ...incoming,
+              orders: mergedOrders,
+            };
+          },
+        },
+        variants: {
           merge(existing, incoming) {
-            return incoming;
+            if (!existing) return incoming;
+            
+            // Create a new merged object
+            const merged = {
+              ...incoming,
+              edges: [
+                ...(existing.edges || []),
+                ...(incoming.edges || [])
+              ],
+            };
+
+            return merged;
           },
         },
       },
@@ -46,11 +66,7 @@ const cache = new InMemoryCache({
 
 // Create an Apollo Client instance
 const client = new ApolloClient({
-  link: ApolloLink.split(
-    operation => operation.getContext().clientName === 'httpLink2',
-    httpLink2,
-    httpLink,
-  ),
+  link: ApolloLink.split(operation => operation.getContext().clientName === 'httpLink2', httpLink2, httpLink),
 
   cache: cache,
 });

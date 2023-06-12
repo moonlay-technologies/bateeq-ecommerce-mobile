@@ -1,189 +1,108 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
-import * as yup from 'yup';
+import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
+import OcticonsIcon from 'react-native-vector-icons/Octicons';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+import { useMutation, useQuery } from '@apollo/client';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useMutation } from '@apollo/client';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
 import Header from '../../../layout/Header';
-import CustomButton from '../../../components/CustomButton';
-import Input from '../../../components/InputComponent';
-import InputTextArea from '../../../components/InputTextArea';
 
-import { CountriesApi } from '../../../service/shopify-api';
-import AsyncSelectComponent from '../../../components/SelectAsyncComponent';
-import { CREATE_ADDRESS } from '../../../graphql/mutation';
+import Modal from '../../../components/ActionModalComponent';
+import { GET_CUSTOMER_ADDRESS } from '../../../graphql/queries';
+import LoadingComponent from '../../../components/LoadingView';
+import { setAddress } from '../../../store/reducer';
+import { CUSTOMER_DEFAULT_ADDRESS_UPDATE, REMOVE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
 
-const schema = yup.object().shape({
-  first_name: yup.string().required(),
-  last_name: yup.string().required(),
-  phone_number: yup.string().required(),
-  company: yup.string().required(),
-  first_address: yup.string().required(),
-  second_address: yup.string().required(),
-  country: yup.string().required(),
-  province: yup.string().required(),
-  city: yup.string().required(),
-  postal_code: yup.string().required(),
-});
-
-function AddDeliveryAddress({ navigation }) {
-  const { customerInfo, getToken } = useSelector(state => state.user);
-  const [errors, setErrors] = useState({});
-  const [countries, setCountries] = useState([]);
+function Address() {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const { userAddress, getToken, defaultAddress } = useSelector(state => state.user);
+  const [customerAddress, setCustomerAddress] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [countryId, setCountryId] = useState('');
-  const [provinces, setProvinces] = useState([]);
-  const [state, setState] = useState({
-    first_name: '',
-    last_name: '',
-    phone_number: '',
-    company: '',
-    first_address: '',
-    second_address: '',
-    country: '',
-    province: '',
-    city: '',
-    postal_code: '',
+  const [addressSelected, setAddressSelected] = useState();
+  const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const [showModal, setShowModal] = useState({
+    show: false,
+    data: '',
   });
-  const [customerAddressCreate] = useMutation(CREATE_ADDRESS);
+  const {
+    data: address,
+    error: errorAddress,
+    loading: loadingAddress,
+    refetch,
+  } = useQuery(GET_CUSTOMER_ADDRESS, {
+    variables: {
+      fetchPolicy: 'no-cache',
+      accessToken: getToken,
+      limit: 20,
+    },
+  });
+
+  const [customerAddressDelete] = useMutation(REMOVE_CUSTOMER_ADDRESS);
+  const [customerDefaultAddressUpdate] = useMutation(CUSTOMER_DEFAULT_ADDRESS_UPDATE);
 
   useEffect(() => {
-    setIsLoading(true);
-    if (countryId !== '') {
-      CountriesApi.getProvinceByCountryId(countryId)
-        .then(result => {
-          setProvinces(
-            result.provinces.map(d => ({
-              label: d.name,
-              value: d.id,
-            }))
-          );
-          setIsLoading(false);
-          setCountryId('');
-        })
-        .catch(err => {
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: err?.originalError?.message || err?.message || 'something went wrong',
-          });
-          setIsLoading(false);
-        });
-    } else {
-      CountriesApi.get()
-        .then(res => {
-          setCountries(
-            res?.countries?.map(i => ({
-              label: i.name,
-              value: i.id,
-            }))
-          );
-          setIsLoading(false);
-        })
-        .catch(err => {
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: err?.originalError?.message || 'something went wrong',
-          });
-          setIsLoading(false);
-        });
-    }
-  }, [countryId]);
+    // refetch();
+  }, []);
 
-  const handleFieldChange = (value, name) => {
-    setState(prev => ({
+  useEffect(() => {
+    if (address?.customer) {
+      setCustomerAddress(
+        address?.customer?.addresses?.edges.map(i => ({
+          ...i.node,
+          // selected:false
+        })) || []
+      );
+    }
+  }, [address]);
+
+  const handleSelectAddress = value => {
+    dispatch(setAddress(''));
+    setAddressSelected(value);
+  };
+
+  const handleDelete = async () => {
+    setIsLoadingDelete(true);
+    await customerAddressDelete({
+      variables: {
+        id: showModal?.data?.id,
+        customerAccessToken: getToken,
+      },
+    });
+    refetch();
+    setShowModal(prev => ({
       ...prev,
-      [name]: value,
+      show: !prev.show,
     }));
+    setIsLoadingDelete(false);
   };
-
-  const handleChangeCountry = (value, name) => {
-    if (name === 'country') {
-      setCountryId(value.value);
-    }
-  };
-
-  const handleSubmit = () => {
-    let refetch;
+  console.log('addressSekected', addressSelected);
+  const onSubmit = async () => {
     setIsLoading(true);
 
-    const body = {
-      first_name: state.first_name,
-      last_name: state.last_name,
-      phone_number: state.phone_number || 0,
-      company: state.company,
-      first_address: state.first_address,
-      second_address: state.second_address,
-      country: state.country,
-      province: state.province,
-      city: state.city,
-      postal_code: state.postal_code || 0,
-    };
-    schema
-      .validate(body, { abortEarly: false })
-      .then(async result => {
-        const { error, data } = await customerAddressCreate({
-          variables: {
-            address: {
-              address1: result.first_address,
-              address2: result.second_address,
-              phone: result.phone_number,
-              city: result.city,
-              province: result.province,
-              country: result.country,
-              company: result.company,
-              zip: result.postal_code,
-            },
-            customerAccessToken: getToken,
-          },
-        });
-
-        if (data) {
-          setErrors({});
-          setState({
-            first_name: '',
-            last_name: '',
-            phone_number: '',
-            company: '',
-            first_address: '',
-            second_address: '',
-            country: '',
-            province: '',
-            city: '',
-            postal_code: '',
-          });
-          setIsLoading(false);
-          navigation.navigate('Address', { refetch });
-        }
-        if (error) {
-          setIsLoading(false);
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: error?.message || 'something went wrong',
-          });
-        }
-      })
-      .catch(err => {
-        if (err.name === 'ValidationError') {
-          const errorsVal = err.inner.reduce((acc, error) => {
-            const { path, message } = error;
-            acc[path] = message;
-            return acc;
-          }, {});
-          setErrors(errorsVal);
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: 'oops!',
-            text2: err?.originalError?.message || 'something went wrong',
-          });
-        }
-        setIsLoading(false);
+    const { data, errors } = await customerDefaultAddressUpdate({
+      variables: {
+        addressId: addressSelected?.id,
+        customerAccessToken: getToken,
+      },
+    });
+    console.log('onSubmit data', data);
+    if (data) {
+      dispatch(setAddress(addressSelected));
+      setIsLoading(false);
+      navigation.pop();
+    }
+    if (errors) {
+      setIsLoading(false);
+      Toast.show({
+        type: 'error',
+        text1: 'Oops',
+        text2: 'errors',
       });
+    }
   };
 
   return (
@@ -196,120 +115,185 @@ function AddDeliveryAddress({ navigation }) {
       <View style={{ paddingHorizontal: 20 }}>
         <Header titleLeft leftIcon="back" title="Back" />
       </View>
-      <View style={{ flex: 1 }}>
-        <ScrollView>
-          <View style={GlobalStyleSheet.container}>
-            <View
+      <ScrollView>
+        <View style={GlobalStyleSheet.container}>
+          <Text style={[FONTS.fontSatoshiBold, { color: COLORS.title, marginBottom: 10, fontSize: 24 }]}>
+            Select Address
+          </Text>
+          {isLoading && <LoadingComponent type="circle" />}
+          <Modal
+            text={`${showModal?.data?.company || 'this address'} will be deleted from your adresses list`}
+            onOpen={showModal.show}
+            visible={showModal.show}
+            toggle={() =>
+              setShowModal(prev => ({
+                ...prev,
+                show: !prev.show,
+              }))
+            }
+            submitText={isLoading ? 'Deleting ...' : 'Delete'}
+            disabled={isLoading}
+            onContinue={handleDelete}
+          />
+          {customerAddress?.length > 0 &&
+            customerAddress?.map((item, index) => {
+              const { company, address1, city, id } = item;
+
+              return (
+                <TouchableOpacity
+                  style={[
+                    styles.card,
+                    !addressSelected && defaultAddress?.address1 === address1
+                      ? styles.selectedCard
+                      : addressSelected?.address1 === address1
+                      ? styles.selectedCard
+                      : null,
+                  ]}
+                  onPress={() => handleSelectAddress(item)}
+                  key={index}
+                >
+                  {isLoadingDelete && showModal?.data?.id === id ? (
+                    <LoadingComponent type="circle" key={id} />
+                  ) : (
+                    <View>
+                      <Text style={styles.name}>{company}</Text>
+                      <Text style={styles.address}>{address1}</Text>
+                      <Text style={styles.city}>{city}</Text>
+                      {[addressSelected?.address1 === address1, userAddress?.address1 === address1].some(
+                        i => i === true
+                      ) && (
+                        <View style={styles.tag}>
+                          <Text style={styles.tagText}>Selected</Text>
+                        </View>
+                      )}
+                      {!userAddress?.address1 && !addressSelected && defaultAddress?.address1 === address1 && (
+                        <View style={styles.tag}>
+                          <Text style={styles.tagText}>Selected</Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
+
+                  <FeatherIcon
+                    onPress={() =>
+                      setShowModal(prev => ({
+                        data: { id, company },
+                        show: !prev.show,
+                      }))
+                    }
+                    style={styles.icon}
+                    name="trash-2"
+                    size={16}
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          <View
+            style={{
+              marginTop: 12,
+              flexDirection: 'column',
+              marginHorizontal: -12,
+              marginBottom: -12,
+              paddingHorizontal: 85,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddDeliveryAddress')}
               style={{
-                paddingBottom: 10,
-                marginBottom: 20,
+                flex: 1,
+                padding: 12,
+                marginVertical: 12,
+                alignItems: 'center',
+                borderWidth: 1,
+                borderColor: COLORS.title,
               }}
             >
-              <Text
+              <View
                 style={{
-                  ...FONTS.fontSatoshiBold,
-                  fontSize: 24,
-                  color: COLORS.title,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '80%',
                 }}
               >
-                Add Address
-              </Text>
-            </View>
-            <Input
-              name="first_name"
-              label="First Name"
-              placeholder="e.g. John"
-              value={customerInfo?.first_name}
-              handleInputChange={val => handleFieldChange(val, 'first_name')}
-              errors={errors}
-            />
-            <Input
-              name="last_name"
-              label="Last Name"
-              placeholder="e.g. Doe"
-              value={customerInfo?.last_name}
-              handleInputChange={val => handleFieldChange(val, 'last_name')}
-              errors={errors}
-            />
-            <Input
-              name="phone_number"
-              label="Phone Number"
-              placeholder="e.g. +628123456789"
-              keyboardType="phone-pad"
-              value={customerInfo?.phone}
-              handleInputChange={val => handleFieldChange(val, 'phone_number')}
-              errors={errors}
-            />
-            <Input
-              name="company"
-              label="Company"
-              placeholder="e.g. PT ABC"
-              handleInputChange={val => handleFieldChange(val, 'company')}
-              errors={errors}
-            />
-            <InputTextArea
-              name="first_address"
-              label="Address 1"
-              placeholder="e.g. Jl. Taman Anggrek"
-              numberOfLines={4}
-              handleInputChange={val => handleFieldChange(val, 'first_address')}
-              errors={errors}
-            />
-            <InputTextArea
-              name="second_address"
-              label="Address 2"
-              placeholder="e.g. Jl. Taman Anggrek"
-              numberOfLines={4}
-              handleInputChange={val => handleFieldChange(val, 'second_address')}
-              errors={errors}
-            />
-            <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
-              <AsyncSelectComponent
-                name="country"
-                label="Country"
-                options={countries}
-                onChange={val => handleChangeCountry(val, 'country')}
-                onSelect={val => handleFieldChange(val, 'country')}
-                errors={errors}
-              />
-            </View>
-            <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
-              <AsyncSelectComponent
-                name="province"
-                label="Province"
-                options={provinces}
-                onSelect={val => handleFieldChange(val, 'province')}
-                errors={errors}
-              />
-            </View>
-            <Input
-              name="city"
-              label="City"
-              placeholder="e.g. Jakarta Selatan"
-              handleInputChange={val => handleFieldChange(val, 'city')}
-              errors={errors}
-            />
-            <Input
-              name="postal_code"
-              label="Postal Code"
-              placeholder="e.g. 12190"
-              keyboardType="number-pad"
-              handleInputChange={val => handleFieldChange(val, 'postal_code')}
-              errors={errors}
-            />
+                <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>Add Address</Text>
+                <OcticonsIcon color={COLORS.title} size={18} name="plus" />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onSubmit}
+              style={{
+                flex: 1,
+                padding: 12,
+                alignItems: 'center',
+                borderWidth: 1,
+                backgroundColor: '#333333',
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  width: '80%',
+                }}
+              >
+                <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.white }}>
+                  {isLoading ? 'Saving ...' : 'Select Address'}
+                </Text>
+                <OcticonsIcon color={COLORS.white} size={18} name="check" />
+              </View>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </View>
-      <View style={[GlobalStyleSheet.container, { justifyContent: 'center', alignItems: 'center' }]}>
-        <CustomButton
-          onPress={handleSubmit}
-          title={isLoading ? 'Saving ...' : 'Save Address'}
-          disabled={isLoading}
-          customWidth={200}
-        />
-      </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-export default AddDeliveryAddress;
+export default Address;
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  selectedCard: {
+    borderColor: '#f00',
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  address: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  city: {
+    fontSize: 16,
+    color: '#888',
+  },
+  tag: {
+    backgroundColor: '#585858',
+    marginTop: 20,
+    padding: 4,
+    borderRadius: 4,
+    alignSelf: 'flex-start',
+  },
+  tagText: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  icon: {
+    right: 16,
+    bottom: 20,
+    position: 'absolute',
+    color: 'red',
+  },
+});

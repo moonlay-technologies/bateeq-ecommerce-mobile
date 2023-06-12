@@ -1,8 +1,8 @@
-export const gqlError = ({error, Toast}) => {
+export const gqlError = ({ error, Toast }) => {
   if (typeof error === 'string') {
     Toast.show(error);
   } else {
-    const {graphQLErrors, networkError, message} = error;
+    const { graphQLErrors, networkError, message } = error;
     if (graphQLErrors) {
       for (let e of graphQLErrors) {
         Toast.show({
@@ -20,10 +20,7 @@ export const gqlError = ({error, Toast}) => {
       }
     }
 
-    if (
-      (!graphQLErrors || (graphQLErrors && graphQLErrors.length === 0)) &&
-      !networkError?.result
-    ) {
+    if ((!graphQLErrors || (graphQLErrors && graphQLErrors.length === 0)) && !networkError?.result) {
       Toast.show({
         type: 'error',
         text1: message,

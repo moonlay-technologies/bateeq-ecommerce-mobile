@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {ScrollView, Text, View} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, Text, View } from 'react-native';
 import CartItem from '../../components/CartItem';
-import pic1 from '../../assets/images/shop/pic1.png';
-import {useQuery} from '@apollo/client';
-import {GET_ORDERS} from '../../service/admin-graphql/query/orders';
+import { useQuery } from '@apollo/client';
+import { GET_ORDERS } from '../../service/admin-graphql/query/orders';
 import LoadingScreen from '../../components/LoadingView';
+import { useSelector } from 'react-redux';
 
 // const CartData = [
 //   {
@@ -22,10 +22,11 @@ import LoadingScreen from '../../components/LoadingView';
 
 const Confirm = () => {
   const [dataOrdersPending, setDataOrdersPending] = useState([]);
-  const {data, loading} = useQuery(GET_ORDERS, {
-    fetchPolicy: 'no-cache',
+  const { customerInfo } = useSelector(state => state.user);
+  const { data, loading } = useQuery(GET_ORDERS, {
+    fetchPolicy: 'cache-and-network',
     variables: {
-      customerId: 'gid://shopify/Customer/7132117664027',
+      customerId: customerInfo.id,
       query: 'financial_status:pending',
     },
     context: {
@@ -41,7 +42,11 @@ const Confirm = () => {
   return (
     <ScrollView>
       {loading && <LoadingScreen Loading2 />}
-      {dataOrdersPending.length === 0 && <View style={{justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', height: 500}}><Text style={{color: 'black', fontSize: 20}}>No DATA</Text></View>}
+      {dataOrdersPending.length === 0 && (
+        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', height: 500 }}>
+          <Text style={{ color: 'black', fontSize: 16 }}>No orders need to be confirmed</Text>
+        </View>
+      )}
       {dataOrdersPending &&
         dataOrdersPending.map(data => (
           <CartItem
@@ -52,10 +57,7 @@ const Confirm = () => {
             // price={data.price}
             date={data.createdAt}
             quantity={data.lineItems.nodes[0].currentQuantity}
-            size={
-              data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]
-                ?.selectedOptions[1]?.value
-            }
+            size={data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]?.selectedOptions[1]?.value}
             status={data.displayFinancialStatus}
           />
         ))}
