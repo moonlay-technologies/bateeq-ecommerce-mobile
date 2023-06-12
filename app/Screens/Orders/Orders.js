@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import {
   SafeAreaView,
   useWindowDimensions,
-  View,
-  TouchableOpacity,
-  Text,
-  Image,
+  // View,
+  // TouchableOpacity,
+  // Text,
+  // Image,
 } from 'react-native';
 import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
-import FeatherIcon from 'react-native-vector-icons/Feather';
-import {IconButton} from 'react-native-paper';
+// import FeatherIcon from 'react-native-vector-icons/Feather';
+// import {IconButton} from 'react-native-paper';
 import {COLORS, FONTS} from '../../constants/theme';
 // import Header from '../../layout/Header';
 import AllCart from './AllCart';
@@ -17,8 +17,8 @@ import Canceled from './Canceled';
 import Completed from './Completed';
 import OnDelivery from './OnDelivery';
 import Confirm from './Confirm';
-import {useQuery} from '@apollo/client';
-import {GET_ORDERS} from '../../service/admin-graphql/query/orders';
+// import {useQuery} from '@apollo/client';
+// import {GET_ORDERS} from '../../service/admin-graphql/query/orders';
 import HeaderCartComponent from '../../components/HeaderCartComponent';
 
 const renderScene = SceneMap({
@@ -42,23 +42,23 @@ const Orders = ({navigation}) => {
     {key: 'Canceled', title: 'Canceled'},
   ]);
 
-  const {data, loading} = useQuery(GET_ORDERS, {
-    variables: {
-      customerId: 'gid://shopify/Customer/7132117664027',
-      query: 'financial_status:paid',
-    },
-    context: {
-      clientName: 'httpLink2',
-    },
-  });
+  // const {data, loading} = useQuery(GET_ORDERS, {
+  //   variables: {
+  //     customerId: 'gid://shopify/Customer/7132117664027',
+  //     query: 'financial_status:paid',
+  //   },
+  //   context: {
+  //     clientName: 'httpLink2',
+  //   },
+  // });
 
-  console.log('data httplink2', data?.customer?.orders);
+  // console.log('data httplink2', data?.customer?.orders);
 
-  useEffect(() => {
-    if(data) {
-      setDataOrders(data.customer.orders)
-    }
-  },[data])
+  // useEffect(() => {
+  //   if(data) {
+  //     setDataOrders(data.customer.orders)
+  //   }
+  // },[data])
 
 
   const handlePress = () => {

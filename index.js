@@ -34,19 +34,6 @@ const cache = new InMemoryCache({
         customer: {
           merge: true
         },
-        variants: {
-          merge(existing, incoming) {
-            if (!existing) return incoming;
-
-            // Create a new merged object
-            const merged = {
-              ...incoming,
-              edges: [...(existing.edges || []), ...(incoming.edges || [])],
-            };
-
-            return merged;
-          },
-        },
       },
     },
   },

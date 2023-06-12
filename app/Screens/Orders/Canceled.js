@@ -25,7 +25,7 @@ const Canceled = () => {
   const [dataOrders, setDataOrders] = useState([]);
   const { customerInfo } = useSelector(state => state.user);
   const { data, loading } = useQuery(GET_ORDERS, {
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy: 'no-cache',
     variables: {
       customerId: customerInfo.id,
       query: 'financial_status:expired',
