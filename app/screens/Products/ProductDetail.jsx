@@ -95,7 +95,7 @@ function ProductDetail({ navigation, route }) {
     },
   });
   const {
-    data,
+    data: productReccomendationData,
     error: productRecommendationError,
     loading: productRecommendationLoad,
   } = useQuery(GET_PRODUCT_RECOMMENDATION, {
@@ -132,7 +132,7 @@ function ProductDetail({ navigation, route }) {
         discounted_price: compareAtPrice?.amount,
       });
       setProduct({ id: productID, descriptionHtml, title, images: edges, variants: variantEdge });
-      const productRecommendation = data?.productRecommendations.map(d => ({
+      const productRecommendation = productReccomendationData?.productRecommendations.map(d => ({
         id: d.id,
         title: d.title,
         image: d.images.edges.find(i => i)?.node.url,
@@ -181,7 +181,6 @@ function ProductDetail({ navigation, route }) {
       });
     }
   }, [isLoading, isError, cart]);
-  console.log('productRecommendations', productRecommendations);
 
   const onSelectValue = (type, value) => {
     if (type === 'size') {
@@ -211,8 +210,6 @@ function ProductDetail({ navigation, route }) {
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
-        console.log('result', result);
-
         const { data: addLine } = await cartLinesAdd({
           variables: {
             cartId: result.cartId,
@@ -256,8 +253,8 @@ function ProductDetail({ navigation, route }) {
       })
       .catch(error => {
         if (error.name === 'ValidationError') {
-          const errorsVal = error.inner.reduce((acc, error) => {
-            const { path, message } = error;
+          const errorsVal = error.inner.reduce((acc, err) => {
+            const { path, message } = err;
             acc[path] = message;
             return acc;
           }, {});
@@ -357,7 +354,9 @@ function ProductDetail({ navigation, route }) {
                     fontSize: 16,
                   }}
                 >
-                  {amount.currencyCode} {formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}
+                  {amount.currencyCode} 
+{' '}
+{formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}
                 </Text>
               )}
               <Text
