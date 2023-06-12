@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   // Image,
   // Button,
@@ -10,69 +10,52 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Formik } from 'formik';
-import FeatherIcon from 'react-native-vector-icons/Feather';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { gql, useMutation } from '@apollo/client';
-import { useNavigation, CommonActions } from '@react-navigation/native';
-import { batch, useDispatch } from 'react-redux';
 import CustomButton from '../../components/CustomButton';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import HeaderBateeq from '../../components/HeaderBateeq';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import FeatherIcon from 'react-native-vector-icons/Feather';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import LoadingScreen from '../../components/LoadingView';
+import { useMutation } from '@apollo/client';
+import { useNavigation, CommonActions } from '@react-navigation/native';
+import { AUTH_LOGIN } from '../../graphql/mutation';
+import { useDispatch, batch } from 'react-redux';
 import { setIsLogin, setToken } from '../../store/reducer';
 
-const customerAccessTokenCreate = gql`
-  mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
-    customerAccessTokenCreate(input: { email: $email, password: $password }) {
-      customerAccessToken {
-        accessToken
-      }
-      customerUserErrors {
-        message
-      }
-    }
-  }
-`;
+const ValidateSchema = Yup.object().shape({
+  customer: Yup.object().shape({
+    email: Yup.string()
+      .matches(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Please enter a valid email')
+      .required('Email Address is required'),
+    password: Yup.string().required('Password is required'),
+  }),
+});
 
-function SignIn(props) {
+const SignIn = props => {
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const navigation = useNavigation();
-  const validateForm = values => {
-    const errors = {};
-
-    if (!values.customer.email) {
-      errors.customer = { ...errors.customer, email: 'Required' };
-    }
-
-    if (!values.customer.password) {
-      errors.customer = { ...errors.customer, password: 'Required' };
-    }
-
-    return errors;
-  };
-
-  const [CustomerAccessTokenCreateMutation] = useMutation(customerAccessTokenCreate);
+  const [CustomerAccessTokenCreateMutation] = useMutation(AUTH_LOGIN);
 
   const handleOnSubmit = async values => {
     try {
       setIsLoading(true);
 
       const { data } = await CustomerAccessTokenCreateMutation({
+        fetchPolicy: 'no-cache',
         variables: {
           email: values.customer.email,
           password: values.customer.password,
         },
       });
       const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
-
-      console.log('access token', accessToken);
 
       if (accessToken) {
         Toast.show({
@@ -84,7 +67,6 @@ function SignIn(props) {
           dispatch(setToken(accessToken));
           dispatch(setIsLogin(!!accessToken));
         });
-
         await AsyncStorage.setItem('accessToken', accessToken);
         navigation.dispatch(
           CommonActions.reset({
@@ -136,7 +118,7 @@ function SignIn(props) {
             >
               Login
             </Text>
-            <Text style={{ ...FONTS.fontSatoshiRegular }}>
+            <Text style={{ ...FONTS.fontSatoshiRegular, color: COLORS.title }}>
               Log into your bateeq account to enjoy benefits from our membership.
             </Text>
           </View>
@@ -150,7 +132,7 @@ function SignIn(props) {
             onSubmit={values => {
               handleOnSubmit(values);
             }}
-            validate={validateForm}
+            validationSchema={ValidateSchema}
           >
             {({ values, handleChange, handleSubmit, handleBlur, errors, touched }) => {
               return (
@@ -163,29 +145,29 @@ function SignIn(props) {
                         marginBottom: 8,
                       }}
                     >
-                      Username
+                      Email
                     </Text>
                     <TextInput
                       style={[
                         GlobalStyleSheet.formControl,
                         isFocused && GlobalStyleSheet.activeInput,
-                        { ...FONTS.fontSatoshiRegular },
+                        { ...FONTS.font, color: COLORS.title },
                       ]}
                       onFocus={() => setisFocused(true)}
                       onBlur={handleBlur('customer.email')}
-                      placeholder="e.g. bateeq_foryou"
+                      placeholder="e.g. bateeq@gmail.com"
                       placeholderTextColor={COLORS.label}
                       value={values.customer.email}
                       onChangeText={handleChange('customer.email')}
                     />
-                    {!isFocused && !values.customer.email && touched?.customer?.email && errors?.customer?.email && (
+                    {errors?.customer?.email && touched?.customer?.email && (
                       <Text style={GlobalStyleSheet.errorMessage}>{errors.customer.email}</Text>
                     )}
                   </View>
                   <View style={GlobalStyleSheet.inputGroup}>
                     <Text
                       style={{
-                        ...FONTS.fontSatoshiBold,
+                        ...FONTS.font,
                         color: COLORS.title,
                         marginBottom: 8,
                       }}
@@ -215,7 +197,7 @@ function SignIn(props) {
                         style={[
                           GlobalStyleSheet.formControl,
                           isFocused2 && GlobalStyleSheet.activeInput,
-                          { ...FONTS.fontSatoshiRegular },
+                          { ...FONTS.font, color: COLORS.title },
                         ]}
                         onFocus={() => setisFocused2(true)}
                         onBlur={handleBlur('customer.password')}
@@ -239,7 +221,7 @@ function SignIn(props) {
                   >
                     <Text
                       style={{
-                        ...FONTS.fontSatoshiRegular,
+                        ...FONTS.font,
                         color: COLORS.title,
                         textAlign: 'center',
                         marginBottom: 12,
@@ -249,19 +231,22 @@ function SignIn(props) {
                       Forgot password?
                     </Text>
                     <TouchableOpacity
-                      onPress={() => Linking.openURL('https://bateeqshop.myshopify.com/account/login#')}
+                      onPress={() =>
+                        Linking.openURL('https://bateeqshop.myshopify.com/account/login?return_url=%2Faccount')
+                      }
                     >
                       <Text
                         style={{
-                          ...FONTS.fontSatoshiBold,
+                          ...FONTS.font,
                           color: COLORS.title,
+                          textDecorationLine: 'underline',
                         }}
                       >
                         Reset here
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  <CustomButton onPress={handleSubmit} title="Login" arrowIcon logout />
+                  <CustomButton onPress={handleSubmit} title="Login" arrowIcon={true} logout />
                 </>
               );
             }}
@@ -269,7 +254,7 @@ function SignIn(props) {
           <View style={{ marginTop: 8, flexDirection: 'row' }}>
             <Text
               style={{
-                ...FONTS.fontSatoshiRegular,
+                ...FONTS.font,
                 color: COLORS.title,
                 textAlign: 'center',
                 marginBottom: 12,
@@ -279,13 +264,21 @@ function SignIn(props) {
               Don’t have an account?
             </Text>
             <TouchableOpacity onPress={() => props.navigation.navigate('SignUp')}>
-              <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>Register here</Text>
+              <Text
+                style={{
+                  ...FONTS.font,
+                  color: COLORS.title,
+                  textDecorationLine: 'underline',
+                }}
+              >
+                Register here
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
     </ScrollView>
   );
-}
+};
 
 export default SignIn;

@@ -3,69 +3,55 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, FONTS } from '../constants/theme';
 
-function FeaturedCard({ image, title, dataCollection, imagePath, hiddenBtn, categories }) {
-  // console.log('dataColllection', dataCollection);
+const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, categories }) => {
   const navigation = useNavigation();
+
+  const navigateToItems = query => {
+    navigation.navigate('Items', {
+      query,
+      categories,
+    });
+  };
+
+  const findCategory = description => {
+    return dataCollection.find(categories => categories?.description === description);
+  };
+
+  const handlePress = () => {
+    if (categories) {
+      const topCategories = findCategory('TOP');
+      const outerWearCategories = findCategory('OUTER');
+      const bottomCategories = findCategory('PANTS');
+      const dressCategories = findCategory('DRESS');
+
+      if (topCategories && title === 'TOP') {
+        navigateToItems(topCategories.description);
+      } else if (outerWearCategories && title === 'OUTER') {
+        navigateToItems(outerWearCategories.description);
+      } else if (bottomCategories && title === 'PANTS') {
+        navigateToItems(bottomCategories.description);
+      } else if (dressCategories && title === 'DRESS') {
+        navigateToItems(dressCategories.description);
+      } else {
+        navigateToItems('Fashion');
+      }
+    } else {
+      const collectionData = dataCollection.description;
+
+      if (collectionData && (title === 'PADMA' || title === 'KAMALA')) {
+        navigateToItems(title);
+      } else {
+        navigateToItems('Fashion');
+      }
+    }
+  };
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={() => {
-        if (categories) {
-          const topCategories = dataCollection.find(categories => categories?.node?.description === 'TOP');
-          const outerWearCategories = dataCollection.find(categories => categories?.node?.description === 'OUTER');
-          const bottomCategories = dataCollection.find(categories => categories?.node?.description === 'PANTS');
-          const dressCategories = dataCollection.find(categories => categories?.node?.description === 'DRESS');
-
-          if (topCategories && title === 'TOP') {
-            navigation.navigate('Items', {
-              query: topCategories.node.description,
-              categories,
-              // type: 'Fashion',
-            });
-          } else if (outerWearCategories && title === 'OUTER') {
-            navigation.navigate('Items', {
-              query: outerWearCategories.node.description,
-              categories,
-              // type: 'Fashion',
-            });
-          } else if (bottomCategories && title === 'PANTS') {
-            navigation.navigate('Items', {
-              query: bottomCategories.node.description,
-              categories,
-              // type: 'Fashion',
-            });
-          } else if (dressCategories && title === 'DRESS') {
-            navigation.navigate('Items', {
-              query: dressCategories.node.description,
-              categories,
-              // type: 'Fashion',
-            });
-          } else {
-            navigation.navigate('Items', { type: 'Fashion' });
-          }
-        } else {
-          const collectionData = dataCollection.description;
-
-          if (collectionData && title === 'PADMA') {
-            navigation.navigate('Items', {
-              query: title,
-              // type: 'Fashion',
-            });
-          } else if (collectionData && title === 'KAMALA') {
-            navigation.navigate('Items', {
-              query: title,
-              // type: 'Fashion',
-            });
-          } else {
-            navigation.navigate('Items', { type: 'Fashion' });
-          }
-        }
-      }}
+      onPress={handlePress}
       style={{
         marginBottom: 20,
-        // flex: imagePath ? 1 : 0,
-        // marginHorizontal: imagePath ? 5 : 0
       }}
     >
       <Image
@@ -93,7 +79,7 @@ function FeaturedCard({ image, title, dataCollection, imagePath, hiddenBtn, cate
             left: 0,
             bottom: 0,
             right: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)', // semi-transparent black color
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
             borderRadius: 8,
           }}
         />
@@ -122,58 +108,7 @@ function FeaturedCard({ image, title, dataCollection, imagePath, hiddenBtn, cate
           {title}
         </Text>
         <TouchableOpacity
-          onPress={() => {
-            if (categories) {
-              const topCategories = dataCollection.find(categories => categories?.node?.description === 'TOP');
-              const outerWearCategories = dataCollection.find(categories => categories?.node?.description === 'OUTER');
-              const bottomCategories = dataCollection.find(categories => categories?.node?.description === 'PANTS');
-              const dressCategories = dataCollection.find(categories => categories?.node?.description === 'DRESS');
-
-              if (topCategories && title === 'TOP') {
-                navigation.navigate('Items', {
-                  query: topCategories.node.description,
-                  categories,
-                  // type: 'Fashion',
-                });
-              } else if (outerWearCategories && title === 'OUTER') {
-                navigation.navigate('Items', {
-                  query: outerWearCategories.node.description,
-                  categories,
-                  // type: 'Fashion',
-                });
-              } else if (bottomCategories && title === 'PANTS') {
-                navigation.navigate('Items', {
-                  query: bottomCategories.node.description,
-                  categories,
-                  // type: 'Fashion',
-                });
-              } else if (dressCategories && title === 'DRESS') {
-                navigation.navigate('Items', {
-                  query: dressCategories.node.description,
-                  categories,
-                  // type: 'Fashion',
-                });
-              } else {
-                navigation.navigate('Items', { type: 'Fashion' });
-              }
-            } else {
-              const collectionData = dataCollection.description;
-
-              if (collectionData && title === 'PADMA') {
-                navigation.navigate('Items', {
-                  query: title,
-                  // type: 'Fashion',
-                });
-              } else if (collectionData && title === 'KAMALA') {
-                navigation.navigate('Items', {
-                  query: title,
-                  // type: 'Fashion',
-                });
-              } else {
-                navigation.navigate('Items', { type: 'Fashion' });
-              }
-            }
-          }}
+          onPress={handlePress}
           style={{
             paddingHorizontal: imagePath ? 2 : 12,
             paddingVertical: imagePath ? 2 : 10,
@@ -198,6 +133,6 @@ function FeaturedCard({ image, title, dataCollection, imagePath, hiddenBtn, cate
       </View>
     </TouchableOpacity>
   );
-}
+};
 
 export default FeaturedCard;

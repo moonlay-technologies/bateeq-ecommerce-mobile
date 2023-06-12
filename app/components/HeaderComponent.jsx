@@ -9,8 +9,17 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
+import MenuListHeader from './ListMenuHeader';
 
-function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo }) {
+function HeaderComponent({
+  icon = '',
+  title,
+  backAction,
+  withoutCartAndLogo,
+  dataPageStory,
+  showListMenu,
+  dataListMenu,
+}) {
   const navigation = useNavigation();
   const [cartQuantity, setCartQuantity] = useState(0);
   const cart = useSelector(state => state.cart);
@@ -75,41 +84,48 @@ function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo }) {
   };
 
   return (
-    <View
-      style={{
-        ...(title ? { marginLeft: -5, marginTop: 5 } : { justifyContent: 'space-between' }),
-        flexDirection: 'row',
-        alignItems: 'center',
-        height: 45,
-      }}
-    >
-      <IconButton
-        icon={() => leftIcon(icon, title)}
-        size={25}
-        onPress={() => (backAction ? navigation.goBack() : navigation.openDrawer())}
-      />
-      {title && (
-        <Text
-          style={{
-            ...FONTS.fontSatoshiBold,
-            color: COLORS.title,
-            fontSize: 17,
-            ...FONTS.h6,
-            top: 1,
-            textAlign: 'left',
-          }}
-        >
-          {title}
-        </Text>
-      )}
-      {!withoutCartAndLogo && (
-        <>
-          <TouchableOpacity onPress={handlePress}>
-            <Image style={{ width: 70, height: 35 }} source={Logo} />
-          </TouchableOpacity>
+    <View>
+      <View
+        style={{
+          ...(title ? { marginLeft: -5, marginTop: 5 } : { justifyContent: 'space-between' }),
+          flexDirection: 'row',
+          alignItems: 'center',
+          height: 45,
+        }}
+      >
+        <IconButton
+          icon={() => leftIcon(icon, title)}
+          size={25}
+          onPress={() => (backAction ? navigation.goBack() : navigation.openDrawer())}
+        />
+        {title && (
+          <Text
+            style={{
+              ...FONTS.fontSatoshiBold,
+              color: COLORS.title,
+              fontSize: 17,
+              ...FONTS.h6,
+              top: 1,
+              textAlign: 'left',
+            }}
+          >
+            {title}
+          </Text>
+        )}
+        {!withoutCartAndLogo && (
+          <>
+            <TouchableOpacity onPress={handlePress}>
+              <Image style={{ width: 70, height: 35 }} source={Logo} />
+            </TouchableOpacity>
 
-          <IconButton onPress={() => navigation.navigate('Cart')} icon={() => rightIcon()} size={25} />
-        </>
+            <IconButton onPress={() => navigation.navigate('Cart')} icon={() => rightIcon()} size={25} />
+          </>
+        )}
+      </View>
+      {showListMenu && (
+        <View>
+          <MenuListHeader dataListMenu={dataListMenu} dataStory={dataPageStory} />
+        </View>
       )}
     </View>
   );

@@ -5,9 +5,9 @@ import SearchBar from '../components/SearchBar';
 import { GlobalStyleSheet } from '../constants/StyleSheet';
 import { COLORS, FONTS } from '../constants/theme';
 import Header from '../layout/Header';
-import BestItems from '../screens/Products/BestItems';
-import PopularItems from '../screens/Products/PopularItems';
-import SaleItems from '../screens/Products/SaleItems';
+import BestItems from '../Screens/Products/BestItems';
+import PopularItems from '../Screens/Products/PopularItems';
+import SaleItems from '../Screens/Products/SaleItems';
 
 const renderScene = SceneMap({
   Popular: PopularItems,

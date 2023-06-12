@@ -17,6 +17,9 @@ import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import { setCartId } from '../../store/reducer';
 import HeaderComponent from '../../components/HeaderComponent';
+import { GET_PAGES } from '../../graphql/queries';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { gqlError } from '../../utils/eror-handling';
 
 const languagetData = [
   {
@@ -45,10 +48,31 @@ function Profile() {
   const [dataAccount, setDataAccount] = useState(null);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [dataFaq, setDataFaq] = useState(null);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
   const { customerInfo } = useSelector(state => state.user);
+
+  const onError = err => {
+    gqlError({ error: err, Toast });
+  };
+
+  const { loading: loadingFAQ } = useQuery(GET_PAGES, {
+    fetchPolicy: 'no-cache',
+    variables: {
+      handle: 'f-a-q',
+    },
+    onCompleted: ({ page }) => {
+      console.log('page', page);
+      if (page) {
+        setDataFaq(page);
+      }
+    },
+    onError: err => {
+      onError(err);
+    },
+  });
 
   useEffect(() => {
     if (isLoggedOut && isFocused) {
@@ -56,7 +80,6 @@ function Profile() {
     }
   }, [isLoggedOut, isFocused, navigation]);
 
-  console.log('customerInfo', customerInfo);
   return (
     <>
       <RBSheet
@@ -212,7 +235,7 @@ function Profile() {
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -232,7 +255,7 @@ function Profile() {
                   App Setting
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 style={{
                   flexDirection: 'row',
@@ -242,6 +265,12 @@ function Profile() {
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
                 }}
+                onPress={() =>
+                  navigation.navigate('PagesInShopify', {
+                    dataPages: dataFaq,
+                    loading: loadingFAQ,
+                  })
+                }
               >
                 <Text
                   style={{

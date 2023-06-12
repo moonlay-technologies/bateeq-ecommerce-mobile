@@ -1,5 +1,40 @@
 import { gql } from '@apollo/client';
 
+export const AUTH_LOGIN = gql`
+  mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
+    customerAccessTokenCreate(input: { email: $email, password: $password }) {
+      customerAccessToken {
+        accessToken
+      }
+      customerUserErrors {
+        message
+      }
+    }
+  }
+`;
+
+export const EDIT_DETAIL_ACCOUNT = gql`
+  mutation customerUpdate(
+    $customer: CustomerUpdateInput!
+    $customerAccessToken: String!
+  ) {
+    customerUpdate(
+      customer: $customer
+      customerAccessToken: $customerAccessToken
+    ) {
+      customer {
+        phone
+        firstName
+        lastName
+        email
+      }
+      customerUserErrors {
+        message
+      }
+    }
+  }
+`;
+
 export const ADD_TO_CART = gql`
   mutation ($cartId: ID!, $lines: [CartLineInput!]!, $country: CountryCode = ZZ, $language: LanguageCode)
   @inContext(country: $country, language: $language) {

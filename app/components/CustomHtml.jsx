@@ -1,7 +1,7 @@
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import RenderHTML from 'react-native-render-html';
 
-function CustomHTML({ htmlContent, limit, blog_id }) {
+const CustomHTML = ({ htmlContent, limit, blog_id }) => {
   const windowWidth = useWindowDimensions().width;
   if (htmlContent && typeof htmlContent === 'string') {
     const customRenderersProps = {
@@ -12,6 +12,18 @@ function CustomHTML({ htmlContent, limit, blog_id }) {
         style: styles.heading2,
       },
     };
+
+    const contentStyle = {
+      body: {
+        whiteSpace: 'normal',
+        color: 'gray',
+      },
+      p: {
+        color: 'gray',
+      },
+    };
+
+    const ignoredTags = ['iframe'];
     // const previewText = htmlContent.replace(/<[^>]+>/g, '').slice(0, limit);
     const paragraphEndIndex = htmlContent.indexOf('</p>') + 4;
     const previewText = htmlContent.slice(0, paragraphEndIndex);
@@ -20,12 +32,14 @@ function CustomHTML({ htmlContent, limit, blog_id }) {
         <RenderHTML
           source={{ html: blog_id ? previewText : htmlContent }}
           contentWidth={windowWidth}
+          tagsStyles={contentStyle}
           renderersProps={customRenderersProps}
+          ignoredDomTags={ignoredTags}
         />
       </View>
     );
   }
-}
+};
 
 const styles = StyleSheet.create({
   container: {

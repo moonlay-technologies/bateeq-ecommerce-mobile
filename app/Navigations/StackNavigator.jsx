@@ -1,28 +1,28 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Splash from '../screens/Onboarding/Splash';
-import Onboarding from '../screens/Onboarding/Onboarding';
-import Welcome from '../screens/Onboarding/Welcome';
-import SignUp from '../screens/Auth/SignUp';
-import SignIn from '../screens/Auth/SignIn';
+import Splash from '../Screens/Onboarding/Splash';
+import Onboarding from '../Screens/Onboarding/Onboarding';
+import Welcome from '../Screens/Onboarding/Welcome';
+import SignUp from '../Screens/Auth/SignUp';
+import SignIn from '../Screens/Auth/SignIn';
 import Products from '../component-template/Products';
 import DrawerNavigation from './DrawerNavigation';
-import ProductDetail from '../screens/Products/ProductDetail';
-import Featured from '../screens/Featured/Featured';
-import Orders from '../screens/Orders/Orders';
-import DeliveryTracking from '../screens/Delivery/DeliveryTracking';
-import Wishlist from '../screens/Wishlist/Wishlist';
-import Profile from '../screens/Account/Profile';
-import EditProfile from '../screens/Account/EditProfile';
-import Coupons from '../screens/Account/Coupons';
-import Address from '../screens/Account/Address/Address';
-import AddAddress from '../screens/Account/Address/Add';
-import EditAddress from '../screens/Account/Address/Edit';
-import Filter from '../screens/Filter/Filter';
-import Items from '../screens/Items/Items';
-import CategoryHome from '../screens/Categories/CategoryHome';
-import Search from '../screens/Search/Search';
-import Payment from '../screens/Delivery/Payment';
+import ProductDetail from '../Screens/Products/ProductDetail';
+import Featured from '../Screens/Featured/Featured';
+import Orders from '../Screens/Orders/Orders';
+import DeliveryTracking from '../Screens/Delivery/DeliveryTracking';
+import Wishlist from '../Screens/Wishlist/Wishlist';
+import Profile from '../Screens/Account/Profile';
+import EditProfile from '../Screens/Account/EditProfile';
+import Coupons from '../Screens/Account/Coupons';
+import Address from '../Screens/Account/Address/Address';
+import AddAddress from '../Screens/Account/Address/Add';
+import EditAddress from '../Screens/Account/Address/Edit';
+import Filter from '../Screens/Filter/Filter';
+import Items from '../Screens/Items/Items';
+import CategoryHome from '../Screens/Categories/CategoryHome';
+import Search from '../Screens/Search/Search';
+import Payment from '../Screens/Delivery/Payment';
 import Components from '../component-template/Components';
 import AccordionScreen from '../component-template/Accordion';
 import ActionSheet from '../component-template/ActionSheet';
@@ -49,10 +49,11 @@ import SwipeableScreen from '../components/Swipeable';
 import Tabs from '../component-template/Tabs';
 import Tables from '../component-template/Tables';
 import Toggles from '../component-template/Toggles';
-import Slider from '../screens/Products/BestSellerProduct';
-import Checkout from '../screens/Checkout/Checkout';
-import MainHome from '../screens/Home/MainHome';
-import Cart from '../screens/Cart/Cart';
+import Slider from '../Screens/Products/BestSellerProduct';
+import Checkout from '../Screens/Checkout/Checkout';
+import MainHome from '../Screens/Home/MainHome';
+import Cart from '../Screens/Cart/Cart';
+import PagesInShopify from '../Screens/Pages/PageByRoute';
 
 const StackComponent = createNativeStackNavigator();
 
@@ -77,7 +78,7 @@ function StackNavigator({ isAuthenticated }) {
         <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
         <StackComponent.Screen name="Checkout" component={Checkout} />
         <StackComponent.Screen name="Payment" component={Payment} />
-        <StackComponent.Screen name="PageOurStory" component={PageOurStory} />
+        <StackComponent.Screen name="PagesInShopify" component={PagesInShopify} />
         <StackComponent.Screen name="Items" component={Items} />
         <StackComponent.Screen name="SignIn" component={SignIn} />
         <StackComponent.Screen name="SignUp" component={SignUp} />

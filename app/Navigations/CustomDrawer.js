@@ -3,40 +3,23 @@ import {Image, Text, TouchableOpacity, View} from 'react-native';
 import {COLORS, FONTS, IMAGES} from '../constants/theme';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthenApi } from '../service/shopify-login';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCartId } from '../store/reducer';
 
 const CustomDrawer = ({navigation}) => {
-  const [dataAccount, setDataAccount] = useState(null);
-
-  useEffect(() => {
-    getDetailCustomer();
-  }, []);
-
-  const getDetailCustomer = async () => {
-    // setIsLoading(true);
-    const customerId = await AsyncStorage.getItem('customerIdString');
-
-    AuthenApi.getDataAccount(customerId)
-      .then(res => {
-        // setIsLoading(false);
-        setDataAccount(res.customer);
-      })
-      .catch(error => {
-        // setIsLoading(false);
-        console.log('error', error);
-      });
-  };
+  const {customerInfo} = useSelector(state => state?.user);
+  const dispatch = useDispatch();
 
   const navItem = [
     {
       icon: 'home',
       name: 'Home',
-      navigate: 'DrawerNavigation',
+      navigate: 'Home',
     },
     {
       icon: 'heart',
       name: 'Wishlist',
-      navigate: 'Wishlist',
+      navigate: 'Favourite',
     },
     {
       icon: 'repeat',
@@ -56,7 +39,7 @@ const CustomDrawer = ({navigation}) => {
     {
       icon: 'log-out',
       name: 'Logout',
-      navigate: 'Onboarding',
+      navigate: 'SignIn',
     },
   ];
 
@@ -89,11 +72,11 @@ const CustomDrawer = ({navigation}) => {
                 color: COLORS.title,
                 top: 2,
               }}>
-              {dataAccount?.first_name}
+              {customerInfo?.firstName || customerInfo?.first_name} {customerInfo?.lastName || customerInfo?.last_name}
             </Text>
             <Text
               style={{...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)'}}>
-              {dataAccount?.email}
+              {customerInfo?.email}
             </Text>
           </View>
         </View>
@@ -102,12 +85,24 @@ const CustomDrawer = ({navigation}) => {
           {navItem.map((data, index) => {
             return (
               <TouchableOpacity
-                onPress={() => {
-                  data.navigate == 'Cart' || data.navigate == 'Account'
-                    ? navigation.navigate('BottomNavigation', {
-                        screen: data.navigate,
-                      })
-                    : data.navigate && navigation.navigate(data.navigate);
+                onPress={async () => {
+                  if (
+                    data.navigate == 'Home' ||
+                    data.navigate == 'Cart' ||
+                    data.navigate == 'Account' ||
+                    data.navigate == 'Favourite' ||
+                    data.navigate == 'Orders'
+                  ) {
+                    navigation.navigate('BottomNavigation', {
+                      screen: data.navigate,
+                    });
+                  } else if (data.navigate == 'Logout') {
+                    await AsyncStorage.removeItem('accessToken');
+                    dispatch(setCartId(''));
+                    navigation.navigate('SignIn');
+                  } else {
+                    navigation.navigate(data.navigate);
+                  }
                   navigation.closeDrawer();
                 }}
                 key={index}

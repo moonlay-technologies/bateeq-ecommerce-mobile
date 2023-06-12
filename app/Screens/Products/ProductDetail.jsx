@@ -55,6 +55,7 @@ function ProductDetail({ navigation, route }) {
   const [qty, setQty] = useState(1);
   const cart = useSelector(state => state.cart);
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
+  const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [product, setProduct] = useState({
     id: '',
     descriptionHtml: '',
@@ -99,7 +100,7 @@ function ProductDetail({ navigation, route }) {
     loading: productRecommendationLoad,
   } = useQuery(GET_PRODUCT_RECOMMENDATION, {
     variables: {
-      prodcutId: id,
+      productId: id,
     },
   });
 
@@ -272,10 +273,18 @@ function ProductDetail({ navigation, route }) {
       });
   };
 
+  useEffect(() => {
+    if (productRecommendations.length > 0) {
+      const shuffledProductsRecommendations = productRecommendations.sort(() => 0.5 - Math.random());
+      const selectedProducts = shuffledProductsRecommendations.slice(0, 2);
+      setRandomProductsRecommendation(selectedProducts);
+    }
+  }, [productRecommendations]);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
-        <HeaderCartComponent />
+        <HeaderCartComponent navigation={navigation} />
         <View style={{ paddingHorizontal: 20 }}>
           <Header titleLeft leftIcon="back" title="back" />
         </View>
@@ -477,8 +486,8 @@ function ProductDetail({ navigation, route }) {
                   justifyContent: 'space-between',
                 }}
               >
-                {productRecommendations.length > 0 &&
-                  productRecommendations.map(({ image, title, price, compareAtPrice, id }) => {
+                {randomProductsRecommendation.length > 0 &&
+                  randomProductsRecommendation.map(({ image, title, price, compareAtPrice, id }) => {
                     return (
                       <View
                         key={id}
