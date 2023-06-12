@@ -18,6 +18,7 @@ const CustomDrawer = ({navigation}) => {
 
     AuthenApi.getDataAccount(customerId)
       .then(res => {
+          console.log(res.customer,'CUSTOMER CUSTOM DRAWER')
         // setIsLoading(false);
         setDataAccount(res.customer);
       })

@@ -21,7 +21,7 @@ export class CheckoutGql extends MutationGql{
     addLine(){
         try{
             this.eventName = CHECKOUT_LINE_ADD
-            const [ err , data ] = this.query();
+            const [ err , data ] = this.mutation();
             if(err) return [ new Error(err?.message ?? undefined), null]
             return [ null, data ]
         }catch(err){
@@ -36,7 +36,7 @@ export class CheckoutGql extends MutationGql{
     completeFree(){
         try{
             this.eventName = CHECKOUT_COMPLETE_FREE
-            const [ err ,data ] = this.query();
+            const [ err ,data ] = this.mutation();
             if(err) return [ new Error(err?.message ?? undefined), null]
             return [ null, data ]
         }catch(err){
@@ -67,7 +67,7 @@ export class CheckoutGql extends MutationGql{
     create(){
         try{
             this.eventName = CREATE_CHECKOUT
-            const [ err, data ] = this.query();
+            const [ err, data ] = this.mutation();
             if(err) return [ new Error(err?.message ?? undefined), null]
             return [ null, data ]
         }catch(err){

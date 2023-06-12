@@ -1,9 +1,4 @@
-
 import { gql } from '@apollo/client'
-
-
-// export const CHECKOUT_
-
 
 /**
  * @name SHOW_CHECKOUT_BY_ID

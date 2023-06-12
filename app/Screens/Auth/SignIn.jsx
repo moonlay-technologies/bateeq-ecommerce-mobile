@@ -72,8 +72,6 @@ function SignIn(props) {
       });
       const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
 
-      console.log('access token', accessToken);
-
       if (accessToken) {
         Toast.show({
           type: 'success',

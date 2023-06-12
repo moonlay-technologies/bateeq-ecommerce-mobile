@@ -13,11 +13,6 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
-import { useQuery, gql } from '@apollo/client';
-import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { COLORS, FONTS } from '../../constants/theme';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
 import FeaturedCard from '../../components/FeaturedCard';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
@@ -25,8 +20,16 @@ import { Footer } from '../../components/Footer';
 import { ProductApi, CollectionsApi } from '../../service/shopify-api';
 import CustomHTML from '../../components/CustomHtml';
 import LoadingScreen from '../../components/LoadingView';
-import { setIsOpen } from '../../store/reducer';
-import HeaderCartComponent from '../../components/HeaderComponent';
+import {useQuery, gql} from '@apollo/client';
+import {useNavigation} from '@react-navigation/native';
+import {connect, useDispatch, useSelector} from 'react-redux';
+import { setIsOpen } from '../../store/reducer'
+import { GET_TOTAL_QUANTITY_CART } from '../../graphql/queries';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import {CartGetList, CartPutTotalQty} from "../../store/actions";
+import {COLORS, FONTS} from "../../constants/theme";
+import {IconButton} from "react-native-paper";
+import FeatherIcon from "react-native-vector-icons/Feather";
 
 // const TopSelectionData = [
 //   {
@@ -151,11 +154,11 @@ const GET_MAIN_MENU_NAVIGATION = gql`
   }
 `;
 
-function MainHome({ navigation }) {
-  const cart = useSelector(state => state.cart);
+const MainHome = (props) => {
+  let { navigation,options,CartPutTotalQty,CartGetList } = props
+  console.log({CartGetList})
   const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState(null);
-  // const [dataCustomCollection, setDataCustomCollection] = useState([]);
   const [dataAllProduct, setDataAllProduct] = useState([]);
   const [pageStory, setPageStory] = useState(null);
   const [dataLatestCollection, setDataLatestCollection] = useState(null);
@@ -205,6 +208,15 @@ function MainHome({ navigation }) {
     },
   });
 
+  const {data: cartData} = useQuery(GET_TOTAL_QUANTITY_CART, {
+    variables:{
+      id: options?.cartId
+    }
+  })
+
+  useEffect(()=> {
+    CartGetList({first:50,last:0})
+  },[])
   useEffect(() => {
     if (data) {
       setPageStory(data.page);
@@ -226,12 +238,28 @@ function MainHome({ navigation }) {
     if (dataListCategories) {
       setDataCategories(dataListCategories.products.edges);
     }
-  }, [data, latestCollectionData, dataImageBanner, dataListCategories, dataImageCollection, getAllProduct]);
+  }, [
+    data,
+    latestCollectionData,
+    dataImageBanner,
+    dataListCategories,
+    dataImageCollection,
+    getAllProduct
+  ]);
+
+  useEffect(()=> {
+    if(cartData) {
+      CartPutTotalQty({totalQuantity:cartData?.cart?.totalQuantity})
+    }
+  },[cartData])
 
   useEffect(() => {
     // getDataProducts();
     // getDataCustomCollections();
   }, []);
+
+
+
 
   const getDataProducts = () => {
     setIsLoading(true);
@@ -279,9 +307,72 @@ function MainHome({ navigation }) {
       style={{
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
-      }}
-    >
-      <HeaderCartComponent />
+      }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          height: 45,
+          justifyContent: 'space-between',
+        }}>
+        <IconButton
+          icon={() => (
+            <View
+              style={{
+                height: 30,
+                width: 30,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 8,
+              }}>
+              <FeatherIcon color={COLORS.title} size={18} name="menu" />
+            </View>
+          )}
+          size={25}
+          onPress={() => {
+            if('openDrawer' in navigations && typeof (navigations?.openDrawer) !== 'undefined') {
+              navigations?.openDrawer()
+            }
+          }}
+          // onPress={handleDrawer}
+        />
+        <TouchableOpacity>
+          <Image
+            style={{width: 70, height: 35}}
+            source={require('../../assets/images/logo.png')}
+          />
+        </TouchableOpacity>
+        {
+          options?.loading ? <Text>Loading...</Text> : (
+              <IconButton
+                  onPress={() => navigation.navigate('Cart')}
+                  icon={() => (
+                      <View>
+                        <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
+                        {options?.totalQuantity > 0 && <View
+                            style={{
+                              height: 14,
+                              width: 14,
+                              borderRadius: 14,
+                              backgroundColor: COLORS.primary,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              position: 'absolute',
+                              top: -4,
+                              right: -6,
+                            }}>
+                          <Text
+                              style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
+                            {options?.totalQuantity}
+                          </Text>
+                        </View> }
+                      </View>
+                  )}
+                  size={25}
+              />
+          )
+        }
+      </View>
       {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
       <View style={styles.menuContainer}>{renderMainMenu()}</View>
       {/* </ScrollView> */}
@@ -647,4 +738,7 @@ const styles = {
   },
 };
 
-export default MainHome;
+export default connect(({Cart})=> {
+  let {options} = Cart
+  return { options }
+},{CartPutTotalQty,CartGetList})(React.memo(MainHome));
