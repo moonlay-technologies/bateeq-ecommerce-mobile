@@ -35,7 +35,7 @@ const cache = new InMemoryCache({
           merge(existing = {}, incoming) {
             const mergedOrders = existing.orders && incoming.orders
               ? [...existing.orders, ...incoming.orders]
-              : incoming.orders || existing.orders;
+              : incoming?.orders || existing.orders;
 
             return {
               ...incoming,
