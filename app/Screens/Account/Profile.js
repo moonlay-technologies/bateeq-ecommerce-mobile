@@ -22,6 +22,7 @@ import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCustomerInfo } from '../../store/reducer';
 import HeaderCartComponent from '../../components/HeaderCartComponent';
+import { setCartId } from '../../store/reducer';
 
 const languagetData = [
   {
