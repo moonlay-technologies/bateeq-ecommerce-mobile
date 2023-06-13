@@ -8,6 +8,7 @@ export const COLORS = {
   secondary: '#612657',
   success: '#18BF29',
   danger: '#E12344',
+  dangerRed: '#ff0000',
   warning: '#ffb02c',
   orangeWarning: '#d25e0b',
   dark: '#D8D8D8',

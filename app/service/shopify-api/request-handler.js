@@ -1,6 +1,6 @@
-import {create} from 'apisauce';
+import { create } from 'apisauce';
 import LocalStorage from 'local-storage';
-import AuthService from '../auth/auth-service';
+// import AuthService from '../auth/auth-service';
 
 const api = create({
   baseURL: `https://bateeqshop.myshopify.com/admin/api/2023-04/`,
@@ -12,9 +12,9 @@ const api = create({
 api.axiosInstance.interceptors.request.use(
   // eslint-disable-next-line consistent-return
   config => {
-    console.log('config', config)
-    // config.headers.Authorization = 
-    return Promise.resolve(config)
+    console.log('config', config);
+    // config.headers.Authorization =
+    return Promise.resolve(config);
     // if (AuthService.isLoggedIn()) {
     //   const cb = () => {
     //     config.headers.Authorization = `Bearer ${AuthService.getToken()}`;
@@ -38,8 +38,7 @@ export default class RequestHandler {
 
     if (response.data) {
       if (typeof response.data === 'object') {
-        msg =
-          response.data.Error || response.data.error || 'An error has occurred';
+        msg = response.data.Error || response.data.error || 'An error has occurred';
       } else {
         msg = response.data || 'An error has occurred';
       }
@@ -57,9 +56,9 @@ export default class RequestHandler {
   get(params, url = this.url) {
     return new Promise((resolve, reject) => {
       api
-        .get(url, {...params})
+        .get(url, { ...params })
         .then(response => {
-          console.log('response', response)
+          console.log('response', response);
           if (response.ok) resolve(response.data);
           else {
             reject(response);
