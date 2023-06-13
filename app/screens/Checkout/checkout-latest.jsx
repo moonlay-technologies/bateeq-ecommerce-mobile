@@ -13,7 +13,7 @@ import { GET_CART_BY_ID, GET_CUSTOMER_ADDRESS } from '../../graphql/queries';
 import LoadingScreen from '../../components/LoadingView';
 import NoContent from '../../components/NoContent';
 import CartList from '../../components/CartList';
-import AuthService from '../../service/auth/auth-service';
+// import AuthService from '../../service/auth/auth-service';
 
 function Checkout() {
   const navigation = useNavigation();
@@ -52,17 +52,17 @@ function Checkout() {
       setCustomerAddress(address?.customer?.addresses?.edges[0]?.node || '');
     }
 
-    AuthService.getToken()
-      .then(result => {
-        setToken(result);
-      })
-      .catch(err => {
-        Toast.show({
-          type: 'error',
-          text1: 'Oops!',
-          text2: err.originalError?.message || 'something went wrong',
-        });
-      });
+    // AuthService.getToken()
+    //   .then(result => {
+    //     setToken(result);
+    //   })
+    //   .catch(err => {
+    //     Toast.show({
+    //       type: 'error',
+    //       text1: 'Oops!',
+    //       text2: err.originalError?.message || 'something went wrong',
+    //     });
+    //   });
   }, [cartData, loading, cart, address, errorAddress, loadingAddress]);
 
   return (

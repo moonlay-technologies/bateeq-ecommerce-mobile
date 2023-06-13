@@ -3,9 +3,11 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { COLORS, FONTS } from '../constants/theme';
+import {COLORS, FONTS} from '../constants/theme';
+import {connect} from "react-redux";
 
-function HeaderBateeq({ signin }) {
+const HeaderBateeq = ({signin,...props}) => {
+    let { totalQuantity } = props
   const navigation = useNavigation();
 
   const handlePress = () => {
@@ -75,9 +77,11 @@ function HeaderBateeq({ signin }) {
                   position: 'absolute',
                   top: -4,
                   right: -6,
-                }}
-              >
-                <Text style={{ ...FONTS.fontXs, fontSize: 10, color: COLORS.white }}>2</Text>
+                }}>
+                <Text
+                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
+                    {totalQuantity}
+                </Text>
               </View>
             </View>
           )}
@@ -88,4 +92,7 @@ function HeaderBateeq({ signin }) {
   );
 }
 
-export default HeaderBateeq;
+export default connect(({Cart})=> {
+    let { options } = Cart
+    return { options,totalQuantity: options?.totalQuantity  }
+},{})(React.memo(HeaderBateeq));

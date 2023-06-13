@@ -17,6 +17,8 @@ import ProductItem from '../../components/ProductItem';
 import { COLORS, FONTS } from '../../constants/theme';
 import { ProductApi } from '../../service/shopify-api';
 import LoadingScreen from '../../components/LoadingView';
+import {connect} from "react-redux";
+import {CollectionSearch} from "../../store/actions/product";
 import HeaderComponent from '../../components/HeaderComponent';
 
 const SEARCH_PRODUCTS_QUERY = gql`
@@ -58,10 +60,16 @@ const SEARCH_PRODUCTS_QUERY = gql`
   }
 `;
 
-function Search({ navigation }) {
+
+const Search = (props) => {
+    let {
+        options,
+        CollectionSearch,
+        navigation,
+        search
+    } = props
   const [valSearch, setValSearch] = useState('');
   const [itemView, setItemView] = useState('grid');
-  // const [isLoading, setIsLoading] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
 
   const [searchProducts, { data, loading, error }] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
@@ -72,11 +80,10 @@ function Search({ navigation }) {
 
   const handleSearchButton = () => {
     const query = valSearch.toLowerCase();
-    searchProducts({
-      variables: {
-        query,
-      },
-    });
+      CollectionSearch({
+          first:20,
+          query
+      })
   };
 
   useEffect(() => {
@@ -86,33 +93,47 @@ function Search({ navigation }) {
     }
   }, [data]);
 
-  const renderItem = ({ item }) => (
-    <View style={{ width: '50%', paddingHorizontal: 5 }}>
-      <ProductItem
-        onPress={() =>
-          navigation.navigate('ProductDetail', {
-            item: {
-              title: item.title,
-              images: item?.images?.edges,
-              oldPrice: item?.variants?.edges[0]?.node?.compareAtPrice?.amount,
-              price: item?.variants?.edges[0]?.node?.price?.amount,
-              desc: item.desc,
-              variant: item?.options[0]?.values,
-              colors: item?.options[1]?.values,
-            },
-            // category: type,
-          })}
-        imgLength
-        id={item.id}
-        imageSrc={item?.images?.edges[0]?.node?.url}
-        title={item.title}
-        desc={item.desc}
-        status={item.status ? 'SALE' : null}
-        price={item?.variants?.edges[0]?.node?.price?.amount}
-        oldPrice={item?.variants?.edges[0]?.node?.compareAtPrice?.amount}
-      />
-    </View>
-  );
+  const renderItem = ({item}) => {
+      return (
+          <View style={{width: '50%', paddingHorizontal: 5}}>
+              <ProductItem
+                  onPress={() =>
+                      // navigation.navigate('ProductDetail', {
+                      //     item: {
+                      //         title: itemName,
+                      //         image: imageSrc,
+                      //         oldPrice: oldPrice,
+                      //         price: price,
+                      //         images: images
+                      //     },
+                      //     category: 'Appliances',
+                      // })
+                      navigation.navigate('ProductDetail', {
+                          item: {
+                              id:item.id,
+                              title: item.title,
+                              images: item?.images?.nodes,
+                              oldPrice: item?.variants?.nodes[0]?.compareAtPrice?.amount ?? 0,
+                              price: item?.variants?.nodes[0]?.price?.amount,
+                              desc: item.desc,
+                              variant: item?.options[0]?.values,
+                              colors: item?.options[1]?.values,
+                          },
+                          // category: type,
+                      })
+                  }
+                  imgLength
+                  id={item.id}
+                  imageSrc={item?.images?.nodes[0]?.url}
+                  title={item.title}
+                  desc={item.desc}
+                  status={item.status ? 'SALE' : null}
+                  price={item?.variants?.nodes[0]?.price?.amount}
+                  oldPrice={item?.variants?.nodes[0]?.comparpriceeAtPrice?.amount}
+              />
+          </View>
+      )
+  };
 
   const handleValChange = val => {
     setValSearch(val);
@@ -125,6 +146,61 @@ function Search({ navigation }) {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          height: 45,
+          justifyContent: 'space-between',
+        }}
+      >
+        <IconButton
+          icon={() => (
+            <View
+              style={{
+                height: 30,
+                width: 30,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 8,
+              }}
+            >
+              <FeatherIcon color={COLORS.title} size={18} name="menu" />
+            </View>
+          )}
+          size={25}
+          onPress={() => navigation.openDrawer()}
+        />
+        <TouchableOpacity onPress={handlePress}>
+          <Image style={{ width: 70, height: 35 }} source={require('../../assets/images/logo.png')} />
+        </TouchableOpacity>
+        <IconButton
+          onPress={() => navigation.navigate('Cart')}
+          icon={() => (
+            <View>
+              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
+              <View
+                style={{
+                  height: 14,
+                  width: 14,
+                  borderRadius: 14,
+                  backgroundColor: COLORS.primary,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  top: -4,
+                  right: -6,
+                }}>
+                <Text
+                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
+                    {options?.totalQuantity ?? 0}
+                </Text>
+              </View>
+            </View>
+          )}
+          size={25}
+        />
+      </View>
       <HeaderComponent />
       <View
         style={{
@@ -198,11 +274,11 @@ function Search({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-      {loading ? (
+      {search?.loading ? (
         <LoadingScreen />
       ) : (
         <FlatList
-          data={searchResults}
+          data={search.data}
           renderItem={renderItem}
           keyExtractor={item => item.id}
           numColumns={itemView === 'grid' ? 2 : 1}
@@ -214,13 +290,20 @@ function Search({ navigation }) {
             paddingHorizontal: 8,
             marginBottom: 15,
           }}
-          // onEndReached={() => {
-          // Load more data here
-          // }}
         />
       )}
     </SafeAreaView>
   );
 }
 
-export default Search;
+export default
+connect(
+    ({Cart,Product})=> {
+    let { options } = Cart
+    let { collections } = Product
+    return {
+        options,
+        search: collections?.search ?? {}
+    }
+},
+    {CollectionSearch})(Search);

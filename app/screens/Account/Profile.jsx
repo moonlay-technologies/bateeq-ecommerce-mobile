@@ -4,11 +4,11 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { gql, useQuery } from '@apollo/client';
-import { useDispatch, useSelector } from 'react-redux';
+import { useQuery } from '@apollo/client';
+import { useDispatch } from 'react-redux';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { COLORS, FONTS, IMAGES } from '../../constants/theme';
+import { COLORS, FONTS } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
 import UnitedStates from '../../assets/images/flags/UnitedStates.png';
 import german from '../../assets/images/flags/german.png';
@@ -46,14 +46,12 @@ const languagetData = [
 ];
 function Profile() {
   const navigation = useNavigation();
-  const [dataAccount, setDataAccount] = useState(null);
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [dataFaq, setDataFaq] = useState(null);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
-  const { customerInfo } = useSelector(state => state.user);
 
   const onError = err => {
     gqlError({ error: err, Toast });

@@ -10,7 +10,6 @@ const CartData = [
     title: 'JACQUARD NALIKA 011',
     quantity: '2',
     size: 'M',
-    // price : "$158.2",
     date: '03 March 2023',
     status: 'On delivery',
     desc: 'On the way by Courir  [H. Stefanus]',
