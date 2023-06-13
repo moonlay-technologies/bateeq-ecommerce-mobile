@@ -17,6 +17,7 @@ import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import { setCartId } from '../../store/reducer';
 import HeaderComponent from '../../components/HeaderComponent';
+import UserInfo from '../../components/UserInfo';
 
 const languagetData = [
   {
@@ -133,39 +134,7 @@ function Profile() {
           >
             Account Details
           </Text>
-          <View style={GlobalStyleSheet.container}>
-            {isLoading ? (
-              <LoadingScreen type="circle" />
-            ) : (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 20,
-                }}
-              >
-                <Image
-                  style={{
-                    height: 80,
-                    width: 90,
-                    borderRadius: 5,
-                    marginRight: 15,
-                  }}
-                  source={IMAGES.user}
-                />
-                <View
-                  style={{
-                    flex: 1,
-                    marginTop: 20,
-                  }}
-                >
-                  <Text style={{ ...FONTS.h6 }}>{`${customerInfo?.first_name} ${customerInfo?.last_name}` || ''}</Text>
-                  <Text style={{ ...FONTS.font }}>{customerInfo?.email || ''}</Text>
-                  <Text style={{ ...FONTS.font }}>{customerInfo?.phone || ''}</Text>
-                </View>
-              </View>
-            )}
-          </View>
+          <View style={GlobalStyleSheet.container}>{isLoading ? <LoadingScreen type="circle" /> : <UserInfo />}</View>
           <View style={{ ...GlobalStyleSheet.container, marginTop: -20 }}>
             <View>
               <TouchableOpacity

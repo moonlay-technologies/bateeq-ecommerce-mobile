@@ -25,7 +25,7 @@ function OptionBar(props) {
           top: '50%',
           left: '50%',
           transform: [{ translateX: -170 }, { translateY: -100 }],
-          backgroundColor: '#ededed',
+          backgroundColor: COLORS.light,
           borderRadius: SIZES.radius,
           paddingHorizontal: 30,
           paddingVertical: 20,
