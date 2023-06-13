@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@apollo/client';
-import { useSelector } from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
@@ -10,6 +10,7 @@ import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
 import MenuListHeader from './ListMenuHeader';
+import {CartPutTotalQty} from "../store/actions";
 
 function HeaderComponent({
   icon = '',
@@ -19,21 +20,26 @@ function HeaderComponent({
   dataPageStory,
   showListMenu,
   dataListMenu,
+    options,
+    ...props
 }) {
+
+    let { CartPutTotalQty } = props
+
+
   const navigation = useNavigation();
   const [cartQuantity, setCartQuantity] = useState(0);
-  const cart = useSelector(state => state.cart);
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
     variables: {
-      id: cart?.id,
+        id: options?.cartId
     },
   });
 
-  useEffect(() => {
-    if (cartData) {
-      setCartQuantity(cartData?.cart?.totalQuantity);
-    }
-  }, []);
+    useEffect(()=> {
+        if(cartData) {
+            CartPutTotalQty({totalQuantity:cartData?.cart?.totalQuantity})
+        }
+    },[cartData])
 
   const handlePress = () => {
     navigation.navigate('Home');
@@ -61,24 +67,54 @@ function HeaderComponent({
   const rightIcon = () => {
     return (
       <View>
-        <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-        {cartQuantity > 0 && (
-          <View
-            style={{
-              height: 14,
-              width: 14,
-              borderRadius: 14,
-              backgroundColor: COLORS.primary,
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'absolute',
-              top: -4,
-              right: -6,
-            }}
-          >
-            <Text style={{ ...FONTS.fontXs, fontSize: 10, color: COLORS.white }}>{cartQuantity}</Text>
-          </View>
-        )}
+        {/*<FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />*/}
+          {
+              options?.loading ? <Text>Loading...</Text> : (
+                  <IconButton
+                      onPress={() => navigation.navigate('Cart')}
+                      icon={() => (
+                          <View>
+                              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
+                              {options?.totalQuantity > 0 && <View
+                                  style={{
+                                      height: 14,
+                                      width: 14,
+                                      borderRadius: 14,
+                                      backgroundColor: COLORS.primary,
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      position: 'absolute',
+                                      top: -4,
+                                      right: -6,
+                                  }}>
+                                  <Text
+                                      style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
+                                      {options?.totalQuantity}
+                                  </Text>
+                              </View> }
+                          </View>
+                      )}
+                      size={25}
+                  />
+              )
+          }
+        {/*{cartQuantity > 0 && (*/}
+        {/*  <View*/}
+        {/*    style={{*/}
+        {/*      height: 14,*/}
+        {/*      width: 14,*/}
+        {/*      borderRadius: 14,*/}
+        {/*      backgroundColor: COLORS.primary,*/}
+        {/*      alignItems: 'center',*/}
+        {/*      justifyContent: 'center',*/}
+        {/*      position: 'absolute',*/}
+        {/*      top: -4,*/}
+        {/*      right: -6,*/}
+        {/*    }}*/}
+        {/*  >*/}
+        {/*    <Text style={{ ...FONTS.fontXs, fontSize: 10, color: COLORS.white }}>{cartQuantity}</Text>*/}
+        {/*  </View>*/}
+        {/*)}*/}
       </View>
     );
   };
@@ -131,4 +167,7 @@ function HeaderComponent({
   );
 }
 
-export default HeaderComponent;
+export default connect(({Cart})=> {
+    let {options} = Cart
+    return { options }
+},{CartPutTotalQty})(React.memo(HeaderComponent));

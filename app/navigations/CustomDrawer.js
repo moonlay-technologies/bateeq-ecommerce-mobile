@@ -6,6 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 import { setCartId } from '../store/reducer';
 
+import { AuthenApi } from '../service/shopify-login';
+
 function CustomDrawer({ navigation }) {
   const { customerInfo } = useSelector(state => state?.user);
   const dispatch = useDispatch();
@@ -14,12 +16,12 @@ function CustomDrawer({ navigation }) {
     {
       icon: 'home',
       name: 'Home',
-      navigate: 'Home',
+      navigate: 'DrawerNavigation',
     },
     {
       icon: 'heart',
       name: 'Wishlist',
-      navigate: 'Favourite',
+      navigate: 'Wishlist',
     },
     {
       icon: 'repeat',
@@ -39,7 +41,7 @@ function CustomDrawer({ navigation }) {
     {
       icon: 'log-out',
       name: 'Logout',
-      navigate: 'SignIn',
+      navigate: 'Onboarding',
     },
   ];
 

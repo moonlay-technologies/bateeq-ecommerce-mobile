@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   Image,
-  // ImageBackground,
   SafeAreaView,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
-  // TextInput,
 } from 'react-native';
-// import { gqlError } from '../../utils/error-handling';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
@@ -18,14 +15,14 @@ import ProductCardStyle1 from '../../components/ProductCardStyle';
 import FeaturedCard from '../../components/FeaturedCard';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { Footer } from '../../components/Footer';
-// import { ProductApi } from '../../service/shopify-api';
 import CustomHTML from '../../components/CustomHtml';
 import LoadingScreen from '../../components/LoadingView';
-// import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useQuery } from '@apollo/client';
-import { useNavigation } from '@react-navigation/native';
+import {useQuery, gql} from '@apollo/client';
+import {useNavigation} from '@react-navigation/native';
+import {connect} from 'react-redux';
+import { GET_TOTAL_QUANTITY_CART } from '../../graphql/queries';
+import {CartGetList, CartPutTotalQty} from "../../store/actions";
 import HeaderComponent from '../../components/HeaderComponent';
-
 import {
   GET_PAGES,
   GET_BANNER_SLIDER,
@@ -35,22 +32,16 @@ import {
   GET_LIST_CATEGORIES,
 } from '../../graphql/queries';
 
-const MainHome = ({ navigation }) => {
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [productData, setProductData] = useState(null);
+const MainHome = (props) => {
+  let { navigation,options,CartPutTotalQty,CartGetList } = props
   const [dataAllProduct, setDataAllProduct] = useState([]);
   const [pageStory, setPageStory] = useState(null);
   const [dataLatestCollection, setDataLatestCollection] = useState(null);
   const [dataBanner, setDataBanner] = useState([]);
   const [imageSliderCollection, setImageSliderCollection] = useState([]);
   const [dataCategories, setDataCategories] = useState([]);
-  const [activeSubMenu, setActiveSubMenu] = useState(null);
 
   const navigations = useNavigation();
-
-  // const onError = err => {
-  //   gqlError({ error: err, Toast });
-  // };
 
   const { data, loading } = useQuery(GET_PAGES, {
     variables: {
@@ -95,6 +86,15 @@ const MainHome = ({ navigation }) => {
     },
   });
 
+  const {data: cartData} = useQuery(GET_TOTAL_QUANTITY_CART, {
+    variables:{
+      id: options?.cartId
+    }
+  })
+
+  useEffect(()=> {
+    CartGetList({first:50,last:0})
+  },[])
   useEffect(() => {
     if (data) {
       setPageStory(data.page);
@@ -117,6 +117,11 @@ const MainHome = ({ navigation }) => {
       setDataCategories(dataListCategories.products.nodes);
     }
   }, [data, latestCollectionData, dataImageBanner, dataListCategories, dataSliderCollectionsById, getAllProduct]);
+  useEffect(()=> {
+    if(cartData) {
+      CartPutTotalQty({totalQuantity:cartData?.cart?.totalQuantity})
+    }
+  },[cartData])
 
   const handlePress = () => {
     navigation.navigate('Home');
@@ -126,7 +131,7 @@ const MainHome = ({ navigation }) => {
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: COLORS.backgroundColor,
+        backgroundColor: COLORS.backgroundColor
       }}
     >
       <HeaderComponent dataListMenu={dataSideMenuNavigation} dataPageStory={pageStory} showListMenu />
@@ -479,4 +484,7 @@ const MainHome = ({ navigation }) => {
   );
 };
 
-export default MainHome;
+export default connect(({Cart})=> {
+  let {options} = Cart
+  return { options }
+},{CartPutTotalQty,CartGetList})(React.memo(MainHome));
