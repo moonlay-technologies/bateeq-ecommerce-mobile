@@ -12,7 +12,6 @@
  * @property {string} value
  */
 
-
 /**
  * @typedef lineItemsCheckout
  * @property {String} variantId
@@ -23,5 +22,13 @@
 /**
  * @typedef ConstructMutationGql
  * @property {Object | {}} variables
+ * @property {Object | String} eventName
  * @property {Object | {}} options
+ */
+
+/**
+ * @typedef ProductAddCart
+ * @property {string} merchandiseId
+ * @property {number} quantity
+ * @property {customAttributes[]} attributes
  */

@@ -18,3 +18,26 @@ export const renderHTMLContent = (html) => {
     );
   });
 };
+
+/**
+ *
+ * @param {object} data
+ * @param {string|Array} key
+ * @returns {null}
+ */
+export const findKey = (data, key)=> {
+  if(data && typeof(data) !== 'object') return null
+  if(typeof(data) ==='object'){
+    if(Array.isArray(key) && key.length > 0){
+      let value = data;
+      for (const k of key) {
+        value = value[k];
+      }
+      return value
+    }else if (typeof(key) === 'string') {
+      if(typeof(data[key]) !== 'undefined') return data[key]
+      return null
+    }
+  }
+  return null
+}

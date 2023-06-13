@@ -28,6 +28,10 @@ api.axiosInstance.interceptors.request.use(
   }
 );
 export default class RequestHandler {
+  /**
+   *
+   * @param {string} url
+   */
   constructor(url) {
     this.api = api;
     this.url = url;

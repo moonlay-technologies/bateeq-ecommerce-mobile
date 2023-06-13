@@ -25,7 +25,7 @@ function OptionBar(props) {
           top: '50%',
           left: '50%',
           transform: [{ translateX: -170 }, { translateY: -100 }],
-          backgroundColor: COLORS.light,
+          backgroundColor: '#ededed',
           borderRadius: SIZES.radius,
           paddingHorizontal: 30,
           paddingVertical: 20,
@@ -33,7 +33,7 @@ function OptionBar(props) {
           zIndex: 999,
         }}
       >
-        <Ionicons name="information-circle-sharp" style={{ marginBottom: 8 }} color="#ccc" size={50} />
+        <Ionicons name="information-circle-sharp" style={{ marginBottom: 8 }} color="#704FFE" size={50} />
         <Text style={{ ...FONTS.h5, color: COLORS.title }}>{title}</Text>
         <Text style={{ ...FONTS.font, color: COLORS.text, textAlign: 'center' }}>{text}</Text>
         <View style={{ flexDirection: 'row', marginTop: 18 }}>

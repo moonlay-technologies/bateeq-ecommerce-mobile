@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { useDispatch } from 'react-redux';
-import { useMutation } from '@apollo/client';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import {connect} from 'react-redux';
 import { COLORS, FONTS } from '../constants/theme';
-import { setCartData } from '../store/reducer';
-import { GqlCart } from '../service/graphql/mutation/cart';
-import { CART_PUT_QTY } from '../graphql/mutation';
+import {CartPutQtyItem} from "../store/actions";
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 
 function CartList({
   image,
@@ -27,77 +24,32 @@ function CartList({
   setIsChange,
   withIncrementDecrement = false,
   showQuantity,
-}) {
-  const dispatch = useDispatch();
-  const [cartLinesUpdate] = useMutation(CART_PUT_QTY);
-  const [itemQuantity, setItemQuantity] = useState(quantity);
-
-  const handleQuantity = async type => {
-    let qty;
-    const body = {
-      isChange: true,
-      cartId,
-      attributes,
-      lineId,
-    };
-    if (type === 'de' && itemQuantity > 0) {
-      const decrement = itemQuantity - 1;
-      setItemQuantity(decrement);
-      dispatch(
-        setCartData({
-          body,
-          quantity: decrement,
-        })
-      );
-      qty = decrement;
-    }
-    if (type === 'in') {
-      const increment = itemQuantity + 1;
-      setItemQuantity(itemQuantity + 1);
-      dispatch(
-        setCartData({
-          body,
-          quantity: increment,
-        })
-      );
-      qty = increment;
-    }
-    // console.log('variabess', {variables:{
-    //   cartId: cartId,
-    //   lines: [{
-    //     attributes,
-    //     id: lineId,
-    //     merchandiseId,
-    //     quantity: qty
-    //   }]
-    // }})
-    const { data, errors } = await cartLinesUpdate({
-      variables: {
-        cartId,
-        lines: [
-          {
-            attributes,
-            id: lineId,
-            merchandiseId,
-            quantity: qty,
-          },
-        ],
-      },
-    });
-    if (data?.cartLinesUpdate) {
-      const { cart, userErrors } = data?.cartLinesUpdate;
-      if (userErrors && userErrors.length > 0) {
-        Toast.show({
-          type: 'error',
-          text1: 'oops!',
-          text2: userErrors[0]?.message || 'something went wrong',
-        });
-      } else {
-        refreshCartData();
+...props}) {
+    let { CartPutQtyItem,options,lists } = props
+    /**
+     * @param {CartLineInput} item
+     * @returns {Promise<void>}
+     */
+  const onQtyUpdate = (item)=> {
+      if(item?.quantity > 0){
+          CartPutQtyItem({
+              variables: {
+                  cartId: cartId,
+                  lines: [
+                      {
+                          ...item
+                      }
+                  ]
+              }
+          })
+      }else{
+          Toast.show({
+                      type: 'error',
+                      text1: 'oops!',
+                      text2: 'quantity must be higher than 0',
+                    });
       }
-      setIsChange(!isChange);
-    }
-  };
+  }
 
   return (
     <TouchableOpacity
@@ -144,15 +96,6 @@ function CartList({
               </Text>
             )}
           </View>
-          {addComponent && (
-            <View
-              style={{
-                marginRight: 20,
-              }}
-            >
-              {addComponent}
-            </View>
-          )}
         </View>
         <View
           style={{
@@ -181,62 +124,92 @@ function CartList({
           </View>
         </View>
         {withIncrementDecrement && (
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => handleQuantity('de')}
-              style={{
-                height: 32,
-                width: 30,
-                borderWidth: 1,
-                // borderRadius:6,
-                borderColor: COLORS.borderColor,
-                backgroundColor: '#AAAAAA',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              disabled={itemQuantity === 0}
+            <View
+                style={{
+                    flex:1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent:'space-between'
+                }}
             >
-              <FeatherIcon size={14} color={COLORS.white} name="minus" />
-            </TouchableOpacity>
-            <Text
-              style={{
-                ...FONTS.fontSatoshiBold,
-                color: COLORS.title,
-                width: 120,
-                textAlign: 'center',
-                borderWidth: 1,
-                marginHorizontal: 8,
-                paddingVertical: 5,
-                paddingHorizontal: 50,
-              }}
-            >
-              {itemQuantity}
-            </Text>
-            <TouchableOpacity
-              onPress={() => handleQuantity('in')}
-              style={{
-                height: 32,
-                width: 30,
-                borderWidth: 1,
-                // borderRadius:6,
-                backgroundColor: '#303030',
-                borderColor: COLORS.borderColor,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <FeatherIcon size={14} color={COLORS.white} name="plus" />
-            </TouchableOpacity>
-          </View>
+                <View style={{
+                    flex:1,
+                    flexDirection:'row',
+                    alignItems:'center',
+                }}>
+                    <TouchableOpacity
+                        onPress={() => onQtyUpdate({
+                            attributes:attributes,
+                            merchandiseId,
+                            id:lineId,
+                            quantity: quantity > 1 ? quantity - 1 : quantity
+                        })}
+                        style={{
+                            height: 32,
+                            width: 30,
+                            borderWidth: 1,
+                            // borderRadius:6,
+                            borderColor: COLORS.borderColor,
+                            backgroundColor: '#AAAAAA',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        disabled={quantity === 0}
+                    >
+                        <FeatherIcon size={14} color={COLORS.white} name="minus" />
+                    </TouchableOpacity>
+                    <Text
+                        style={{
+                            ...FONTS.fontSatoshiBold,
+                            color: COLORS.title,
+                            width: 120,
+                            textAlign: 'center',
+                            borderWidth: 1,
+                            marginHorizontal: 8,
+                            paddingVertical: 5,
+                            paddingHorizontal: 50,
+                        }}
+                    >
+                        {quantity}
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() =>
+                            onQtyUpdate({
+                                attributes:attributes,
+                                merchandiseId,
+                                id:lineId,
+                                quantity: quantity > 0 ? quantity + 1 : quantity
+                            })}
+                        style={{
+                            height: 32,
+                            width: 30,
+                            borderWidth: 1,
+                            backgroundColor: '#303030',
+                            borderColor: COLORS.borderColor,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <FeatherIcon size={14} color={COLORS.white} name="plus" />
+                    </TouchableOpacity>
+                </View>
+                {addComponent && (
+                    <View>
+                        {addComponent}
+                    </View>
+                )}
+            </View>
         )}
       </View>
     </TouchableOpacity>
   );
 }
 
-export default CartList;
+export default connect(({Cart})=> {
+    let { options,lists } = Cart
+    return {
+        cartId: options?.cartId,
+        lists,
+        options
+    }
+},{CartPutQtyItem})(React.memo(CartList));
