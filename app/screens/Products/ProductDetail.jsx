@@ -9,7 +9,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
-import HeaderCartComponent from '../../components/HeaderComponent';
+import HeaderComponent from '../../components/HeaderComponent';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
 import LoadingScreen from '../../components/LoadingView';
 import SelectInput from '../../components/SelectInput';
@@ -298,9 +298,9 @@ function ProductDetail({ navigation, route }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
-        <HeaderCartComponent navigation={navigation} />
+        <HeaderComponent />
         <View style={{ paddingHorizontal: 20 }}>
-          <HeaderCartComponent withoutCartAndLogo backAction icon="back" title="back" />
+          <HeaderComponent withoutCartAndLogo backAction icon="back" title="back" />
         </View>
         <View style={{ paddingHorizontal: 20 }}>
           {isLoading ? (

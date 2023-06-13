@@ -1,14 +1,6 @@
 module.exports = {
   extends: ['airbnb', 'plugin:prettier/recommended'],
-  plugins: [
-    'react',
-    'react-native',
-    'react-hooks',
-    'prettier',
-    // 'eslint-plugin-prettier'
-    // 'jsx-ally',
-    // 'import'
-  ],
+  plugins: ['react', 'react-native', 'react-hooks', 'prettier'],
   parser: '@babel/eslint-parser',
   env: {
     jest: true,
@@ -26,10 +18,8 @@ module.exports = {
     'linebreak-style': ['error', 'windows'],
     'comma-dangle': 'off',
     'padded-blocks': 'off',
-    // 'arrow-body-style': 'off',
     'react-hooks/exhaustive-deps': 'warn',
-    // 'no-unstable-nested-component': false,
-    // 'no-inline-styles': false,
+
     'react-native/no-unused-styles': 2,
     'react-native/split-platform-components': 2,
     'react-native/no-inline-styles': 0,
