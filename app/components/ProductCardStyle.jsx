@@ -92,9 +92,7 @@ function ProductCardStyle1({ imageSrc, title, price, oldPrice, offer, onPress, a
                 color: COLORS.title,
               }}
             >
-              Rp 
-{' '}
-{formatWithCommas(Number(price).toLocaleString())}
+              Rp {formatWithCommas(Number(price).toLocaleString())}
             </Text>
           </View>
         </View>

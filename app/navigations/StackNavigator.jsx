@@ -53,6 +53,7 @@ import Slider from '../screens/Products/BestSellerProduct';
 import Checkout from '../screens/Checkout/Checkout';
 import MainHome from '../screens/Home/MainHome';
 import Cart from '../screens/Cart/Cart';
+import PagesInShopify from '../screens/Pages/PageByRoute';
 
 const StackComponent = createNativeStackNavigator();
 
@@ -77,7 +78,7 @@ function StackNavigator({ isAuthenticated }) {
         <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
         <StackComponent.Screen name="Checkout" component={Checkout} />
         <StackComponent.Screen name="Payment" component={Payment} />
-        <StackComponent.Screen name="PageOurStory" component={PageOurStory} />
+        <StackComponent.Screen name="PagesInShopify" component={PagesInShopify} />
         <StackComponent.Screen name="Items" component={Items} />
         <StackComponent.Screen name="SignIn" component={SignIn} />
         <StackComponent.Screen name="SignUp" component={SignUp} />

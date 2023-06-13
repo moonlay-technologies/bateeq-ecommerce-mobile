@@ -1,10 +1,12 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
 import { COLORS, FONTS } from '../constants/theme';
+import moment from 'moment/moment';
 
 function CartItem({
   productId,
   image,
+  imageSrc,
   title,
   quantity,
   size,
@@ -12,6 +14,9 @@ function CartItem({
   // desc,
   date,
 }) {
+  const dateOrders = moment(date);
+  const formattedDate = dateOrders.format('MMMM Do YYYY');
+
   return (
     <View style={{ flex: 1, paddingHorizontal: 15, marginVertical: 20 }}>
       <View
@@ -24,8 +29,8 @@ function CartItem({
         }}
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{date}</Text>
-          <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{productId}</Text>
+          <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{formattedDate}</Text>
+          <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{productId || 'NO SKU'}</Text>
         </View>
         <View
           activeOpacity={0.9}
@@ -43,7 +48,7 @@ function CartItem({
               // borderRadius:8,
               marginRight: 12,
             }}
-            source={image}
+            source={{ uri: imageSrc }}
           />
           <View style={{ flex: 1, paddingBottom: 7 }}>
             <Text
@@ -61,9 +66,7 @@ function CartItem({
               Size: <Text style={{ color: COLORS.title, ...FONTS.fontSatoshiBold }}>{size}</Text>
             </Text>
             <Text style={{ ...FONTS.fontSatoshiRegular, marginTop: 20 }}>
-              Qty: 
-{' '}
-<Text style={{ color: COLORS.title, ...FONTS.fontSatoshiBold }}>{quantity}</Text>
+              Qty: <Text style={{ color: COLORS.title, ...FONTS.fontSatoshiBold }}>{quantity}</Text>
             </Text>
             <View
               style={{
@@ -150,8 +153,8 @@ function CartItem({
             borderWidth: 1,
             paddingVertical: 10,
             borderRadius: 10,
-            borderColor: status === 'Confirmed' ? '#FFE600' : status === 'Canceled' ? '#FFB8B8' : '#659C5C',
-            backgroundColor: status === 'Confirmed' ? '#FFFDE7' : status === 'Canceled' ? '#FFB8B8' : '#EDFFEA',
+            borderColor: status === 'PENDING' ? '#FFE600' : status === 'EXPIRED' ? '#FFB8B8' : '#659C5C',
+            backgroundColor: status === 'PENDING' ? '#FFFDE7' : status === 'EXPIRED' ? '#FFB8B8' : '#EDFFEA',
           }}
         >
           <Text
@@ -159,10 +162,10 @@ function CartItem({
               textAlign: 'center',
               ...FONTS.fontSatoshiBold,
               fontSize: 16,
-              color: status === 'Confirmed' ? '#FF8A00' : status === 'Canceled' ? '#FF3544' : '#4F7E48',
+              color: status === 'PENDING' ? '#FF8A00' : status === 'EXPIRED' ? '#FF3544' : '#4F7E48',
             }}
           >
-            {status}
+            {status === 'PAID' ? 'COMPLETE' : status === 'PENDING' ? 'CONFIRM' : 'CANCELED'}
           </Text>
         </View>
       </View>

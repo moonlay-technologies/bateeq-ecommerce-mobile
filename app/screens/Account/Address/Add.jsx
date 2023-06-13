@@ -220,7 +220,6 @@ function AddAddress({ navigation }) {
               name="first_name"
               label="First Name"
               placeholder="e.g. John"
-              value={customerInfo?.first_name}
               handleInputChange={val => handleFieldChange(val, 'first_name')}
               errors={errors}
             />
@@ -228,7 +227,6 @@ function AddAddress({ navigation }) {
               name="last_name"
               label="Last Name"
               placeholder="e.g. Doe"
-              value={customerInfo?.last_name}
               handleInputChange={val => handleFieldChange(val, 'last_name')}
               errors={errors}
             />
@@ -237,7 +235,6 @@ function AddAddress({ navigation }) {
               label="Phone Number"
               placeholder="e.g. +628123456789"
               keyboardType="phone-pad"
-              value={customerInfo?.phone}
               handleInputChange={val => handleFieldChange(val, 'phone_number')}
               errors={errors}
             />
