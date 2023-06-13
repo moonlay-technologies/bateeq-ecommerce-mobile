@@ -88,8 +88,6 @@ export function* __putCartQtyItem(){
                 cart : {},
                 error: []
             }
-            let qtyItem = 0
-
             let response = yield call(client.mutate, {
                 mutation: query,
                 variables: {
@@ -103,13 +101,6 @@ export function* __putCartQtyItem(){
 
             let totalQuantity = newPayload?.cart?.totalQuantity ?? 0
 
-            //
-            // if(Array.isArray(payload?.variables?.lines) && payload?.variables?.lines.length > 0){
-            //     let first = payload?.variables?.lines[0]
-            //     qtyItem = first?.quantity ?? 0
-            // }
-
-            console.log({totalQuantity,payload,newPayload,response})
             if(Array.isArray(newPayload?.error) &&newPayload?.error.length === 0){
                 yield all([
                     put({
@@ -233,11 +224,57 @@ export function* __getCartList(){
     })
 }
 
+
+export function* __DeleteListOfItemCart(){
+    yield takeEvery(REQUEST(DELETE_CART_LIST_OF_ITEM),
+        /**
+         * @param {object} payload
+         * @param {object} payload.cartId
+         * @param {String[] | string} payload.lineIds
+         * @returns {Generator<*, void, *>}
+         */
+        function*({payload}){
+        try{
+            const query = gql`mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+                cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+                    cart {
+                        id
+                        totalQuantity
+                    }
+                    userErrors {
+                        field
+                        message
+                    }
+                }
+            }`
+            const response = yield call(client.mutate, {
+                mutation:query,
+                variables: {
+                    cartId:payload?.cartId,
+                    lineIds: payload?.lineIds ?? []
+                }
+            })
+
+            console.log({response})
+        }catch(err){
+            yield all([
+                put({
+                    type:FAILURE(DELETE_CART_LIST_OF_ITEM),
+                    payload:{}
+                })
+            ])
+        }
+    })
+}
+
+
+
 export default function* rootSaga(){
     yield all([
         fork(__getCartList),
         fork(__cartGenerateId),
         fork(__putCartQtyItem),
+        fork(__DeleteListOfItemCart),
         fork(__putCartQty),
     ])
 }

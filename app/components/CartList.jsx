@@ -96,15 +96,6 @@ function CartList({
               </Text>
             )}
           </View>
-          {addComponent && (
-            <View
-              style={{
-                marginRight: 20,
-              }}
-            >
-              {addComponent}
-            </View>
-          )}
         </View>
         <View
           style={{
@@ -133,70 +124,81 @@ function CartList({
           </View>
         </View>
         {withIncrementDecrement && (
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            <TouchableOpacity
-              onPress={() => onQtyUpdate({
-                  attributes:attributes,
-                  merchandiseId,
-                  id:lineId,
-                  quantity: quantity > 1 ? quantity - 1 : quantity
-              })}
-              // onPress={() => handleQuantity('de')}
-              style={{
-                height: 32,
-                width: 30,
-                borderWidth: 1,
-                // borderRadius:6,
-                borderColor: COLORS.borderColor,
-                backgroundColor: '#AAAAAA',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              disabled={quantity === 0}
+            <View
+                style={{
+                    flex:1,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent:'space-between'
+                }}
             >
-              <FeatherIcon size={14} color={COLORS.white} name="minus" />
-            </TouchableOpacity>
-            <Text
-              style={{
-                ...FONTS.fontSatoshiBold,
-                color: COLORS.title,
-                width: 120,
-                textAlign: 'center',
-                borderWidth: 1,
-                marginHorizontal: 8,
-                paddingVertical: 5,
-                paddingHorizontal: 50,
-              }}
-            >
-              {quantity}
-            </Text>
-            <TouchableOpacity
-              onPress={() =>
-                  onQtyUpdate({
-                      attributes:attributes,
-                      merchandiseId,
-                      id:lineId,
-                      quantity: quantity > 0 ? quantity + 1 : quantity
-                  })}
-              style={{
-                height: 32,
-                width: 30,
-                borderWidth: 1,
-                // borderRadius:6,
-                backgroundColor: '#303030',
-                borderColor: COLORS.borderColor,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <FeatherIcon size={14} color={COLORS.white} name="plus" />
-            </TouchableOpacity>
-          </View>
+                <View style={{
+                    flex:1,
+                    flexDirection:'row',
+                    alignItems:'center',
+                }}>
+                    <TouchableOpacity
+                        onPress={() => onQtyUpdate({
+                            attributes:attributes,
+                            merchandiseId,
+                            id:lineId,
+                            quantity: quantity > 1 ? quantity - 1 : quantity
+                        })}
+                        style={{
+                            height: 32,
+                            width: 30,
+                            borderWidth: 1,
+                            // borderRadius:6,
+                            borderColor: COLORS.borderColor,
+                            backgroundColor: '#AAAAAA',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                        disabled={quantity === 0}
+                    >
+                        <FeatherIcon size={14} color={COLORS.white} name="minus" />
+                    </TouchableOpacity>
+                    <Text
+                        style={{
+                            ...FONTS.fontSatoshiBold,
+                            color: COLORS.title,
+                            width: 120,
+                            textAlign: 'center',
+                            borderWidth: 1,
+                            marginHorizontal: 8,
+                            paddingVertical: 5,
+                            paddingHorizontal: 50,
+                        }}
+                    >
+                        {quantity}
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() =>
+                            onQtyUpdate({
+                                attributes:attributes,
+                                merchandiseId,
+                                id:lineId,
+                                quantity: quantity > 0 ? quantity + 1 : quantity
+                            })}
+                        style={{
+                            height: 32,
+                            width: 30,
+                            borderWidth: 1,
+                            backgroundColor: '#303030',
+                            borderColor: COLORS.borderColor,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <FeatherIcon size={14} color={COLORS.white} name="plus" />
+                    </TouchableOpacity>
+                </View>
+                {addComponent && (
+                    <View>
+                        {addComponent}
+                    </View>
+                )}
+            </View>
         )}
       </View>
     </TouchableOpacity>

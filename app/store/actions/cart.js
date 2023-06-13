@@ -20,6 +20,7 @@ export function CartGenerateId(payload = {}){
  * @param {object} payload
  * @param {String} payload.cartId
  * @param {Array | [] | String[]} payload.lineIds
+ * @param {String} payload.lineId
  * @returns {{payload, type: string}}
  */
 export function CartDeleteListOfItem(payload){
