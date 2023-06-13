@@ -6,15 +6,13 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { useDispatch, useSelector } from 'react-redux';
+import {connect, useDispatch, useSelector} from 'react-redux';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 
 import { setCartId } from '../store/reducer';
 
-function CustomDrawer({ navigation }) {
-  const { customerInfo } = useSelector(state => state?.user);
+function CustomDrawer({ navigation, customerInfo }) {
 
-  const dispatch = useDispatch();
 
   const navItem = [
     {
@@ -133,7 +131,7 @@ function CustomDrawer({ navigation }) {
                 } else if (data.navigate == 'Logout') {
                   await AsyncStorage.removeItem('accessToken');
 
-                  dispatch(setCartId(''));
+                  // dispatch(setCartId(''));
 
                   navigation.navigate('SignIn');
                 } else {
@@ -206,4 +204,9 @@ function CustomDrawer({ navigation }) {
   );
 }
 
-export default CustomDrawer;
+export default connect(({User})=> {
+    let { options } = User
+    return {
+        CustomDrawer: options?.info
+    }
+})(CustomDrawer);

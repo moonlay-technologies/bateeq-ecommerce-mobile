@@ -31,32 +31,6 @@ import {COLORS, FONTS} from "../../constants/theme";
 import {IconButton} from "react-native-paper";
 import FeatherIcon from "react-native-vector-icons/Feather";
 
-// const TopSelectionData = [
-//   {
-//     type: 'Electronics',
-//     image: item7,
-//     title: 'Wired Earphones',
-//     offer: 'upto 50% off',
-//   },
-//   {
-//     type: 'Electronics',
-//     image: item3,
-//     title: 'Best Laptops',
-//     offer: 'upto 50% off',
-//   },
-//   {
-//     type: 'Electronics',
-//     image: item1,
-//     title: 'Headphones',
-//     offer: 'upto 50% off',
-//   },
-//   {
-//     type: 'Mobiles',
-//     image: item2,
-//     title: 'Top Mobiles',
-//     offer: 'upto 50% off',
-//   },
-// ];
 
 const GET_PAGE_STORY = gql`
   query getPageStory {

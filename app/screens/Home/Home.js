@@ -3,7 +3,7 @@ import { FlatList, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import Header from '../../layout/Header';
-import ShopItem from '../../components/ShopItem';
+import ShopItem from '../../component-template/ShopItem';
 import ItemCard from '../../components/ItemCard';
 import OrdersGql from "../../service/graphql/mutation/orders";
 

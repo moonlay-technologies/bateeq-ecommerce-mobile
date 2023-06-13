@@ -1,7 +1,6 @@
 import {MutationGql} from "../index";
 import {AUTH_SIGN_IN_GQL} from "./index.gql";
 
-export * from './authentication'
 
 export class Authentication extends MutationGql{
     constructor(props) {
