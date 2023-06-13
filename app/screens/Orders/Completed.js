@@ -5,15 +5,15 @@ import CartItem from '../../components/CartItem';
 import { useQuery } from '@apollo/client';
 import { GET_ORDERS } from '../../graphql/admin/queries';
 import LoadingScreen from '../../components/LoadingView';
-import { useSelector } from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 
-const Completed = () => {
+const Completed = ({...props}) => {
+  let { info } = props
   const [dataOrders, setDataOrders] = useState([]);
-  const { customerInfo } = useSelector(state => state.user);
   const { data, loading } = useQuery(GET_ORDERS, {
     fetchPolicy: "cache-and-network",
     variables: {
-      customerId: customerInfo.id,
+      customerId: info.id,
       query: 'financial_status:paid',
     },
     context: {
@@ -60,4 +60,8 @@ const Completed = () => {
   );
 };
 
-export default Completed;
+export default connect(({User})=> {
+  let { options } = User
+  let { info } = options
+  return { info }
+})(Completed);

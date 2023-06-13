@@ -1,5 +1,14 @@
 import {REQUEST} from "./action.type";
-import {USER_SET_ADDRESS, USER_SET_DEFAULT_ADDRESS, USER_SET_INFO, USER_SET_TOKEN} from "../constants/user";
+import {LOAD_USER, USER_SET_ADDRESS, USER_SET_DEFAULT_ADDRESS, USER_SET_INFO, USER_SET_TOKEN} from "../constants/user";
+
+
+/**
+ *
+ * @param payload
+ */
+export const loadUser = (payload)=> {
+
+}
 
 export const setToken = (payload)=> {
     return {
@@ -38,6 +47,20 @@ export const setDefaultAddress = (payload)=> {
 export const setCustomerInfo = (payload)=> {
     return {
         type:USER_SET_INFO,
+        payload
+    }
+}
+
+
+/**
+ *
+ * @param {object} payload
+ * @returns {{payload, type: string}}
+ * @constructor
+ */
+export const LoadUsers = (payload)=> {
+    return {
+        type: REQUEST(LOAD_USER),
         payload
     }
 }

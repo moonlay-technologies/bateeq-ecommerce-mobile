@@ -57,14 +57,16 @@ export default function(state = initialState, action){
                     ...state.options,
                     loading: true,
                 }
-
             }
         case SUCCESS(GENERATE_CART_ID):
             return {
                 ...state,
                 options : {
                     ...state.options,
-                    cartId: action?.payload
+                    ...action?.payload,
+                    loading:false,
+                    cartId: typeof(action?.payload) === 'string' ? action?.payload : action?.payload?.id ?? null,
+
                 }
             }
         case FAILURE(GENERATE_CART_ID):

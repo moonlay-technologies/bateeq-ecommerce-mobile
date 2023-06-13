@@ -1,10 +1,10 @@
 import React from 'react';
 import { Image, Text, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 import { FONTS, IMAGES } from '../constants/theme';
 
-function UserInfo() {
-  const { customerInfo } = useSelector(state => state.user);
+function UserInfo({...props}) {
+    let { options } = props
   return (
     <View
       style={{
@@ -28,12 +28,15 @@ function UserInfo() {
           marginTop: 20,
         }}
       >
-        <Text style={{ ...FONTS.h6 }}>{`${customerInfo?.first_name} ${customerInfo?.last_name}` || ''}</Text>
-        <Text style={{ ...FONTS.font }}>{customerInfo?.email || ''}</Text>
-        <Text style={{ ...FONTS.font }}>{customerInfo?.phone || ''}</Text>
+        <Text style={{ ...FONTS.h6 }}>{`${options?.info?.firstName} ${options?.info?.lastName}` || ''}</Text>
+        <Text style={{ ...FONTS.font }}>{options?.info?.email || ''}</Text>
+        <Text style={{ ...FONTS.font }}>{options?.info?.phone || ''}</Text>
       </View>
     </View>
   );
 }
 
-export default UserInfo;
+export default connect(({User})=> {
+    let { options, collections } = User
+    return { options, collections}
+},{})(React.memo(UserInfo));

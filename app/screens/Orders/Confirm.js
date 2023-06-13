@@ -4,29 +4,15 @@ import CartItem from '../../components/CartItem';
 import { useQuery } from '@apollo/client';
 import { GET_ORDERS } from '../../graphql/admin/queries';
 import LoadingScreen from '../../components/LoadingView';
-import { useSelector } from 'react-redux';
+import {connect} from 'react-redux';
 
-// const CartData = [
-//   {
-//     productId: 'BA-050423-001',
-//     image: pic1,
-//     title: 'JACQUARD NALIKA 011',
-//     quantity: '2',
-//     size: 'XS',
-//     // price : "$47.6",
-//     date: '05 March 2023',
-//     status: 'Confirmed',
-//     desc: 'Order Received by [Louis Simatupang]',
-//   },
-// ];
-
-const Confirm = () => {
+const Confirm = ({...props}) => {
+  let { info } = props
   const [dataOrdersPending, setDataOrdersPending] = useState([]);
-  const { customerInfo } = useSelector(state => state.user);
   const { data, loading } = useQuery(GET_ORDERS, {
     fetchPolicy: 'cache-and-network',
     variables: {
-      customerId: customerInfo.id,
+      customerId: info?.id,
       query: 'financial_status:pending',
     },
     context: {
@@ -65,4 +51,8 @@ const Confirm = () => {
   );
 };
 
-export default Confirm;
+export default connect(({User})=> {
+  let { options } = User
+  let { info } = options
+  return { info }
+})(Confirm);

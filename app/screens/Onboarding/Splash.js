@@ -1,13 +1,24 @@
 import React, {useEffect} from 'react';
 import {Image, ImageBackground, Text, View} from 'react-native';
 import {COLORS, FONTS, IMAGES} from '../../constants/theme';
+import {connect} from "react-redux";
 
-const Splash = props => {
-  useEffect(() => {
-    setTimeout(() => {
-      props.navigation.navigate('Onboarding');
-    }, 1000);
-  }, []);
+
+const Splash = ({isAuthenticated,...props}) => {
+
+    let timeout
+    useEffect(() => {
+        if(isAuthenticated){
+            timeout = setTimeout(() => {
+                props.navigation.navigate('Home')
+            }, 4000);
+        }else{
+            timeout = setTimeout(() => {
+                props.navigation.navigate('Onboarding')
+            }, 4000);
+        }
+        return ()=> clearTimeout(timeout)
+    }, [isAuthenticated]);
 
   return (
     <ImageBackground source={IMAGES.bg1} style={{flex: 1}}>
@@ -29,4 +40,7 @@ const Splash = props => {
   );
 };
 
-export default Splash;
+export default connect(({Auth})=> {
+    let { isAuthenticated } = Auth
+    return {isAuthenticated}
+})(Splash)

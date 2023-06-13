@@ -1,18 +1,41 @@
 import {FAILURE, REQUEST, SUCCESS} from "../actions/action.type";
-import {USER_SET_TOKEN} from "../constants/user";
+import {LOAD_USER, USER_SET_TOKEN} from "../constants/user";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
-    token: null,
-    userAddress: null,
-    customerInfo: {
-        id: null,
-        email: null,
-        first_name: null,
-        last_name: null,
-        phone: null,
+    loading: true,
+    options:{
+        loading: true,
+        token:null,
+        info: {
+            id: null,
+            email: null,
+            first_name: null,
+            last_name: null,
+            phone: null,
+        },
     },
-    defaultAddress: null,
+    collections: {
+        address: {
+            used: {
+                loading: true,
+                data: null,
+            },
+            list:{
+                loading:true,
+                params: {},
+                data: []
+            }
+        }
+    }
 }
+AsyncStorage.getItem('accessToken')
+    .then(val => {
+        if(val){
+            Reflect.set(initialState.options,'token',val)
+        }
+
+    })
 
 /**
  *
@@ -23,11 +46,65 @@ const initialState = {
  */
 export default function(state = initialState, action){
     let { type, payload }= action
+
+    console.log({type,payload})
     switch (type){
         case REQUEST(USER_SET_TOKEN):
             return {
                 ...state,
-                token: payload
+                options: {
+                    ...state.options,
+                    token: payload
+                }
+            }
+        case REQUEST(LOAD_USER):
+            return {
+                ...state,
+                loading: true,
+                options: {
+                    ...state.options,
+                    loading: true,
+                }
+            }
+        case SUCCESS(LOAD_USER):
+            AsyncStorage.getItem('accessToken')
+                .then(token => {
+                    if (token) {
+                        state.options.token = token
+                    }
+                })
+
+            return {
+                ...state,
+                loading: false,
+                options: {
+                    ...state.options,
+                    loading: false,
+                    info: payload?.info ?? {
+                        ...state.options.info
+                    },
+                },
+                collections:{
+                    address: {
+                        used:{
+                            loading:false,
+                            data: payload?.address?.default
+                        },
+                        list: {
+                            loading:false,
+                            data: payload?.address?.list ?? []
+                        }
+                    }
+                }
+            }
+        case FAILURE(LOAD_USER):
+            return {
+                ...state,
+                loading:false,
+                options: {
+                    ...state.options,
+                    loading: false,
+                }
             }
         default:
             return state;

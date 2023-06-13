@@ -68,7 +68,7 @@ function StackNavigator({ isAuthenticated }) {
           cardStyle: { backgroundColor: 'transparent' },
         }}
       >
-        <StackComponent.Screen name="Splash" component={Splash} />
+        {/*<StackComponent.Screen name="Splash" component={Splash} />*/}
         <StackComponent.Screen name="DrawerNavigation" component={DrawerNavigation} />
         <StackComponent.Screen name="Products" component={Products} />
         <StackComponent.Screen name="EditProfile" component={EditProfile} />
@@ -88,7 +88,7 @@ function StackNavigator({ isAuthenticated }) {
 
   return (
     <StackComponent.Navigator
-      initialRouteName="Onboarding"
+      initialRouteName={isAuthenticated ? "DrawerNavigation" : "Onboarding"}
       detachInactiveScreens
       screenOptions={{
         headerShown: false,
@@ -98,7 +98,7 @@ function StackNavigator({ isAuthenticated }) {
       <StackComponent.Screen name="Home" component={MainHome} />
       <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
       <StackComponent.Screen name="Cart" component={Cart} />
-      <StackComponent.Screen name="Splash" component={Splash} />
+      {/*<StackComponent.Screen name="Splash" component={Splash} />*/}
       <StackComponent.Screen name="Onboarding" component={Onboarding} />
       <StackComponent.Screen name="Welcome" component={Welcome} />
       <StackComponent.Screen name="SignUp" component={SignUp} />
