@@ -23,7 +23,8 @@ import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
 
-function ProductDetail({ navigation, route }) {
+function ProductDetail(props) {
+  const { navigation, route, cartId } = props;
   const [options, setOptions] = useState({
     color: [],
     size: [],
@@ -45,7 +46,7 @@ function ProductDetail({ navigation, route }) {
   });
 
   const { id } = route.params;
-  const cartStore = useSelector(state => state.cart);
+  // const cartStore = useSelector(state => state.cart);
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_TO_CART);
   const [isSnackbar, setIsSnackbar] = useState(false);
@@ -206,7 +207,7 @@ function ProductDetail({ navigation, route }) {
       size: variants.size,
       color: variants.color,
       variant_id: variantId,
-      cartId: cartStore?.id || '',
+      cartId: cartId || '',
     };
     schema
       .validate(body, { abortEarly: false })
@@ -526,7 +527,10 @@ function ProductDetail({ navigation, route }) {
   );
 }
 
-export default ProductDetail;
+export default connect(({ Cart }) => {
+  const { options } = Cart;
+  return { cartId: options?.cartId };
+}, {})(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
   icon: {
