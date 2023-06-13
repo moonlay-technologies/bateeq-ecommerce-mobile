@@ -30,6 +30,7 @@ import {CartGetList, CartPutTotalQty} from "../../store/actions";
 import {COLORS, FONTS} from "../../constants/theme";
 import {IconButton} from "react-native-paper";
 import FeatherIcon from "react-native-vector-icons/Feather";
+import HeaderComponent from "../../components/HeaderComponent";
 
 
 const GET_PAGE_STORY = gql`
@@ -282,71 +283,8 @@ const MainHome = (props) => {
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
       }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          justifyContent: 'space-between',
-        }}>
-        <IconButton
-          icon={() => (
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}>
-              <FeatherIcon color={COLORS.title} size={18} name="menu" />
-            </View>
-          )}
-          size={25}
-          onPress={() => {
-            if('openDrawer' in navigations && typeof (navigations?.openDrawer) !== 'undefined') {
-              navigations?.openDrawer()
-            }
-          }}
-          // onPress={handleDrawer}
-        />
-        <TouchableOpacity>
-          <Image
-            style={{width: 70, height: 35}}
-            source={require('../../assets/images/logo.png')}
-          />
-        </TouchableOpacity>
-        {
-          options?.loading ? <Text>Loading...</Text> : (
-              <IconButton
-                  onPress={() => navigation.navigate('Cart')}
-                  icon={() => (
-                      <View>
-                        <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-                        {options?.totalQuantity > 0 && <View
-                            style={{
-                              height: 14,
-                              width: 14,
-                              borderRadius: 14,
-                              backgroundColor: COLORS.primary,
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              position: 'absolute',
-                              top: -4,
-                              right: -6,
-                            }}>
-                          <Text
-                              style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                            {options?.totalQuantity}
-                          </Text>
-                        </View> }
-                      </View>
-                  )}
-                  size={25}
-              />
-          )
-        }
-      </View>
+      <HeaderComponent/>
+
       {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}> */}
       <View style={styles.menuContainer}>{renderMainMenu()}</View>
       {/* </ScrollView> */}

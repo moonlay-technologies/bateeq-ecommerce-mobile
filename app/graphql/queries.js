@@ -177,8 +177,7 @@ export const __GQL_CUSTOMER_INFO = `query ($accessToken: String!) {
         zip
       }
       addresses(first: 10) {
-        edges {
-          node {
+        nodes {
             id
             address1
             address2
@@ -187,7 +186,6 @@ export const __GQL_CUSTOMER_INFO = `query ($accessToken: String!) {
             country
             zip
           }
-        }
       }
     }
   }`

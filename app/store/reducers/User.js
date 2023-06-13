@@ -80,10 +80,21 @@ export default function(state = initialState, action){
                 options: {
                     ...state.options,
                     loading: false,
-                    info: payload?.options?.info ?? {
+                    info: payload?.info ?? {
                         ...state.options.info
                     },
-
+                },
+                collections:{
+                    address: {
+                        used:{
+                            loading:false,
+                            data: payload?.address?.default
+                        },
+                        list: {
+                            loading:false,
+                            data: payload?.address?.list ?? []
+                        }
+                    }
                 }
             }
         case FAILURE(LOAD_USER):

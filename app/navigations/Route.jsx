@@ -15,25 +15,8 @@ import { CREATE_CART } from '../graphql/mutation';
 import {LoadUsers,setToken} from "../store/actions/user";
 
 function Routes({ ...props }) {
-    let { options,LoadUsers,setToken,loading, isAuthenticated } = props
+    let { options, loading, isAuthenticated } = props
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  //
-  //
-  // useEffect(()=> {
-  //     AsyncStorage.getItem('accessToken')
-  //         .then(val => {
-  //             if(val){
-  //                 setToken(val)
-  //             }
-  //         })
-  // },[setToken])
-  //
-  //
-  //   useEffect(()=> {
-  //       LoadUsers({})
-  // },[LoadUsers])
-  //   console.log({isAuthenticated,options,loading,})
-
 
 
   // const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -144,9 +127,6 @@ function Routes({ ...props }) {
             <StackNavigator isAuthenticated={isAuthenticated} />
           </NavigationContainer>
         )}
-          {/*<NavigationContainer>*/}
-          {/*    <StackNavigator isAuthenticated={isAuthenticated} />*/}
-          {/*</NavigationContainer>*/}
         <Toast />
       </SafeAreaProvider>
     </PaperProvider>

@@ -6,6 +6,7 @@ import {ApolloClient, gql, InMemoryCache} from "@apollo/client";
 import {__GQL_CUSTOMER_INFO} from "../../graphql/queries";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {SET_AUTH} from "../constants/Auth";
+import {GENERATE_CART_ID} from "../constants";
 
 export function* __loadUser(){
     yield takeEvery(REQUEST(LOAD_USER),function*({payload}){
@@ -17,40 +18,7 @@ export function* __loadUser(){
             })
 
         try{
-            const query = gql`query getCustomer($accessToken: String!) {
-                customer(customerAccessToken: $accessToken) {
-                    id
-                    firstName
-                    lastName
-                    acceptsMarketing
-                    email
-                    phone
-                    defaultAddress {
-                        address1
-                        address2
-                        company
-                        phone
-                        firstName
-                        lastName
-                        name
-                        city
-                        province
-                        country
-                        zip
-                    }
-                    addresses(first: 10) {
-                        nodes {
-                            id
-                            address1
-                            address2
-                            city
-                            province
-                            country
-                            zip
-                        }
-                    }
-                }
-            }`
+            const query = gql`${__GQL_CUSTOMER_INFO}`
             let token = payload?.accessToken ?? ""
             const response = yield call(client.query, {
                 query: query,
@@ -59,12 +27,54 @@ export function* __loadUser(){
                     accessToken:token
                 }
             })
+            let newPayload = {
+                info:{},
+                address:{
+                    list:[],
+                    default:{}
+                }
+            }
 
             if(response?.data?.customer){
+
+                let data = response?.data?.customer ?? {}
+                Object.entries(data).map(([key,value])=> {
+                    if(value && (typeof(value) === 'string' || typeof(value) === 'boolean')){
+                        Reflect.set(newPayload.info,key,value)
+                    }else{
+                        switch (key){
+                            case "defaultAddress":
+                                Reflect.set(newPayload.address,'default',value)
+                                break;
+                            case "addresses":
+                                Reflect.set(newPayload.address,'list',value?.nodes)
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                })
+
+                let cartPayload = {
+                    token: token,
+                    id:null
+                }
+                AsyncStorage.getItem('cart')
+                    .then(cartId => {
+                        if (cartId) {
+                            Reflect.set(cartPayload,'id',cartId)
+                        }
+                    })
+
+
                 yield all([
                     put({
                         type: SUCCESS(LOAD_USER),
-                        payload: response?.data?.customer
+                        payload: newPayload
+                    }),
+                    put({
+                        type:REQUEST(GENERATE_CART_ID),
+                        payload: cartPayload
                     })
                 ])
             }else{
