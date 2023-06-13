@@ -6,6 +6,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { gql, useQuery } from '@apollo/client';
 import { useDispatch, useSelector } from 'react-redux';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS, IMAGES } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
@@ -17,8 +18,8 @@ import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import { setCartId } from '../../store/reducer';
 import HeaderComponent from '../../components/HeaderComponent';
+import UserInfo from '../../components/UserInfo';
 import { GET_PAGES } from '../../graphql/queries';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { gqlError } from '../../utils/eror-handling';
 
 const languagetData = [
@@ -156,39 +157,7 @@ function Profile() {
           >
             Account Details
           </Text>
-          <View style={GlobalStyleSheet.container}>
-            {isLoading ? (
-              <LoadingScreen type="circle" />
-            ) : (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginBottom: 20,
-                }}
-              >
-                <Image
-                  style={{
-                    height: 80,
-                    width: 90,
-                    borderRadius: 5,
-                    marginRight: 15,
-                  }}
-                  source={IMAGES.user}
-                />
-                <View
-                  style={{
-                    flex: 1,
-                    marginTop: 20,
-                  }}
-                >
-                  <Text style={{ ...FONTS.h6 }}>{`${customerInfo?.first_name} ${customerInfo?.last_name}` || ''}</Text>
-                  <Text style={{ ...FONTS.font }}>{customerInfo?.email || ''}</Text>
-                  <Text style={{ ...FONTS.font }}>{customerInfo?.phone || ''}</Text>
-                </View>
-              </View>
-            )}
-          </View>
+          <View style={GlobalStyleSheet.container}>{isLoading ? <LoadingScreen type="circle" /> : <UserInfo />}</View>
           <View style={{ ...GlobalStyleSheet.container, marginTop: -20 }}>
             <View>
               <TouchableOpacity
@@ -269,8 +238,7 @@ function Profile() {
                   navigation.navigate('PagesInShopify', {
                     dataPages: dataFaq,
                     loading: loadingFAQ,
-                  })
-                }
+                  })}
               >
                 <Text
                   style={{

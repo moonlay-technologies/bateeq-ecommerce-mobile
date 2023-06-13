@@ -22,6 +22,7 @@ function Button(props) {
       marginTop: 4,
     },
     disabled = false,
+    outline,
   } = props;
 
   return (
@@ -30,13 +31,22 @@ function Button(props) {
       onPress={() => (disabled ? null : onPress())}
       style={[
         style,
-        size === 'lg' ? styles.lg : size === 'sm' ? styles.sm : size === 'xxl' ? styles.xxl : styles.default,
+        size === 'xs'
+          ? styles.xs
+          : size === 'sm'
+          ? styles.sm
+          : size === 'lg'
+          ? styles.lg
+          : size === 'xxl'
+          ? styles.xxl
+          : styles.default,
         {
           backgroundColor: style?.backgroundColor
             ? style.backgroundColor
-            : color || (size === 'xxl' ? '#333333' : COLORS.primary),
+            : color || (size === 'xxl' ? '#333333' : COLORS.black),
         },
         { alignItems: 'center' },
+        outline && styles.outline,
         disabled && styles.disabled,
       ]}
       disabled={disabled}
@@ -44,14 +54,16 @@ function Button(props) {
       {/* <FontAwesome5Icon name="circle-notch" color="#d0d0d0" solid /> */}
       <Text
         style={{
-          ...(size === 'lg'
-            ? styles.lgText
+          ...(size === 'xs'
+            ? styles.xsText
             : size === 'sm'
             ? styles.smText
+            : size === 'lg'
+            ? styles.lgText
             : size === 'xxl'
             ? styles.xxlText
             : { ...styles.defaultText }),
-          color: textStyle?.color ? textStyle.color : COLORS.white,
+          color: textStyle?.color ? textStyle.color : outline ? COLORS.title : COLORS.white,
           fontWeight: textStyle?.fontWeight ? textStyle.fontWeight : '500',
         }}
       >
@@ -59,7 +71,7 @@ function Button(props) {
       </Text>
       {Icon && (
         <View style={iconStyles}>
-          <Icon name={iconName} size={iconSize} color={iconColor || COLORS.white} />
+          <Icon name={iconName} size={iconSize} color={outline ? COLORS.title : iconColor || COLORS.white} />
         </View>
       )}
     </TouchableOpacity>
@@ -77,14 +89,18 @@ const styles = StyleSheet.create({
   defaultText: {
     ...FONTS.h6,
   },
-  lg: {
-    paddingHorizontal: 10,
-    paddingVertical: 16,
-    borderRadius: 15,
+  xs: {
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: 150,
+    height: 50,
   },
-  lgText: {
-    ...FONTS.h5,
-    ...FONTS.fontPoppins,
+  xsText: {
+    ...FONTS.fontXs,
+    ...FONTS.fontSatoshiBold,
+    fontSize: 15,
   },
   sm: {
     paddingHorizontal: 10,
@@ -93,6 +109,15 @@ const styles = StyleSheet.create({
   },
   smText: {
     ...FONTS.fontSm,
+    ...FONTS.fontPoppins,
+  },
+  lg: {
+    paddingHorizontal: 10,
+    paddingVertical: 16,
+    borderRadius: 15,
+  },
+  lgText: {
+    ...FONTS.h5,
     ...FONTS.fontPoppins,
   },
   xxl: {
@@ -115,5 +140,11 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
+  },
+  outline: {
+    backgroundColor: COLORS.transparent,
+    elevation: 0,
+    borderWidth: 1,
+    borderColor: COLORS.title,
   },
 });

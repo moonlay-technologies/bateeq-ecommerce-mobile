@@ -35,6 +35,7 @@ export const GET_PRODUCT_BY_ID = gql`
       description
       descriptionHtml
       title
+      totalInventory
       images(first: 4) {
         edges {
           node {
@@ -45,6 +46,7 @@ export const GET_PRODUCT_BY_ID = gql`
       variants(first: 10) {
         edges {
           node {
+            currentlyNotInStock
             id
             compareAtPrice {
               amount

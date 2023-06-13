@@ -9,6 +9,7 @@ export const COLORS = {
   success: '#18BF29',
   danger: '#E12344',
   warning: '#ffb02c',
+  orangeWarning: '#d25e0b',
   dark: '#D8D8D8',
   light: '#E6E6E6',
   info: '#2B39B9',
@@ -19,6 +20,9 @@ export const COLORS = {
   input: '#F9F9F9',
   borderColor: '#E3E3E3',
   backgroundColor: '#fff',
+  black: '#333333',
+  mediumGray: '#AAAAAA',
+  transparent: 'transparent',
 };
 
 export const SIZES = {
