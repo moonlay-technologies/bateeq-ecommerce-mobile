@@ -11,7 +11,6 @@ import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {IconButton} from 'react-native-paper';
 import {COLORS, FONTS} from '../../constants/theme';
-// import Header from '../../layout/Header';
 import AllCart from './AllCart';
 import Canceled from './Canceled';
 import Completed from './Completed';

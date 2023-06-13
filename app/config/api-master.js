@@ -4,6 +4,7 @@ module.exports = {
   COLLECTIONS: 'custom_collections.json',
   CART: 'checkouts.json',
   BLOG: 'blogs',
-  CUSTOMERS: 'customers.json',
-  ASSETS: 'themes/145469997339/assets.json?asset[key]=sections/slideshow.liquid'
+  CUSTOMERS: 'customers',
+  ADDRESSES: 'addresses',
+  ASSETS: 'themes/145469997339/assets.json?asset[key]=sections/slideshow.liquid',
 };
