@@ -1,11 +1,10 @@
-import React, {useEffect,useState} from 'react';
-import {NativeModules, ScrollView, View} from 'react-native';
+import React from 'react';
+import {ScrollView} from 'react-native';
 import CartItem from '../../components/CartItem';
 import pic1 from '../../assets/images/shop/picture1.jpg';
 import pic2 from '../../assets/images/shop/picture2.jpg';
 import pic3 from '../../assets/images/shop/picture3.jpg';
 import pic4 from '../../assets/images/shop/picture4.jpg';
-import OrdersGql from "../../service/graphql/mutation/orders";
 
 const AllCartData = [
   {
@@ -55,41 +54,23 @@ const AllCartData = [
 ];
 
 const AllCart = () => {
-  // console.log(NativeModules.EnvConfig.env.ENDPOINT_MASTER,'ENDPOINT MASTER')
-
-  const [ loading, setLoading ] = useState(false)
-  useEffect(()=> {
-    setLoading(true)
-    new OrdersGql({}).userList()
-        .then((response)=> {
-          console.log({response},'RESPONSE all cart')
-          setLoading(false)
-        })
-        .catch((err)=> {
-          setLoading(false)
-        })
-  },[])
   return (
-      <View>
-        <ScrollView>
-
-          {AllCartData.map((data, index) => (
-              <CartItem
-                  key={index}
-                  productId={data.productId}
-                  image={data.image}
-                  title={data.title}
-                  // price={data.price}
-                  date={data.date}
-                  quantity={data.quantity}
-                  size={data.size}
-                  status={data.status}
-                  desc={data.desc}
-              />
-          ))}
-        </ScrollView>
-      </View>
-
+    <ScrollView>
+      {AllCartData.map((data, index) => (
+        <CartItem
+          key={index}
+          productId={data.productId}
+          image={data.image}
+          title={data.title}
+          // price={data.price}
+          date={data.date}
+          quantity={data.quantity}
+          size={data.size}
+          status={data.status}
+          desc={data.desc}
+        />
+      ))}
+    </ScrollView>
   );
 };
 

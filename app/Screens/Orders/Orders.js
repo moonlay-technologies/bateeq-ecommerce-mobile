@@ -11,12 +11,10 @@ import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import {IconButton} from 'react-native-paper';
 import {COLORS, FONTS} from '../../constants/theme';
-// import Header from '../../layout/Header';
 import AllCart from './AllCart';
 import Canceled from './Canceled';
 import Completed from './Completed';
 import OnDelivery from './OnDelivery';
-import {connect} from "react-redux";
 
 const renderScene = SceneMap({
   All: AllCart,
@@ -25,8 +23,7 @@ const renderScene = SceneMap({
   Canceled: Canceled,
 });
 
-const Orders = ({navigation,...props}) => {
-    let { options } = props
+const Orders = ({navigation}) => {
   const layout = useWindowDimensions();
 
   const [index, setIndex] = React.useState(0);
@@ -81,33 +78,38 @@ const Orders = ({navigation,...props}) => {
             source={require('../../assets/images/logo.png')}
           />
         </TouchableOpacity>
+        {/* <IconButton
+                    icon={() => <FeatherIcon color={COLORS.title} size={20} name='search'/>}
+                    size={25}
+                    onPress={() => navigation.navigate('Search')}
+                /> */}
+        {/* <IconButton
+                    icon={() => <FeatherIcon color={COLORS.title} size={20} name='heart'/>}
+                    size={25}
+                    onPress={() => navigation.navigate('Wishlist')}
+                /> */}
         <IconButton
           onPress={() => navigation.navigate('Cart')}
           icon={() => (
             <View>
               <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-                {
-                    options?.totalQuantity > 0 && (
-                        <View
-                            style={{
-                                height: 14,
-                                width: 14,
-                                borderRadius: 14,
-                                backgroundColor: COLORS.primary,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                position: 'absolute',
-                                top: -4,
-                                right: -6,
-                            }}>
-                            <Text
-                                style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                                {options?.totalQuantity}
-                            </Text>
-                        </View>
-                    )
-                }
-
+              <View
+                style={{
+                  height: 14,
+                  width: 14,
+                  borderRadius: 14,
+                  backgroundColor: COLORS.primary,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  top: -4,
+                  right: -6,
+                }}>
+                <Text
+                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
+                  2
+                </Text>
+              </View>
             </View>
           )}
           size={25}
@@ -151,16 +153,4 @@ const Orders = ({navigation,...props}) => {
   );
 };
 
-
-export default connect(
-    /**
-     *
-     * @param {object} Cart
-     * @param {object} Cart.options
-     * @param {number} Cart.options.totalQuantity
-     * @returns {{options: *}}
-     */
-    ({Cart})=> {
-    let { options } = Cart
-    return { options }
-},{})(React.memo(Orders))
+export default Orders;

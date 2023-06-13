@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
@@ -9,19 +9,19 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
+import HeaderCartComponent from '../../components/HeaderComponent';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
-import Button from '../../components/CustomButton';
+import LoadingScreen from '../../components/LoadingView';
 import SelectInput from '../../components/SelectInput';
+import Button from '../../components/ButtonComponent';
 import CustomHTML from '../../components/CustomHtml';
-import Header from '../../layout/Header';
+
 import { COLORS, FONTS } from '../../constants/theme';
 import { formatWithCommas } from '../../utils/helper';
 import { findVariantIdByOptions } from './helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
-import LoadingScreen from '../../components/LoadingView';
-import HeaderCartComponent from '../../components/HeaderComponent';
 
 function ProductDetail({ navigation, route }) {
   const [options, setOptions] = useState({
@@ -55,6 +55,7 @@ function ProductDetail({ navigation, route }) {
   const [qty, setQty] = useState(1);
   const cart = useSelector(state => state.cart);
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
+  const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [product, setProduct] = useState({
     id: '',
     descriptionHtml: '',
@@ -94,12 +95,12 @@ function ProductDetail({ navigation, route }) {
     },
   });
   const {
-    data,
+    data: productReccomendationData,
     error: productRecommendationError,
     loading: productRecommendationLoad,
   } = useQuery(GET_PRODUCT_RECOMMENDATION, {
     variables: {
-      prodcutId: id,
+      productId: id,
     },
   });
 
@@ -115,6 +116,7 @@ function ProductDetail({ navigation, route }) {
         id: productID,
         descriptionHtml,
         title,
+        totalInventory,
         images: { edges },
         variants: { edges: variantEdge },
       } = productData.product;
@@ -130,8 +132,8 @@ function ProductDetail({ navigation, route }) {
         original_price: price?.amount,
         discounted_price: compareAtPrice?.amount,
       });
-      setProduct({ id: productID, descriptionHtml, title, images: edges, variants: variantEdge });
-      const productRecommendation = data?.productRecommendations.map(d => ({
+      setProduct({ id: productID, descriptionHtml, title, images: edges, variants: variantEdge, totalInventory });
+      const productRecommendation = productReccomendationData?.productRecommendations.map(d => ({
         id: d.id,
         title: d.title,
         image: d.images.edges.find(i => i)?.node.url,
@@ -179,8 +181,7 @@ function ProductDetail({ navigation, route }) {
           'something went wrong',
       });
     }
-  }, [isLoading, isError, cart]);
-  console.log('productRecommendations', productRecommendations);
+  }, [isLoading, isError, cart, productData, optionData, productReccomendationData]);
 
   const onSelectValue = (type, value) => {
     if (type === 'size') {
@@ -210,8 +211,6 @@ function ProductDetail({ navigation, route }) {
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
-        console.log('result', result);
-
         const { data: addLine } = await cartLinesAdd({
           variables: {
             cartId: result.cartId,
@@ -255,8 +254,8 @@ function ProductDetail({ navigation, route }) {
       })
       .catch(error => {
         if (error.name === 'ValidationError') {
-          const errorsVal = error.inner.reduce((acc, error) => {
-            const { path, message } = error;
+          const errorsVal = error.inner.reduce((acc, err) => {
+            const { path, message } = err;
             acc[path] = message;
             return acc;
           }, {});
@@ -272,37 +271,46 @@ function ProductDetail({ navigation, route }) {
       });
   };
 
+  const handleQuantity = type => {
+    if (type === 'de') {
+      if (qty > 1) {
+        setQty(qty - 1);
+      }
+    }
+    if (type === 'in') {
+      if (product?.totalInventory <= 0) {
+        setQty(qty);
+      }
+      if (qty < product?.totalInventory) {
+        setQty(qty + 1);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (productRecommendations.length > 0) {
+      const shuffledProductsRecommendations = productRecommendations.sort(() => 0.5 - Math.random());
+      const selectedProducts = shuffledProductsRecommendations.slice(0, 2);
+      setRandomProductsRecommendation(selectedProducts);
+    }
+  }, [productRecommendations]);
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
-        <HeaderCartComponent />
+        <HeaderCartComponent navigation={navigation} />
         <View style={{ paddingHorizontal: 20 }}>
-          <Header titleLeft leftIcon="back" title="back" />
+          <HeaderCartComponent withoutCartAndLogo backAction icon="back" title="back" />
         </View>
         <View style={{ paddingHorizontal: 20 }}>
           {isLoading ? (
             <LoadingScreen type="circle" />
           ) : (
-            <Swiper
-              style={{ height: 500 }}
-              dotStyle={{
-                height: 10,
-                width: 10,
-                borderWidth: 2,
-                borderColor: COLORS.white,
-                borderRadius: 10,
-              }}
-              activeDotStyle={{
-                height: 10,
-                width: 10,
-                backgroundColor: COLORS.white,
-                borderRadius: 10,
-              }}
-            >
+            <Swiper style={{ height: 500 }} dotStyle={styles.dotStyle} activeDotStyle={styles.activeDotStyle}>
               {product.images.length > 0 &&
-                product?.images?.map((dt, index) => {
+                product?.images?.map(dt => {
                   return (
-                    <View key={index}>
+                    <View key={dt.id}>
                       <Image
                         source={{ uri: dt.node.url }}
                         style={{
@@ -312,13 +320,7 @@ function ProductDetail({ navigation, route }) {
                         }}
                       />
                       <LinearGradient
-                        style={{
-                          position: 'absolute',
-                          height: '100%',
-                          width: '100%',
-                          top: 0,
-                          left: 0,
-                        }}
+                        style={styles.linear}
                         colors={['rgba(0,0,0,.3)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0)']}
                       />
                     </View>
@@ -328,44 +330,23 @@ function ProductDetail({ navigation, route }) {
           )}
         </View>
         <View style={{ paddingHorizontal: 20 }}>
-          <View style={{ alignItems: 'flex-start', paddingBottom: 12 }}>
-            <Text
-              style={{
-                ...FONTS.fontSatoshiBold,
-                fontSize: 24,
-                color: COLORS.title,
-                marginBottom: 3,
-              }}
-            >
-              {product?.title || ''}
-            </Text>
+          <View style={styles.section}>
+            <Text style={styles.title}>{product?.title || ''}</Text>
             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
               {amount.original_price && (
-                <Text
-                  style={{
-                    ...FONTS.fontSatoshiRegular,
-                    textDecorationLine: 'line-through',
-                    fontSize: 16,
-                  }}
-                >
-                  {amount.currencyCode} {formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}
+                <Text style={styles.lineAmount}>
+                  {`${amount.currencyCode} ${formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}`}
                 </Text>
               )}
-              <Text
-                style={{
-                  ...FONTS.fontSatoshiBold,
-                  color: COLORS.title,
-                  fontSize: 20,
-                }}
-              >
-                {amount.currencyCode}
-
-                {formatWithCommas(Number(amount.discounted_price * qty).toLocaleString())}
-              </Text>
+              {amount.discounted_price && (
+                <Text style={styles.amount}>
+                  {`${amount.currencyCode} ${formatWithCommas(Number(amount.discounted_price * qty).toLocaleString())}`}
+                </Text>
+              )}
             </View>
             {product && <CustomHTML htmlContent={product.descriptionHtml} />}
 
-            <View style={{ width: '100%', marginTop: 20 }}>
+            <View style={{ width: '100%', marginTop: 10 }}>
               <SelectInput
                 label="Choose Size"
                 name="size"
@@ -386,13 +367,30 @@ function ProductDetail({ navigation, route }) {
                   errors={errors}
                 />
               )}
+
               <View>
+                <View style={{ marginTop: -30, marginBottom: 10 }}>
+                  {product?.totalInventory <= 0 ? (
+                    <View style={styles.container}>
+                      <Text style={{ ...styles.text, color: COLORS.danger }}>
+                        * Temporarily out of stock: Please check back later
+                      </Text>
+                    </View>
+                  ) : product?.totalInventory <= 5 && product?.totalInventory > 0 ? (
+                    <View style={styles.container}>
+                      <Text style={{ ...styles.text, color: COLORS.orangeWarning }}>
+                        {`Grab yours now! Limited quantity: ${product?.totalInventory} left.`}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
                 <Text
                   style={{
                     marginBottom: 8,
                     ...FONTS.fontSatoshiBold,
                     color: COLORS.title,
                   }}
+                  // eslint-disable-next-line react-native/no-raw-text
                 >
                   Quantity
                   <Text style={{ color: COLORS.danger }}>*</Text>
@@ -404,44 +402,17 @@ function ProductDetail({ navigation, route }) {
                   }}
                 >
                   <TouchableOpacity
-                    onPress={() => qty > 1 && setQty(qty - 1)}
-                    style={{
-                      height: 32,
-                      width: 30,
-                      borderWidth: 1,
-                      borderColor: COLORS.borderColor,
-                      backgroundColor: '#AAAAAA',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    //
+                    onPress={() => handleQuantity('de')}
+                    style={{ ...styles.icon, backgroundColor: COLORS.mediumGray }}
                   >
                     <FeatherIcon size={14} color={COLORS.white} name="minus" />
                   </TouchableOpacity>
-                  <Text
-                    style={{
-                      ...FONTS.fontSatoshiBold,
-                      color: COLORS.title,
-                      width: '79%',
-                      textAlign: 'center',
-                      borderWidth: 1,
-                      marginHorizontal: 8,
-                      paddingVertical: 5,
-                      paddingHorizontal: 50,
-                    }}
-                  >
-                    {qty}
-                  </Text>
+                  <Text style={styles.quantity}>{qty}</Text>
                   <TouchableOpacity
-                    onPress={() => setQty(qty + 1)}
-                    style={{
-                      height: 32,
-                      width: 30,
-                      borderWidth: 1,
-                      backgroundColor: '#303030',
-                      borderColor: COLORS.borderColor,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    // (
+                    onPress={() => handleQuantity('in')}
+                    style={{ ...styles.icon, backgroundColor: COLORS.black }}
                   >
                     <FeatherIcon size={14} color={COLORS.white} name="plus" />
                   </TouchableOpacity>
@@ -477,27 +448,29 @@ function ProductDetail({ navigation, route }) {
                   justifyContent: 'space-between',
                 }}
               >
-                {productRecommendations.length > 0 &&
-                  productRecommendations.map(({ image, title, price, compareAtPrice, id }) => {
-                    return (
-                      <View
-                        key={id}
-                        style={{
-                          width: 150,
-                          marginRight: 10,
-                          marginBottom: 20,
-                        }}
-                      >
-                        <ProductCardStyle1
-                          onPress={() => navigation.navigate('ProductDetail', { id })}
-                          imageSrc={image}
-                          title={title}
-                          price={price}
-                          oldPrice={compareAtPrice}
-                        />
-                      </View>
-                    );
-                  })}
+                {randomProductsRecommendation.length > 0 &&
+                  randomProductsRecommendation.map(
+                    ({ image, title, price, compareAtPrice, id: productRecommendationId }) => {
+                      return (
+                        <View
+                          key={productRecommendationId}
+                          style={{
+                            width: 150,
+                            marginRight: 10,
+                            marginBottom: 20,
+                          }}
+                        >
+                          <ProductCardStyle1
+                            onPress={() => navigation.navigate('ProductDetail', { productRecommendationId })}
+                            imageSrc={image}
+                            title={title}
+                            price={price}
+                            oldPrice={compareAtPrice}
+                          />
+                        </View>
+                      );
+                    }
+                  )}
               </View>
             </View>
           </View>
@@ -515,19 +488,23 @@ function ProductDetail({ navigation, route }) {
           <View style={{ marginRight: 20, paddingVertical: 20 }}>
             <Button
               onPress={() => navigation.navigate('Wishlist')}
-              outline
-              customWidth={150}
               title="Wishlist"
-              wishlistIcon
+              outline
+              size="xs"
+              iconStyles={{ marginLeft: 18 }}
+              icon={FeatherIcon}
+              iconName="heart"
             />
           </View>
           <View>
             <Button
-              disabled={onSubmitLoading}
               onPress={onSubmit}
-              customWidth={150}
               title={onSubmitLoading ? 'Loading ...' : 'Add To Cart'}
-              bagIcon
+              size="xs"
+              iconStyles={{ marginLeft: 18 }}
+              icon={FeatherIcon}
+              iconName="shopping-bag"
+              disabled={onSubmitLoading || product?.totalInventory <= 0}
             />
           </View>
         </View>
@@ -550,3 +527,71 @@ function ProductDetail({ navigation, route }) {
 }
 
 export default ProductDetail;
+
+const styles = StyleSheet.create({
+  icon: {
+    height: 32,
+    width: 30,
+    borderWidth: 1,
+    borderColor: COLORS.borderColor,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    ...FONTS.fontSatoshiBold,
+    fontSize: 24,
+    color: COLORS.title,
+    marginBottom: 3,
+  },
+  lineAmount: {
+    ...FONTS.fontSatoshiRegular,
+    textDecorationLine: 'line-through',
+    fontSize: 16,
+  },
+  amount: {
+    ...FONTS.fontSatoshiBold,
+    color: COLORS.title,
+    fontSize: 20,
+  },
+  dotStyle: {
+    height: 10,
+    width: 10,
+    borderWidth: 2,
+    borderColor: COLORS.white,
+    borderRadius: 10,
+  },
+  activeDotStyle: {
+    height: 10,
+    width: 10,
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+  },
+  linear: {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    top: 0,
+    left: 0,
+  },
+  section: { alignItems: 'flex-start', paddingBottom: 12 },
+  quantity: {
+    ...FONTS.fontSatoshiBold,
+    color: COLORS.title,
+    width: '79%',
+    textAlign: 'center',
+    borderWidth: 1,
+    marginHorizontal: 8,
+    paddingVertical: 5,
+    paddingHorizontal: 50,
+  },
+  container: {
+    backgroundColor: COLORS.LIGHT, // Customize the background color
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  text: {
+    fontSize: 14,
+  },
+});
