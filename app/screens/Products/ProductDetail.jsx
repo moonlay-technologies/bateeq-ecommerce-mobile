@@ -22,13 +22,15 @@ import { findVariantIdByOptions } from './helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
+import {CartGetList} from "../../store/actions";
 
 function ProductDetail(props) {
-  const { navigation, route, cartId } = props;
+  const { navigation, route, cartId,CartGetList } = props;
   const [options, setOptions] = useState({
     color: [],
     size: [],
   });
+
   const schema = yup.object().shape({
     quantity: yup.number().required(),
     size: yup.string().required(),
@@ -243,6 +245,12 @@ function ProductDetail(props) {
             size: '',
             color: '',
           });
+
+          CartGetList({
+            first: 0,
+            last:100,
+            id: cartId
+          })
           navigation.navigate('Cart');
         } else {
           Toast.show({
@@ -530,7 +538,7 @@ function ProductDetail(props) {
 export default connect(({ Cart }) => {
   const { options } = Cart;
   return { cartId: options?.cartId };
-}, {})(React.memo(ProductDetail));
+}, {CartGetList})(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
   icon: {

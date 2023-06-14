@@ -131,7 +131,6 @@ const GET_MAIN_MENU_NAVIGATION = gql`
 
 const MainHome = (props) => {
   let { navigation,options,CartPutTotalQty,CartGetList } = props
-  console.log({CartGetList})
   const [isLoading, setIsLoading] = useState(false);
   const [productData, setProductData] = useState(null);
   const [dataAllProduct, setDataAllProduct] = useState([]);

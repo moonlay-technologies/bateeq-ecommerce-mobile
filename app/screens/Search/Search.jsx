@@ -229,7 +229,10 @@ const Search = (props) => {
             borderRadius: 5,
             marginBottom: 24,
           }}
-          autoFocus
+          blurOnSubmit={true}
+          onBlur={(e)=> {
+              console.log(e)
+          }}
           placeholder="e.g T-shirt / Dress"
           placeholderTextColor={COLORS.text}
           value={valSearch}

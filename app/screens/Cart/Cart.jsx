@@ -47,9 +47,8 @@ const Cart = ({navigation, route, ...props}) => {
             ...params,
             id: cartId
         })
-    }, [route, CartGetList, params, cartId])
-
-
+    }, [params, cartId])
+    console.log({navigation,route})
     return (
         <SafeAreaView
             style={{

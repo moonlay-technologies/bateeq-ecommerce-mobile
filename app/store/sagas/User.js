@@ -1,7 +1,7 @@
 import { all, takeEvery, put, fork, call } from 'redux-saga/effects';
 import {FAILURE, REQUEST, SUCCESS} from "../actions/action.type";
 import {LOAD_USER} from "../constants/user";
-import {client,httpLink} from "../../../index";
+import {client} from "../../../index";
 import {ApolloClient, gql, InMemoryCache} from "@apollo/client";
 import {__GQL_CUSTOMER_INFO} from "../../graphql/queries";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,6 +20,7 @@ export function* __loadUser(){
         try{
             const query = gql`${__GQL_CUSTOMER_INFO}`
             let token = payload?.accessToken ?? ""
+
             const response = yield call(client.query, {
                 query: query,
                 fetchPolicy: 'no-cache',
@@ -27,6 +28,7 @@ export function* __loadUser(){
                     accessToken:token
                 }
             })
+
             let newPayload = {
                 info:{},
                 address:{
@@ -92,7 +94,7 @@ export function* __loadUser(){
 
                 ])
             }
-            console.log({response})
+
             yield all([
                 put({
                     type: SUCCESS(LOAD_USER),
@@ -100,11 +102,9 @@ export function* __loadUser(){
                 })
             ])
         }catch(err){
-            console.log({err})
             yield all([
                 put({
                     type: FAILURE(LOAD_USER),
-            //         payload: {}
                 })
             ])
         }
