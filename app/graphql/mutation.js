@@ -14,14 +14,8 @@ export const AUTH_LOGIN = gql`
 `;
 
 export const EDIT_DETAIL_ACCOUNT = gql`
-  mutation customerUpdate(
-    $customer: CustomerUpdateInput!
-    $customerAccessToken: String!
-  ) {
-    customerUpdate(
-      customer: $customer
-      customerAccessToken: $customerAccessToken
-    ) {
+  mutation customerUpdate($customer: CustomerUpdateInput!, $customerAccessToken: String!) {
+    customerUpdate(customer: $customer, customerAccessToken: $customerAccessToken) {
       customer {
         phone
         firstName
@@ -184,7 +178,7 @@ export const CUSTOMER_DEFAULT_ADDRESS_UPDATE = gql`
   }
 `;
 
-export const CREATE_CHECKOUT = gql`
+export const CREATE_CHECKOUT_MUTATION = `
   mutation checkoutCreate($input: CheckoutCreateInput!) {
     checkoutCreate(input: $input) {
       checkout {
