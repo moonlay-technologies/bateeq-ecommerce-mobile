@@ -14,194 +14,194 @@ import { setCartId } from '../store/reducer';
 function CustomDrawer({ navigation, customerInfo }) {
 
 
-  const navItem = [
-    {
-      icon: 'home',
+    const navItem = [
+        {
+            icon: 'home',
 
-      name: 'Home',
+            name: 'Home',
 
-      navigate: 'Home',
-    },
+            navigate: 'Home',
+        },
 
-    {
-      icon: 'heart',
+        {
+            icon: 'heart',
 
-      name: 'Wishlist',
+            name: 'Wishlist',
 
-      navigate: 'Favourite',
-    },
+            navigate: 'Favourite',
+        },
 
-    {
-      icon: 'repeat',
+        {
+            icon: 'repeat',
 
-      name: 'Orders',
+            name: 'Orders',
 
-      navigate: 'Orders',
-    },
+            navigate: 'Orders',
+        },
 
-    {
-      icon: 'shopping-cart',
+        {
+            icon: 'shopping-cart',
 
-      name: 'My Cart',
+            name: 'My Cart',
 
-      navigate: 'Cart',
-    },
+            navigate: 'Cart',
+        },
 
-    {
-      icon: 'user',
+        {
+            icon: 'user',
 
-      name: 'Profile',
+            name: 'Profile',
 
-      navigate: 'Account',
-    },
+            navigate: 'Account',
+        },
 
-    {
-      icon: 'log-out',
+        {
+            icon: 'log-out',
 
-      name: 'Logout',
+            name: 'Logout',
 
-      navigate: 'SignIn',
-    },
-  ];
+            navigate: 'SignIn',
+        },
+    ];
 
-  return (
-    <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-      <View
-        style={{
-          flexDirection: 'row',
-
-          paddingHorizontal: 20,
-
-          paddingVertical: 20,
-
-          borderBottomWidth: 1,
-
-          borderBottomColor: COLORS.borderColor,
-
-          marginBottom: 10,
-        }}
-      >
-        <Image
-          style={{
-            height: 50,
-
-            width: 50,
-
-            marginRight: 10,
-
-            borderRadius: 50,
-          }}
-          source={IMAGES.user}
-        />
-
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              ...FONTS.fontSatoshiBold,
-
-              fontSize: 18,
-
-              color: COLORS.title,
-
-              top: 2,
-            }}
-          >
-            {customerInfo?.firstName || customerInfo?.first_name} {customerInfo?.lastName || customerInfo?.last_name}
-          </Text>
-
-          <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{customerInfo?.email}</Text>
-        </View>
-      </View>
-
-      <View style={{ flex: 1 }}>
-        {navItem.map((data, index) => {
-          return (
-            <TouchableOpacity
-              onPress={async () => {
-                if (
-                  data.navigate == 'Home' ||
-                  data.navigate == 'Cart' ||
-                  data.navigate == 'Account' ||
-                  data.navigate == 'Favourite' ||
-                  data.navigate == 'Orders'
-                ) {
-                  navigation.navigate('BottomNavigation', {
-                    screen: data.navigate,
-                  });
-                } else if (data.navigate == 'Logout') {
-                  await AsyncStorage.removeItem('accessToken');
-
-                  // dispatch(setCartId(''));
-
-                  navigation.navigate('SignIn');
-                } else {
-                  navigation.navigate(data.navigate);
-                }
-
-                navigation.closeDrawer();
-              }}
-              key={index}
-              style={{
-                flexDirection: 'row',
-
-                alignItems: 'center',
-
-                paddingHorizontal: 20,
-
-                paddingVertical: 12,
-              }}
-            >
-              <View style={{ marginRight: 15 }}>
-                <FeatherIcon name={data.icon} color="rgba(0,0,0,.3)" size={20} />
-              </View>
-
-              <Text
+    return (
+        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+            <View
                 style={{
-                  ...FONTS.fontSatoshiBold,
+                    flexDirection: 'row',
 
-                  color: COLORS.title,
+                    paddingHorizontal: 20,
 
-                  opacity: 0.8,
+                    paddingVertical: 20,
 
-                  flex: 1,
+                    borderBottomWidth: 1,
+
+                    borderBottomColor: COLORS.borderColor,
+
+                    marginBottom: 10,
                 }}
-              >
-                {data.name}
-              </Text>
+            >
+                <Image
+                    style={{
+                        height: 50,
 
-              <FeatherIcon size={16} color={COLORS.text} name="chevron-right" />
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+                        width: 50,
 
-      <View
-        style={{
-          paddingHorizontal: 20,
+                        marginRight: 10,
 
-          paddingVertical: 30,
+                        borderRadius: 50,
+                    }}
+                    source={IMAGES.user}
+                />
 
-          marginTop: 10,
-        }}
-      >
-        <Text
-          style={{
-            ...FONTS.fontSatoshiLight,
+                <View style={{ flex: 1 }}>
+                    <Text
+                        style={{
+                            ...FONTS.fontSatoshiBold,
 
-            fontSize: 20,
+                            fontSize: 18,
 
-            color: COLORS.title,
+                            color: COLORS.title,
 
-            marginBottom: 6,
-          }}
-        >
-          bateeq
-        </Text>
+                            top: 2,
+                        }}
+                    >
+                        {customerInfo?.firstName || customerInfo?.first_name} {customerInfo?.lastName || customerInfo?.last_name}
+                    </Text>
 
-        <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.5)' }}>App Version 1.0</Text>
-      </View>
-    </View>
-  );
+                    <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{customerInfo?.email}</Text>
+                </View>
+            </View>
+
+            <View style={{ flex: 1 }}>
+                {navItem.map((data, index) => {
+                    return (
+                        <TouchableOpacity
+                            onPress={async () => {
+                                if (
+                                    data.navigate == 'Home' ||
+                                    data.navigate == 'Cart' ||
+                                    data.navigate == 'Account' ||
+                                    data.navigate == 'Favourite' ||
+                                    data.navigate == 'Orders'
+                                ) {
+                                    navigation.navigate('BottomNavigation', {
+                                        screen: data.navigate,
+                                    });
+                                } else if (data.navigate == 'Logout') {
+                                    await AsyncStorage.removeItem('accessToken');
+
+                                    // dispatch(setCartId(''));
+
+                                    navigation.navigate('SignIn');
+                                } else {
+                                    navigation.navigate(data.navigate);
+                                }
+
+                                navigation.closeDrawer();
+                            }}
+                            key={index}
+                            style={{
+                                flexDirection: 'row',
+
+                                alignItems: 'center',
+
+                                paddingHorizontal: 20,
+
+                                paddingVertical: 12,
+                            }}
+                        >
+                            <View style={{ marginRight: 15 }}>
+                                <FeatherIcon name={data.icon} color="rgba(0,0,0,.3)" size={20} />
+                            </View>
+
+                            <Text
+                                style={{
+                                    ...FONTS.fontSatoshiBold,
+
+                                    color: COLORS.title,
+
+                                    opacity: 0.8,
+
+                                    flex: 1,
+                                }}
+                            >
+                                {data.name}
+                            </Text>
+
+                            <FeatherIcon size={16} color={COLORS.text} name="chevron-right" />
+                        </TouchableOpacity>
+                    );
+                })}
+            </View>
+
+            <View
+                style={{
+                    paddingHorizontal: 20,
+
+                    paddingVertical: 30,
+
+                    marginTop: 10,
+                }}
+            >
+                <Text
+                    style={{
+                        ...FONTS.fontSatoshiLight,
+
+                        fontSize: 20,
+
+                        color: COLORS.title,
+
+                        marginBottom: 6,
+                    }}
+                >
+                    bateeq
+                </Text>
+
+                <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.5)' }}>App Version 1.0</Text>
+            </View>
+        </View>
+    );
 }
 
 export default connect(({User})=> {

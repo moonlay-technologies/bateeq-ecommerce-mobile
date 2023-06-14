@@ -3,7 +3,7 @@ import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, Vi
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import { connect, useSelector } from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,13 +22,15 @@ import { findVariantIdByOptions } from './helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
+import {CartGetList} from "../../store/actions";
 
 function ProductDetail(props) {
-  const { navigation, route, cartId } = props;
+  const { navigation, route, cartId,CartGetList } = props;
   const [options, setOptions] = useState({
     color: [],
     size: [],
   });
+
   const schema = yup.object().shape({
     quantity: yup.number().required(),
     size: yup.string().required(),

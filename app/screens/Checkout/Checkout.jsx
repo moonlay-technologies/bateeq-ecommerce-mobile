@@ -1,11 +1,26 @@
 import React from 'react';
 import WebView from 'react-native-webview';
-import { useSelector } from 'react-redux';
+import {connect, useSelector} from 'react-redux';
+import {View,Text} from "react-native";
+import LoadingScreen from "../../components/LoadingView";
 
-function Checkout() {
-  const checkoutStore = useSelector(state => state.checkout);
+function Checkout({show,...props}) {
 
-  return <WebView source={{ uri: checkoutStore?.checkoutData?.webUrl }} style={{ flex: 1 }} />;
+  if(show?.loading){
+    return (
+        <View style={{
+          flex:1,
+            justifyContent:'center',
+            alignItems:'center',
+        }}>
+          <LoadingScreen loading2/>
+        </View>
+    )
+  }
+  return <WebView source={{ uri: show?.data?.webUrl }} style={{ flex: 1 }} />;
 }
 
-export default Checkout;
+export default connect((state)=> {
+  let { show } = state.Checkout
+  return { show }
+},{})(Checkout);

@@ -12,6 +12,7 @@ import {REQUEST, SUCCESS,FAILURE} from "../actions/action.type";
 import {client} from "../../../index";
 import {gql} from "@apollo/client";
 import {__GQL_CART_INITIAL} from "../../service/graphql/mutation/cart/index.gql";
+import {findKey} from "../../utils/helper";
 export function* __cartGenerateId(){
     yield takeEvery(REQUEST(GENERATE_CART_ID), function*({payload}){
         try{
@@ -19,6 +20,13 @@ export function* __cartGenerateId(){
                 id:null,
                 totalQuantity: 0,
             }
+            AsyncStorage.getItem('cart')
+                    .then(cartId => {
+                        if (cartId) {
+                            Reflect.set(payload,'id',cartId)
+                        }
+                    })
+
             if(payload?.id){
                 if(!AsyncStorage.getItem('cart')){
                     AsyncStorage.setItem('cart', payload?.id)
@@ -27,7 +35,8 @@ export function* __cartGenerateId(){
                     put({
                         type: SUCCESS(GENERATE_CART_ID),
                         payload:payload
-                    })
+                    }),
+
                 ])
             }else if(payload?.token){
                 let query = gql`mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
@@ -77,12 +86,13 @@ export function* __cartGenerateId(){
                     }
                 }`
 
+
                 const {data} = yield call(client.mutate,{
                     mutation:query,
                     variables: {
                         input: {
                             buyerIdentity: {
-                                customerAccessToken: payload?.token,
+                                customerAccessToken: `${payload?.token}`,
                             },
                             note: '',
                         },
@@ -262,6 +272,7 @@ export function* __getCartList(){
                     }
                 }
             }`
+
             const response = yield call(client.query,{
                 query:query,
                 fetchPolicy: 'no-cache',
@@ -273,14 +284,12 @@ export function* __getCartList(){
             let newPayload = {
                 data: []
             }
+
             if(typeof(response?.data) !== 'undefined' && typeof(response?.data?.cart) !== 'undefined'){
                 if(Array.isArray(response?.data?.cart?.lines?.nodes) && response?.data?.cart?.lines?.nodes.length > 0){
                     Reflect.set(newPayload,'data',response?.data?.cart?.lines?.nodes ?? [])
                 }
             }
-
-
-            console.log({newPayload,response})
 
             yield all([
                 put({
@@ -294,6 +303,7 @@ export function* __getCartList(){
                     }
                 })
             ])
+
         }catch(err){
             yield all([
                 put({
@@ -327,7 +337,7 @@ export function* __DeleteListOfItemCart(){
                     }
                 }
             }`
-            const response = yield call(client.mutate, {
+            const {data} = yield call(client.mutate, {
                 mutation:query,
                 variables: {
                     cartId:payload?.cartId,
@@ -335,7 +345,17 @@ export function* __DeleteListOfItemCart(){
                 }
             })
 
-            console.log({response})
+            if(findKey(data,['cartLinesRemove','cart'])){
+                yield all([
+                    put({
+                        type: SUCCESS(DELETE_CART_LIST_OF_ITEM),
+                        payload:findKey(data,['cartLinesRemove','cart'])
+                    })
+                ])
+            }else{
+
+            }
+
         }catch(err){
             yield all([
                 put({
