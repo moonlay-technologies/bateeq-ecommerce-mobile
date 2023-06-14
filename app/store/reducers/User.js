@@ -1,5 +1,5 @@
 import {FAILURE, REQUEST, SUCCESS} from "../actions/action.type";
-import {LOAD_USER, USER_SET_TOKEN} from "../constants/user";
+import {EDIT_ACCOUNT, LOAD_USER, USER_SET_TOKEN} from "../constants/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
@@ -47,7 +47,6 @@ AsyncStorage.getItem('accessToken')
 export default function(state = initialState, action){
     let { type, payload }= action
 
-    console.log({type,payload})
     switch (type){
         case REQUEST(USER_SET_TOKEN):
             return {
@@ -104,6 +103,39 @@ export default function(state = initialState, action){
                 options: {
                     ...state.options,
                     loading: false,
+                }
+            }
+
+        case REQUEST(EDIT_ACCOUNT):
+            return  {
+                ...state,
+                options:{
+                    ...state.options,
+                    loading: true
+                },
+            }
+        case SUCCESS(EDIT_ACCOUNT):
+            return  {
+                ...state,
+                options:{
+                    ...state.options,
+                    loading: false,
+                    info: {
+                        ...state.options.info,
+                        id: payload?.info?.id ?? state.options.info.id ?? null,
+                        email: payload?.info?.email ?? state.options.info.email ?? null,
+                        first_name: payload?.info?.first_name ?? payload?.info?.firstName ?? state.options.info.first_name ?? null,
+                        last_name: payload?.info?.last_name ?? payload?.info?.lastName ?? state.options.info.last_name ?? null,
+                        phone: payload?.info?.phone ?? state.options.info.phone ?? null
+                    }
+                },
+            }
+        case FAILURE(EDIT_ACCOUNT):
+            return {
+                ...state,
+                options: {
+                    ...state.options,
+                    loading: false
                 }
             }
         default:

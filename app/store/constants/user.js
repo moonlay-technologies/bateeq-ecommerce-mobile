@@ -8,3 +8,5 @@ export const USER_SET_INFO = 'USER/SET-INFO'
 
 
 export const LOAD_USER = 'USER/LOADED'
+
+export const EDIT_ACCOUNT = 'USER/EDIT-ACCOUNT'
