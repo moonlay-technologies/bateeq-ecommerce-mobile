@@ -12,6 +12,7 @@ export class CheckoutGql extends MutationGql{
      */
     constructor(props) {
         super(props);
+        this.eventName = props?.eventName
     }
 
     /**

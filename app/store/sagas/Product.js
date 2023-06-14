@@ -67,11 +67,13 @@ export function* __productSearch(){
             Reflect.set(newPayload,'data',response?.data?.products?.nodes ?? [])
             Reflect.set(newPayload,'query',payload?.query)
 
+            yield all([
+                put({
+                    type:SUCCESS(GET_PROD_COLL_SEARCH),
+                    payload: newPayload
+                })
+            ])
 
-            yield put({
-                type:SUCCESS(GET_PROD_COLL_SEARCH),
-                payload: newPayload
-            })
         }catch(err){
             yield put({
                 type:FAILURE(GET_PROD_COLL_SEARCH)

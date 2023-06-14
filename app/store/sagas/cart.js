@@ -11,21 +11,111 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {REQUEST, SUCCESS,FAILURE} from "../actions/action.type";
 import {client} from "../../../index";
 import {gql} from "@apollo/client";
-import {CART_PUT_QTY} from "../../service/graphql/mutation/cart/index.gql";
+import {__GQL_CART_INITIAL} from "../../service/graphql/mutation/cart/index.gql";
+import {findKey} from "../../utils/helper";
 export function* __cartGenerateId(){
     yield takeEvery(REQUEST(GENERATE_CART_ID), function*({payload}){
         try{
+            let newPayload = {
+                id:null,
+                totalQuantity: 0,
+            }
+            AsyncStorage.getItem('cart')
+                    .then(cartId => {
+                        if (cartId) {
+                            Reflect.set(payload,'id',cartId)
+                        }
+                    })
+
             if(payload?.id){
                 if(!AsyncStorage.getItem('cart')){
                     AsyncStorage.setItem('cart', payload?.id)
                 }
-            }
-            yield all([
-                put({
-                    type: SUCCESS(GENERATE_CART_ID),
-                    payload:payload?.id
+                yield all([
+                    put({
+                        type: SUCCESS(GENERATE_CART_ID),
+                        payload:payload
+                    }),
+
+                ])
+            }else if(payload?.token){
+                let query = gql`mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
+                @inContext(country: $country, language: $language) {
+                    cartCreate(input: $input) {
+                        cart {
+                            id
+                            note
+                            totalQuantity
+                            __typename
+                            lines(first: 10) {
+                                edges {
+                                    node {
+                                        __typename
+                                        cost {
+                                            amountPerQuantity {
+                                                amount
+                                                currencyCode
+                                            }
+                                            compareAtAmountPerQuantity {
+                                                amount
+                                                currencyCode
+                                            }
+                                            totalAmount {
+                                                amount
+                                                currencyCode
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            attributes {
+                                key
+                                value
+                                __typename
+                            }
+                            cost {
+                                totalAmount {
+                                    amount
+                                }
+                            }
+                        }
+                        userErrors {
+                            field
+                            message
+                        }
+                    }
+                }`
+
+
+                const {data} = yield call(client.mutate,{
+                    mutation:query,
+                    variables: {
+                        input: {
+                            buyerIdentity: {
+                                customerAccessToken: `${payload?.token}`,
+                            },
+                            note: '',
+                        },
+                    },
                 })
-            ])
+
+                if(data?.cartCreate?.cart && typeof(data?.cartCreate?.cart) === 'object' && Object.keys(data?.cartCreate?.cart).length > 0){
+                    Object.entries(data?.cartCreate?.cart).map(([key,value])=> {
+                        Reflect.set(newPayload,key,value)
+                    })
+
+                    yield put({
+                        type:SUCCESS(GENERATE_CART_ID),
+                        payload:newPayload
+                    })
+                }else{
+                    yield put({
+                        type:FAILURE(GENERATE_CART_ID),
+                        payload:"Some Error"
+                    })
+                }
+
+            }
         }catch(err){
             yield put({
                 type:FAILURE(GENERATE_CART_ID),
@@ -182,6 +272,7 @@ export function* __getCartList(){
                     }
                 }
             }`
+
             const response = yield call(client.query,{
                 query:query,
                 fetchPolicy: 'no-cache',
@@ -193,14 +284,12 @@ export function* __getCartList(){
             let newPayload = {
                 data: []
             }
+
             if(typeof(response?.data) !== 'undefined' && typeof(response?.data?.cart) !== 'undefined'){
                 if(Array.isArray(response?.data?.cart?.lines?.nodes) && response?.data?.cart?.lines?.nodes.length > 0){
                     Reflect.set(newPayload,'data',response?.data?.cart?.lines?.nodes ?? [])
                 }
             }
-
-
-            console.log({newPayload,response})
 
             yield all([
                 put({
@@ -214,6 +303,7 @@ export function* __getCartList(){
                     }
                 })
             ])
+
         }catch(err){
             yield all([
                 put({
@@ -247,7 +337,7 @@ export function* __DeleteListOfItemCart(){
                     }
                 }
             }`
-            const response = yield call(client.mutate, {
+            const {data} = yield call(client.mutate, {
                 mutation:query,
                 variables: {
                     cartId:payload?.cartId,
@@ -255,7 +345,17 @@ export function* __DeleteListOfItemCart(){
                 }
             })
 
-            console.log({response})
+            if(findKey(data,['cartLinesRemove','cart'])){
+                yield all([
+                    put({
+                        type: SUCCESS(DELETE_CART_LIST_OF_ITEM),
+                        payload:findKey(data,['cartLinesRemove','cart'])
+                    })
+                ])
+            }else{
+
+            }
+
         }catch(err){
             yield all([
                 put({

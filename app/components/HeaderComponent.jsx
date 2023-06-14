@@ -28,7 +28,6 @@ function HeaderComponent({
 
 
   const navigation = useNavigation();
-  const [cartQuantity, setCartQuantity] = useState(0);
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
     variables: {
         id: options?.cartId
@@ -69,7 +68,7 @@ function HeaderComponent({
       <View>
         {/*<FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />*/}
           {
-              options?.loading ? <Text>Loading...</Text> : (
+              options?.loading ? <Text style={{fontSize:10}}>Loading...</Text> : (
                   <IconButton
                       onPress={() => navigation.navigate('Cart')}
                       icon={() => (

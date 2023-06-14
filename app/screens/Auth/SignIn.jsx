@@ -63,10 +63,10 @@ const SignIn = props => {
           text1: 'Login Success',
           visibilityTime: 2000,
         });
-        batch(() => {
-          dispatch(setToken(accessToken));
-          dispatch(setIsLogin(!!accessToken));
-        });
+        // batch(() => {
+        //   dispatch(setToken(accessToken));
+        //   dispatch(setIsLogin(!!accessToken));
+        // });
         await AsyncStorage.setItem('accessToken', accessToken);
         navigation.dispatch(
           CommonActions.reset({

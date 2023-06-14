@@ -146,61 +146,61 @@ const Search = (props) => {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          justifyContent: 'space-between',
-        }}
-      >
-        <IconButton
-          icon={() => (
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}
-            >
-              <FeatherIcon color={COLORS.title} size={18} name="menu" />
-            </View>
-          )}
-          size={25}
-          onPress={() => navigation.openDrawer()}
-        />
-        <TouchableOpacity onPress={handlePress}>
-          <Image style={{ width: 70, height: 35 }} source={require('../../assets/images/logo.png')} />
-        </TouchableOpacity>
-        <IconButton
-          onPress={() => navigation.navigate('Cart')}
-          icon={() => (
-            <View>
-              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              <View
-                style={{
-                  height: 14,
-                  width: 14,
-                  borderRadius: 14,
-                  backgroundColor: COLORS.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'absolute',
-                  top: -4,
-                  right: -6,
-                }}>
-                <Text
-                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                    {options?.totalQuantity ?? 0}
-                </Text>
-              </View>
-            </View>
-          )}
-          size={25}
-        />
-      </View>
+      {/*<View*/}
+      {/*  style={{*/}
+      {/*    flexDirection: 'row',*/}
+      {/*    alignItems: 'center',*/}
+      {/*    height: 45,*/}
+      {/*    justifyContent: 'space-between',*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  <IconButton*/}
+      {/*    icon={() => (*/}
+      {/*      <View*/}
+      {/*        style={{*/}
+      {/*          height: 30,*/}
+      {/*          width: 30,*/}
+      {/*          alignItems: 'center',*/}
+      {/*          justifyContent: 'center',*/}
+      {/*          borderRadius: 8,*/}
+      {/*        }}*/}
+      {/*      >*/}
+      {/*        <FeatherIcon color={COLORS.title} size={18} name="menu" />*/}
+      {/*      </View>*/}
+      {/*    )}*/}
+      {/*    size={25}*/}
+      {/*    onPress={() => navigation.openDrawer()}*/}
+      {/*  />*/}
+      {/*  <TouchableOpacity onPress={handlePress}>*/}
+      {/*    <Image style={{ width: 70, height: 35 }} source={require('../../assets/images/logo.png')} />*/}
+      {/*  </TouchableOpacity>*/}
+      {/*  <IconButton*/}
+      {/*    onPress={() => navigation.navigate('Cart')}*/}
+      {/*    icon={() => (*/}
+      {/*      <View>*/}
+      {/*        <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />*/}
+      {/*        <View*/}
+      {/*          style={{*/}
+      {/*            height: 14,*/}
+      {/*            width: 14,*/}
+      {/*            borderRadius: 14,*/}
+      {/*            backgroundColor: COLORS.primary,*/}
+      {/*            alignItems: 'center',*/}
+      {/*            justifyContent: 'center',*/}
+      {/*            position: 'absolute',*/}
+      {/*            top: -4,*/}
+      {/*            right: -6,*/}
+      {/*          }}>*/}
+      {/*          <Text*/}
+      {/*            style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>*/}
+      {/*              {options?.totalQuantity ?? 0}*/}
+      {/*          </Text>*/}
+      {/*        </View>*/}
+      {/*      </View>*/}
+      {/*    )}*/}
+      {/*    size={25}*/}
+      {/*  />*/}
+      {/*</View>*/}
       <HeaderComponent />
       <View
         style={{
@@ -229,7 +229,10 @@ const Search = (props) => {
             borderRadius: 5,
             marginBottom: 24,
           }}
-          autoFocus
+          blurOnSubmit={true}
+          onBlur={(e)=> {
+              console.log(e)
+          }}
           placeholder="e.g T-shirt / Dress"
           placeholderTextColor={COLORS.text}
           value={valSearch}

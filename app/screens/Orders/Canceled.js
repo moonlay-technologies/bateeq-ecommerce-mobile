@@ -1,33 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text } from 'react-native';
 import CartItem from '../../components/CartItem';
-// import pic2 from '../../assets/images/shop/pic2.png';
 import { useQuery } from '@apollo/client';
 import { GET_ORDERS } from '../../graphql/admin/queries';
 import LoadingScreen from '../../components/LoadingView';
-import { useSelector } from 'react-redux';
-
-// const CartData = [
-//   {
-//     productId: 'BA-050423-001',
-//     image: pic2,
-//     title: 'JACQUARD NALIKA 011',
-//     quantity: '2',
-//     size: 'M',
-//     // price : "$158.2",
-//     date: '05 March 2023',
-//     status: 'Canceled',
-//     desc: 'Reach on payment due date',
-//   },
-// ];
-
-const Canceled = () => {
+import {connect} from 'react-redux';
+const Canceled = ({...props}) => {
+  let { info } = props
   const [dataOrders, setDataOrders] = useState([]);
-  const { customerInfo } = useSelector(state => state.user);
   const { data, loading } = useQuery(GET_ORDERS, {
     fetchPolicy: 'no-cache',
     variables: {
-      customerId: customerInfo.id,
+      customerId: info?.id,
       query: 'financial_status:expired',
     },
     context: {
@@ -69,5 +53,8 @@ const Canceled = () => {
     </ScrollView>
   );
 };
-
-export default Canceled;
+export default connect(({User})=> {
+  let { options } = User
+  let { info } = options
+  return { info }
+})(Canceled);

@@ -1,0 +1,10 @@
+export const USER_SET_TOKEN = 'USER/SET-TOKEN'
+
+export const USER_SET_ADDRESS = 'USER/SET-ADDRESS'
+
+export const USER_SET_DEFAULT_ADDRESS = 'USER/SET-ADDRESS-DEFAULT'
+
+export const USER_SET_INFO = 'USER/SET-INFO'
+
+
+export const LOAD_USER = 'USER/LOADED'

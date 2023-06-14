@@ -154,6 +154,41 @@ export const GET_CUSTOMER_ADDRESS = gql`
     }
   }
 `;
+
+export const __GQL_CUSTOMER_INFO = `query ($accessToken: String!) {
+    customer(customerAccessToken: $accessToken) {
+      id
+      firstName
+      lastName
+      acceptsMarketing
+      email
+      phone
+      defaultAddress {
+        address1
+        address2
+        company
+        phone
+        firstName
+        lastName
+        name
+        city
+        province
+        country
+        zip
+      }
+      addresses(first: 10) {
+        nodes {
+            id
+            address1
+            address2
+            city
+            province
+            country
+            zip
+          }
+      }
+    }
+  }`
 export const GET_CUSTOMER_INFO = gql`
   query ($accessToken: String!) {
     customer(customerAccessToken: $accessToken) {

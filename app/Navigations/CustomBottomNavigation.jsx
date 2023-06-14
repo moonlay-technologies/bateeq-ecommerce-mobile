@@ -1,11 +1,8 @@
 import React from 'react';
-import {Image, TouchableOpacity, View} from 'react-native';
-import {COLORS, SIZES} from '../constants/theme';
-import {
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
-import {useFocusEffect} from '@react-navigation/native';
+import { Image, TouchableOpacity, View } from 'react-native';
+import { useSharedValue, withTiming } from 'react-native-reanimated';
+import { useFocusEffect } from '@react-navigation/native';
+import { COLORS, SIZES } from '../constants/theme';
 import home from '../assets/images/icons/home.png';
 import favourite from '../assets/images/icons/favourite.png';
 import search from '../assets/images/icons/search.png';
@@ -13,7 +10,7 @@ import user from '../assets/images/icons/user.png';
 // import cart from '../assets/images/icons/cart.png';
 import receipt from '../assets/images/icons/receipt.png';
 
-const CustomBottomNavigation = ({state, descriptors, navigation}) => {
+function CustomBottomNavigation({ state, descriptors, navigation }) {
   const offset = useSharedValue(0);
 
   const activeTab = async () => {
@@ -24,7 +21,7 @@ const CustomBottomNavigation = ({state, descriptors, navigation}) => {
   useFocusEffect(
     React.useCallback(() => {
       activeTab();
-    }, [state.routes]),
+    }, [state.routes])
   );
 
   return (
@@ -36,9 +33,10 @@ const CustomBottomNavigation = ({state, descriptors, navigation}) => {
         backgroundColor: COLORS.white,
         flexDirection: 'row',
         paddingTop: 4,
-      }}>
+      }}
+    >
       {state.routes.map((route, index) => {
-        const {options} = descriptors[route.key];
+        const { options } = descriptors[route.key];
         const label =
           options.tabBarLabel !== undefined
             ? options.tabBarLabel
@@ -56,7 +54,7 @@ const CustomBottomNavigation = ({state, descriptors, navigation}) => {
           });
 
           if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate({name: route.name, merge: true});
+            navigation.navigate({ name: route.name, merge: true });
           }
           activeTab();
         };
@@ -67,13 +65,15 @@ const CustomBottomNavigation = ({state, descriptors, navigation}) => {
             style={{
               width: '20%',
               alignItems: 'center',
-            }}>
+            }}
+          >
             <TouchableOpacity
               onPress={onPress}
               style={{
                 alignItems: 'center',
                 paddingVertical: 9,
-              }}>
+              }}
+            >
               <Image
                 style={{
                   height: 20,
@@ -82,15 +82,15 @@ const CustomBottomNavigation = ({state, descriptors, navigation}) => {
                   tintColor: isFocused ? COLORS.title : COLORS.dark,
                 }}
                 source={
-                  label == 'Home'
+                  label === 'Home'
                     ? home
-                    : label == 'Favourite'
+                    : label === 'Favourite'
                     ? favourite
-                    : label == 'Search'
+                    : label === 'Search'
                     ? search
-                    : label == 'Account'
+                    : label === 'Account'
                     ? user
-                    : label == 'Orders' && receipt
+                    : label === 'Orders' && receipt
                 }
               />
             </TouchableOpacity>
@@ -99,6 +99,6 @@ const CustomBottomNavigation = ({state, descriptors, navigation}) => {
       })}
     </View>
   );
-};
+}
 
 export default CustomBottomNavigation;

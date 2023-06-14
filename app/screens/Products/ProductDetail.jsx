@@ -3,7 +3,7 @@ import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, Vi
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import { useSelector } from 'react-redux';
+import {connect, useSelector} from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,12 +22,15 @@ import { findVariantIdByOptions } from './helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
+import {CartGetList} from "../../store/actions";
 
-function ProductDetail({ navigation, route }) {
+function ProductDetail(props) {
+  const { navigation, route, cartId,CartGetList } = props;
   const [options, setOptions] = useState({
     color: [],
     size: [],
   });
+
   const schema = yup.object().shape({
     quantity: yup.number().required(),
     size: yup.string().required(),
@@ -45,7 +48,7 @@ function ProductDetail({ navigation, route }) {
   });
 
   const { id } = route.params;
-  const cartStore = useSelector(state => state.cart);
+  // const cartStore = useSelector(state => state.cart);
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_TO_CART);
   const [isSnackbar, setIsSnackbar] = useState(false);
@@ -206,7 +209,7 @@ function ProductDetail({ navigation, route }) {
       size: variants.size,
       color: variants.color,
       variant_id: variantId,
-      cartId: cartStore?.id || '',
+      cartId: cartId || '',
     };
     schema
       .validate(body, { abortEarly: false })
@@ -526,7 +529,10 @@ function ProductDetail({ navigation, route }) {
   );
 }
 
-export default ProductDetail;
+export default connect(({ Cart }) => {
+  const { options } = Cart;
+  return { cartId: options?.cartId };
+}, {})(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
   icon: {

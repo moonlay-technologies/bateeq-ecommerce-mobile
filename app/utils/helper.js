@@ -20,7 +20,6 @@ export const renderHTMLContent = (html) => {
 };
 
 /**
- *
  * @param {object} data
  * @param {string|Array} key
  * @returns {null}

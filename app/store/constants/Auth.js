@@ -1,6 +1,6 @@
 import {useMutation} from "@apollo/client";
 import {Authentication} from "../../service/graphql/mutation/authentication";
-
+export const SET_AUTH = 'AUTH/CONFIGURATION'
 /**
  *
  * @param {object} payload
@@ -20,5 +20,18 @@ export const SignInUser = (payload)=> async dispatch => {
         return [ null, data ]
     }catch(err){
         return [ err, null ]
+    }
+}
+
+/**
+ * @param {object} payload
+ * @param {boolean} payload.isLogin
+ * @param {boolean} payload.isAuthenticated
+ * @private
+ */
+export const __SET_AUTH = (payload)=> {
+    return {
+        type: SET_AUTH,
+        payload
     }
 }
