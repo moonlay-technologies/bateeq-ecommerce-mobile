@@ -5,208 +5,213 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/routers';
 
-import {connect, useDispatch, useSelector} from 'react-redux';
+import { connect } from 'react-redux';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 
-import { setCartId } from '../store/reducer';
+function CustomDrawer({ ...props }) {
+  let { options, navigation, isAuthenticated } = props;
+  console.log('isAuthenticate', isAuthenticated);
+  const navItem = [
+    {
+      icon: 'home',
 
-function CustomDrawer({ navigation, customerInfo }) {
+      name: 'Home',
 
+      navigate: 'Home',
+    },
 
-    const navItem = [
-        {
-            icon: 'home',
+    {
+      icon: 'heart',
 
-            name: 'Home',
+      name: 'Wishlist',
 
-            navigate: 'Home',
-        },
+      navigate: 'Favourite',
+    },
 
-        {
-            icon: 'heart',
+    {
+      icon: 'repeat',
 
-            name: 'Wishlist',
+      name: 'Orders',
 
-            navigate: 'Favourite',
-        },
+      navigate: 'Orders',
+    },
 
-        {
-            icon: 'repeat',
+    {
+      icon: 'shopping-cart',
 
-            name: 'Orders',
+      name: 'My Cart',
 
-            navigate: 'Orders',
-        },
+      navigate: 'Cart',
+    },
 
-        {
-            icon: 'shopping-cart',
+    {
+      icon: 'user',
 
-            name: 'My Cart',
+      name: 'Profile',
 
-            navigate: 'Cart',
-        },
+      navigate: 'Account',
+    },
 
-        {
-            icon: 'user',
+    {
+      icon: 'log-out',
 
-            name: 'Profile',
+      name: 'Logout',
 
-            navigate: 'Account',
-        },
+      navigate: 'SignIn',
+    },
+  ];
 
-        {
-            icon: 'log-out',
+  return (
+    <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+      <View
+        style={{
+          flexDirection: 'row',
 
-            name: 'Logout',
+          paddingHorizontal: 20,
 
-            navigate: 'SignIn',
-        },
-    ];
+          paddingVertical: 20,
 
-    return (
-        <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-            <View
-                style={{
-                    flexDirection: 'row',
+          borderBottomWidth: 1,
 
-                    paddingHorizontal: 20,
+          borderBottomColor: COLORS.borderColor,
 
-                    paddingVertical: 20,
+          marginBottom: 10,
+        }}
+      >
+        <Image
+          style={{
+            height: 50,
 
-                    borderBottomWidth: 1,
+            width: 50,
 
-                    borderBottomColor: COLORS.borderColor,
+            marginRight: 10,
 
-                    marginBottom: 10,
-                }}
-            >
-                <Image
-                    style={{
-                        height: 50,
+            borderRadius: 50,
+          }}
+          source={IMAGES.user}
+        />
 
-                        width: 50,
+        <View style={{ flex: 1 }}>
+          <Text
+            style={{
+              ...FONTS.fontSatoshiBold,
 
-                        marginRight: 10,
+              fontSize: 18,
 
-                        borderRadius: 50,
-                    }}
-                    source={IMAGES.user}
-                />
+              color: COLORS.title,
 
-                <View style={{ flex: 1 }}>
-                    <Text
-                        style={{
-                            ...FONTS.fontSatoshiBold,
+              top: 2,
+            }}
+          >
+            {options?.info?.firstName || options?.info?.first_name}
+            {options?.info?.lastName || options?.info?.last_name}
+          </Text>
 
-                            fontSize: 18,
-
-                            color: COLORS.title,
-
-                            top: 2,
-                        }}
-                    >
-                        {customerInfo?.firstName || customerInfo?.first_name} {customerInfo?.lastName || customerInfo?.last_name}
-                    </Text>
-
-                    <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{customerInfo?.email}</Text>
-                </View>
-            </View>
-
-            <View style={{ flex: 1 }}>
-                {navItem.map((data, index) => {
-                    return (
-                        <TouchableOpacity
-                            onPress={async () => {
-                                if (
-                                    data.navigate == 'Home' ||
-                                    data.navigate == 'Cart' ||
-                                    data.navigate == 'Account' ||
-                                    data.navigate == 'Favourite' ||
-                                    data.navigate == 'Orders'
-                                ) {
-                                    navigation.navigate('BottomNavigation', {
-                                        screen: data.navigate,
-                                    });
-                                } else if (data.navigate == 'Logout') {
-                                    await AsyncStorage.removeItem('accessToken');
-
-                                    // dispatch(setCartId(''));
-
-                                    navigation.navigate('SignIn');
-                                } else {
-                                    navigation.navigate(data.navigate);
-                                }
-
-                                navigation.closeDrawer();
-                            }}
-                            key={index}
-                            style={{
-                                flexDirection: 'row',
-
-                                alignItems: 'center',
-
-                                paddingHorizontal: 20,
-
-                                paddingVertical: 12,
-                            }}
-                        >
-                            <View style={{ marginRight: 15 }}>
-                                <FeatherIcon name={data.icon} color="rgba(0,0,0,.3)" size={20} />
-                            </View>
-
-                            <Text
-                                style={{
-                                    ...FONTS.fontSatoshiBold,
-
-                                    color: COLORS.title,
-
-                                    opacity: 0.8,
-
-                                    flex: 1,
-                                }}
-                            >
-                                {data.name}
-                            </Text>
-
-                            <FeatherIcon size={16} color={COLORS.text} name="chevron-right" />
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
-
-            <View
-                style={{
-                    paddingHorizontal: 20,
-
-                    paddingVertical: 30,
-
-                    marginTop: 10,
-                }}
-            >
-                <Text
-                    style={{
-                        ...FONTS.fontSatoshiLight,
-
-                        fontSize: 20,
-
-                        color: COLORS.title,
-
-                        marginBottom: 6,
-                    }}
-                >
-                    bateeq
-                </Text>
-
-                <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.5)' }}>App Version 1.0</Text>
-            </View>
+          <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{options?.info?.email}</Text>
         </View>
-    );
+      </View>
+
+      <View style={{ flex: 1 }}>
+        {navItem.map((data, index) => {
+          return (
+            <TouchableOpacity
+              onPress={async () => {
+                if (
+                  data.navigate == 'Home' ||
+                  data.navigate == 'Cart' ||
+                  data.navigate == 'Account' ||
+                  data.navigate == 'Favourite' ||
+                  data.navigate == 'Orders'
+                ) {
+                  navigation.navigate('BottomNavigation', {
+                    screen: data.navigate,
+                  });
+                } else if (data.navigate == 'Logout') {
+                  await AsyncStorage.removeItem('accessToken');
+                  navigation.dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: 'SignIn' }],
+                    })
+                  );
+                } else {
+                  navigation.navigate(data.navigate);
+                }
+
+                navigation.closeDrawer();
+              }}
+              key={index}
+              style={{
+                flexDirection: 'row',
+
+                alignItems: 'center',
+
+                paddingHorizontal: 20,
+
+                paddingVertical: 12,
+              }}
+            >
+              <View style={{ marginRight: 15 }}>
+                <FeatherIcon name={data.icon} color="rgba(0,0,0,.3)" size={20} />
+              </View>
+
+              <Text
+                style={{
+                  ...FONTS.fontSatoshiBold,
+
+                  color: COLORS.title,
+
+                  opacity: 0.8,
+
+                  flex: 1,
+                }}
+              >
+                {data.name}
+              </Text>
+
+              <FeatherIcon size={16} color={COLORS.text} name="chevron-right" />
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <View
+        style={{
+          paddingHorizontal: 20,
+
+          paddingVertical: 30,
+
+          marginTop: 10,
+        }}
+      >
+        <Text
+          style={{
+            ...FONTS.fontSatoshiLight,
+
+            fontSize: 20,
+
+            color: COLORS.title,
+
+            marginBottom: 6,
+          }}
+        >
+          bateeq
+        </Text>
+
+        <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.5)' }}>App Version 1.0</Text>
+      </View>
+    </View>
+  );
 }
 
-export default connect(({User})=> {
-    let { options } = User
-    return {
-        CustomDrawer: options?.info
-    }
+export default connect(({ User, Auth }) => {
+  let { isAuthenticated } = Auth;
+  let { options } = User;
+  return {
+    isAuthenticated,
+    options,
+    CustomDrawer: options?.info,
+  };
 })(CustomDrawer);

@@ -8,19 +8,15 @@ import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { Formik } from 'formik';
 import { gqlError } from '../../utils/eror-handling';
 import * as Yup from 'yup';
-import { useNavigation } from '@react-navigation/native';
-import {connect} from 'react-redux';
-import {UpdateAccount} from "../../store/actions/user";
+import { connect } from 'react-redux';
+import { UpdateAccount } from '../../store/actions/user';
 
-const EditProfile = ({ route,...props }) => {
-  let { options,collections,UpdateAccount } = props
-  const navigation = useNavigation();
-
+const EditProfile = ({ route, ...props }) => {
+  let { options, collections, UpdateAccount } = props;
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [isFocused3, setisFocused3] = useState(false);
   const [isFocused4, setisFocused4] = useState(false);
-
 
   const initialValues = {
     email: options?.info?.email || '',
@@ -73,14 +69,7 @@ const EditProfile = ({ route,...props }) => {
         }}
         validationSchema={ValidationSchema}
       >
-        {({
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          values,
-          errors,
-          touched,
-        }) => (
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <>
             <View style={{ flex: 1 }}>
               <ScrollView>
@@ -163,12 +152,18 @@ const EditProfile = ({ route,...props }) => {
                       style={[
                         GlobalStyleSheet.formControl,
                         isFocused4 && GlobalStyleSheet.activeInput,
-                        { height: 80, textAlignVertical: 'top', ...FONTS.font, color: COLORS.title, backgroundColor: '#ccc' },
+                        {
+                          height: 80,
+                          textAlignVertical: 'top',
+                          ...FONTS.font,
+                          color: COLORS.title,
+                          backgroundColor: '#ccc',
+                        },
                       ]}
                       value={collections?.address?.used?.data?.address1 || ''}
                       onFocus={() => setisFocused4(true)}
                       multiline={true}
-                      placeholder={values.location ? values.location : "Please update your address in Address list"}
+                      placeholder={values.location ? values.location : 'Please update your address in Address list'}
                       placeholderTextColor={COLORS.label}
                       editable={false}
                     />
@@ -184,7 +179,10 @@ const EditProfile = ({ route,...props }) => {
   );
 };
 
-export default connect(({User})=> {
-  let { options,collections } =  User
-  return {options,collections}
-},{UpdateAccount})(React.memo(EditProfile));
+export default connect(
+  ({ User }) => {
+    let { options, collections } = User;
+    return { options, collections };
+  },
+  { UpdateAccount }
+)(React.memo(EditProfile));

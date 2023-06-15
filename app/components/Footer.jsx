@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client';
 import { gqlError } from '../utils/eror-handling';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { GET_PAGES } from '../graphql/queries';
+import { GET_SHIPPING_POLICY, GET_PAGES } from '../graphql/queries';
 
 function ExpandableSection({ title, children }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -56,26 +56,32 @@ function ExpandableSection({ title, children }) {
 export const Footer = ({ dataPagesStory }) => {
   const navigation = useNavigation();
   const [pageContactUs, setPageContactUs] = useState(null);
+  const [pageFaq, setPageFaq] = useState(null);
 
   const { data: dataPageContactUs, loading: loadingPages } = useQuery(GET_PAGES, {
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network',
     variables: {
       handle: 'contact',
     },
-    // onCompleted: ({ page }) => {
-    //   console.log('page', page);
-    //   if (page) {
-    //     setPageContactUs(page);
-    //   }
-    // },
-    // onError: err => {
-    //   onError(err);
-    // },
+  });
+
+  const { data: dataPageFaq, loading: loadingPageFaq } = useQuery(GET_PAGES, {
+    fetchPolicy: 'cache-and-network',
+    variables: {
+      handle: 'f-a-q',
+    },
+  });
+
+  const { data: dataPageShippingPolicy, loading: loadingShippingPolicy } = useQuery(GET_SHIPPING_POLICY, {
+    fetchPolicy: 'cache-and-network',
   });
 
   useEffect(() => {
     if (dataPageContactUs) {
       setPageContactUs(dataPageContactUs?.page);
+    }
+    if (dataPageFaq) {
+      setPageFaq(dataPageFaq?.page);
     }
   }, []);
 
@@ -153,7 +159,7 @@ export const Footer = ({ dataPagesStory }) => {
             style={{ marginBottom: 10 }}
             onPress={() =>
               navigation.navigate('PagesInShopify', {
-                dataPages: pageContactUs,
+                dataPages: pageFaq,
                 loadingPages,
               })
             }
@@ -185,7 +191,7 @@ export const Footer = ({ dataPagesStory }) => {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ marginBottom: 10 }}>
+          {/* <TouchableOpacity style={{ marginBottom: 10 }}>
             <Text
               style={{
                 color: COLORS.title,
@@ -193,9 +199,17 @@ export const Footer = ({ dataPagesStory }) => {
             >
               Shipping & Returns
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          {/* <TouchableOpacity style={{ marginBottom: 10 }}>
+          <TouchableOpacity
+            style={{ marginBottom: 10 }}
+            onPress={() =>
+              navigation.navigate('PagesInShopify', {
+                dataPages: dataPageShippingPolicy.shop.privacyPolicy,
+                loadingPages,
+              })
+            }
+          >
             <Text
               style={{
                 color: COLORS.title,
@@ -203,7 +217,7 @@ export const Footer = ({ dataPagesStory }) => {
             >
               Privacy Policy
             </Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
 
           {/* <TouchableOpacity style={{ marginBottom: 10 }}>
             <Text

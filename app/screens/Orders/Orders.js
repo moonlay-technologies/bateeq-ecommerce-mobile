@@ -1,18 +1,12 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  useWindowDimensions,
-  View,
-  TouchableOpacity,
-  Text,
-  Image,
-} from 'react-native';
-import {SceneMap, TabBar, TabView} from 'react-native-tab-view';
+import { SafeAreaView, useWindowDimensions, View, TouchableOpacity, Text, Image } from 'react-native';
+import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import {IconButton} from 'react-native-paper';
-import {COLORS, FONTS} from '../../constants/theme';
+import { IconButton } from 'react-native-paper';
+import { COLORS, FONTS } from '../../constants/theme';
 import AllCart from './AllCart';
 import Canceled from './Canceled';
+import Confirm from './Confirm';
 import Completed from './Completed';
 import OnDelivery from './OnDelivery';
 import { Dimensions } from 'react-native';
@@ -20,20 +14,20 @@ import { Dimensions } from 'react-native';
 const screen = Dimensions.get('window');
 const renderScene = SceneMap({
   All: AllCart,
-  OnDelivery: OnDelivery,
+  Confirm: Confirm,
   Completed: Completed,
   Canceled: Canceled,
 });
 
-const Orders = ({navigation}) => {
+const Orders = ({ navigation }) => {
   const layout = useWindowDimensions();
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    {key: 'All', title: 'All'},
-    {key: 'OnDelivery', title: 'On Delivery'},
-    {key: 'Completed', title: 'Completed'},
-    {key: 'Canceled', title: 'Canceled'},
+    { key: 'All', title: 'All' },
+    { key: 'Confirm', title: 'Confirm' },
+    { key: 'Completed', title: 'Completed' },
+    { key: 'Canceled', title: 'Canceled' },
   ]);
 
   const handlePress = () => {
@@ -45,7 +39,8 @@ const Orders = ({navigation}) => {
       style={{
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
-      }}>
+      }}
+    >
       <View
         style={{
           flexDirection: 'row',
@@ -59,7 +54,8 @@ const Orders = ({navigation}) => {
             marginLeft:-20
           // borderBottomWidth:1,
           // borderBottomColor:COLORS.borderColor,
-        }}>
+        }}
+      >
         <IconButton
           icon={() => (
             <View
@@ -71,7 +67,8 @@ const Orders = ({navigation}) => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: 8,
-              }}>
+              }}
+            >
               <FeatherIcon color={COLORS.title} size={18} name="menu" />
             </View>
           )}
@@ -80,10 +77,7 @@ const Orders = ({navigation}) => {
         />
         {/* <Text style={{...FONTS.fontSatoshiBold,color:COLORS.title,flex:1, fontSize: 18,justifyContent:'center',alignItems:'center', textAlign: 'center',marginLeft:5}}>bateeq</Text> */}
         <TouchableOpacity onPress={handlePress}>
-          <Image
-            style={{width: 70, height: 35}}
-            source={require('../../assets/images/logo.png')}
-          />
+          <Image style={{ width: 70, height: 35 }} source={require('../../assets/images/logo.png')} />
         </TouchableOpacity>
         {/* <IconButton
                     icon={() => <FeatherIcon color={COLORS.title} size={20} name='search'/>}
@@ -111,11 +105,9 @@ const Orders = ({navigation}) => {
                   position: 'absolute',
                   top: -4,
                   right: -6,
-                }}>
-                <Text
-                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
-                </Text>
+                }}
+              >
+                <Text style={{ ...FONTS.fontXs, fontSize: 10, color: COLORS.white }}>2</Text>
               </View>
             </View>
           )}

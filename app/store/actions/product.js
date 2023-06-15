@@ -1,5 +1,5 @@
-import {REQUEST} from "./action.type";
-import {GET_PROD_COLL_SEARCH} from "../constants/product";
+import { REQUEST } from './action.type';
+import { GET_PROD_COLL_SEARCH } from '../constants/product';
 
 /**
  *
@@ -9,9 +9,9 @@ import {GET_PROD_COLL_SEARCH} from "../constants/product";
  * @returns {{payload, type: string}}
  * @constructor
  */
-export const CollectionSearch = (payload)=> {
-    return  {
-        type: REQUEST(GET_PROD_COLL_SEARCH),
-        payload
-    }
-}
+export const CollectionSearch = payload => {
+  return {
+    type: REQUEST(GET_PROD_COLL_SEARCH),
+    payload,
+  };
+};

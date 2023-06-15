@@ -351,3 +351,16 @@ export const GET_COLLECTIONS_SLIDER = gql`
     }
   }
 `;
+
+export const GET_SHIPPING_POLICY = gql`
+  {
+    shop {
+      privacyPolicy {
+        id
+        body
+        handle
+        title
+      }
+    }
+  }
+`;

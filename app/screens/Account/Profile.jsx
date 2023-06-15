@@ -202,7 +202,7 @@ function Profile() {
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
-              {/* <TouchableOpacity
+              <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -210,6 +210,7 @@ function Profile() {
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
                 }}
+                onPress={() => navigation.navigate('AppSetting')}
               >
                 <Text
                   style={{
@@ -222,7 +223,7 @@ function Profile() {
                   App Setting
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
-              </TouchableOpacity> */}
+              </TouchableOpacity>
               <TouchableOpacity
                 style={{
                   flexDirection: 'row',
@@ -236,7 +237,8 @@ function Profile() {
                   navigation.navigate('PagesInShopify', {
                     dataPages: dataFaq,
                     loading: loadingFAQ,
-                  })}
+                  })
+                }
               >
                 <Text
                   style={{
