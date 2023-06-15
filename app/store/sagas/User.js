@@ -40,9 +40,9 @@ export function* __loadUser(){
                 }
             }
 
-            if(response?.data?.customer){
+            if(findKey(response,['data','customer'])){
 
-                let data = response?.data?.customer ?? {}
+                let data = findKey(response,['data','customer']) ?? {}
                 Object.entries(data).map(([key,value])=> {
                     if(value && (typeof(value) === 'string' || typeof(value) === 'boolean')){
                         Reflect.set(newPayload.info,key,value)
@@ -140,9 +140,9 @@ export function* __updateAccount(){
                     }
                 })
 
-                console.log({response},'REDUX SAGA')
-                if(findKey(response,['data','customerUpdate'])){
+                if(findKey(response,['data','customerUpdate','customer'])){
 
+                    console.log({response},'REDUX SAGA TEST OK')
                     yield all([
                         put({
                             type: SUCCESS(EDIT_ACCOUNT),

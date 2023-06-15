@@ -50,6 +50,7 @@ const EditProfile = ({ route,...props }) => {
         customer: values,
         accessToken: options?.token
       })
+      navigation.navigate('Account')
     } catch (error) {
       onError(error);
     }

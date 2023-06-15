@@ -72,7 +72,6 @@ export default function(state = initialState, action){
                         state.options.token = token
                     }
                 })
-
             return {
                 ...state,
                 loading: false,
@@ -87,11 +86,14 @@ export default function(state = initialState, action){
                     address: {
                         used:{
                             loading:false,
-                            data: payload?.address?.default
+                            data: {
+                                ...state.collections.address.used.data,
+                                ...payload?.address?.default
+                            }
                         },
                         list: {
                             loading:false,
-                            data: payload?.address?.list ?? []
+                            data: payload?.address?.list ?? state.collections.address.list.data ?? []
                         }
                     }
                 }
@@ -106,6 +108,22 @@ export default function(state = initialState, action){
                 }
             }
 
+
+        case REQUEST('ADD_NEW_ADDRESS'):
+            if(payload?.data){
+                state.collections.address.list.data.push({...payload?.data})
+            }
+            return {
+                ...state,
+                collections:{
+                    address: {
+                        list: {
+                            loading:false,
+                            data: [...state.collections.address.list.data]
+                        }
+                    }
+                }
+            }
         case REQUEST(EDIT_ACCOUNT):
             return  {
                 ...state,
@@ -122,11 +140,9 @@ export default function(state = initialState, action){
                     loading: false,
                     info: {
                         ...state.options.info,
-                        id: payload?.info?.id ?? state.options.info.id ?? null,
-                        email: payload?.info?.email ?? state.options.info.email ?? null,
-                        first_name: payload?.info?.first_name ?? payload?.info?.firstName ?? state.options.info.first_name ?? null,
-                        last_name: payload?.info?.last_name ?? payload?.info?.lastName ?? state.options.info.last_name ?? null,
-                        phone: payload?.info?.phone ?? state.options.info.phone ?? null
+                        ...payload?.info,
+                        first_name: payload?.info?.firstName ?? payload?.info?.first_name ?? state.options.info.first_name ?? null,
+                        last_name: payload?.info?.lastName ?? state.options.info.last_name ?? null
                     }
                 },
             }
