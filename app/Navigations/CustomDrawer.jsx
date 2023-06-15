@@ -10,9 +10,11 @@ import {connect, useDispatch, useSelector} from 'react-redux';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 
 import { setCartId } from '../store/reducer';
+import {CartGetList} from "../store/actions";
 
-function CustomDrawer({ navigation, customerInfo }) {
+function CustomDrawer({ navigation, customerInfo,...props }) {
 
+    let { cartId,CartGetList } = props
 
     const navItem = [
         {
@@ -25,9 +27,7 @@ function CustomDrawer({ navigation, customerInfo }) {
 
         {
             icon: 'heart',
-
             name: 'Wishlist',
-
             navigate: 'Favourite',
         },
 
@@ -45,6 +45,15 @@ function CustomDrawer({ navigation, customerInfo }) {
             name: 'My Cart',
 
             navigate: 'Cart',
+            onPress: ()=> {
+                CartGetList({
+                    first:10,
+                    last:0,
+                    id:cartId
+                })
+                navigation.navigate('Cart');
+                navigation.closeDrawer();
+            }
         },
 
         {
@@ -61,6 +70,12 @@ function CustomDrawer({ navigation, customerInfo }) {
             name: 'Logout',
 
             navigate: 'SignIn',
+            onPress: async ()=> {
+                await AsyncStorage.removeItem('accessToken')
+                    .then(()=> {
+                        navigation.navigate('SignIn');
+                    })
+            }
         },
     ];
 
@@ -117,7 +132,7 @@ function CustomDrawer({ navigation, customerInfo }) {
                 {navItem.map((data, index) => {
                     return (
                         <TouchableOpacity
-                            onPress={async () => {
+                            onPress={data?.onPress ? data?.onPress : async () => {
                                 if (
                                     data.navigate == 'Home' ||
                                     data.navigate == 'Cart' ||
@@ -128,12 +143,6 @@ function CustomDrawer({ navigation, customerInfo }) {
                                     navigation.navigate('BottomNavigation', {
                                         screen: data.navigate,
                                     });
-                                } else if (data.navigate == 'Logout') {
-                                    await AsyncStorage.removeItem('accessToken');
-
-                                    // dispatch(setCartId(''));
-
-                                    navigation.navigate('SignIn');
                                 } else {
                                     navigation.navigate(data.navigate);
                                 }
@@ -204,9 +213,11 @@ function CustomDrawer({ navigation, customerInfo }) {
     );
 }
 
-export default connect(({User})=> {
+export default connect(({User,Cart})=> {
     let { options } = User
+    let { cartId } = Cart.options
     return {
-        CustomDrawer: options?.info
+        CustomDrawer: options?.info,
+        cartId
     }
-})(CustomDrawer);
+},{CartGetList})(CustomDrawer);
