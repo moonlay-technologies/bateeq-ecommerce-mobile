@@ -13,6 +13,25 @@ export const AUTH_LOGIN = gql`
   }
 `;
 
+export const __GQL_EDIT_DETAIL_ACCOUNT = `mutation customerUpdate(
+    $customer: CustomerUpdateInput!
+    $customerAccessToken: String!
+  ) {
+    customerUpdate(
+      customer: $customer
+      customerAccessToken: $customerAccessToken
+    ) {
+      customer {
+        phone
+        firstName
+        lastName
+        email
+      }
+      customerUserErrors {
+        message
+      }
+    }
+  }`
 export const EDIT_DETAIL_ACCOUNT = gql`
   mutation customerUpdate($customer: CustomerUpdateInput!, $customerAccessToken: String!) {
     customerUpdate(customer: $customer, customerAccessToken: $customerAccessToken) {

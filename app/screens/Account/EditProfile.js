@@ -1,44 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
 import CustomButton from '../../components/CustomButton';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import Header from '../../layout/Header';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { Formik } from 'formik';
-import { useMutation } from '@apollo/client';
-import { EDIT_DETAIL_ACCOUNT } from '../../graphql/mutation';
 import { gqlError } from '../../utils/eror-handling';
 import * as Yup from 'yup';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import { setCustomerInfo } from '../../store/reducer';
+import {connect} from 'react-redux';
+import {UpdateAccount} from "../../store/actions/user";
 
-const EditProfile = ({ props, route }) => {
-  // const {dataAccount, setDataAccount} = route.params;
+const EditProfile = ({ route,...props }) => {
+  let { options,collections,UpdateAccount } = props
   const navigation = useNavigation();
-  // const [dataAccount, setDataAccount] = useState(null);
+
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [isFocused3, setisFocused3] = useState(false);
   const [isFocused4, setisFocused4] = useState(false);
-  const dispatch = useDispatch();
-  const { customerInfo, getToken } = useSelector(state => state.user);
 
-  const [CustomerUpdateDetailAccount] = useMutation(EDIT_DETAIL_ACCOUNT, {
-    fetchPolicy: 'no-cache',
-    variables: {
-      customer: '',
-      customerAccessToken: getToken,
-    },
-  });
 
   const initialValues = {
-    email: customerInfo?.email || '',
-    firstName: customerInfo?.firstName || customerInfo?.first_name || '',
-    lastName: customerInfo?.lastName || customerInfo?.last_name || '',
-    phone: customerInfo?.phone || '',
+    email: options?.info?.email || '',
+    firstName: options?.info?.firstName || options?.info?.first_name || '',
+    lastName: options?.info?.lastName || options?.info?.last_name || '',
+    phone: options?.info?.phone || '',
   };
 
   const ValidationSchema = Yup.object().shape({
@@ -58,25 +46,11 @@ const EditProfile = ({ props, route }) => {
 
   const handleOnSubmit = async values => {
     try {
-      const { data } = await CustomerUpdateDetailAccount({
-        fetchPolicy: 'no-cache',
-        variables: {
-          customer: values,
-          customerAccessToken: getToken,
-        },
-      });
-
-      if (data.customerUpdate.customer) {
-        dispatch(setCustomerInfo(data.customerUpdate.customer));
-        Toast.show({
-          type: 'success',
-          text1: 'Save data success',
-          visibilityTime: 3000,
-        });
-        navigation.navigate('Account');
-      } else {
-        onError(data.customerUpdate.customerUserErrors[0].message);
-      }
+      UpdateAccount({
+        customer: values,
+        accessToken: options?.token
+      })
+      navigation.navigate('Account')
     } catch (error) {
       onError(error);
     }
@@ -103,7 +77,6 @@ const EditProfile = ({ props, route }) => {
           handleChange,
           handleBlur,
           handleSubmit,
-          // setFieldValue,
           values,
           errors,
           touched,
@@ -192,7 +165,7 @@ const EditProfile = ({ props, route }) => {
                         isFocused4 && GlobalStyleSheet.activeInput,
                         { height: 80, textAlignVertical: 'top', ...FONTS.font, color: COLORS.title, backgroundColor: '#ccc' },
                       ]}
-                      value={customerInfo?.defaultAddress?.address1 || ''}
+                      value={collections?.address?.used?.data?.address1 || ''}
                       onFocus={() => setisFocused4(true)}
                       multiline={true}
                       placeholder={values.location ? values.location : "Please update your address in Address list"}
@@ -204,8 +177,6 @@ const EditProfile = ({ props, route }) => {
               </ScrollView>
               <CustomButton title={'Save Details'} onPress={handleSubmit} />
             </View>
-            {/* <View style={GlobalStyleSheet.container}> */}
-            {/* </View> */}
           </>
         )}
       </Formik>
@@ -213,4 +184,7 @@ const EditProfile = ({ props, route }) => {
   );
 };
 
-export default EditProfile;
+export default connect(({User})=> {
+  let { options,collections } =  User
+  return {options,collections}
+},{UpdateAccount})(React.memo(EditProfile));

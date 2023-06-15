@@ -1,5 +1,5 @@
 import {FAILURE, REQUEST, SUCCESS} from "../actions/action.type";
-import {LOAD_USER, USER_SET_TOKEN} from "../constants/user";
+import {EDIT_ACCOUNT, LOAD_USER, USER_SET_TOKEN} from "../constants/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
@@ -47,7 +47,6 @@ AsyncStorage.getItem('accessToken')
 export default function(state = initialState, action){
     let { type, payload }= action
 
-    console.log({type,payload})
     switch (type){
         case REQUEST(USER_SET_TOKEN):
             return {
@@ -73,7 +72,6 @@ export default function(state = initialState, action){
                         state.options.token = token
                     }
                 })
-
             return {
                 ...state,
                 loading: false,
@@ -88,11 +86,14 @@ export default function(state = initialState, action){
                     address: {
                         used:{
                             loading:false,
-                            data: payload?.address?.default
+                            data: {
+                                ...state.collections.address.used.data,
+                                ...payload?.address?.default
+                            }
                         },
                         list: {
                             loading:false,
-                            data: payload?.address?.list ?? []
+                            data: payload?.address?.list ?? state.collections.address.list.data ?? []
                         }
                     }
                 }
@@ -104,6 +105,53 @@ export default function(state = initialState, action){
                 options: {
                     ...state.options,
                     loading: false,
+                }
+            }
+
+
+        case REQUEST('ADD_NEW_ADDRESS'):
+            if(payload?.data){
+                state.collections.address.list.data.push({...payload?.data})
+            }
+            return {
+                ...state,
+                collections:{
+                    address: {
+                        list: {
+                            loading:false,
+                            data: [...state.collections.address.list.data]
+                        }
+                    }
+                }
+            }
+        case REQUEST(EDIT_ACCOUNT):
+            return  {
+                ...state,
+                options:{
+                    ...state.options,
+                    loading: true
+                },
+            }
+        case SUCCESS(EDIT_ACCOUNT):
+            return  {
+                ...state,
+                options:{
+                    ...state.options,
+                    loading: false,
+                    info: {
+                        ...state.options.info,
+                        ...payload?.info,
+                        first_name: payload?.info?.firstName ?? payload?.info?.first_name ?? state.options.info.first_name ?? null,
+                        last_name: payload?.info?.lastName ?? state.options.info.last_name ?? null
+                    }
+                },
+            }
+        case FAILURE(EDIT_ACCOUNT):
+            return {
+                ...state,
+                options: {
+                    ...state.options,
+                    loading: false
                 }
             }
         default:

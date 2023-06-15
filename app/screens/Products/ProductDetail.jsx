@@ -245,6 +245,11 @@ function ProductDetail(props) {
             size: '',
             color: '',
           });
+          CartGetList({
+            first:10,
+            last:0,
+            id:cartId
+          })
           navigation.navigate('Cart');
         } else {
           Toast.show({
@@ -532,7 +537,7 @@ function ProductDetail(props) {
 export default connect(({ Cart }) => {
   const { options } = Cart;
   return { cartId: options?.cartId };
-}, {})(React.memo(ProductDetail));
+}, {CartGetList})(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
   icon: {

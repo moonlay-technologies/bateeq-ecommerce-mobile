@@ -1,5 +1,12 @@
 import {REQUEST} from "./action.type";
-import {LOAD_USER, USER_SET_ADDRESS, USER_SET_DEFAULT_ADDRESS, USER_SET_INFO, USER_SET_TOKEN} from "../constants/user";
+import {
+    EDIT_ACCOUNT,
+    LOAD_USER,
+    USER_SET_ADDRESS,
+    USER_SET_DEFAULT_ADDRESS,
+    USER_SET_INFO,
+    USER_SET_TOKEN
+} from "../constants/user";
 
 
 /**
@@ -61,6 +68,26 @@ export const setCustomerInfo = (payload)=> {
 export const LoadUsers = (payload)=> {
     return {
         type: REQUEST(LOAD_USER),
+        payload
+    }
+}
+
+
+/**
+ * => USED
+ * @param {object} payload
+ * @param {string} payload.accessToken
+ * @param {object} payload.customer
+ * @param {string} payload.customer.firstName
+ * @param {string} payload.customer.lastName
+ * @param {string} payload.customer.phone
+ * @param {string} payload.customer.email
+ * @returns {{type: string}}
+ * @constructor
+ */
+export const UpdateAccount = (payload  = {}) => {
+    return {
+        type:REQUEST(EDIT_ACCOUNT),
         payload
     }
 }
