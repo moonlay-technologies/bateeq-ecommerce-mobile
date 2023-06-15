@@ -1,5 +1,6 @@
 import {create} from 'apisauce';
 import LocalStorage from 'local-storage';
+import AuthService from '../auth/auth-service';
 
 const api = create({
   baseURL: `https://bateeqshop.myshopify.com/admin/api/2023-04/`,
@@ -8,7 +9,24 @@ const api = create({
     'X-Shopify-Access-Token': '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',
   },
 });
-
+api.axiosInstance.interceptors.request.use(
+  // eslint-disable-next-line consistent-return
+  config => {
+    console.log('config', config)
+    // config.headers.Authorization = 
+    return Promise.resolve(config)
+    // if (AuthService.isLoggedIn()) {
+    //   const cb = () => {
+    //     config.headers.Authorization = `Bearer ${AuthService.getToken()}`;
+    //     return Promise.resolve(config);
+    //   };
+    //   return AuthService.updateToken(cb);
+    // }
+  },
+  error => {
+    Promise.reject(error);
+  }
+);
 export default class RequestHandler {
   constructor(url) {
     this.api = api;
@@ -41,6 +59,7 @@ export default class RequestHandler {
       api
         .get(url, {...params})
         .then(response => {
+          console.log('response', response)
           if (response.ok) resolve(response.data);
           else {
             reject(response);

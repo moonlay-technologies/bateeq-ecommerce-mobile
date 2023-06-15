@@ -1,8 +1,8 @@
-import { gql } from "@apollo/client";
+import { gql } from '@apollo/client';
 
-export const authenticate = gql`
-mutation customerAccessTokenCreate {
-    customerAccessTokenCreate(input: $input) {
+export const AUTH_LOGIN = gql`
+  mutation CustomerAccessTokenCreate($email: String!, $password: String!) {
+    customerAccessTokenCreate(input: { email: $email, password: $password }) {
       customerAccessToken {
         accessToken
       }
@@ -11,4 +11,4 @@ mutation customerAccessTokenCreate {
       }
     }
   }
-`
+`;
