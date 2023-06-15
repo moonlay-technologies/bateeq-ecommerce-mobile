@@ -10,7 +10,6 @@ class CountriesApi extends RequestHandler {
     return new Promise((resolve, reject) => {
       this.find(`${params}/${ENDPOINT.PROVINCES}.json`)
         .then(result => {
-          console.log('result countries api', result);
           resolve(result);
         })
         .catch(error => reject(error));

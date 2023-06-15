@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import LottieView from 'lottie-react-native';
 import Loading from '../assets/lotties/Loading.json';
@@ -12,7 +12,7 @@ import LoadingWave from '../assets/lotties/Loading3.json';
  * @param {boolean | false} props.Loading3
  * @returns {JSX.Element}
  */
-const LoadingScreen = ({Loading2,Loading3,...props}) => {
+function LoadingScreen({ Loading2, Loading3, ...props }) {
   return (
     <View style={styles.container}>
       <LottieView
@@ -24,7 +24,7 @@ const LoadingScreen = ({Loading2,Loading3,...props}) => {
       />
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {

@@ -22,8 +22,9 @@ import LoadingScreen from '../../components/LoadingView';
 import { useMutation } from '@apollo/client';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AUTH_LOGIN } from '../../graphql/mutation';
-import { useDispatch, batch } from 'react-redux';
+import {useDispatch, batch, connect} from 'react-redux';
 import { setIsLogin, setToken } from '../../store/reducer';
+import {CartGenerateId} from "../../store/actions";
 
 const ValidateSchema = Yup.object().shape({
   customer: Yup.object().shape({
@@ -35,6 +36,7 @@ const ValidateSchema = Yup.object().shape({
 });
 
 const SignIn = props => {
+  let { CartGenerateId,cartId } = props
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
@@ -63,6 +65,15 @@ const SignIn = props => {
           text1: 'Login Success',
           visibilityTime: 2000,
         });
+        if(!cartId){
+          // await AsyncStorage.setItem('cart',)
+          CartGenerateId({
+            token: accessToken
+          })
+        }
+        CartGenerateId({
+          token: accessToken
+        })
         // batch(() => {
         //   dispatch(setToken(accessToken));
         //   dispatch(setIsLogin(!!accessToken));
@@ -281,4 +292,8 @@ const SignIn = props => {
   );
 };
 
-export default SignIn;
+export default connect(({Cart})=> {
+  let { options } = Cart
+  let { cartId } = options
+  return { cartId }
+},{CartGenerateId})(React.memo(SignIn));

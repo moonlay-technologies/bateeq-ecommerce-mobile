@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Snackbar } from 'react-native-paper';
-import ItemList from '../../components/ItemList';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import ItemList from '../components/ItemList';
+import { GlobalStyleSheet } from '../constants/StyleSheet';
 
 function SaleItems(props) {
   const navigation = useNavigation();

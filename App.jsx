@@ -6,7 +6,7 @@ import Routes from './app/navigations/Route';
 import { LoadUsers, setToken } from './app/store/actions/user';
 
 function App({ ...props }) {
-  const { options, LoadUsers, setToken, loading, isAuthenticated } = props;
+  const { options, User, LoadUsers, setToken, loading, isAuthenticated } = props;
   const [newLoad, setNewLoad] = useState(true);
   const [newToken, setNewToken] = useState(null);
 
@@ -23,12 +23,12 @@ function App({ ...props }) {
       .catch(err => {
         setNewLoad(false);
       });
-  }, [setToken]);
+  }, []);
 
   useEffect(() => {
     if (!newLoad) {
       LoadUsers({
-        accessToken: newToken,
+        accessToken: options?.token,
       });
     }
   }, [LoadUsers, newLoad, newToken]);
@@ -39,7 +39,7 @@ export default connect(
   ({ Auth, User }) => {
     const { isAuthenticated } = Auth;
     const { options, loading } = User;
-    return { options, isAuthenticated, loading };
+    return { options, isAuthenticated, loading, User };
   },
   { LoadUsers, setToken }
 )(App);

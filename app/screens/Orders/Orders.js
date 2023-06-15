@@ -15,7 +15,9 @@ import AllCart from './AllCart';
 import Canceled from './Canceled';
 import Completed from './Completed';
 import OnDelivery from './OnDelivery';
+import { Dimensions } from 'react-native';
 
+const screen = Dimensions.get('window');
 const renderScene = SceneMap({
   All: AllCart,
   OnDelivery: OnDelivery,
@@ -50,6 +52,11 @@ const Orders = ({navigation}) => {
           alignItems: 'center',
           height: 45,
           justifyContent: 'space-between',
+            width:screen.width + 40,
+            marginRight:-20,
+            paddingLeft:20,
+            paddingRight:20,
+            marginLeft:-20
           // borderBottomWidth:1,
           // borderBottomColor:COLORS.borderColor,
         }}>
@@ -115,40 +122,65 @@ const Orders = ({navigation}) => {
           size={25}
         />
       </View>
-      <TabView
-        renderTabBar={props => (
-          <TabBar
-            {...props}
-            activeColor={COLORS.title}
-            indicatorStyle={{backgroundColor: 'transparent'}}
-            labelStyle={{
-              //   ...FONTS.fontLg,
-              ...FONTS.fontSatoshiBold,
-              color: '#B2B2B2',
-              textTransform: 'capitalize',
-            }}
-            scrollEnabled={true}
-            tabStyle={{
-              width: 115,
-              borderWidth: 1,
-              borderColor: '#B2B2B2',
-              marginRight: 6,
-              borderRadius: 6,
-            }}
-            style={{
-              backgroundColor: 'transparent',
-              elevation: 0,
-              borderWidth: 1,
-              borderColor: COLORS.white,
-              marginLeft: 16,
-            }}
-          />
-        )}
-        navigationState={{index, routes}}
-        renderScene={renderScene}
-        onIndexChange={setIndex}
-        initialLayout={{width: layout.width}}
-      />
+        <TabView
+
+            renderTabBar={props => (
+                <TabBar
+                    {...props}
+                    activeOpacity={0}
+                    activeColor={COLORS.title}
+                    gap={10}
+                    pressColor={'transparent'}
+                    indicatorStyle={{
+                        backgroundColor: 'transparent'}}
+                    labelStyle={{
+                        //   ...FONTS.fontLg,
+                        ...FONTS.fontSatoshiBold,
+                        fontSize:12,
+                        color: '#B2B2B2',
+                        textTransform: 'capitalize',
+                    }}
+
+                    scrollEnabled={true}
+                    tabStyle={{
+                        width:(screen.width / 4 ) + 20,
+                        // width: (screen.width / 4) - 5,
+                        overflow:'hidden',
+                        // width: 115,
+                        borderWidth: 1,
+                        borderColor: '#B2B2B2',
+                        // marginRight:5,
+                        // marginLeft:5,
+                        // marginRight: -20,
+                        // marginLeft: -20,
+                        borderRadius: 100,
+                    }}
+                    style={{
+                        width:screen.width,
+                        backgroundColor: 'transparent',
+                        elevation: 0,
+                        // marginLeft: -14,
+                        // marginRight: -14,
+                        // paddingRight:14,
+                        // paddingLeft:14,
+                        // borderEndWidth:1,
+                        // paddingRight:20,
+                        // paddingLeft:0,
+                        // marginLeft: -10,
+                        // marginRight: -10,
+                        // borderBottomWidth:1,
+                        // borderColor:"#B2B2B2",
+                        // borderWidth: 1,
+                        // borderColor: COLORS.white,
+                    }}
+                />
+            )}
+            style={{}}
+            navigationState={{index, routes}}
+            renderScene={renderScene}
+            onIndexChange={setIndex}
+            initialLayout={{width: layout.width}}
+        />
     </SafeAreaView>
   );
 };
