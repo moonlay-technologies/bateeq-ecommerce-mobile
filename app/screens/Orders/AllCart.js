@@ -13,7 +13,7 @@ const AllCart = ({ ...props }) => {
     fetchPolicy: 'no-cache',
     variables: {
       customerId: info?.id,
-      query: "",
+      query: '',
     },
     context: {
       clientName: 'httpLink2',
@@ -41,7 +41,7 @@ const AllCart = ({ ...props }) => {
         dataOrders.map(data => (
           <CartItem
             key={data.id}
-            orderId= {data.id}
+            orderId={data.id}
             productId={data?.lineItems?.nodes[0]?.sku}
             imageSrc={data?.lineItems?.nodes[0]?.product?.images?.nodes[0]?.url}
             title={data.lineItems.nodes[0].product.title}
