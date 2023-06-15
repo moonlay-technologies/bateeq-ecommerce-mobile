@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { Snackbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import ItemList from '../../components/ItemList';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import { Snackbar } from 'react-native-paper';
+import ItemList from '../components/ItemList';
+import { GlobalStyleSheet } from '../constants/StyleSheet';
 
-function PopularItems() {
+function BestItems() {
   const navigation = useNavigation();
 
   const DATA = [
@@ -155,4 +155,4 @@ function PopularItems() {
   );
 }
 
-export default PopularItems;
+export default BestItems;

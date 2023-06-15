@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const MenuListHeader = ({ dataListMenu, dataStory }) => {
+function MenuListHeader({ dataListMenu, dataStory }) {
   const [activeSubMenu, setActiveSubMenu] = useState(null);
   const navigation = useNavigation();
 
@@ -21,16 +21,14 @@ const MenuListHeader = ({ dataListMenu, dataStory }) => {
         onPress={() => {
           if (!item.items) {
             toggleSubMenu(item);
+          } else if (item.title === 'SHOP MENSWEAR') {
+            navigation.navigate('Items', { query: 'men' });
+          } else if (item.title === 'SHOP WOMENSWEAR') {
+            navigation.navigate('Items', { query: 'women' });
+          } else if (item.title === 'SHOP KIDSWEAR') {
+            navigation.navigate('Items', { query: 'kids' });
           } else {
-            if (item.title === 'SHOP MENSWEAR') {
-              navigation.navigate('Items', { query: 'men' });
-            } else if (item.title === 'SHOP WOMENSWEAR') {
-              navigation.navigate('Items', { query: 'women' });
-            } else if (item.title === 'SHOP KIDSWEAR') {
-              navigation.navigate('Items', { query: 'kids' });
-            } else {
-              navigation.navigate('Items', { query: item?.title });
-            }
+            navigation.navigate('Items', { query: item?.title });
           }
         }}
       >
@@ -68,7 +66,7 @@ const MenuListHeader = ({ dataListMenu, dataStory }) => {
   };
 
   return <View style={{ flexDirection: 'row' }}>{renderMainMenu(dataListMenu)}</View>;
-};
+}
 
 export default MenuListHeader;
 
