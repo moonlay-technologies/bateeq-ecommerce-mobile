@@ -19,7 +19,7 @@ module.exports = {
     'comma-dangle': 'off',
     'padded-blocks': 'off',
     'react-hooks/exhaustive-deps': 'warn',
-
+    'no-underscore-dangle': [0],
     'react-native/no-unused-styles': 2,
     'react-native/split-platform-components': 2,
     'react-native/no-inline-styles': 0,
