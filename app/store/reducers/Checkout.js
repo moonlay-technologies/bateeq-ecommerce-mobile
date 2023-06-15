@@ -1,5 +1,5 @@
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
-import { CREATE_CHECKOUT } from '../constants/checkout';
+import { CREATE_CHECKOUT, GET_CHECKOUT_ID } from '../constants/checkout';
 
 const initialState = {
   show: {
@@ -17,11 +17,13 @@ const initialState = {
 
 /**
  * @name Checkout
- * @param state
- * @param {object} action
- * @param {object} action.type
- * @param {object} action.payload
+ * @param
  */
+// @param state
+// * @param {object} action
+// * @param {object} action.type
+// * @param {object} action.payload
+// action, state = initialState
 export default function (state = initialState, action) {
   const { type, payload } = action;
 
@@ -33,8 +35,19 @@ export default function (state = initialState, action) {
           ...state.collections,
           checkout: {
             ...state.collections.checkout,
-            loading: false,
+            loading: true,
             data: {},
+          },
+        },
+      };
+    case REQUEST(GET_CHECKOUT_ID):
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          checkout: {
+            ...state.collections.checkout.data,
+            loading: false,
           },
         },
       };
@@ -42,11 +55,9 @@ export default function (state = initialState, action) {
       return {
         ...state,
         collections: {
-          ...state.collections,
           checkout: {
-            ...state.collections.checkout,
             loading: false,
-            data: payload?.data || {},
+            data: payload,
           },
         },
       };

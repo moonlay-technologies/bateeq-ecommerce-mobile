@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, View, Text } from 'react-native';
+import { useQuery } from '@apollo/client';
+import { connect, useSelector } from 'react-redux';
 import CartItem from '../../components/CartItem';
 // import pic1 from '../../assets/images/shop/pic1.png';
-import { useQuery } from '@apollo/client';
 import { GET_ORDERS } from '../../graphql/admin/queries';
 import LoadingScreen from '../../components/LoadingView';
-import {connect, useSelector} from 'react-redux';
 
-const Completed = ({...props}) => {
-  let { info } = props
+function Completed({ ...props }) {
+  const { info } = props;
   const [dataOrders, setDataOrders] = useState([]);
   const { data, loading } = useQuery(GET_ORDERS, {
-    fetchPolicy: "cache-and-network",
+    fetchPolicy: 'cache-and-network',
     variables: {
       customerId: info.id,
       query: 'financial_status:paid',
@@ -58,10 +58,10 @@ const Completed = ({...props}) => {
         ))}
     </ScrollView>
   );
-};
+}
 
-export default connect(({User})=> {
-  let { options } = User
-  let { info } = options
-  return { info }
+export default connect(({ User }) => {
+  const { options } = User;
+  const { info } = options;
+  return { info };
 })(Completed);
