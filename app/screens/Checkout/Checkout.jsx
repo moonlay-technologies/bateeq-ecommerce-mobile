@@ -1,12 +1,12 @@
 import React from 'react';
 import WebView from 'react-native-webview';
-import { connect, useSelector } from 'react-redux';
-import { View, Text } from 'react-native';
+import { connect } from 'react-redux';
+import { View } from 'react-native';
 import LoadingScreen from '../../components/LoadingView';
 import { GetCheckoutId } from '../../store/actions/checkout';
 
-function CheckoutScreen({ show, ...props }) {
-  if (show?.loading) {
+function CheckoutScreen({ loading, checkout }) {
+  if (loading) {
     return (
       <View
         style={{
@@ -19,14 +19,15 @@ function CheckoutScreen({ show, ...props }) {
       </View>
     );
   }
-  return <WebView source={{ uri: show?.data?.webUrl }} style={{ flex: 1 }} />;
+  return <WebView source={{ uri: checkout?.data?.webUrl }} style={{ flex: 1 }} />;
 }
 
 export default connect(
   ({ Checkout }) => {
-    console.log('Checkout', Checkout);
-    const { show, loading } = Checkout;
-    return { show };
+    const {
+      collections: { checkout, loading },
+    } = Checkout;
+    return { loading, checkout };
   },
   { GetCheckoutId }
 )(CheckoutScreen);

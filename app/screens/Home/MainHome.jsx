@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Image,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
+import { useQuery, gql } from '@apollo/client';
+import { useNavigation } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, FONTS } from '../../constants/theme';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
 import FeaturedCard from '../../components/FeaturedCard';
@@ -17,13 +14,8 @@ import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { Footer } from '../../components/Footer';
 import CustomHTML from '../../components/CustomHtml';
 import LoadingScreen from '../../components/LoadingView';
-import {useQuery, gql} from '@apollo/client';
-import {useNavigation} from '@react-navigation/native';
-import {connect} from 'react-redux';
-import { GET_TOTAL_QUANTITY_CART } from '../../graphql/queries';
-import {CartGetList, CartPutTotalQty} from "../../store/actions";
-import HeaderComponent from '../../components/HeaderComponent';
 import {
+  GET_TOTAL_QUANTITY_CART,
   GET_PAGES,
   GET_BANNER_SLIDER,
   GET_COLLECTIONS_SLIDER,
@@ -31,9 +23,12 @@ import {
   GET_MAIN_MENU_NAVIGATION,
   GET_LIST_CATEGORIES,
 } from '../../graphql/queries';
+import { CartGetList, CartPutTotalQty, LoadUsers, CreateCheckout } from '../../store/actions';
+import HeaderComponent from '../../components/HeaderComponent';
 
-const MainHome = (props) => {
-  let { navigation,options,CartPutTotalQty,CartGetList } = props
+function MainHome(props) {
+  const { navigation, options, CartPutTotalQty, CartGetList } = props;
+
   const [dataAllProduct, setDataAllProduct] = useState([]);
   const [pageStory, setPageStory] = useState(null);
   const [dataLatestCollection, setDataLatestCollection] = useState(null);
@@ -86,15 +81,16 @@ const MainHome = (props) => {
     },
   });
 
-  const {data: cartData} = useQuery(GET_TOTAL_QUANTITY_CART, {
-    variables:{
-      id: options?.cartId
-    }
-  })
+  const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
+    variables: {
+      id: options?.cartId,
+    },
+  });
 
-  useEffect(()=> {
-    CartGetList({first:50,last:0})
-  },[])
+  useEffect(() => {
+    CartGetList({ first: 50, last: 0 });
+  }, []);
+
   useEffect(() => {
     if (data) {
       setPageStory(data.page);
@@ -117,21 +113,17 @@ const MainHome = (props) => {
       setDataCategories(dataListCategories.products.nodes);
     }
   }, [data, latestCollectionData, dataImageBanner, dataListCategories, dataSliderCollectionsById, getAllProduct]);
-  useEffect(()=> {
-    if(cartData) {
-      CartPutTotalQty({totalQuantity:cartData?.cart?.totalQuantity})
+  useEffect(() => {
+    if (cartData) {
+      CartPutTotalQty({ totalQuantity: cartData?.cart?.totalQuantity });
     }
-  },[cartData])
-
-  const handlePress = () => {
-    navigation.navigate('Home');
-  };
+  }, [cartData]);
 
   return (
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: COLORS.backgroundColor
+        backgroundColor: COLORS.backgroundColor,
       }}
     >
       <HeaderComponent dataListMenu={dataSideMenuNavigation} dataPageStory={pageStory} showListMenu />
@@ -170,6 +162,7 @@ const MainHome = (props) => {
             );
           })}
         </Swiper>
+
         {loading ? (
           <LoadingScreen Loading3 />
         ) : (
@@ -236,7 +229,7 @@ const MainHome = (props) => {
             flexWrap: 'wrap',
             paddingBottom: 10,
           }}
-        ></View>
+        />
         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
           {loadingAllProduct ? (
             <LoadingScreen Loading3 />
@@ -273,8 +266,7 @@ const MainHome = (props) => {
                           onPress={() =>
                             navigation.navigate('ProductDetail', {
                               id: product.id,
-                            })
-                          }
+                            })}
                           imageSrc={product?.images?.edges[0].node.url}
                           title={product?.title}
                           price={product?.variants?.edges[0].node.price.amount}
@@ -373,9 +365,9 @@ const MainHome = (props) => {
         </View>
         <View style={{ marginTop: 20 }}>
           <Swiper
-            autoplay={true}
-            height={'auto'}
-            dotColor={'rgba(255,255,255,.3)'}
+            autoplay
+            height="auto"
+            dotColor="rgba(255,255,255,.3)"
             autoplayTimeout={6}
             activeDotColor={COLORS.white}
             removeClippedSubviews={false}
@@ -482,9 +474,13 @@ const MainHome = (props) => {
       </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
-export default connect(({Cart})=> {
-  let {options} = Cart
-  return { options }
-},{CartPutTotalQty,CartGetList})(React.memo(MainHome));
+export default connect(
+  ({ Cart }) => {
+    const { options, lists } = Cart;
+
+    return { options, lists };
+  },
+  { CartPutTotalQty, CartGetList, LoadUsers, CreateCheckout }
+)(React.memo(MainHome));

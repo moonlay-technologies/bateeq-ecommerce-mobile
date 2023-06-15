@@ -12,16 +12,7 @@ const api = create({
 api.axiosInstance.interceptors.request.use(
   // eslint-disable-next-line consistent-return
   config => {
-    console.log('config', config);
-    // config.headers.Authorization =
     return Promise.resolve(config);
-    // if (AuthService.isLoggedIn()) {
-    //   const cb = () => {
-    //     config.headers.Authorization = `Bearer ${AuthService.getToken()}`;
-    //     return Promise.resolve(config);
-    //   };
-    //   return AuthService.updateToken(cb);
-    // }
   },
   error => {
     Promise.reject(error);

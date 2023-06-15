@@ -49,37 +49,22 @@ const sidebarSlice = createSlice({
 });
 
 const cartSlice = createSlice({
-    name: 'cart',
-    initialState: {
-        id: '' ,
-        cartData: []
+  name: 'cart',
+  initialState: {
+    id: '',
+    cartData: [],
+  },
+  reducers: {
+    setCartId: (state, action) => {
+      state.id = action.payload;
+      // AsyncStorage.setItem('cart', action.payload)
     },
-    reducers: {
-        setCartId: (state, action) => {
-            state.id = action.payload
-            // AsyncStorage.setItem('cart', action.payload)
-        },
-        extraReducers: builder => {
-            console.log('builder', builder)
-            builder.addCase('@@INIT', () => {
-              AsyncStorage.getItem('cart')
-                .then(cartId => {
-                    console.log('cartId extraReducers', cartId)
-                  // If cart ID exists in local storage, dispatch the setCartId action to update the state
-                  if (cartId) {
-                    store.dispatch(setCartId(cartId));
-                  }
-                })
-                .catch(error => {
-                  console.log('Error  local storage:', error);
-                });
-            })
-        },
-        setCartData: (state, action) => {
-            state.cartData = action.payload
-        }
-    }
-})
+
+    setCartData: (state, action) => {
+      state.cartData = action.payload;
+    },
+  },
+});
 
 const checkoutSlice = createSlice({
   name: 'checkout',
