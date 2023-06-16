@@ -44,7 +44,6 @@ import ListScreen from '../component-template/Lists';
 import Paginations from '../component-template/Paginations';
 import Pricings from '../component-template/Pricings';
 import Snackbars from '../component-template/Snakbars';
-import Collections from '../screens/Collections/Collections';
 import SwipeableScreen from '../components/Swipeable';
 import Tabs from '../component-template/Tabs';
 import Tables from '../component-template/Tables';
@@ -83,7 +82,6 @@ function StackNavigator({ isAuthenticated }) {
         <StackComponent.Screen name="Payment" component={Payment} />
         <StackComponent.Screen name="PagesInShopify" component={PagesInShopify} />
         <StackComponent.Screen name="Items" component={Items} />
-        <StackComponent.Screen name="Collections" component={Collections} />
         <StackComponent.Screen name="SignIn" component={SignIn} />
         <StackComponent.Screen name="SignUp" component={SignUp} />
         <StackComponent.Screen name="AppSetting" component={AppSetting} />
