@@ -2,30 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import OcticonsIcon from 'react-native-vector-icons/Octicons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { useMutation, useQuery } from '@apollo/client';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useDispatch, useSelector, connect } from 'react-redux';
+import { useDispatch, connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
 
 import Modal from '../../../components/ActionModalComponent';
-import { GET_CUSTOMER_ADDRESS } from '../../../graphql/queries';
 import LoadingComponent from '../../../components/LoadingView';
 import { setAddress } from '../../../store/reducer';
-import { CUSTOMER_DEFAULT_ADDRESS_UPDATE, REMOVE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
 import HeaderComponent from '../../../components/HeaderComponent';
 import Button from '../../../components/ButtonComponent';
+import { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress } from '../../../store/actions/address';
 
-function Address({ ...props }) {
-  let { collections } = props;
-  const { list } = collections.address;
-  const { used } = collections.address;
-  console.log('data list', list);
+function AddressScreen(props) {
+  const {
+    token,
+    getAddressList: getAddress,
+    addressList,
+    defaultAddress,
+    removeCustomerAddress: removeAddress,
+    updateDefaultCustomerAddress: updateDefaultAddress,
+  } = props;
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { userAddress, getToken, defaultAddress } = useSelector(state => state.user);
-  const [customerAddress, setCustomerAddress] = useState([]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [addressSelected, setAddressSelected] = useState();
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
@@ -33,32 +33,21 @@ function Address({ ...props }) {
     show: false,
     data: '',
   });
-  const {
-    data: address,
-    error: errorAddress,
-    loading: loadingAddress,
-    refetch,
-  } = useQuery(GET_CUSTOMER_ADDRESS, {
-    variables: {
-      fetchPolicy: 'no-cache',
-      accessToken: getToken,
-      limit: 20,
-    },
-  });
 
-  const [customerAddressDelete] = useMutation(REMOVE_CUSTOMER_ADDRESS);
-  const [customerDefaultAddressUpdate] = useMutation(CUSTOMER_DEFAULT_ADDRESS_UPDATE);
+  useEffect(() => {
+    if (!addressList?.isChange) {
+      getAddress({ token, limit: 10 });
+    }
+  }, []);
 
-  // useEffect(() => {
-  //   if (data) {
-  //     setCustomerAddress(
-  //       address?.customer?.addresses?.edges.map(i => ({
-  //         ...i.node,
-  //         // selected:false
-  //       })) || []
-  //     );
-  //   }
-  // }, [address]);
+  useEffect(() => {
+    setIsLoading(!addressList?.data.length > 0);
+
+    if (addressList?.isChange) {
+      getAddress({ token, limit: 10 });
+      setIsLoadingDelete(addressList?.loading);
+    }
+  }, [addressList]);
 
   const handleSelectAddress = value => {
     dispatch(setAddress(''));
@@ -67,43 +56,41 @@ function Address({ ...props }) {
 
   const handleDelete = async () => {
     setIsLoadingDelete(true);
-    await customerAddressDelete({
-      variables: {
-        id: showModal?.data?.id,
-        customerAccessToken: getToken,
-      },
+    removeAddress({
+      id: showModal?.data?.id,
+      customerAccessToken: token,
     });
-    refetch();
     setShowModal(prev => ({
       ...prev,
       show: !prev.show,
     }));
     setIsLoadingDelete(false);
   };
-  console.log('addressSekected', addressSelected);
-  const onSubmit = async () => {
-    setIsLoading(true);
 
-    const { data, errors } = await customerDefaultAddressUpdate({
-      variables: {
-        addressId: addressSelected?.id,
-        customerAccessToken: getToken,
-      },
+  const onSubmit = async () => {
+    // setIsLoading(true);
+    updateDefaultAddress({
+      addressId: addressSelected?.id,
+      customerAccessToken: token,
     });
-    console.log('onSubmit data', data);
-    if (data) {
-      dispatch(setAddress(addressSelected));
-      setIsLoading(false);
-      navigation.pop();
-    }
-    if (errors) {
-      setIsLoading(false);
-      Toast.show({
-        type: 'error',
-        text1: 'Oops',
-        text2: 'errors',
-      });
-    }
+    // const { data, errors } = await customerDefaultAddressUpdate({
+    //   variables: {
+
+    //   },
+    // });
+    // if (data) {
+    //   dispatch(setAddress(addressSelected));
+    //   setIsLoading(false);
+    //   navigation.pop();
+    // }
+    // if (errors) {
+    //   setIsLoading(false);
+    //   Toast.show({
+    //     type: 'error',
+    //     text1: 'Oops',
+    //     text2: 'errors',
+    //   });
+    // }
   };
 
   return (
@@ -114,7 +101,6 @@ function Address({ ...props }) {
       }}
     >
       <View style={{ paddingHorizontal: 20 }}>
-        {/* <Header titleLeft leftIcon="back" title="Back" /> */}
         <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
       </View>
       <ScrollView>
@@ -137,22 +123,22 @@ function Address({ ...props }) {
             disabled={isLoading}
             onContinue={handleDelete}
           />
-          {list?.data?.length > 0 &&
-            list?.data?.map((item, index) => {
-              const { address1, address2, city, province, country, id, company } = item;
+          {addressList?.data.length > 0 &&
+            addressList?.data.map(item => {
+              const { address1, city, province, country, id, company } = item;
 
               return (
                 <TouchableOpacity
                   style={[
                     styles.card,
-                    !addressSelected && used?.data?.address1 === address1
+                    !addressSelected && defaultAddress?.data?.address1 === address1
                       ? styles.selectedCard
                       : addressSelected?.address1 === address1
                       ? styles.selectedCard
                       : null,
                   ]}
                   onPress={() => handleSelectAddress(item)}
-                  key={index}
+                  key={`${address1}`}
                 >
                   {isLoadingDelete && showModal?.data?.id === id ? (
                     <LoadingComponent type="circle" key={id} />
@@ -163,42 +149,48 @@ function Address({ ...props }) {
                       <Text style={styles.city}>{city}</Text>
                       <Text style={styles.city}>{province}</Text>
                       <Text style={styles.city}>{country}</Text>
-                      {[addressSelected?.address1 === address1, userAddress?.address1 === address1].some(
-                        i => i === true
-                      ) && (
+                      {/* defaultAddress?.data?.address1 === address1 */}
+                      {[addressSelected?.address1 === address1].some(i => i === true) && (
                         <View style={styles.tag}>
                           <Text style={styles.tagText}>Selected</Text>
                         </View>
                       )}
-                      {!userAddress?.address1 && !addressSelected && defaultAddress?.address1 === address1 && (
+
+                      {/* !userAddress?.address1 &&  */}
+                      {!addressSelected && defaultAddress?.data?.address1 === address1 && (
                         <View style={styles.tag}>
                           <Text style={styles.tagText}>Selected</Text>
                         </View>
                       )}
                     </View>
                   )}
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                    }}
-                  >
-                    <FeatherIcon
+                  <View style={styles.iconContainer}>
+                    <Button
+                      size="sm"
                       onPress={() => navigation.navigate('EditAddress', { id })}
-                      style={{ ...styles.icon, marginRight: 30, color: '#656513' }}
-                      name="edit"
-                      size={16}
+                      title={
+                        <FeatherIcon
+                          style={{ ...styles.icon, marginRight: 30, color: '#656513' }}
+                          name="edit"
+                          size={16}
+                        />
+                      }
+                      style={{ borderColor: '#656513' }}
+                      outline
                     />
 
-                    <FeatherIcon
+                    <Button
+                      size="sm"
                       onPress={() =>
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
                         }))
                       }
-                      style={styles.icon}
-                      name="trash-2"
-                      size={16}
+                      title={<FeatherIcon name="trash-2" size={16} style={styles.icon} />}
+                      style={{ borderColor: COLORS.danger, marginLeft: 20 }}
+                      outline
+                      iconStyles={styles.icon}
                     />
                   </View>
                 </TouchableOpacity>
@@ -239,7 +231,7 @@ function Address({ ...props }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.white,
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -270,18 +262,32 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   tagText: {
-    color: '#fff',
+    color: COLORS.white,
     fontSize: 12,
   },
   icon: {
     right: 16,
     bottom: 20,
     position: 'absolute',
-    color: 'red',
+    color: COLORS.danger,
+  },
+  iconContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
   },
 });
 
-export default connect(({ User }) => {
-  let { options, collections } = User;
-  return { options, collections };
-})(React.memo(Address));
+export default connect(
+  ({ User, Address }) => {
+    const {
+      options: { token },
+      collections: { address },
+    } = User;
+    const { addressList, defaultAddress } = Address;
+    return { token, address, addressList, defaultAddress };
+  },
+  { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress }
+)(React.memo(AddressScreen));

@@ -134,9 +134,19 @@ export const GET_TOTAL_QUANTITY_CART = gql`
   }
 `;
 
-export const GET_CUSTOMER_ADDRESS = gql`
+export const GET_CUSTOMER_ADDRESS = `
   query ($accessToken: String!, $limit: Int!) {
     customer(customerAccessToken: $accessToken) {
+      defaultAddress {
+          id
+          address1
+          address2
+          company
+          city
+          province
+          country
+          zip
+        }
       addresses(first: $limit) {
         edges {
           node {
@@ -364,7 +374,7 @@ export const GET_COLLECTIONS_BY_HANDLE = gql`
         url
       }
       products(first: $first) {
-        pageInfo{
+        pageInfo {
           hasNextPage
           endCursor
         }

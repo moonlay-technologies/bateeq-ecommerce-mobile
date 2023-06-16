@@ -45,30 +45,34 @@ function Button(props) {
             ? style.backgroundColor
             : color || (size === 'xxl' ? '#333333' : COLORS.black),
         },
+
         { alignItems: 'center' },
-        outline && styles.outline,
+        outline && { ...styles.outline, ...(style.borderColor && { borderColor: style.borderColor }) },
+
         disabled && styles.disabled,
       ]}
       disabled={disabled}
     >
       {/* <FontAwesome5Icon name="circle-notch" color="#d0d0d0" solid /> */}
-      <Text
-        style={{
-          ...(size === 'xs'
-            ? styles.xsText
-            : size === 'sm'
-            ? styles.smText
-            : size === 'lg'
-            ? styles.lgText
-            : size === 'xxl'
-            ? styles.xxlText
-            : { ...styles.defaultText }),
-          color: textStyle?.color ? textStyle.color : outline ? COLORS.title : COLORS.white,
-          fontWeight: textStyle?.fontWeight ? textStyle.fontWeight : '500',
-        }}
-      >
-        {title}
-      </Text>
+      {title && (
+        <Text
+          style={{
+            ...(size === 'xs'
+              ? styles.xsText
+              : size === 'sm'
+              ? styles.smText
+              : size === 'lg'
+              ? styles.lgText
+              : size === 'xxl'
+              ? styles.xxlText
+              : { ...styles.defaultText }),
+            color: textStyle?.color ? textStyle.color : outline ? COLORS.title : COLORS.white,
+            fontWeight: textStyle?.fontWeight ? textStyle.fontWeight : '500',
+          }}
+        >
+          {title}
+        </Text>
+      )}
       {Icon && (
         <View style={iconStyles}>
           <Icon name={iconName} size={iconSize} color={outline ? COLORS.title : iconColor || COLORS.white} />

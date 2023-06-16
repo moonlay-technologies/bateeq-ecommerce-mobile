@@ -15,7 +15,7 @@ import StackNavigator from './StackNavigator';
 import { LoadUsers, setToken } from '../store/actions/user';
 
 function Routes({ ...props }) {
-  let { options, loading, isAuthenticated } = props;
+  const { options, loading, isAuthenticated } = props;
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   // const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -133,8 +133,8 @@ function Routes({ ...props }) {
 
 export default connect(
   ({ Auth, User }) => {
-    let { isAuthenticated } = Auth;
-    let { options, loading } = User;
+    const { isAuthenticated } = Auth;
+    const { options, loading } = User;
     return { options, isAuthenticated, loading };
   },
   { LoadUsers, setToken }

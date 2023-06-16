@@ -142,7 +142,7 @@ export const CART_PUT_QTY = gql`
   }
 `;
 
-export const CREATE_ADDRESS = gql`
+export const CREATE_CUSTOMER_ADDRESS = `
   mutation CreateCustomerAddress($address: MailingAddressInput!, $customerAccessToken: String!) {
     customerAddressCreate(address: $address, customerAccessToken: $customerAccessToken) {
       customerAddress {
@@ -164,7 +164,7 @@ export const CREATE_ADDRESS = gql`
   }
 `;
 
-export const UPDATE_CUSTOMER_ADDRESS = gql`
+export const UPDATE_CUSTOMER_ADDRESS = `
   mutation customerAddressUpdate($address: MailingAddressInput!, $customerAccessToken: String!, $id: ID!) {
     customerAddressUpdate(address: $address, customerAccessToken: $customerAccessToken, id: $id) {
       customerAddress {
@@ -177,14 +177,14 @@ export const UPDATE_CUSTOMER_ADDRESS = gql`
   }
 `;
 
-export const REMOVE_CUSTOMER_ADDRESS = gql`
+export const REMOVE_CUSTOMER_ADDRESS = `
   mutation customerAddressDelete($customerAccessToken: String!, $id: ID!) {
     customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {
       deletedCustomerAddressId
     }
   }
 `;
-export const CUSTOMER_DEFAULT_ADDRESS_UPDATE = gql`
+export const CUSTOMER_DEFAULT_ADDRESS_UPDATE = `
   mutation customerDefaultAddressUpdate($addressId: ID!, $customerAccessToken: String!) {
     customerDefaultAddressUpdate(addressId: $addressId, customerAccessToken: $customerAccessToken) {
       customer {

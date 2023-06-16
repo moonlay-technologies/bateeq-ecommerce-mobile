@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import * as yup from 'yup';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useMutation } from '@apollo/client';
-import { useSelector } from 'react-redux';
-import { CREATE_ADDRESS } from '../../../graphql/mutation';
+import { connect } from 'react-redux';
 import { CountriesApi } from '../../../service/shopify-api';
 
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
@@ -15,6 +13,7 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import InputTextArea from '../../../components/InputTextArea';
 import Button from '../../../components/ButtonComponent';
 import Input from '../../../components/InputComponent';
+import { createAddress } from '../../../store/actions/address';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -29,8 +28,7 @@ const schema = yup.object().shape({
   postal_code: yup.string().required(),
 });
 
-function AddAddress({ navigation }) {
-  const { customerInfo, getToken } = useSelector(state => state.user);
+function AddAddress({ navigation, token, createAddress: creatingAddress }) {
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +46,6 @@ function AddAddress({ navigation }) {
     city: '',
     postal_code: '',
   });
-  const [customerAddressCreate] = useMutation(CREATE_ADDRESS);
 
   useEffect(() => {
     setIsLoading(true);
@@ -125,48 +122,41 @@ function AddAddress({ navigation }) {
     };
     schema
       .validate(body, { abortEarly: false })
-      .then(async result => {
-        const { error, data } = await customerAddressCreate({
-          variables: {
-            address: {
-              address1: result.first_address,
-              address2: result.second_address,
-              phone: result.phone_number,
-              city: result.city,
-              province: result.province,
-              country: result.country,
-              company: result.company,
-              zip: result.postal_code,
-            },
-            customerAccessToken: getToken,
+      .then(result => {
+        const payloadBody = {
+          address: {
+            address1: result.first_address,
+            address2: result.second_address,
+            phone: result.phone_number,
+            city: result.city,
+            province: result.province,
+            country: result.country,
+            company: result.company,
+            zip: result.postal_code,
           },
+          customerAccessToken: token,
+        };
+        creatingAddress({
+          ...payloadBody,
         });
 
-        if (data) {
-          setErrors({});
-          setState({
-            first_name: '',
-            last_name: '',
-            phone_number: '',
-            company: '',
-            first_address: '',
-            second_address: '',
-            country: '',
-            province: '',
-            city: '',
-            postal_code: '',
-          });
+        setErrors({});
+        setState({
+          first_name: '',
+          last_name: '',
+          phone_number: '',
+          company: '',
+          first_address: '',
+          second_address: '',
+          country: '',
+          province: '',
+          city: '',
+          postal_code: '',
+        });
+        setTimeout(() => {
           setIsLoading(false);
           navigation.navigate('Address', { refetch });
-        }
-        if (error) {
-          setIsLoading(false);
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: error?.message || 'something went wrong',
-          });
-        }
+        }, 1000);
       })
       .catch(err => {
         if (err.name === 'ValidationError') {
@@ -220,7 +210,6 @@ function AddAddress({ navigation }) {
               name="first_name"
               label="First Name"
               placeholder="e.g. John"
-              value={customerInfo?.first_name}
               handleInputChange={val => handleFieldChange(val, 'first_name')}
               errors={errors}
             />
@@ -228,7 +217,6 @@ function AddAddress({ navigation }) {
               name="last_name"
               label="Last Name"
               placeholder="e.g. Doe"
-              value={customerInfo?.last_name}
               handleInputChange={val => handleFieldChange(val, 'last_name')}
               errors={errors}
             />
@@ -237,7 +225,6 @@ function AddAddress({ navigation }) {
               label="Phone Number"
               placeholder="e.g. +628123456789"
               keyboardType="phone-pad"
-              value={customerInfo?.phone}
               handleInputChange={val => handleFieldChange(val, 'phone_number')}
               errors={errors}
             />
@@ -313,4 +300,15 @@ function AddAddress({ navigation }) {
   );
 }
 
-export default AddAddress;
+export default connect(
+  ({ User }) => {
+    const {
+      options: { info: userInfo, token },
+    } = User;
+    return {
+      userInfo,
+      token,
+    };
+  },
+  { createAddress }
+)(AddAddress);

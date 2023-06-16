@@ -110,7 +110,11 @@ function ProductDetail(props) {
 
   const isLoading = [productDataLoad, optionDataLoad, productRecommendationLoad].some(i => i === true);
   const isError = [productRecommendationError, productDataError, getOptionsError].some(i => i);
-
+  console.log('[productRecommendationError, productDataError, getOptionsError]', [
+    productRecommendationError,
+    productDataError,
+    getOptionsError,
+  ]);
   useEffect(() => {
     if (!isLoading) {
       const colorOptions = [];
@@ -231,10 +235,11 @@ function ProductDetail(props) {
             },
           ],
         };
-
+        console.log('payload', payload);
         const { data: addLine } = await cartLinesAdd({
           variables: payload,
         });
+        console.log('addLine', addLine);
 
         if (addLine?.cartLinesAdd?.cart.id) {
           setNotifState(true);
@@ -256,6 +261,7 @@ function ProductDetail(props) {
             id: cartId,
           });
         } else {
+          console.log('errors', errors);
           Toast.show({
             type: 'error',
             text1: 'oops! something went wrong',

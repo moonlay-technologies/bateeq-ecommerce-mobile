@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import * as yup from 'yup';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useMutation } from '@apollo/client';
-import { useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 
 import { CountriesApi, CustomerApi } from '../../../service/shopify-api';
-import { UPDATE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
 import AsyncSelectComponent from '../../../components/SelectAsyncComponent';
@@ -14,6 +12,7 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import InputTextArea from '../../../components/InputTextArea';
 import Button from '../../../components/ButtonComponent';
 import Input from '../../../components/InputComponent';
+import { updateAddress } from '../../../store/actions';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -28,9 +27,8 @@ const schema = yup.object().shape({
   postal_code: yup.string().required(),
 });
 
-function EditAddress({ navigation, route }) {
+function EditAddress({ navigation, route, userInfo, token, updateAddress: updatingAddress }) {
   const { id } = route.params;
-  const { customerInfo, getToken } = useSelector(state => state.user);
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,11 +48,9 @@ function EditAddress({ navigation, route }) {
     postal_code: '',
   });
 
-  const [customerAddressUpdate] = useMutation(UPDATE_CUSTOMER_ADDRESS);
-
   useEffect(() => {
     const addressId = id.match(/\/(\d+)\?/)[1];
-    const customerId = customerInfo?.id.match(/\/(\d+)$/)[1];
+    const customerId = userInfo?.id.match(/\/(\d+)$/)[1];
     const params = {
       addressId,
       customerId,
@@ -156,48 +152,39 @@ function EditAddress({ navigation, route }) {
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
-        const { error, data } = await customerAddressUpdate({
-          variables: {
-            address: {
-              address1: result.first_address,
-              address2: result.second_address,
-              phone: result.phone_number,
-              city: result.city,
-              province: result.province,
-              country: result.country,
-              company: result.company,
-              zip: result.postal_code,
-            },
-            customerAccessToken: getToken,
-            id,
+        const payloadBody = {
+          address: {
+            address1: result.first_address,
+            address2: result.second_address,
+            phone: result.phone_number,
+            city: result.city,
+            province: result.province,
+            country: result.country,
+            company: result.company,
+            zip: result.postal_code,
           },
+          customerAccessToken: token,
+          id,
+        };
+        updatingAddress({
+          ...payloadBody,
         });
 
-        if (data) {
-          setErrors({});
-          setState({
-            first_name: '',
-            last_name: '',
-            phone_number: '',
-            company: '',
-            first_address: '',
-            second_address: '',
-            country: '',
-            province: '',
-            city: '',
-            postal_code: '',
-          });
-          setIsLoading(false);
-          navigation.navigate('Address', { refetch });
-        }
-        if (error) {
-          setIsLoading(false);
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: error?.message || 'something went wrong',
-          });
-        }
+        setErrors({});
+        setState({
+          first_name: '',
+          last_name: '',
+          phone_number: '',
+          company: '',
+          first_address: '',
+          second_address: '',
+          country: '',
+          province: '',
+          city: '',
+          postal_code: '',
+        });
+        setIsLoading(false);
+        navigation.navigate('Address', { refetch });
       })
       .catch(err => {
         if (err.name === 'ValidationError') {
@@ -351,4 +338,16 @@ function EditAddress({ navigation, route }) {
   );
 }
 
-export default EditAddress;
+export default connect(
+  ({ User }) => {
+    const {
+      options: { info: userInfo, token },
+    } = User;
+
+    return {
+      userInfo,
+      token,
+    };
+  },
+  { updateAddress }
+)(EditAddress);
