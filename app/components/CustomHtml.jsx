@@ -1,7 +1,17 @@
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import RenderHTML from 'react-native-render-html';
 
-const CustomHTML = ({ htmlContent, limit, blog_id }) => {
+/**
+ *
+ * @param htmlContent
+ * @param limit
+ * @param blog_id
+ * @param {object} props
+ * @param {object} props.htmlStyle
+ * @returns {JSX.Element}
+ * @constructor
+ */
+const CustomHTML = ({ htmlContent, limit, blog_id,...props }) => {
   const windowWidth = useWindowDimensions().width;
   if (htmlContent && typeof htmlContent === 'string') {
     const customRenderersProps = {
@@ -34,7 +44,10 @@ const CustomHTML = ({ htmlContent, limit, blog_id }) => {
         <RenderHTML
           source={{ html: blog_id ? previewText : htmlContent }}
           contentWidth={windowWidth}
-          tagsStyles={contentStyle}
+          tagsStyles={{
+            ...contentStyle,
+            ...props?.htmlStyle
+          }}
           renderersProps={customRenderersProps}
           ignoredDomTags={ignoredTags}
         />

@@ -2,6 +2,7 @@ import React from 'react';
 import { ScrollView } from 'react-native';
 import CartItem from '../../components/CartItem';
 import pic3 from '../../assets/images/shop/pic3.png';
+import {connect} from "react-redux";
 
 const CartData = [
   {
@@ -37,4 +38,6 @@ function OnDelivery() {
   );
 }
 
-export default OnDelivery;
+export default connect(({})=> {
+
+},{})(React.memo(OnDelivery));
