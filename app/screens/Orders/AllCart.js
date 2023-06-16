@@ -10,7 +10,7 @@ const AllCart = ({ ...props }) => {
   let { info } = props;
   const [dataOrders, setDataOrders] = useState([]);
   const { data, loading } = useQuery(GET_ORDERS, {
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network',
     variables: {
       customerId: info?.id,
       query: '',

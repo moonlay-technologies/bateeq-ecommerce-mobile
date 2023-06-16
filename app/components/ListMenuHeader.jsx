@@ -10,6 +10,8 @@ function MenuListHeader({ dataListMenu, dataStory }) {
     setActiveSubMenu(prevActiveMenu => (prevActiveMenu === menu.id ? null : menu.id));
     if (menu.title === 'OUR STORY') {
       navigation.navigate('PagesInShopify', { dataPages: dataStory });
+    } else if (menu.title === 'SALE') {
+      navigation.navigate('Items', { query: 'Sale' });
     }
   };
 

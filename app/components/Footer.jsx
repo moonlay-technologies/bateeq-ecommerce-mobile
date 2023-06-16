@@ -91,7 +91,7 @@ export const Footer = ({ dataPagesStory }) => {
         <View>
           <TouchableOpacity
             style={{ marginBottom: 10 }}
-            onPress={() => navigation.navigate('Items', { query: 'New Arrival' })}
+            onPress={() => navigation.navigate('Items', { query: 'New Variants' })}
           >
             <Text
               style={{
@@ -159,7 +159,7 @@ export const Footer = ({ dataPagesStory }) => {
             style={{ marginBottom: 10 }}
             onPress={() =>
               navigation.navigate('PagesInShopify', {
-                dataPages: pageFaq,
+                dataPages: dataPageShippingPolicy.shop.refundPolicy,
                 loadingPages,
               })
             }
@@ -205,7 +205,7 @@ export const Footer = ({ dataPagesStory }) => {
             style={{ marginBottom: 10 }}
             onPress={() =>
               navigation.navigate('PagesInShopify', {
-                dataPages: dataPageShippingPolicy.shop.privacyPolicy,
+                dataPages: dataPageShippingPolicy.shop.termsOfService,
                 loadingPages,
               })
             }
@@ -215,7 +215,7 @@ export const Footer = ({ dataPagesStory }) => {
                 color: COLORS.title,
               }}
             >
-              Privacy Policy
+              Term of Service
             </Text>
           </TouchableOpacity>
 

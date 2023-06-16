@@ -44,18 +44,18 @@ import ListScreen from '../component-template/Lists';
 import Paginations from '../component-template/Paginations';
 import Pricings from '../component-template/Pricings';
 import Snackbars from '../component-template/Snakbars';
-// import PageOurStory from '../components/PageOurStory';
+import Collections from '../screens/Collections/Collections';
 import SwipeableScreen from '../components/Swipeable';
 import Tabs from '../component-template/Tabs';
 import Tables from '../component-template/Tables';
 import Toggles from '../component-template/Toggles';
-import Slider from '../screens/Products/BestSellerProduct';
 import Checkout from '../screens/Checkout/Checkout';
 import MainHome from '../screens/Home/MainHome';
 import Cart from '../screens/Cart/Cart';
 import PagesInShopify from '../screens/Pages/PageByRoute';
 import OrderDetail from '../screens/Orders/OrdersDetail';
 import AppSetting from '../screens/Account/AppSetting';
+import ResetPassword from '../screens/Auth/ResetPassword';
 
 const StackComponent = createNativeStackNavigator();
 
@@ -83,9 +83,11 @@ function StackNavigator({ isAuthenticated }) {
         <StackComponent.Screen name="Payment" component={Payment} />
         <StackComponent.Screen name="PagesInShopify" component={PagesInShopify} />
         <StackComponent.Screen name="Items" component={Items} />
+        <StackComponent.Screen name="Collections" component={Collections} />
         <StackComponent.Screen name="SignIn" component={SignIn} />
         <StackComponent.Screen name="SignUp" component={SignUp} />
         <StackComponent.Screen name="AppSetting" component={AppSetting} />
+        <StackComponent.Screen name="ResetPassword" component={ResetPassword} />
       </StackComponent.Navigator>
     );
   }
@@ -100,19 +102,17 @@ function StackNavigator({ isAuthenticated }) {
       }}
     >
       <StackComponent.Screen name="SignIn" component={SignIn} />
+      <StackComponent.Screen name="ResetPassword" component={ResetPassword} />
       <StackComponent.Screen name="Home" component={MainHome} />
       <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
       <StackComponent.Screen name="OrderDetail" component={OrderDetail} />
       <StackComponent.Screen name="Cart" component={Cart} />
-      {/*<StackComponent.Screen name="Splash" component={Splash} />*/}
       <StackComponent.Screen name="Onboarding" component={Onboarding} />
       <StackComponent.Screen name="Welcome" component={Welcome} />
       <StackComponent.Screen name="SignUp" component={SignUp} />
-      {/* <StackComponent.Screen name="SignIn" component={SignIn} /> */}
       <StackComponent.Screen name="DrawerNavigation" component={DrawerNavigation} />
       <StackComponent.Screen name="CategoryHome" component={CategoryHome} />
       <StackComponent.Screen name="Products" component={Products} />
-
       <StackComponent.Screen name="Featured" component={Featured} />
       <StackComponent.Screen name="Orders" component={Orders} />
       <StackComponent.Screen name="DeliveryTracking" component={DeliveryTracking} />
@@ -150,7 +150,6 @@ function StackNavigator({ isAuthenticated }) {
       <StackComponent.Screen name="Tabs" component={Tabs} />
       <StackComponent.Screen name="Tables" component={Tables} />
       <StackComponent.Screen name="Toggles" component={Toggles} />
-      <StackComponent.Screen name="SliderBestProduct" component={Slider} />
       <StackComponent.Screen name="Checkout" component={Checkout} />
     </StackComponent.Navigator>
   );

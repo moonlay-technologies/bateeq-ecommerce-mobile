@@ -1,14 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  // Image,
-  // Button,
-  Linking,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../components/CustomButton';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
@@ -22,9 +13,8 @@ import LoadingScreen from '../../components/LoadingView';
 import { useMutation } from '@apollo/client';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AUTH_LOGIN } from '../../graphql/mutation';
-import {useDispatch, batch, connect} from 'react-redux';
-import { setIsLogin, setToken } from '../../store/reducer';
-import {CartGenerateId} from "../../store/actions";
+import { connect } from 'react-redux';
+import { CartGenerateId } from '../../store/actions';
 
 const ValidateSchema = Yup.object().shape({
   customer: Yup.object().shape({
@@ -36,13 +26,12 @@ const ValidateSchema = Yup.object().shape({
 });
 
 const SignIn = props => {
-  let { CartGenerateId,cartId } = props
+  let { CartGenerateId, cartId } = props;
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
   const [CustomerAccessTokenCreateMutation] = useMutation(AUTH_LOGIN);
 
@@ -65,19 +54,15 @@ const SignIn = props => {
           text1: 'Login Success',
           visibilityTime: 2000,
         });
-        if(!cartId){
+        if (!cartId) {
           // await AsyncStorage.setItem('cart',)
           CartGenerateId({
-            token: accessToken
-          })
+            token: accessToken,
+          });
         }
         CartGenerateId({
-          token: accessToken
-        })
-        // batch(() => {
-        //   dispatch(setToken(accessToken));
-        //   dispatch(setIsLogin(!!accessToken));
-        // });
+          token: accessToken,
+        });
         await AsyncStorage.setItem('accessToken', accessToken);
         navigation.dispatch(
           CommonActions.reset({
@@ -101,6 +86,10 @@ const SignIn = props => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleResetPassword = () => {
+    navigation.navigate('ResetPassword');
   };
 
   return (
@@ -241,11 +230,7 @@ const SignIn = props => {
                     >
                       Forgot password?
                     </Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        Linking.openURL('https://bateeqshop.myshopify.com/account/login?return_url=%2Faccount')
-                      }
-                    >
+                    <TouchableOpacity onPress={handleResetPassword}>
                       <Text
                         style={{
                           ...FONTS.font,
@@ -292,8 +277,11 @@ const SignIn = props => {
   );
 };
 
-export default connect(({Cart})=> {
-  let { options } = Cart
-  let { cartId } = options
-  return { cartId }
-},{CartGenerateId})(React.memo(SignIn));
+export default connect(
+  ({ Cart }) => {
+    let { options } = Cart;
+    let { cartId } = options;
+    return { cartId };
+  },
+  { CartGenerateId }
+)(React.memo(SignIn));

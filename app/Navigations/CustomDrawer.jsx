@@ -129,13 +129,9 @@ function CustomDrawer({ ...props }) {
                     screen: data.navigate,
                   });
                 } else if (data.navigate == 'Logout') {
-                  await AsyncStorage.removeItem('accessToken');
-                  navigation.dispatch(
-                    CommonActions.reset({
-                      index: 0,
-                      routes: [{ name: 'SignIn' }],
-                    })
-                  );
+                  AsyncStorage.removeItem('accessToken').then(() => {
+                    navigation.navigate('SignIn');
+                  });
                 } else {
                   navigation.navigate(data.navigate);
                 }

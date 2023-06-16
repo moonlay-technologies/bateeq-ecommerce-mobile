@@ -20,6 +20,8 @@ const CustomHTML = ({ htmlContent, limit, blog_id }) => {
       },
       p: {
         color: 'gray',
+        marginBottom: 7,
+        marginTop: -2,
       },
     };
 
@@ -44,13 +46,13 @@ const CustomHTML = ({ htmlContent, limit, blog_id }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 2,
     // paddingVertical: -10,
   },
   paragraph: {
     fontSize: 16,
     lineHeight: 24,
-    marginBottom: 10,
+    marginBottom: 3,
   },
   heading2: {
     fontSize: 24,
