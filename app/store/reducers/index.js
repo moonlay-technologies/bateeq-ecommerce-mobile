@@ -6,10 +6,12 @@ import Product from './Product';
 import User from './User';
 import Checkout from './Checkout';
 import Address from './address';
+import Pages from './Pages';
 
 const rootReducers = combineReducers({
   Cart,
   Theme,
+  Pages,
   Checkout,
   User,
   Address,

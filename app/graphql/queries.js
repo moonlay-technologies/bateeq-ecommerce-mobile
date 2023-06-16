@@ -239,6 +239,20 @@ export const GET_CUSTOMER_INFO = gql`
   }
 `;
 
+/**
+ * => USED
+ * @name GET-PAGES
+ * @type {string}
+ * @private
+ */
+export const __GQL_GET_PAGES = `query getPageStory($handle: String!) {
+    page(handle: $handle) {
+      id
+      title
+      body
+      bodySummary
+    }
+  }`
 export const GET_PAGES = gql`
   query getPageStory($handle: String!) {
     page(handle: $handle) {
@@ -249,6 +263,23 @@ export const GET_PAGES = gql`
     }
   }
 `;
+
+
+/**
+ * @type {string}
+ * @param {object} variables
+ * @param {string} variables.handle
+ */
+export const __GQL_SHOW_LATEST_COLLECTION = `query getCollectionIdFromHandle($handle: String!) {
+    collection(handle: $handle) {
+      id
+      title
+      description
+      image {
+        url
+      }
+    }
+  }`
 
 export const GET_LATEST_COLLECTION = gql`
   query getCollectionIdFromHandle($handle: String!) {
@@ -279,6 +310,51 @@ export const GET_BANNER_SLIDER = gql`
   }
 `;
 
+/**
+ * => USED
+ * @type {string}
+ * @param {number} first
+ * @param {string} query
+ * @param {string} after
+ * @private
+ */
+export const __GQL_GET_PRODUCT_LIST_BY_CATEGORY = `query GetProducts($first: Int!, $query: String!, $after: String) {
+    products(first: $first, query: $query, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      nodes {
+        id
+        title
+        description
+        descriptionHtml
+        images(first: 1) {
+          edges {
+            node {
+              url
+            }
+          }
+        }
+        variants(first: 5) {
+          edges {
+            node {
+              price {
+                amount
+              }
+              compareAtPrice {
+                amount
+              }
+              selectedOptions {
+                name
+                value
+              }
+            }
+          }
+        }
+      }
+    }
+  }`
 export const GET_LIST_CATEGORIES = gql`
   query GetProducts($first: Int!, $query: String!, $after: String) {
     products(first: $first, query: $query, after: $after) {
