@@ -12,6 +12,19 @@ import Logo from '../assets/images/logo.png';
 import MenuListHeader from './ListMenuHeader';
 import {CartGetList, CartPutTotalQty} from "../store/actions";
 
+/**
+ * @param {string} icon
+ * @param {string} title
+ * @param backAction
+ * @param {boolean} withoutCartAndLogo
+ * @param dataPageStory
+ * @param showListMenu
+ * @param dataListMenu
+ * @param options
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function HeaderComponent({
   icon = '',
   title,
@@ -43,6 +56,16 @@ function HeaderComponent({
   const handlePress = () => {
     navigation.navigate('Home');
   };
+
+  function onPressBack(){
+      if(backAction){
+          navigation.goBack()
+      }else{
+          if('openDrawer' in navigation && typeof(navigation?.openDrawer) !== 'undefined' && typeof(navigation?.openDrawer) === 'function'){
+              navigation?.openDrawer()
+          }
+      }
+  }
 
     function onNavigateCart(){
         CartGetList({
@@ -126,7 +149,7 @@ function HeaderComponent({
         <IconButton
           icon={() => leftIcon(icon, title)}
           size={25}
-          onPress={() => (backAction ? navigation.goBack() : navigation.openDrawer())}
+          onPress={onPressBack}
         />
         {title && (
           <Text

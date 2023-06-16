@@ -50,9 +50,6 @@ const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, cate
     <TouchableOpacity
       activeOpacity={0.9}
       onPress={handlePress}
-      style={{
-        marginBottom: 20,
-      }}
     >
       <Image
         style={{
@@ -64,16 +61,18 @@ const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, cate
       />
       <View
         style={{
+            flex:1,
           position: 'absolute',
           width: '100%',
-          paddingLeft: '35%',
+          // paddingLeft: '35%',
           height: '100%',
           justifyContent: 'center',
-          alignItems: 'flex-start',
+          alignItems: 'center',
         }}
       >
         <View
           style={{
+              alignContent:"center",
             position: 'absolute',
             top: 0,
             left: 0,

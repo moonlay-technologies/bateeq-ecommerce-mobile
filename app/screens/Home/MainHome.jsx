@@ -25,6 +25,9 @@ import {
 } from '../../graphql/queries';
 import { CartGetList, CartPutTotalQty, LoadUsers, CreateCheckout } from '../../store/actions';
 import HeaderComponent from '../../components/HeaderComponent';
+import OurCategory from "../../components/screens/home/our-category";
+import LatestCollections from "../../components/screens/home/latest-collections";
+import OurStory from "../../components/screens/home/our-story";
 
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty, CartGetList } = props;
@@ -170,207 +173,20 @@ function MainHome(props) {
           })}
         </Swiper>
 
-        {loading ? (
-          <LoadingScreen Loading3 />
-        ) : (
-          <View
+        <OurStory
             style={{
-              padding: 16,
-              justifyContent: 'center',
-              alignItems: 'center',
+              marginBottom:10,
+              paddingVertical: 20,
             }}
-          >
-            <Text
-              style={{
-                fontSize: 20,
-                color: COLORS.title,
-                marginBottom: 16,
-                ...FONTS.fontSatoshiBold,
-              }}
-            >
-              {pageStory?.title}
-            </Text>
-
-            <CustomHTML htmlContent={pageStory?.body} blog_id />
-            <TouchableOpacity
-              onPress={() => navigation.navigate('PagesInShopify', { dataPages: pageStory })}
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingVertical: 8,
-                paddingHorizontal: 16,
-                borderWidth: 1,
-                borderColor: 'black',
-              }}
-            >
-              <Text
-                style={{
-                  color: COLORS.title,
-                  ...FONTS.fontSatoshiRegular,
-                  fontSize: 16,
-                }}
-              >
-                Learn More
-              </Text>
-              <Ionicons
-                name="md-arrow-forward"
-                size={12}
-                color="#000"
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginTop: 6,
-                  marginLeft: 18,
-                }}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-
-        <View
-          style={{
-            paddingHorizontal: 15,
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingTop: 18,
-            flexWrap: 'wrap',
-            paddingBottom: 10,
-          }}
+            onRedirect={({data})=> {
+              navigation.navigate('PagesInShopify', { dataPages: data })
+            }}
         />
-        {latestCollectionLoading ? (
-          <LoadingScreen Loading3 />
-        ) : (
-          <View
-            style={{
-              ...GlobalStyleSheet.container,
-              borderTopColor: COLORS.borderColor,
-            }}
-          >
-            <Text
-              style={{
-                ...FONTS.fontSatoshiBold,
-                color: COLORS.title,
-                marginBottom: 16,
-                fontSize: 18,
-                textAlign: 'center',
-              }}
-            >
-              {dataLatestCollection?.title}
-            </Text>
-            <FeaturedCard
-              image={dataLatestCollection?.image?.url}
-              title={dataLatestCollection?.description}
-              dataCollection={dataLatestCollection}
-            />
-          </View>
-        )}
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-          {loadingProductLatestCollection ? (
-            <LoadingScreen Loading3 />
-          ) : (
-            <View
-              style={{
-                marginBottom: 40,
-                paddingHorizontal: 25,
-              }}
-            >
-              <View
-                style={{
-                  marginBottom: 25,
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                }}
-              >
-                {datalistLatestCollectinProduct?.slice(0, 4) &&
-                  datalistLatestCollectinProduct?.slice(0, 4)?.map(product => {
-                    return (
-                      <View
-                        key={product.id}
-                        style={{
-                          width: '40%',
-                          marginRight: 10,
-                          marginBottom: 20,
-                          flexDirection: 'row',
-                          flexWrap: 'wrap',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <ProductCardStyle1
-                          onPress={() =>
-                            navigation.navigate('ProductDetail', {
-                              id: product.id,
-                            })
-                          }
-                          imageSrc={product?.images?.edges[0].node.url}
-                          title={product?.title}
-                          price={product?.variants?.edges[0].node.price.amount}
-                          oldPrice={product?.variants?.edges[0]?.node?.compareAtPrice?.amount}
-                          // offer={data.offer}
-                        />
-                      </View>
-                    );
-                  })}
-                {/* </ScrollView> */}
-              </View>
-              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Items', { query: 'Kamala' })}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 1,
-                    width: 200,
-                    height: 48,
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...FONTS.fontSatoshiBold,
-                      color: COLORS.title,
-                      marginRight: 2,
-                    }}
-                  >
-                    See More
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        </View>
-        <View>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              color: COLORS.title,
-              marginBottom: 20,
-            }}
-          >
-            Our Category
-          </Text>
-          <View
-            style={{
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              justifyContent: 'space-between',
-            }}
-          >
-            {dataCategories?.map(item => (
-              <View style={{ width: 180, padding: 10 }} key={item.id}>
-                <FeaturedCard
-                  image={item.images.edges[0]?.node.url}
-                  title={item.description}
-                  dataCollection={dataCategories}
-                  imagePath
-                  categories
-                />
-              </View>
-            ))}
-          </View>
-        </View>
+
+        <LatestCollections/>
+
+        <OurCategory/>
+
         <View style={{ marginTop: 20 }}>
           <Swiper
             autoplay
