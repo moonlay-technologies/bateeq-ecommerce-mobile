@@ -1,23 +1,22 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Animated } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { Provider as PaperProvider } from 'react-native-paper';
-import {batch, connect, useDispatch, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useMutation, useQuery } from '@apollo/client';
+import { connect } from 'react-redux';
+// import AsyncStorage from '@react-native-async-storage/async-storage';
+// import { useMutation, useQuery } from '@apollo/client';
 import SplashScreen from '../components/SplashScreen';
 import StackNavigator from './StackNavigator';
-import { GET_CUSTOMER_INFO } from '../graphql/queries';
+// import { GET_CUSTOMER_INFO } from '../graphql/queries';
 // import { setIsLogin, setCustomerInfo, setToken, setCartId, setDefaultAddress } from '../store/reducer';
-import { CREATE_CART } from '../graphql/mutation';
-import {LoadUsers,setToken} from "../store/actions/user";
+// import { CREATE_CART } from '../graphql/mutation';
+import { LoadUsers, setToken } from '../store/actions/user';
 
 function Routes({ ...props }) {
-    let { options, loading, isAuthenticated } = props
+  let { options, loading, isAuthenticated } = props;
   const fadeAnim = useRef(new Animated.Value(1)).current;
-
 
   // const [isAuthenticated, setIsAuthenticated] = useState(false);
   // const { isLogin, getToken } = useSelector(state => state.user);
@@ -113,8 +112,7 @@ function Routes({ ...props }) {
   //   }
   // };
 
-
-    console.log({options,isAuthenticated,loading})
+  console.log({ options, isAuthenticated, loading });
   return (
     <PaperProvider>
       <SafeAreaProvider>
@@ -133,8 +131,11 @@ function Routes({ ...props }) {
   );
 }
 
-export default connect(({Auth,User})=> {
-    let { isAuthenticated } = Auth
-    let { options,loading } = User
-    return {options ,isAuthenticated,loading }
-},{LoadUsers,setToken})(React.memo(Routes));
+export default connect(
+  ({ Auth, User }) => {
+    let { isAuthenticated } = Auth;
+    let { options, loading } = User;
+    return { options, isAuthenticated, loading };
+  },
+  { LoadUsers, setToken }
+)(React.memo(Routes));

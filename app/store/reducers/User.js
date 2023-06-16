@@ -13,6 +13,7 @@ const initialState = {
       first_name: null,
       last_name: null,
       phone: null,
+      company: null
     },
   },
   collections: {

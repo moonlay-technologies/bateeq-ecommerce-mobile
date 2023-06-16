@@ -1,9 +1,11 @@
 import React from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, Text, View, TouchableOpacity } from 'react-native';
 import { COLORS, FONTS } from '../constants/theme';
 import moment from 'moment/moment';
+import { useNavigation } from '@react-navigation/native';
 
 function CartItem({
+  orderId,
   productId,
   image,
   imageSrc,
@@ -15,11 +17,17 @@ function CartItem({
   date,
 }) {
   const dateOrders = moment(date);
+  const navigation = useNavigation();
   const formattedDate = dateOrders.format('MMMM Do YYYY');
 
+  const handleClick = () => {
+    navigation.navigate('OrderDetail', { orderId: orderId });
+  };
+
+  console.log('key', orderId);
   return (
     <View style={{ flex: 1, paddingHorizontal: 15, marginVertical: 20 }}>
-      <View
+      <TouchableOpacity
         style={{
           paddingVertical: 20,
           paddingHorizontal: 10,
@@ -27,6 +35,7 @@ function CartItem({
           borderColor: '#AAAAAA',
           borderRadius: 10,
         }}
+        onPress={handleClick}
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{formattedDate}</Text>
@@ -168,7 +177,7 @@ function CartItem({
             {status === 'PAID' ? 'COMPLETE' : status === 'PENDING' ? 'CONFIRM' : 'CANCELED'}
           </Text>
         </View>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }

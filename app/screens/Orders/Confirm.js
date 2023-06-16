@@ -4,10 +4,10 @@ import CartItem from '../../components/CartItem';
 import { useQuery } from '@apollo/client';
 import { GET_ORDERS } from '../../graphql/admin/queries';
 import LoadingScreen from '../../components/LoadingView';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 
-const Confirm = ({...props}) => {
-  let { info } = props
+const Confirm = ({ ...props }) => {
+  let { info } = props;
   const [dataOrdersPending, setDataOrdersPending] = useState([]);
   const { data, loading } = useQuery(GET_ORDERS, {
     fetchPolicy: 'cache-and-network',
@@ -19,6 +19,7 @@ const Confirm = ({...props}) => {
       clientName: 'httpLink2',
     },
   });
+
 
   useEffect(() => {
     if (data) {
@@ -37,12 +38,13 @@ const Confirm = ({...props}) => {
         dataOrdersPending.map(data => (
           <CartItem
             key={data.id}
+            orderId= {data.id}
             productId={data?.lineItems?.nodes[0]?.sku}
             imageSrc={data?.lineItems?.nodes[0]?.product?.images?.nodes[0]?.url}
             title={data.lineItems.nodes[0].product.title}
             // price={data.price}
             date={data.createdAt}
-            quantity={data.lineItems.nodes[0].currentQuantity}
+            quantity={data?.subtotalLineItemsQuantity}
             size={data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]?.selectedOptions[1]?.value}
             status={data.displayFinancialStatus}
           />
@@ -51,8 +53,8 @@ const Confirm = ({...props}) => {
   );
 };
 
-export default connect(({User})=> {
-  let { options } = User
-  let { info } = options
-  return { info }
+export default connect(({ User }) => {
+  let { options } = User;
+  let { info } = options;
+  return { info };
 })(Confirm);

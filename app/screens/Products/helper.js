@@ -6,7 +6,7 @@ export const findVariantIdByOptions = (product, options) => {
     const selectedSize = variant.node.selectedOptions.find(option => option.name === 'Size');
     const selectedColor = variant.node.selectedOptions.find(option => option.name === 'Color');
     const colorMatches = color ? selectedColor?.value === color : true;
-    return selectedSize.value === size && colorMatches;
+    return selectedSize?.value === size && colorMatches;
   });
   if (matchingVariant) {
     return matchingVariant.node.id;

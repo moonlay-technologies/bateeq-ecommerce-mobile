@@ -1,77 +1,62 @@
-import React from 'react';
-import {ScrollView} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { ScrollView, View, Text } from 'react-native';
 import CartItem from '../../components/CartItem';
-import pic1 from '../../assets/images/shop/picture1.jpg';
-import pic2 from '../../assets/images/shop/picture2.jpg';
-import pic3 from '../../assets/images/shop/picture3.jpg';
-import pic4 from '../../assets/images/shop/picture4.jpg';
+import { useQuery } from '@apollo/client';
+import { GET_ORDERS } from '../../graphql/admin/queries';
+import LoadingScreen from '../../components/LoadingView';
+import { connect } from 'react-redux';
 
-const AllCartData = [
-  {
-    productId: 'BA-050423-001',
-    image: pic1,
-    title: 'JACQUARD NALIKA 011',
-    quantity: '2',
-    size: 'XS',
-    // price : "$47.6",
-    date: '05 March 2023',
-    status: 'Confirmed',
-    desc: 'Order Received by [Louis Simatupang]',
-  },
-  {
-    productId: 'BA-050423-001',
-    image: pic2,
-    title: 'JACQUARD NALIKA 011',
-    quantity: '2',
-    size: 'M',
-    // price : "$158.2",
-    date: '05 March 2023',
-    status: 'Canceled',
-    desc: 'Reach on payment due date',
-  },
-  {
-    productId: 'BA-050423-001',
-    image: pic3,
-    title: 'JACQUARD NALIKA 011',
-    quantity: '2',
-    size: 'M',
-    // price : "$158.2",
-    date: '03 March 2023',
-    status: 'On delivery',
-    desc: 'On the way by Courir  [H. Stefanus]',
-  },
-  {
-    productId: 'BA-050423-001',
-    image: pic4,
-    title: 'JACQUARD NALIKA 011',
-    quantity: '2',
-    size: 'L',
-    // price : "$47.6",
-    date: '04 March 2023',
-    status: 'Completed',
-    desc: 'Order Received by [Louis Simatupang]',
-  },
-];
+const AllCart = ({ ...props }) => {
+  let { info } = props;
+  const [dataOrders, setDataOrders] = useState([]);
+  const { data, loading } = useQuery(GET_ORDERS, {
+    fetchPolicy: 'cache-and-network',
+    variables: {
+      customerId: info?.id,
+      query: '',
+    },
+    context: {
+      clientName: 'httpLink2',
+    },
+  });
 
-const AllCart = () => {
+  useEffect(() => {
+    if (data) {
+      setDataOrders(data?.customer?.orders?.nodes);
+    }
+  }, [data]);
   return (
     <ScrollView>
-      {AllCartData.map((data, index) => (
-        <CartItem
-          key={index}
-          productId={data.productId}
-          image={data.image}
-          title={data.title}
-          // price={data.price}
-          date={data.date}
-          quantity={data.quantity}
-          size={data.size}
-          status={data.status}
-          desc={data.desc}
-        />
-      ))}
+      {loading && (
+        <View style={{ height: '50%' }}>
+          <LoadingScreen Loading3 />
+        </View>
+      )}
+      {dataOrders.length === 0 && (
+        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', height: 500 }}>
+          <Text style={{ color: 'black', fontSize: 16 }}>{`No orders were orders :D`}</Text>
+        </View>
+      )}
+      {dataOrders &&
+        dataOrders.map(data => (
+          <CartItem
+            key={data.id}
+            orderId={data.id}
+            productId={data?.lineItems?.nodes[0]?.sku}
+            imageSrc={data?.lineItems?.nodes[0]?.product?.images?.nodes[0]?.url}
+            title={data.lineItems.nodes[0].product.title}
+            // price={data.price}
+            date={data.createdAt}
+            quantity={data?.subtotalLineItemsQuantity}
+            size={data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]?.selectedOptions[1]?.value}
+            status={data.displayFinancialStatus}
+          />
+        ))}
     </ScrollView>
   );
 };
-
-export default AllCart;
+export default connect(({ User }) => {
+  let { options } = User;
+  let { info } = options;
+  return { info };
+})(AllCart);

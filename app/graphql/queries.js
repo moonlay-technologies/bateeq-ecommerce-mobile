@@ -185,10 +185,11 @@ export const __GQL_CUSTOMER_INFO = `query ($accessToken: String!) {
             province
             country
             zip
+            company
           }
       }
     }
-  }`
+  }`;
 export const GET_CUSTOMER_INFO = gql`
   query ($accessToken: String!) {
     customer(customerAccessToken: $accessToken) {
@@ -347,6 +348,72 @@ export const GET_COLLECTIONS_SLIDER = gql`
             vendor
           }
         }
+      }
+    }
+  }
+`;
+
+export const GET_COLLECTIONS_BY_HANDLE = gql`
+  query getCollectionByHande($handle: String!, $first: Int!) {
+    collection(handle: $handle) {
+      id
+      title
+      description
+      handle
+      image {
+        url
+      }
+      products(first: $first) {
+        pageInfo{
+          hasNextPage
+          endCursor
+        }
+        nodes {
+          id
+          title
+          description
+          descriptionHtml
+          images(first: 1) {
+            edges {
+              node {
+                url
+              }
+            }
+          }
+          variants(first: 5) {
+            edges {
+              node {
+                price {
+                  amount
+                }
+                compareAtPrice {
+                  amount
+                }
+                selectedOptions {
+                  name
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const GET_SHIPPING_POLICY = gql`
+  {
+    shop {
+      termsOfService {
+        id
+        title
+        body
+      }
+      refundPolicy {
+        id
+        title
+        body
       }
     }
   }

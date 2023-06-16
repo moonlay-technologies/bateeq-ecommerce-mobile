@@ -4,7 +4,7 @@ import OcticonsIcon from 'react-native-vector-icons/Octicons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { useMutation, useQuery } from '@apollo/client';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
@@ -17,7 +17,11 @@ import { CUSTOMER_DEFAULT_ADDRESS_UPDATE, REMOVE_CUSTOMER_ADDRESS } from '../../
 import HeaderComponent from '../../../components/HeaderComponent';
 import Button from '../../../components/ButtonComponent';
 
-function Address() {
+function Address({ ...props }) {
+  let { collections } = props;
+  const { list } = collections.address;
+  const { used } = collections.address;
+  console.log('data list', list);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { userAddress, getToken, defaultAddress } = useSelector(state => state.user);
@@ -45,16 +49,16 @@ function Address() {
   const [customerAddressDelete] = useMutation(REMOVE_CUSTOMER_ADDRESS);
   const [customerDefaultAddressUpdate] = useMutation(CUSTOMER_DEFAULT_ADDRESS_UPDATE);
 
-  useEffect(() => {
-    if (address?.customer) {
-      setCustomerAddress(
-        address?.customer?.addresses?.edges.map(i => ({
-          ...i.node,
-          // selected:false
-        })) || []
-      );
-    }
-  }, [address]);
+  // useEffect(() => {
+  //   if (data) {
+  //     setCustomerAddress(
+  //       address?.customer?.addresses?.edges.map(i => ({
+  //         ...i.node,
+  //         // selected:false
+  //       })) || []
+  //     );
+  //   }
+  // }, [address]);
 
   const handleSelectAddress = value => {
     dispatch(setAddress(''));
@@ -127,20 +131,21 @@ function Address() {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))}
+              }))
+            }
             submitText={isLoading ? 'Deleting ...' : 'Delete'}
             disabled={isLoading}
             onContinue={handleDelete}
           />
-          {customerAddress?.length > 0 &&
-            customerAddress?.map((item, index) => {
-              const { company, address1, city, id } = item;
+          {list?.data?.length > 0 &&
+            list?.data?.map((item, index) => {
+              const { address1, address2, city, province, country, id, company } = item;
 
               return (
                 <TouchableOpacity
                   style={[
                     styles.card,
-                    !addressSelected && defaultAddress?.address1 === address1
+                    !addressSelected && used?.data?.address1 === address1
                       ? styles.selectedCard
                       : addressSelected?.address1 === address1
                       ? styles.selectedCard
@@ -156,6 +161,8 @@ function Address() {
                       <Text style={styles.name}>{company}</Text>
                       <Text style={styles.address}>{address1}</Text>
                       <Text style={styles.city}>{city}</Text>
+                      <Text style={styles.city}>{province}</Text>
+                      <Text style={styles.city}>{country}</Text>
                       {[addressSelected?.address1 === address1, userAddress?.address1 === address1].some(
                         i => i === true
                       ) && (
@@ -187,7 +194,8 @@ function Address() {
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
-                        }))}
+                        }))
+                      }
                       style={styles.icon}
                       name="trash-2"
                       size={16}
@@ -228,8 +236,6 @@ function Address() {
     </SafeAreaView>
   );
 }
-
-export default Address;
 
 const styles = StyleSheet.create({
   card: {
@@ -274,3 +280,8 @@ const styles = StyleSheet.create({
     color: 'red',
   },
 });
+
+export default connect(({ User }) => {
+  let { options, collections } = User;
+  return { options, collections };
+})(React.memo(Address));

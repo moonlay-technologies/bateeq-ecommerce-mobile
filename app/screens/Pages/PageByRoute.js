@@ -9,9 +9,9 @@ const PagesInShopify = ({route}) => {
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
-        <Header title={dataPages?.title} titleLeft leftIcon={'back'} />
+        <Header title={dataPages?.title === "Refund Policy" ? "Shipping & Return" : dataPages?.title} titleLeft leftIcon={'back'} />
         <ScrollView>
-          <View style={{justifyContent: 'center', alignItems: 'center'}}>
+          <View style={{justifyContent: 'center', alignItems: 'center', paddingLeft: 25, paddingRight: 25}}>
             <Text
               style={{fontSize: 20, color: COLORS.title, ...FONTS.fontBold}}>
               {dataPages?.title}

@@ -3,7 +3,7 @@ import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, Vi
 import * as yup from 'yup';
 import { useMutation, useQuery } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import {connect, useSelector} from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -22,10 +22,11 @@ import { findVariantIdByOptions } from './helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
 import { setCartId } from '../../store/reducer';
-import {CartGetList} from "../../store/actions";
+import { CartGetList } from '../../store/actions';
+import Notification from '../../components/NotificationComponent';
 
 function ProductDetail(props) {
-  const { navigation, route, cartId,CartGetList } = props;
+  const { navigation, route, cartId, CartGetList } = props;
   const [options, setOptions] = useState({
     color: [],
     size: [],
@@ -48,7 +49,6 @@ function ProductDetail(props) {
   });
 
   const { id } = route.params;
-  // const cartStore = useSelector(state => state.cart);
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_TO_CART);
   const [isSnackbar, setIsSnackbar] = useState(false);
@@ -59,6 +59,7 @@ function ProductDetail(props) {
   const cart = useSelector(state => state.cart);
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
+  const [notifState, setNotifState] = useState(false);
   const [product, setProduct] = useState({
     id: '',
     descriptionHtml: '',
@@ -224,7 +225,7 @@ function ProductDetail(props) {
                 attributes: [
                   {
                     key: 'Color',
-                    value: result?.color || 'white',
+                    value: result?.color,
                   },
                   {
                     key: 'Size',
@@ -235,7 +236,12 @@ function ProductDetail(props) {
             ],
           },
         });
+
         if (addLine?.cartLinesAdd?.cart.id) {
+          setNotifState(true);
+          setTimeout(() => {
+            setNotifState(false);
+          }, 5000);
           setErrors({});
           setOptions({
             color: [],
@@ -246,11 +252,12 @@ function ProductDetail(props) {
             color: '',
           });
           CartGetList({
-            first:10,
-            last:0,
-            id:cartId
-          })
-          navigation.navigate('Cart');
+            first: 10,
+            last: 0,
+            id: cartId,
+          });
+
+          // navigation.navigate('Cart');
         } else {
           Toast.show({
             type: 'error',
@@ -302,7 +309,7 @@ function ProductDetail(props) {
       setRandomProductsRecommendation(selectedProducts);
     }
   }, [productRecommendations]);
-
+  // <View>
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
@@ -398,7 +405,6 @@ function ProductDetail(props) {
                     ...FONTS.fontSatoshiBold,
                     color: COLORS.title,
                   }}
-                  // eslint-disable-next-line react-native/no-raw-text
                 >
                   Quantity
                   <Text style={{ color: COLORS.danger }}>*</Text>
@@ -483,40 +489,44 @@ function ProductDetail(props) {
             </View>
           </View>
         </View>
+
         <Footer />
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingHorizontal: 15,
-            paddingVertical: 12,
-          }}
-        >
-          <View style={{ marginRight: 20, paddingVertical: 20 }}>
-            <Button
-              onPress={() => navigation.navigate('Wishlist')}
-              title="Wishlist"
-              outline
-              size="xs"
-              iconStyles={{ marginLeft: 18 }}
-              icon={FeatherIcon}
-              iconName="heart"
-            />
-          </View>
-          <View>
-            <Button
-              onPress={onSubmit}
-              title={onSubmitLoading ? 'Loading ...' : 'Add To Cart'}
-              size="xs"
-              iconStyles={{ marginLeft: 18 }}
-              icon={FeatherIcon}
-              iconName="shopping-bag"
-              disabled={onSubmitLoading || product?.totalInventory <= 0}
-            />
-          </View>
-        </View>
       </ScrollView>
+
+      <Notification visible={notifState} />
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          paddingHorizontal: 15,
+          paddingVertical: 12,
+        }}
+      >
+        <View style={{ marginRight: 20, paddingVertical: 10 }}>
+          <Button
+            onPress={() => navigation.navigate('Wishlist')}
+            title="Wishlist"
+            outline
+            size="xs"
+            iconStyles={{ marginLeft: 18 }}
+            icon={FeatherIcon}
+            iconName="heart"
+          />
+        </View>
+        <View>
+          <Button
+            onPress={onSubmit}
+            title={onSubmitLoading ? 'Loading ...' : 'Add To Cart'}
+            size="xs"
+            iconStyles={{ marginLeft: 18 }}
+            icon={FeatherIcon}
+            iconName="shopping-bag"
+            disabled={onSubmitLoading || product?.totalInventory <= 0}
+          />
+        </View>
+      </View>
       <Snackbar
         visible={isSnackbar}
         duration={3000}
@@ -534,10 +544,16 @@ function ProductDetail(props) {
   );
 }
 
-export default connect(({ Cart }) => {
-  const { options } = Cart;
-  return { cartId: options?.cartId };
-}, {CartGetList})(React.memo(ProductDetail));
+{
+  /* </View> */
+}
+export default connect(
+  ({ Cart }) => {
+    const { options } = Cart;
+    return { cartId: options?.cartId };
+  },
+  { CartGetList }
+)(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
   icon: {

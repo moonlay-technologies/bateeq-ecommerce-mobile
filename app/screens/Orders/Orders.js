@@ -128,8 +128,7 @@ const Orders = ({navigation}) => {
             <View
                 style={{
                     flex: 1,
-                    // width:screen.width + 20,
-                    // marginLeft:-20,
+
                 }}
             >
                 <TabView
@@ -195,7 +194,7 @@ const Orders = ({navigation}) => {
                     renderScene={renderScene}
                     onIndexChange={onChangeTab}
                     initialLayout={{width: layout.width}}
-                />
+                    />
             </View>
         </SafeAreaView>
     );

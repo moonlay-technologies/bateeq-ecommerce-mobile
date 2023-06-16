@@ -4,9 +4,7 @@ import { useIsFocused, useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { useQuery } from '@apollo/client';
 import { useDispatch } from 'react-redux';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
@@ -19,8 +17,6 @@ import LoadingScreen from '../../components/LoadingView';
 import { setCartId } from '../../store/reducer';
 import HeaderComponent from '../../components/HeaderComponent';
 import UserInfo from '../../components/UserInfo';
-import { GET_PAGES } from '../../graphql/queries';
-import { gqlError } from '../../utils/eror-handling';
 
 const languagetData = [
   {
@@ -48,30 +44,9 @@ function Profile() {
   const navigation = useNavigation();
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [dataFaq, setDataFaq] = useState(null);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
-
-  const onError = err => {
-    gqlError({ error: err, Toast });
-  };
-
-  const { loading: loadingFAQ } = useQuery(GET_PAGES, {
-    fetchPolicy: 'no-cache',
-    variables: {
-      handle: 'f-a-q',
-    },
-    onCompleted: ({ page }) => {
-      console.log('page', page);
-      if (page) {
-        setDataFaq(page);
-      }
-    },
-    onError: err => {
-      onError(err);
-    },
-  });
 
   useEffect(() => {
     if (isLoggedOut && isFocused) {
@@ -202,7 +177,7 @@ function Profile() {
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
-              {/* <TouchableOpacity
+              <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -210,6 +185,7 @@ function Profile() {
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
                 }}
+                onPress={() => navigation.navigate('AppSetting')}
               >
                 <Text
                   style={{
@@ -222,8 +198,8 @@ function Profile() {
                   App Setting
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
-              </TouchableOpacity> */}
-              <TouchableOpacity
+              </TouchableOpacity>
+              {/* <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -236,7 +212,8 @@ function Profile() {
                   navigation.navigate('PagesInShopify', {
                     dataPages: dataFaq,
                     loading: loadingFAQ,
-                  })}
+                  })
+                }
               >
                 <Text
                   style={{
@@ -249,7 +226,7 @@ function Profile() {
                   FAQ & Help
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <CustomButton
                 arrowIcon
                 title="Log Out"

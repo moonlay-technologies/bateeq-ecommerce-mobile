@@ -29,7 +29,7 @@ import HeaderComponent from '../../components/HeaderComponent';
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty, CartGetList } = props;
 
-  const [dataAllProduct, setDataAllProduct] = useState([]);
+  const [datalistLatestCollectinProduct, setDatalistLatestCollectinProduct] = useState([]);
   const [pageStory, setPageStory] = useState(null);
   const [dataLatestCollection, setDataLatestCollection] = useState(null);
   const [dataBanner, setDataBanner] = useState([]);
@@ -67,10 +67,10 @@ function MainHome(props) {
       after: null,
     },
   });
-  const { data: getAllProduct, loading: loadingAllProduct } = useQuery(GET_LIST_CATEGORIES, {
+  const { data: listProductLatestCollection, loading: loadingProductLatestCollection } = useQuery(GET_LIST_CATEGORIES, {
     variables: {
       first: 5,
-      query: '',
+      query: 'kamala',
       after: null,
     },
   });
@@ -95,8 +95,8 @@ function MainHome(props) {
     if (data) {
       setPageStory(data.page);
     }
-    if (getAllProduct) {
-      setDataAllProduct(getAllProduct.products.nodes);
+    if (listProductLatestCollection) {
+      setDatalistLatestCollectinProduct(listProductLatestCollection.products.nodes);
     }
     if (latestCollectionData) {
       setDataLatestCollection(latestCollectionData.collection);
@@ -112,7 +112,14 @@ function MainHome(props) {
     if (dataListCategories) {
       setDataCategories(dataListCategories.products.nodes);
     }
-  }, [data, latestCollectionData, dataImageBanner, dataListCategories, dataSliderCollectionsById, getAllProduct]);
+  }, [
+    data,
+    latestCollectionData,
+    dataImageBanner,
+    dataListCategories,
+    dataSliderCollectionsById,
+    listProductLatestCollection,
+  ]);
   useEffect(() => {
     if (cartData) {
       CartPutTotalQty({ totalQuantity: cartData?.cart?.totalQuantity });
@@ -230,80 +237,6 @@ function MainHome(props) {
             paddingBottom: 10,
           }}
         />
-        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-          {loadingAllProduct ? (
-            <LoadingScreen Loading3 />
-          ) : (
-            <View
-              style={{
-                marginBottom: 40,
-                paddingHorizontal: 25,
-              }}
-            >
-              <View
-                style={{
-                  marginBottom: 25,
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                }}
-              >
-                {dataAllProduct?.slice(0, 4) &&
-                  dataAllProduct?.slice(0, 4)?.map(product => {
-                    return (
-                      <View
-                        key={product.id}
-                        style={{
-                          width: '40%',
-                          marginRight: 10,
-                          marginBottom: 20,
-                          flexDirection: 'row',
-                          flexWrap: 'wrap',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <ProductCardStyle1
-                          onPress={() =>
-                            navigation.navigate('ProductDetail', {
-                              id: product.id,
-                            })}
-                          imageSrc={product?.images?.edges[0].node.url}
-                          title={product?.title}
-                          price={product?.variants?.edges[0].node.price.amount}
-                          oldPrice={product?.variants?.edges[0]?.node?.compareAtPrice?.amount}
-                          // offer={data.offer}
-                        />
-                      </View>
-                    );
-                  })}
-                {/* </ScrollView> */}
-              </View>
-              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Items', { query: '' })}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 1,
-                    width: 200,
-                    height: 48,
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...FONTS.fontSatoshiBold,
-                      color: COLORS.title,
-                      marginRight: 2,
-                    }}
-                  >
-                    See More
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        </View>
         {latestCollectionLoading ? (
           <LoadingScreen Loading3 />
         ) : (
@@ -331,6 +264,81 @@ function MainHome(props) {
             />
           </View>
         )}
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+          {loadingProductLatestCollection ? (
+            <LoadingScreen Loading3 />
+          ) : (
+            <View
+              style={{
+                marginBottom: 40,
+                paddingHorizontal: 25,
+              }}
+            >
+              <View
+                style={{
+                  marginBottom: 25,
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  justifyContent: 'space-between',
+                }}
+              >
+                {datalistLatestCollectinProduct?.slice(0, 4) &&
+                  datalistLatestCollectinProduct?.slice(0, 4)?.map(product => {
+                    return (
+                      <View
+                        key={product.id}
+                        style={{
+                          width: '40%',
+                          marginRight: 10,
+                          marginBottom: 20,
+                          flexDirection: 'row',
+                          flexWrap: 'wrap',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <ProductCardStyle1
+                          onPress={() =>
+                            navigation.navigate('ProductDetail', {
+                              id: product.id,
+                            })
+                          }
+                          imageSrc={product?.images?.edges[0].node.url}
+                          title={product?.title}
+                          price={product?.variants?.edges[0].node.price.amount}
+                          oldPrice={product?.variants?.edges[0]?.node?.compareAtPrice?.amount}
+                          // offer={data.offer}
+                        />
+                      </View>
+                    );
+                  })}
+                {/* </ScrollView> */}
+              </View>
+              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Items', { query: 'Kamala' })}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderWidth: 1,
+                    width: 200,
+                    height: 48,
+                  }}
+                >
+                  <Text
+                    style={{
+                      ...FONTS.fontSatoshiBold,
+                      color: COLORS.title,
+                      marginRight: 2,
+                    }}
+                  >
+                    See More
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
         <View>
           <Text
             style={{

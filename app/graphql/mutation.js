@@ -31,7 +31,7 @@ export const __GQL_EDIT_DETAIL_ACCOUNT = `mutation customerUpdate(
         message
       }
     }
-  }`
+  }`;
 export const EDIT_DETAIL_ACCOUNT = gql`
   mutation customerUpdate($customer: CustomerUpdateInput!, $customerAccessToken: String!) {
     customerUpdate(customer: $customer, customerAccessToken: $customerAccessToken) {
@@ -210,6 +210,18 @@ export const CREATE_CHECKOUT_MUTATION = `
       checkoutUserErrors {
         message
         field
+      }
+    }
+  }
+`;
+
+export const RECOVER_ACCOUNT_CUSTOMER = gql`
+  mutation RecoverAccoun($email: String!) {
+    customerRecover(email: $email) {
+      customerUserErrors {
+        code
+        field
+        message
       }
     }
   }
