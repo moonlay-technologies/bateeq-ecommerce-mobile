@@ -10,7 +10,7 @@ import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
 import MenuListHeader from './ListMenuHeader';
-import {CartPutTotalQty} from "../store/actions";
+import {CartGetList, CartPutTotalQty} from "../store/actions";
 
 function HeaderComponent({
   icon = '',
@@ -24,7 +24,7 @@ function HeaderComponent({
     ...props
 }) {
 
-    let { CartPutTotalQty } = props
+    let { CartPutTotalQty,CartGetList } = props
 
 
   const navigation = useNavigation();
@@ -43,6 +43,16 @@ function HeaderComponent({
   const handlePress = () => {
     navigation.navigate('Home');
   };
+
+    function onNavigateCart(){
+        CartGetList({
+            first:10,
+            last:0,
+            id:options?.cartId
+        })
+        navigation.navigate('Cart')
+    }
+
 
   const leftIcon = (i, title) => {
     if (i === 'back') {
@@ -63,14 +73,16 @@ function HeaderComponent({
       </View>
     );
   };
+
+
+
   const rightIcon = () => {
     return (
       <View>
-        {/*<FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />*/}
           {
               options?.loading ? <Text style={{fontSize:10}}>Loading...</Text> : (
                   <IconButton
-                      onPress={() => navigation.navigate('Cart')}
+                      onPress={onNavigateCart}
                       icon={() => (
                           <View>
                               <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
@@ -97,23 +109,6 @@ function HeaderComponent({
                   />
               )
           }
-        {/*{cartQuantity > 0 && (*/}
-        {/*  <View*/}
-        {/*    style={{*/}
-        {/*      height: 14,*/}
-        {/*      width: 14,*/}
-        {/*      borderRadius: 14,*/}
-        {/*      backgroundColor: COLORS.primary,*/}
-        {/*      alignItems: 'center',*/}
-        {/*      justifyContent: 'center',*/}
-        {/*      position: 'absolute',*/}
-        {/*      top: -4,*/}
-        {/*      right: -6,*/}
-        {/*    }}*/}
-        {/*  >*/}
-        {/*    <Text style={{ ...FONTS.fontXs, fontSize: 10, color: COLORS.white }}>{cartQuantity}</Text>*/}
-        {/*  </View>*/}
-        {/*)}*/}
       </View>
     );
   };
@@ -169,4 +164,4 @@ function HeaderComponent({
 export default connect(({Cart})=> {
     let {options} = Cart
     return { options }
-},{CartPutTotalQty})(React.memo(HeaderComponent));
+},{CartGetList,CartPutTotalQty})(React.memo(HeaderComponent));
