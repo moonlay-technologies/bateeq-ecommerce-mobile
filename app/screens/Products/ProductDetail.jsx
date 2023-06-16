@@ -215,26 +215,25 @@ function ProductDetail(props) {
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
+        const payload = {
+          cartId: result.cartId,
+          lines: [
+            {
+              merchandiseId: result.variant_id,
+              quantity: result.quantity,
+              attributes: [
+                ...(result?.color ? [{ key: 'Color', value: result.color }] : []),
+                {
+                  key: 'Size',
+                  value: result?.size,
+                },
+              ],
+            },
+          ],
+        };
+
         const { data: addLine } = await cartLinesAdd({
-          variables: {
-            cartId: result.cartId,
-            lines: [
-              {
-                merchandiseId: result.variant_id,
-                quantity: result.quantity,
-                attributes: [
-                  {
-                    key: 'Color',
-                    value: result?.color,
-                  },
-                  {
-                    key: 'Size',
-                    value: result?.size,
-                  },
-                ],
-              },
-            ],
-          },
+          variables: payload,
         });
 
         if (addLine?.cartLinesAdd?.cart.id) {
@@ -256,8 +255,6 @@ function ProductDetail(props) {
             last: 0,
             id: cartId,
           });
-
-          // navigation.navigate('Cart');
         } else {
           Toast.show({
             type: 'error',
@@ -542,10 +539,6 @@ function ProductDetail(props) {
       </Snackbar>
     </SafeAreaView>
   );
-}
-
-{
-  /* </View> */
 }
 export default connect(
   ({ Cart }) => {
