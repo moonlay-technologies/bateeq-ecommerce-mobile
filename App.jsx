@@ -39,6 +39,7 @@ export default connect(
   ({ Auth, User }) => {
     const { isAuthenticated } = Auth;
     const { options, loading } = User;
+
     return { options, isAuthenticated, loading, User };
   },
   { LoadUsers, setToken }

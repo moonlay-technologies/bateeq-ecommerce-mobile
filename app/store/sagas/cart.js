@@ -13,7 +13,11 @@ import { REQUEST, SUCCESS, FAILURE } from '../actions/action.type';
 import { client } from '../../../index';
 import { __GQL_CART_INITIAL } from '../../service/graphql/mutation/cart/index.gql';
 import { findKey } from '../../utils/helper';
-import { ADD_TO_CART } from '../../graphql/mutation';
+import { ADD_TO_CART, CREATE_CART } from '../../graphql/mutation';
+
+const getCartId = async () => {
+  await AsyncStorage.getItem('cart');
+};
 
 export function* __cartGenerateId() {
   yield takeEvery(REQUEST(GENERATE_CART_ID), function* ({ payload }) {
@@ -23,119 +27,56 @@ export function* __cartGenerateId() {
         totalQuantity: 0,
       };
 
-      AsyncStorage.getItem('cart').then(cartId => {
-        if (cartId) {
-          Reflect.set(payload, 'id', cartId);
-        }
-      });
-
       if (payload?.id) {
-        if (!AsyncStorage.getItem('cart')) {
-          AsyncStorage.setItem('cart', payload?.id);
-        }
-        yield all([
-          put({
-            type: SUCCESS(GENERATE_CART_ID),
-            payload,
-          }),
-        ]);
+        AsyncStorage.setItem('cart', payload.id);
+        yield put({
+          type: SUCCESS(GENERATE_CART_ID),
+          payload: newPayload,
+        });
       } else if (payload?.token) {
-        AsyncStorage.getItem('cart')
-          .then(function* (cartId) {
-            if (!cartId) {
-              const query = gql`
-                mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
-                @inContext(country: $country, language: $language) {
-                  cartCreate(input: $input) {
-                    cart {
-                      id
-                      note
-                      totalQuantity
-                      __typename
-                      lines(first: 10) {
-                        edges {
-                          node {
-                            __typename
-                            cost {
-                              amountPerQuantity {
-                                amount
-                                currencyCode
-                              }
-                              compareAtAmountPerQuantity {
-                                amount
-                                currencyCode
-                              }
-                              totalAmount {
-                                amount
-                                currencyCode
-                              }
-                            }
-                          }
-                        }
-                      }
-                      attributes {
-                        key
-                        value
-                        __typename
-                      }
-                      cost {
-                        totalAmount {
-                          amount
-                        }
-                      }
-                    }
-                    userErrors {
-                      field
-                      message
-                    }
-                  }
-                }
-              `;
+        let cartId;
+        getCartId().then(id => {
+          cartId = id;
+        });
 
-              const { data } = yield call(client.mutate, {
-                mutation: query,
-                variables: {
-                  input: {
-                    buyerIdentity: {
-                      customerAccessToken: `${payload?.token}`,
-                    },
-                    note: '',
-                  },
+        if (!cartId) {
+          const mutation = gql`
+            ${CREATE_CART}
+          `;
+          const { data } = yield call(client.mutate, {
+            mutation,
+            variables: {
+              input: {
+                buyerIdentity: {
+                  customerAccessToken: payload.token,
                 },
-              });
+                note: '',
+              },
+            },
+          });
 
-              if (
-                findKey(data, ['cartCreate', 'cart']) &&
-                Object.keys(findKey(data, ['cartCreate', 'cart'])).length > 0
-              ) {
-                Object.entries(findKey(data, ['cartCreate', 'cart'])).map(([key, value]) => {
-                  Reflect.set(newPayload, key, value);
-                });
-                AsyncStorage.setItem('cart', newPayload?.id);
-                yield put({
-                  type: SUCCESS(GENERATE_CART_ID),
-                  payload: newPayload,
-                });
-              } else {
-                yield put({
-                  type: FAILURE(GENERATE_CART_ID),
-                  payload: 'Some Error',
-                });
-              }
-            } else {
-              Reflect.set(newPayload, 'id', cartId);
-              yield put({
-                type: SUCCESS(GENERATE_CART_ID),
-                payload: newPayload,
-              });
-            }
-          })
-          .catch(err => null);
+          if (findKey(data, ['cartCreate', 'cart']) && Object.keys(findKey(data, ['cartCreate', 'cart'])).length > 0) {
+            Object.entries(findKey(data, ['cartCreate', 'cart'])).map(([key, value]) => {
+              Reflect.set(newPayload, key, value);
+            });
+
+            AsyncStorage.setItem('cart', newPayload?.id);
+            yield put({
+              type: SUCCESS(GENERATE_CART_ID),
+              payload: newPayload,
+            });
+          } else {
+            yield put({
+              type: FAILURE(GENERATE_CART_ID),
+              payload: 'Some Error',
+            });
+          }
+        }
       }
-    } catch (err) {
+    } catch (error) {
       yield put({
         type: FAILURE(GENERATE_CART_ID),
-        payload: err?.message ?? 'Some Error',
+        payload: 'Some Error',
       });
     }
   });

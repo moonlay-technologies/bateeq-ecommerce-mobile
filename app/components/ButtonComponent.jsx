@@ -45,11 +45,9 @@ function Button(props) {
             ? style.backgroundColor
             : color || (size === 'xxl' ? '#333333' : COLORS.black),
         },
-
         { alignItems: 'center' },
+        disabled && { opacity: 0.7 },
         outline && { ...styles.outline, ...(style.borderColor && { borderColor: style.borderColor }) },
-
-        disabled && styles.disabled,
       ]}
       disabled={disabled}
     >
@@ -140,9 +138,6 @@ const styles = StyleSheet.create({
   xxlText: {
     fontSize: 14,
     ...FONTS.fontSatoshiBold,
-  },
-  disabled: {
-    opacity: 0.5,
   },
   outline: {
     backgroundColor: COLORS.transparent,

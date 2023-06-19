@@ -172,6 +172,7 @@ function ProductDetail(props) {
       schema
         .validate(body, { abortEarly: false })
         .then(async result => {
+          console.log('resullttt', result)
           const payload = {
             cartId: result.cartId,
             lines: [
@@ -221,7 +222,7 @@ function ProductDetail(props) {
           setOnSubmitLoading(false);
         })
         .catch(error => {
-
+          console.log('errorrr', error)
           if (error.name === 'ValidationError') {
             if(error.inner.find(i => i.path === 'variant_id')) {
               Toast.show({

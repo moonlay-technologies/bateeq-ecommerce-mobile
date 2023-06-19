@@ -98,8 +98,7 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -123,10 +122,15 @@ function CartScreen({ navigation, route, ...props }) {
 
       <View style={{ flex: 1, padding: 10 }}>
         <ScrollView>
-          {lists?.loading ? (
+          {lists?.data?.length === 0 ? (
+            <View>
+              <NoContent to={() => navigation.navigate('Home')} />
+            </View>
+          ) : lists?.loading ? (
             <LoadingScreen Loading2 />
-          ) : lists?.data?.length > 0 ? (
-            lists?.data.map(data => {
+          ) : (
+            lists?.data?.length > 0 &&
+            lists?.data?.map(data => {
               const {
                 quantity,
                 attributes,
@@ -136,10 +140,7 @@ function CartScreen({ navigation, route, ...props }) {
                   image,
                   product: { id, title },
                 },
-                cost: {
-                  totalAmount: { amount, currencyCode },
-                  compareAtAmountPerQuantity: { amount: original_price },
-                },
+                cost,
               } = data;
 
               return (
@@ -148,13 +149,16 @@ function CartScreen({ navigation, route, ...props }) {
                     withIncrementDecrement
                     image={{ uri: image?.url }}
                     title={title}
-                    size={attributes.find(i => i.key === 'Size')?.value}
+                    size={
+                      attributes.find(i => i.key.toLowerCase() === 'size' || i.key.toLowerCase() === 'sizes')?.value
+                    }
+                    color={attributes.find(i => i.key.toLowerCase() === 'color')?.value}
                     attributes={attributes.map(({ __typename, ...rest }) => rest)}
                     cartId={cartId}
                     quantity={quantity}
-                    price={amount}
-                    originalPrice={original_price}
-                    currencyCode={currencyCode}
+                    price={cost?.totalAmount?.amount}
+                    originalPrice={cost?.compareAtAmountPerQuantity?.amount}
+                    currencyCode={cost?.totalAmount?.currencyCode}
                     lineId={lineId}
                     setIsChange={setIsChange}
                     isChange={isChange}
@@ -185,18 +189,13 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))
-                        }
+                          }))}
                       />
                     }
                   />
                 </View>
               );
             })
-          ) : (
-            <View>
-              <NoContent to={() => navigation.navigate('Home')} />
-            </View>
           )}
           <View style={{ padding: 20 }}>
             <Text style={{ ...FONTS.fontSatoshiBold, marginBottom: 12 }}>Special Instruction</Text>
@@ -224,13 +223,13 @@ function CartScreen({ navigation, route, ...props }) {
             }}
           >
             <Button
-              onPress={() => handleSubmit()}
+              onPress={() => (lists?.data?.length > 0 ? handleSubmit() : null)}
               title="Checkout"
               size="xxl"
               icon={Ionicons}
               iconName="md-arrow-forward"
               textColor="#fff"
-              disabled={isLoading}
+              disabled={isLoading || lists?.data?.length > 0}
             />
           </View>
         </ScrollView>
@@ -241,6 +240,7 @@ function CartScreen({ navigation, route, ...props }) {
 
 export default connect(
   ({ Cart, User }) => {
+    console.log('USERRR Cart', Cart);
     const { options, lists } = Cart;
     const {
       options: userOptions,

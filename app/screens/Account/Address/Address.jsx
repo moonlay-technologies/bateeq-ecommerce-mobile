@@ -4,15 +4,16 @@ import OcticonsIcon from 'react-native-vector-icons/Octicons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { useDispatch, connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
-
 import Modal from '../../../components/ActionModalComponent';
 import LoadingComponent from '../../../components/LoadingView';
 import { setAddress } from '../../../store/reducer';
 import HeaderComponent from '../../../components/HeaderComponent';
 import Button from '../../../components/ButtonComponent';
 import { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress } from '../../../store/actions/address';
+import NoContent from '../../../components/NoContent';
 
 function AddressScreen(props) {
   const {
@@ -41,8 +42,6 @@ function AddressScreen(props) {
   }, []);
 
   useEffect(() => {
-    setIsLoading(!addressList?.data.length > 0);
-
     if (addressList?.isChange) {
       getAddress({ token, limit: 10 });
       setIsLoadingDelete(addressList?.loading);
@@ -68,29 +67,10 @@ function AddressScreen(props) {
   };
 
   const onSubmit = async () => {
-    // setIsLoading(true);
     updateDefaultAddress({
       addressId: addressSelected?.id,
       customerAccessToken: token,
     });
-    // const { data, errors } = await customerDefaultAddressUpdate({
-    //   variables: {
-
-    //   },
-    // });
-    // if (data) {
-    //   dispatch(setAddress(addressSelected));
-    //   setIsLoading(false);
-    //   navigation.pop();
-    // }
-    // if (errors) {
-    //   setIsLoading(false);
-    //   Toast.show({
-    //     type: 'error',
-    //     text1: 'Oops',
-    //     text2: 'errors',
-    //   });
-    // }
   };
 
   return (
@@ -108,7 +88,7 @@ function AddressScreen(props) {
           <Text style={[FONTS.fontSatoshiBold, { color: COLORS.title, marginBottom: 10, fontSize: 24 }]}>
             Select Address
           </Text>
-          {isLoading && <LoadingComponent type="circle" />}
+          {addressList?.data.length > 0 && <LoadingComponent type="circle" />}
           <Modal
             text={`${showModal?.data?.company || 'this address'} will be deleted from your adresses list`}
             onOpen={showModal.show}
@@ -117,13 +97,12 @@ function AddressScreen(props) {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))
-            }
+              }))}
             submitText={isLoading ? 'Deleting ...' : 'Delete'}
             disabled={isLoading}
             onContinue={handleDelete}
           />
-          {addressList?.data.length > 0 &&
+          {addressList?.data.length > 0 ? (
             addressList?.data.map(item => {
               const { address1, city, province, country, id, company } = item;
 
@@ -185,8 +164,7 @@ function AddressScreen(props) {
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
-                        }))
-                      }
+                        }))}
                       title={<FeatherIcon name="trash-2" size={16} style={styles.icon} />}
                       style={{ borderColor: COLORS.danger, marginLeft: 20 }}
                       outline
@@ -195,7 +173,10 @@ function AddressScreen(props) {
                   </View>
                 </TouchableOpacity>
               );
-            })}
+            })
+          ) : (
+            <NoContent text="No addresses found. Please add an address." icon={FontAwesome} name="address-book" />
+          )}
           <View
             style={{
               marginTop: 12,
@@ -221,6 +202,7 @@ function AddressScreen(props) {
               size="xxl"
               icon={OcticonsIcon}
               iconName="check"
+              disabled={addressList?.data.length === 0}
             />
           </View>
         </View>

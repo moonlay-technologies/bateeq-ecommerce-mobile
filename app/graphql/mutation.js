@@ -82,7 +82,7 @@ export const ADD_ITEM_TO_CART = gql`
   }
 `;
 
-export const CREATE_CART = gql`
+export const CREATE_CART = `
   mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
   @inContext(country: $country, language: $language) {
     cartCreate(input: $input) {

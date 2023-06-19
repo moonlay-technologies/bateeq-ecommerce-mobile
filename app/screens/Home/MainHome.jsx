@@ -1,55 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
-import { useQuery, gql } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useNavigation } from '@react-navigation/native';
 import { connect } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLORS, FONTS } from '../../constants/theme';
-import ProductCardStyle1 from '../../components/ProductCardStyle';
-import FeaturedCard from '../../components/FeaturedCard';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { Footer } from '../../components/Footer';
-import CustomHTML from '../../components/CustomHtml';
-import LoadingScreen from '../../components/LoadingView';
+
 import {
   GET_TOTAL_QUANTITY_CART,
   GET_PAGES,
   GET_BANNER_SLIDER,
   GET_COLLECTIONS_SLIDER,
-  GET_LATEST_COLLECTION,
   GET_MAIN_MENU_NAVIGATION,
-  GET_LIST_CATEGORIES,
 } from '../../graphql/queries';
+
 import { CartGetList, CartPutTotalQty, LoadUsers, CreateCheckout } from '../../store/actions';
-import HeaderComponent from '../../components/HeaderComponent';
-import OurCategory from '../../components/screens/home/our-category';
+import { COLORS, FONTS } from '../../constants/theme';
 import LatestCollections from '../../components/screens/home/latest-collections';
+import OurCategory from '../../components/screens/home/our-category';
 import OurStory from '../../components/screens/home/our-story';
+import HeaderComponent from '../../components/HeaderComponent';
+import LoadingScreen from '../../components/LoadingView';
+import { Footer } from '../../components/Footer';
 
 function MainHome(props) {
-  const { navigation, options, CartPutTotalQty, CartGetList } = props;
+  const { navigation, options, CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
 
-  const [datalistLatestCollectinProduct, setDatalistLatestCollectinProduct] = useState([]);
   const [pageStory, setPageStory] = useState(null);
-  const [dataLatestCollection, setDataLatestCollection] = useState(null);
   const [dataBanner, setDataBanner] = useState([]);
   const [imageSliderCollection, setImageSliderCollection] = useState([]);
-  const [dataCategories, setDataCategories] = useState([]);
 
   const navigations = useNavigation();
 
-  const { data, loading } = useQuery(GET_PAGES, {
+  const { data: dataPages } = useQuery(GET_PAGES, {
     variables: {
       handle: 'our-story',
-    },
-  });
-
-  const { data: latestCollectionData, loading: latestCollectionLoading } = useQuery(GET_LATEST_COLLECTION, {
-    variables: {
-      handle: 'latest-collection',
     },
   });
 
@@ -63,20 +48,7 @@ function MainHome(props) {
       ids: ['gid://shopify/Collection/441585107227', 'gid://shopify/Collection/441586286875'],
     },
   });
-  const { data: dataListCategories } = useQuery(GET_LIST_CATEGORIES, {
-    variables: {
-      first: 5,
-      query: 'categories',
-      after: null,
-    },
-  });
-  const { data: listProductLatestCollection, loading: loadingProductLatestCollection } = useQuery(GET_LIST_CATEGORIES, {
-    variables: {
-      first: 5,
-      query: 'kamala',
-      after: null,
-    },
-  });
+
   const { data: dataSideMenuNavigation } = useQuery(GET_MAIN_MENU_NAVIGATION, {
     variables: {
       first: 5,
@@ -91,18 +63,12 @@ function MainHome(props) {
   });
 
   useEffect(() => {
-    CartGetList({ first: 50, last: 0 });
+    cartGetList({ first: 50, last: 0 });
   }, []);
 
   useEffect(() => {
-    if (data) {
-      setPageStory(data.page);
-    }
-    if (listProductLatestCollection) {
-      setDatalistLatestCollectinProduct(listProductLatestCollection.products.nodes);
-    }
-    if (latestCollectionData) {
-      setDataLatestCollection(latestCollectionData.collection);
+    if (dataPages) {
+      setPageStory(dataPages.page);
     }
 
     if (dataImageBanner) {
@@ -112,20 +78,10 @@ function MainHome(props) {
     if (dataSliderCollectionsById) {
       setImageSliderCollection(dataSliderCollectionsById.nodes);
     }
-    if (dataListCategories) {
-      setDataCategories(dataListCategories.products.nodes);
-    }
-  }, [
-    data,
-    latestCollectionData,
-    dataImageBanner,
-    dataListCategories,
-    dataSliderCollectionsById,
-    listProductLatestCollection,
-  ]);
+  }, [dataPages, dataImageBanner, dataSliderCollectionsById]);
   useEffect(() => {
     if (cartData) {
-      CartPutTotalQty({ totalQuantity: cartData?.cart?.totalQuantity });
+      cartPutTotalQty({ totalQuantity: cartData?.cart?.totalQuantity });
     }
   }, [cartData]);
 
@@ -148,9 +104,9 @@ function MainHome(props) {
           removeClippedSubviews={false}
           paginationStyle={{ bottom: 10 }}
         >
-          {dataBanner.map(data => {
+          {dataBanner.map(d => {
             return (
-              <View key={data.node.id} style={{ zIndex: 1 }}>
+              <View key={d.node.id} style={{ zIndex: 1 }}>
                 <LinearGradient
                   colors={['transparent', 'transparent', 'rgba(0,0,0,.4)']}
                   style={{
@@ -166,7 +122,7 @@ function MainHome(props) {
                     height: '100%',
                     aspectRatio: 7 / 4,
                   }}
-                  source={{ uri: data?.node?.url }}
+                  source={{ uri: d?.node?.url }}
                 />
               </View>
             );
@@ -197,11 +153,11 @@ function MainHome(props) {
             removeClippedSubviews={false}
             paginationStyle={{ bottom: 10 }}
           >
-            {imageSliderCollection.map(data => {
+            {imageSliderCollection.map(i => {
               return (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('Items', { query: data.title })}
-                  key={data.id}
+                  onPress={() => navigation.navigate('Items', { query: i.title })}
+                  key={i.id}
                   style={{ zIndex: 1 }}
                 >
                   <LinearGradient
@@ -220,7 +176,7 @@ function MainHome(props) {
                       aspectRatio: 7 / 4,
                       resizeMode: 'cover',
                     }}
-                    source={{ uri: data?.image?.url }}
+                    source={{ uri: i?.image?.url }}
                   />
                   <View
                     style={{
@@ -253,7 +209,7 @@ function MainHome(props) {
                         marginHorizontal: -30,
                       }}
                     >
-                      {data.title}
+                      {i.title}
                     </Text>
                     <Text
                       style={{
@@ -265,10 +221,10 @@ function MainHome(props) {
                         justifyContent: 'center',
                       }}
                     >
-                      {data?.description}
+                      {i?.description}
                     </Text>
                     <TouchableOpacity
-                      onPress={() => navigations.navigate('Items', { query: data.title })}
+                      onPress={() => navigations.navigate('Items', { query: i.title })}
                       style={{
                         paddingHorizontal: 12,
                         paddingVertical: 6,

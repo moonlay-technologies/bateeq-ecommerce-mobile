@@ -234,6 +234,7 @@ function Profile() {
                 onPress={async () => {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
+                  await AsyncStorage.removeItem('cart');
                   dispatch(setCartId(''));
                   navigation.navigate('SignIn');
                 }}
