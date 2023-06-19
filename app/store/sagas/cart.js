@@ -27,56 +27,79 @@ export function* __cartGenerateId() {
         totalQuantity: 0,
       };
 
-      if (payload?.id) {
-        AsyncStorage.setItem('cart', payload.id);
-        yield put({
-          type: SUCCESS(GENERATE_CART_ID),
-          payload: newPayload,
-        });
-      } else if (payload?.token) {
-        let cartId;
-        getCartId().then(id => {
-          cartId = id;
-        });
-
-        if (!cartId) {
-          const mutation = gql`
-            ${CREATE_CART}
-          `;
-          const { data } = yield call(client.mutate, {
-            mutation,
-            variables: {
-              input: {
-                buyerIdentity: {
-                  customerAccessToken: payload.token,
-                },
-                note: '',
-              },
-            },
-          });
-
-          if (findKey(data, ['cartCreate', 'cart']) && Object.keys(findKey(data, ['cartCreate', 'cart'])).length > 0) {
-            Object.entries(findKey(data, ['cartCreate', 'cart'])).map(([key, value]) => {
-              Reflect.set(newPayload, key, value);
-            });
-
-            AsyncStorage.setItem('cart', newPayload?.id);
-            yield put({
-              type: SUCCESS(GENERATE_CART_ID),
-              payload: newPayload,
-            });
-          } else {
-            yield put({
-              type: FAILURE(GENERATE_CART_ID),
-              payload: 'Some Error',
-            });
-          }
+      AsyncStorage.getItem('cart').then(cartId => {
+        if (cartId) {
+          Reflect.set(payload, 'id', cartId);
         }
+      });
+
+      if (payload?.id) {
+        if (!AsyncStorage.getItem('cart')) {
+          AsyncStorage.setItem('cart', payload?.id);
+        }
+        yield all([
+          put({
+            type: SUCCESS(GENERATE_CART_ID),
+            payload,
+          }),
+        ]);
+      } else if (payload.token) {
+        AsyncStorage.getItem('cart')
+          .then(function* (cartId) {
+            if (!cartId) {
+              const mutation = gql`
+                ${__GQL_CART_INITIAL}
+              `;
+
+              const data = yield call(client.mutate, {
+                mutation,
+                variables: {
+                  input: {
+                    buyerIdentity: {
+                      customerAccessToken: payload.token,
+                    },
+                    note: '',
+                  },
+                },
+              });
+
+              if (
+                findKey(data, ['cartCreate', 'cart']) &&
+                Object.keys(findKey(data, ['cartCreate', 'cart'])).length > 0
+              ) {
+                Object.entries(findKey(data, ['cartCreate', 'cart'])).map(([key, value]) => {
+                  Reflect.set(newPayload, key, value);
+                });
+
+                AsyncStorage.setItem('cart', newPayload?.id);
+                yield put({
+                  type: SUCCESS(GENERATE_CART_ID),
+                  payload: newPayload,
+                });
+              } else {
+                yield put({
+                  type: FAILURE(GENERATE_CART_ID),
+                  payload: 'Some Error',
+                });
+              }
+            } else {
+              Reflect.set(newPayload, 'id', cartId);
+              yield put({
+                type: SUCCESS(GENERATE_CART_ID),
+                payload: newPayload,
+              });
+            }
+          })
+          .catch(err => {
+            console.log('errorrrr', err);
+            return null;
+          });
       }
-    } catch (error) {
+    } catch (err) {
+      console.log('error', err);
       yield put({
         type: FAILURE(GENERATE_CART_ID),
-        payload: 'Some Error',
+        payload: err?.message ?? 'Some Error',
       });
     }
   });
