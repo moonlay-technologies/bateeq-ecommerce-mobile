@@ -46,6 +46,7 @@ const SignIn = props => {
           password: values.customer.password,
         },
       });
+
       const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
 
       if (accessToken) {
@@ -73,7 +74,7 @@ const SignIn = props => {
       } else {
         Toast.show({
           type: 'error',
-          text1: 'Username or Email is not registered',
+          text1: 'Incorrect email or password',
           visibilityTime: 3000,
         });
       }

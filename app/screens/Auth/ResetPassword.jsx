@@ -11,6 +11,7 @@ import { FONTS, COLORS } from '../../constants/theme';
 import { useMutation } from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
 import Header from '../../layout/Header';
+import { useNavigation } from '@react-navigation/native';
 
 const ValidateSchema = Yup.object().shape({
   email: Yup.string()
@@ -20,6 +21,7 @@ const ValidateSchema = Yup.object().shape({
 
 const ResetPassword = () => {
   const [CustomerResetPassword] = useMutation(RECOVER_ACCOUNT_CUSTOMER);
+  const navigation = useNavigation();
 
   const onError = err => {
     gqlError({ error: err, Toast });

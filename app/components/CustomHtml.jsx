@@ -11,7 +11,7 @@ import RenderHTML from 'react-native-render-html';
  * @returns {JSX.Element}
  * @constructor
  */
-const CustomHTML = ({ htmlContent, limit, blog_id,...props }) => {
+const CustomHTML = ({ htmlContent, limit, blog_id, ...props }) => {
   const windowWidth = useWindowDimensions().width;
   if (htmlContent && typeof htmlContent === 'string') {
     const customRenderersProps = {
@@ -36,7 +36,6 @@ const CustomHTML = ({ htmlContent, limit, blog_id,...props }) => {
     };
 
     const ignoredTags = ['iframe'];
-    // const previewText = htmlContent.replace(/<[^>]+>/g, '').slice(0, limit);
     const paragraphEndIndex = htmlContent.indexOf('</p>') + 4;
     const previewText = htmlContent.slice(0, paragraphEndIndex);
     return (
@@ -46,7 +45,7 @@ const CustomHTML = ({ htmlContent, limit, blog_id,...props }) => {
           contentWidth={windowWidth}
           tagsStyles={{
             ...contentStyle,
-            ...props?.htmlStyle
+            ...props?.htmlStyle,
           }}
           renderersProps={customRenderersProps}
           ignoredDomTags={ignoredTags}
