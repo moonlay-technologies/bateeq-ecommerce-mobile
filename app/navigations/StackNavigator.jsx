@@ -103,6 +103,7 @@ function StackNavigator({ isAuthenticated }) {
       <StackComponent.Screen name="ResetPassword" component={ResetPassword} />
       <StackComponent.Screen name="Home" component={MainHome} />
       <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
+      <StackComponent.Screen name="Items" component={Items} />
       <StackComponent.Screen name="OrderDetail" component={OrderDetail} />
       <StackComponent.Screen name="Cart" component={Cart} />
       <StackComponent.Screen name="Onboarding" component={Onboarding} />

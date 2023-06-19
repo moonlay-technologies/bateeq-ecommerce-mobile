@@ -28,7 +28,7 @@ function UserInfo({ ...props }) {
           marginTop: 20,
         }}
       >
-        <Text style={{ ...FONTS.h6 }}>{`${options?.info?.firstName} ${options?.info?.lastName}` || ''}</Text>
+        <Text style={{ ...FONTS.h6 }}>{`${options?.info?.firstName || ''} ${options?.info?.lastName || ''}`}</Text>
         <Text style={{ ...FONTS.font }}>{options?.info?.email || ''}</Text>
         <Text style={{ ...FONTS.font }}>{options?.info?.phone || ''}</Text>
       </View>

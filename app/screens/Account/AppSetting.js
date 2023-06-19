@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {View, TextInput, Text, Alert, TouchableOpacity} from 'react-native';
+import { View, TextInput, Text, Alert, TouchableOpacity } from 'react-native';
 import CustomButton from '../../components/CustomButton';
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
@@ -11,13 +11,13 @@ import * as Yup from 'yup';
 import { UpdateAccount } from '../../store/actions/user';
 import { connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import FeatherIcon from "react-native-vector-icons/Feather";
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
 function AppSetting({ ...props }) {
   const navigation = useNavigation();
+  const [handlePassword, setHandlePassword] = useState(true);
   let { options, UpdateAccount } = props;
 
-  const [visible,setVisible] = useState(false)
   const initialValues = {
     password: '',
   };
@@ -42,8 +42,6 @@ function AppSetting({ ...props }) {
     }
   };
 
-
-
   return (
     <View style={{ padding: 20 }}>
       <Header titleLeft leftIcon="back" title="App Setting" />
@@ -59,41 +57,42 @@ function AppSetting({ ...props }) {
             <Text style={{ marginBottom: 10, fontSize: 16, ...FONTS.fontBold, color: 'black' }}>Update Password</Text>
 
             <View>
-                <View>
-                    <TextInput
-                        secureTextEntry={!visible}
-                        placeholder="New Password"
-                        value={values.password}
-                        onChangeText={handleChange('password')}
-                        onBlur={handleBlur('password')}
-                        style={[
-                            GlobalStyleSheet.formControl,
-                            GlobalStyleSheet.activeInput,
-                            { ...FONTS.font, color: COLORS.title },
-                        ]}
-                    />
-                    {touched.password && errors.password && (
-                        <Text style={GlobalStyleSheet.errorMessage}>{errors.password}</Text>
-                    )}
-                </View>
+              <View>
                 <TouchableOpacity
-                    onPress={() => setVisible(!visible)}
-                    style={{
-                        position: 'absolute',
-                        zIndex: 1,
-                        height: 50,
-                        width: 50,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        right: 0,
-                    }}
+                  onPress={() => setHandlePassword(!handlePassword)}
+                  style={{
+                    position: 'absolute',
+                    zIndex: 1,
+                    height: 50,
+                    width: 50,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    right: 0,
+                  }}
                 >
-                    {visible ? (
-                        <FeatherIcon name="eye-off" color={COLORS.secondary} size={22} />
-                    ) : (
-                        <FeatherIcon name="eye" color={COLORS.secondary} size={22} />
-                    )}
+                  {handlePassword ? (
+                    <FeatherIcon name="eye-off" color={COLORS.secondary} size={22} />
+                  ) : (
+                    <FeatherIcon name="eye" color={COLORS.secondary} size={22} />
+                  )}
                 </TouchableOpacity>
+                <TextInput
+                  secureTextEntry={!handlePassword}
+                  placeholder="New Password"
+                  value={values.password}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  style={[
+                    GlobalStyleSheet.formControl,
+                    GlobalStyleSheet.activeInput,
+                    { ...FONTS.font, color: COLORS.title },
+                  ]}
+                />
+                <Text>You can only change the password once</Text>
+                {touched.password && errors.password && (
+                  <Text style={GlobalStyleSheet.errorMessage}>{errors.password}</Text>
+                )}
+              </View>
             </View>
             <View style={{ marginTop: 10 }}>
               <CustomButton title={'Update Password'} onPress={handleSubmit} />

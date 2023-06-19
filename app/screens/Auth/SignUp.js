@@ -10,13 +10,14 @@ import {
 } from 'react-native';
 import { Formik } from 'formik';
 import Toast from 'react-native-toast-message';
-import CheckBox from '@react-native-community/checkbox';
+// import CheckBox from '@react-native-community/checkbox';
 import HeaderBateeq from '../../components/HeaderBateeq';
 import CustomButton from '../../components/CustomButton';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import { AuthenApi } from '../../service/shopify-login';
 import LoadingScreen from '../../components/LoadingView';
+import * as Yup from 'yup';
 
 function SignUp(props) {
   const [isFocused, setisFocused] = useState(false);
@@ -34,67 +35,80 @@ function SignUp(props) {
   // const [inputPasswordConfirmation, setInputPasswordConfirmation] =
   //   useState(null);
 
-  const validateForm = values => {
-    const errors = {};
+  const validationSchema = Yup.object().shape({
+    customer: Yup.object().shape({
+      first_name: Yup.string().required('Required'),
+      phone: Yup.string().required('Required'),
+      email: Yup.string().email('Invalid email address').required('Required'),
+      password: Yup.string().min(8, 'Password must be at least 8 characters long').required('Required'),
+      password_confirmation: Yup.string()
+        .oneOf([Yup.ref('password')], 'Passwords do not match')
+        .required('Required'),
+      // agreement: Yup.boolean().oneOf([true], 'Please accept the terms and conditions'),
+    }),
+  });
 
-    if (!values.customer.first_name) {
-      errors.customer = { ...errors.customer, first_name: 'Required' };
-    }
+  // const validateForm = values => {
+  //   const errors = {};
 
-    if (!values.customer.phone) {
-      errors.customer = { ...errors.customer, phone: 'Required' };
-    }
+  //   if (!values.customer.first_name) {
+  //     errors.customer = { ...errors.customer, first_name: 'Required' };
+  //   }
 
-    if (!values.customer.email) {
-      errors.customer = { ...errors.customer, email: 'Required' };
-    } else if (!/\S+@\S+\.\S+/.test(values.customer.email)) {
-      errors.customer = { ...errors.customer, email: 'Invalid email address' };
-    }
+  //   if (!values.customer.phone) {
+  //     errors.customer = { ...errors.customer, phone: 'Required' };
+  //   }
 
-    if (!values.customer.password) {
-      errors.customer = { ...errors.customer, password: 'Required' };
-    } else if (values.customer.password.length < 8) {
-      errors.customer = {
-        ...errors.customer,
-        password: 'Password must be at least 8 characters long',
-      };
-    }
+  //   if (!values.customer.email) {
+  //     errors.customer = { ...errors.customer, email: 'Required' };
+  //   } else if (!/\S+@\S+\.\S+/.test(values.customer.email)) {
+  //     errors.customer = { ...errors.customer, email: 'Invalid email address' };
+  //   }
 
-    if (!values.customer.password_confirmation) {
-      errors.customer = { ...errors.customer, password_confirmation: 'Required' };
-    } else if (values?.customer?.password_confirmation === values?.customer?.password) {
-      if (!passwordsMatched) {
-        Toast.show({
-          type: 'success',
-          text1: 'Passwords match',
-          visibilityTime: 2000,
-        });
-        setPasswordsMatched(true);
-      }
-    } else {
-      if (passwordsMatched) {
-        Toast.show({
-          type: 'error',
-          text1: 'Passwords do not match',
-          visibilityTime: 2000,
-        });
-        setPasswordsMatched(false);
-      }
-      errors.customer = {
-        ...errors.customer,
-        password_confirmation: 'Passwords do not match',
-      };
-    }
+  //   if (!values.customer.password) {
+  //     errors.customer = { ...errors.customer, password: 'Required' };
+  //   } else if (values.customer.password.length < 8) {
+  //     errors.customer = {
+  //       ...errors.customer,
+  //       password: 'Password must be at least 8 characters long',
+  //     };
+  //   }
 
-    if (!values.customer.agreement) {
-      errors.customer = {
-        ...errors.customer,
-        agreement: 'Please accept the terms and conditions',
-      };
-    }
+  //   if (!values.customer.password_confirmation) {
+  //     errors.customer = { ...errors.customer, password_confirmation: 'Required' };
+  //   } else if (values?.customer?.password_confirmation === values?.customer?.password) {
+  //     if (!passwordsMatched) {
+  //       Toast.show({
+  //         type: 'success',
+  //         text1: 'Passwords match',
+  //         visibilityTime: 2000,
+  //       });
+  //       setPasswordsMatched(true);
+  //     }
+  //   } else {
+  //     if (passwordsMatched) {
+  //       Toast.show({
+  //         type: 'error',
+  //         text1: 'Passwords do not match',
+  //         visibilityTime: 2000,
+  //       });
+  //       setPasswordsMatched(false);
+  //     }
+  //     errors.customer = {
+  //       ...errors.customer,
+  //       password_confirmation: 'Passwords do not match',
+  //     };
+  //   }
 
-    return errors;
-  };
+  //   if (!values.customer.agreement) {
+  //     errors.customer = {
+  //       ...errors.customer,
+  //       agreement: 'Please accept the terms and conditions',
+  //     };
+  //   }
+
+  //   return errors;
+  // };
 
   const showToast = () => {
     Toast.show({
@@ -106,9 +120,11 @@ function SignUp(props) {
   };
 
   const handleOnSubmit = values => {
+    console.log('values', values);
     setIsLoading(true);
     AuthenApi.store(values)
       .then(res => {
+        console.log('res', res);
         if (res.status === 201) {
           setIsLoading(false);
           showToast();
@@ -182,8 +198,7 @@ function SignUp(props) {
             Register
           </Text>
           <Text style={{ ...FONTS.fontSatoshiRegular }}>
-            Register your bateeq account to enjoy benefits from our membership.
-{' '}
+            Register your bateeq account to enjoy benefits from our membership.{' '}
           </Text>
         </View>
 
@@ -203,7 +218,8 @@ function SignUp(props) {
           onSubmit={values => {
             handleOnSubmit(values);
           }}
-          validate={validateForm}
+          // validate={validateForm}
+          validationSchema={validationSchema}
         >
           {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
             <>
@@ -219,7 +235,11 @@ function SignUp(props) {
                   Your Name*
                 </Text>
                 <TextInput
-                  style={[GlobalStyleSheet.formControl, isFocused && GlobalStyleSheet.activeInput]}
+                  style={[
+                    GlobalStyleSheet.formControl,
+                    isFocused && GlobalStyleSheet.activeInput,
+                    { ...FONTS.font, color: COLORS.title },
+                  ]}
                   value={values.customer.first_name}
                   onChangeText={handleChange('customer.first_name')}
                   onFocus={() => setisFocused(true)}
@@ -246,7 +266,11 @@ function SignUp(props) {
                   E-mail Address*
                 </Text>
                 <TextInput
-                  style={[GlobalStyleSheet.formControl, isFocused && GlobalStyleSheet.activeInput]}
+                  style={[
+                    GlobalStyleSheet.formControl,
+                    isFocused && GlobalStyleSheet.activeInput,
+                    { ...FONTS.font, color: COLORS.title },
+                  ]}
                   value={values.customer.email}
                   onChangeText={handleChange('customer.email')}
                   onFocus={() => setisFocused(true)}
@@ -273,7 +297,11 @@ function SignUp(props) {
                   Phone Number*
                 </Text>
                 <TextInput
-                  style={[GlobalStyleSheet.formControl, isFocused && GlobalStyleSheet.activeInput]}
+                  style={[
+                    GlobalStyleSheet.formControl,
+                    isFocused && GlobalStyleSheet.activeInput,
+                    { ...FONTS.font, color: COLORS.title },
+                  ]}
                   value={values.customer.phone}
                   onChangeText={handleChange('customer.phone')}
                   onFocus={() => setisFocused(true)}
@@ -319,7 +347,11 @@ function SignUp(props) {
                               }
                           </TouchableOpacity> */}
                   <TextInput
-                    style={[GlobalStyleSheet.formControl, isFocused2 && GlobalStyleSheet.activeInput]}
+                    style={[
+                      GlobalStyleSheet.formControl,
+                      isFocused2 && GlobalStyleSheet.activeInput,
+                      { ...FONTS.font, color: COLORS.title },
+                    ]}
                     value={values.customer.password}
                     onChangeText={handleChange('customer.password')}
                     onFocus={() => setisFocused2(true)}
@@ -367,7 +399,11 @@ function SignUp(props) {
                               }
                           </TouchableOpacity> */}
                   <TextInput
-                    style={[GlobalStyleSheet.formControl, isFocused3 && GlobalStyleSheet.activeInput]}
+                    style={[
+                      GlobalStyleSheet.formControl,
+                      isFocused3 && GlobalStyleSheet.activeInput,
+                      { ...FONTS.font, color: COLORS.title },
+                    ]}
                     value={values.customer.password_confirmation}
                     onChangeText={handleChange('customer.password_confirmation')}
                     onFocus={() => setisFocused3(true)}
@@ -387,8 +423,8 @@ function SignUp(props) {
                 </View>
               </View>
               <View>
-                <View style={{ flexDirection: 'row' }}>
-                  <CheckBox
+                {/* <View style={{ flexDirection: 'row' }}> */}
+                {/* <CheckBox
                     value={values.customer.agreement}
                     onValueChange={value => {
                       setFieldValue('customer.agreement', value);
@@ -402,8 +438,7 @@ function SignUp(props) {
                       marginLeft: 10,
                     }}
                   >
-                    I agree with
-{' '}
+                    I agree with{' '}
                     <Text
                       style={{
                         ...FONTS.fontSatoshiBold,
@@ -413,8 +448,7 @@ function SignUp(props) {
                       }}
                     >
                       Terms and Conditions
-                    </Text>
-{' '}
+                    </Text>{' '}
                     by bateeq.
                   </Text>
                 </View>
@@ -422,7 +456,7 @@ function SignUp(props) {
                   <View>
                     <Text style={GlobalStyleSheet.errorMessage}>{errors?.customer?.agreement}</Text>
                   </View>
-                )}
+                )} */}
                 <CustomButton onPress={handleSubmit} title="Register" arrowIcon logout />
               </View>
             </>

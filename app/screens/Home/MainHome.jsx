@@ -25,9 +25,9 @@ import {
 } from '../../graphql/queries';
 import { CartGetList, CartPutTotalQty, LoadUsers, CreateCheckout } from '../../store/actions';
 import HeaderComponent from '../../components/HeaderComponent';
-import OurCategory from "../../components/screens/home/our-category";
-import LatestCollections from "../../components/screens/home/latest-collections";
-import OurStory from "../../components/screens/home/our-story";
+import OurCategory from '../../components/screens/home/our-category';
+import LatestCollections from '../../components/screens/home/latest-collections';
+import OurStory from '../../components/screens/home/our-story';
 
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty, CartGetList } = props;
@@ -174,18 +174,18 @@ function MainHome(props) {
         </Swiper>
 
         <OurStory
-            style={{
-              marginBottom:10,
-              paddingVertical: 20,
-            }}
-            onRedirect={({data})=> {
-              navigation.navigate('PagesInShopify', { dataPages: data })
-            }}
+          style={{
+            marginBottom: 10,
+            paddingVertical: 20,
+          }}
+          onRedirect={({ data }) => {
+            navigation.navigate('PagesInShopify', { dataPages: data });
+          }}
         />
 
-        <LatestCollections/>
+        <LatestCollections />
 
-        <OurCategory/>
+        <OurCategory />
 
         <View style={{ marginTop: 20 }}>
           <Swiper

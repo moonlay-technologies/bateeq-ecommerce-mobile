@@ -216,7 +216,7 @@ export const CREATE_CHECKOUT_MUTATION = `
 `;
 
 export const RECOVER_ACCOUNT_CUSTOMER = gql`
-  mutation RecoverAccoun($email: String!) {
+  mutation RecoverAccount($email: String!) {
     customerRecover(email: $email) {
       customerUserErrors {
         code

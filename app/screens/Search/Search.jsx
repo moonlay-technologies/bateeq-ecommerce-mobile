@@ -17,8 +17,8 @@ import ProductItem from '../../components/ProductItem';
 import { COLORS, FONTS } from '../../constants/theme';
 import { ProductApi } from '../../service/shopify-api';
 import LoadingScreen from '../../components/LoadingView';
-import {connect} from "react-redux";
-import {CollectionSearch} from "../../store/actions/product";
+import { connect } from 'react-redux';
+import { CollectionSearch } from '../../store/actions/product';
 import HeaderComponent from '../../components/HeaderComponent';
 
 const SEARCH_PRODUCTS_QUERY = gql`
@@ -60,14 +60,8 @@ const SEARCH_PRODUCTS_QUERY = gql`
   }
 `;
 
-
-const Search = (props) => {
-    let {
-        options,
-        CollectionSearch,
-        navigation,
-        search
-    } = props
+const Search = props => {
+  let { options, CollectionSearch, navigation, search } = props;
   const [valSearch, setValSearch] = useState('');
   const [itemView, setItemView] = useState('grid');
   const [searchResults, setSearchResults] = useState([]);
@@ -80,10 +74,10 @@ const Search = (props) => {
 
   const handleSearchButton = () => {
     const query = valSearch.toLowerCase();
-      CollectionSearch({
-          first:20,
-          query
-      })
+    CollectionSearch({
+      first: 20,
+      query,
+    });
   };
 
   useEffect(() => {
@@ -93,46 +87,40 @@ const Search = (props) => {
     }
   }, [data]);
 
-  const renderItem = ({item}) => {
-      return (
-          <View style={{width: '50%', paddingHorizontal: 5}}>
-              <ProductItem
-                  onPress={() =>
-                      // navigation.navigate('ProductDetail', {
-                      //     item: {
-                      //         title: itemName,
-                      //         image: imageSrc,
-                      //         oldPrice: oldPrice,
-                      //         price: price,
-                      //         images: images
-                      //     },
-                      //     category: 'Appliances',
-                      // })
-                      navigation.navigate('ProductDetail', {
-                          item: {
-                              id:item.id,
-                              title: item.title,
-                              images: item?.images?.nodes,
-                              oldPrice: item?.variants?.nodes[0]?.compareAtPrice?.amount ?? 0,
-                              price: item?.variants?.nodes[0]?.price?.amount,
-                              desc: item.desc,
-                              variant: item?.options[0]?.values,
-                              colors: item?.options[1]?.values,
-                          },
-                          // category: type,
-                      })
-                  }
-                  imgLength
-                  id={item.id}
-                  imageSrc={item?.images?.nodes[0]?.url}
-                  title={item.title}
-                  desc={item.desc}
-                  status={item.status ? 'SALE' : null}
-                  price={item?.variants?.nodes[0]?.price?.amount}
-                  oldPrice={item?.variants?.nodes[0]?.comparpriceeAtPrice?.amount}
-              />
-          </View>
-      )
+  const renderItem = ({ item }) => {
+    return (
+      <View style={{ width: '50%', paddingHorizontal: 5 }}>
+        <ProductItem
+          onPress={() =>
+            // navigation.navigate('ProductDetail', {
+            //     item: {
+            //         title: itemName,
+            //         image: imageSrc,
+            //         oldPrice: oldPrice,
+            //         price: price,
+            //         images: images
+            //     },
+            //     category: 'Appliances',
+            // })
+            navigation.navigate(
+              'ProductDetail',
+              {
+                id: item.id,
+              }
+              // category: type,
+            )
+          }
+          imgLength
+          id={item.id}
+          imageSrc={item?.images?.nodes[0]?.url}
+          title={item.title}
+          desc={item.desc}
+          status={item.status ? 'SALE' : null}
+          price={item?.variants?.nodes[0]?.price?.amount}
+          oldPrice={item?.variants?.nodes[0]?.comparpriceeAtPrice?.amount}
+        />
+      </View>
+    );
   };
 
   const handleValChange = val => {
@@ -223,15 +211,15 @@ const Search = (props) => {
           style={{
             ...FONTS.font,
             flex: 1,
-            color: COLORS.title,
+            color: 'black',
             borderWidth: 1,
             paddingHorizontal: 12,
             borderRadius: 5,
             marginBottom: 24,
           }}
           blurOnSubmit={true}
-          onBlur={(e)=> {
-              console.log(e)
+          onBlur={e => {
+            console.log(e);
           }}
           placeholder="e.g T-shirt / Dress"
           placeholderTextColor={COLORS.text}
@@ -297,16 +285,16 @@ const Search = (props) => {
       )}
     </SafeAreaView>
   );
-}
+};
 
-export default
-connect(
-    ({Cart,Product})=> {
-    let { options } = Cart
-    let { collections } = Product
+export default connect(
+  ({ Cart, Product }) => {
+    let { options } = Cart;
+    let { collections } = Product;
     return {
-        options,
-        search: collections?.search ?? {}
-    }
-},
-    {CollectionSearch})(Search);
+      options,
+      search: collections?.search ?? {},
+    };
+  },
+  { CollectionSearch }
+)(Search);
