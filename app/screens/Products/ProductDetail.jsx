@@ -151,10 +151,12 @@ function ProductDetail(props) {
   useEffect(() => {
     if (productData?.variants?.length > 0) {
       const varId = findVariantIdByOptions(productData?.variants, variantOptions);
+  
       if (varId) {
         setVariantId(varId);
+      } else {
+        setVariantId('');
       }
-      setVariantId('');
     }
   }, [variantOptions]);
 
@@ -192,10 +194,9 @@ function ProductDetail(props) {
           });
 
           if (addLine?.cartLinesAdd?.cart.id) {
-            setNotifState(prev => ({
-              ...prev,
-              show: true,
-            }));
+            setNotifState({
+              show: true
+            });
             setTimeout(() => {
               setNotifState({ show: false, text: '', navText: '', to: '' });
             }, 5000);
