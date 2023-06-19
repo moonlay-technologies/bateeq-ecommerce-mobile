@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import * as yup from 'yup';
 import { useMutation } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
@@ -59,6 +59,7 @@ function ProductDetail(props) {
   });
 
   const { id } = route.params;
+  const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);
   const [qty, setQty] = useState(1);
@@ -68,6 +69,7 @@ function ProductDetail(props) {
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [onWishList, setOnWishList] = useState(false);
+  const [isChangeId, setIsChangeId] = useState(false)
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [notifState, setNotifState] = useState({
     show: false,
@@ -90,7 +92,7 @@ function ProductDetail(props) {
   useEffect(() => {
     getProductId({ id });
     getRecommendation({ id });
-  }, []);
+  }, [isChangeId]);
 
   useEffect(() => {
     const colorOptions = [];
@@ -278,7 +280,7 @@ function ProductDetail(props) {
       <ScrollView ref={scrollViewRef}>
         <HeaderComponent />
         <View style={{ paddingHorizontal: 20 }}>
-          <HeaderComponent withoutCartAndLogo backAction icon="back" title="back" />
+          <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
         </View>
         <View style={{ paddingHorizontal: 20 }}>
           {loading ? (
@@ -414,7 +416,7 @@ function ProductDetail(props) {
                 marginBottom: 20,
               }}
             >
-              You May Like
+              You May Also Like
             </Text>
             <View style={{ marginBottom: 10 }}>
               <View
@@ -431,17 +433,27 @@ function ProductDetail(props) {
                   randomProductsRecommendation.length > 0 &&
                   randomProductsRecommendation.map(
                     ({ image, title, price, compareAtPrice, id: productRecommendationId }) => {
+                      console.log('randomProductsRecommendations', [id, productRecommendationId])
                       return (
                         <View
                           key={productRecommendationId}
                           style={{
-                            width: 150,
-                            marginRight: 10,
+                            width: screen.width / 2 - 25,
                             marginBottom: 20,
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                            justifyContent: 'space-between',
                           }}
                         >
                           <ProductCardStyle1
-                            onPress={() => navigation.navigate('ProductDetail', { productRecommendationId })}
+                               onPress={() => {
+                                setIsChangeId(prev => !prev)
+                                navigation.navigate('ProductDetail', {
+                                  id: productRecommendationId,
+                                })
+                                scrollViewRef.current.scrollTo({ y: 0, animated: false });
+                               }
+                              }
                             imageSrc={image}
                             title={title}
                             price={price}

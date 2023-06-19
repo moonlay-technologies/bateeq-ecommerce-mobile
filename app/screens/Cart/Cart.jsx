@@ -98,7 +98,8 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))}
+          }))
+        }
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -122,12 +123,12 @@ function CartScreen({ navigation, route, ...props }) {
 
       <View style={{ flex: 1, padding: 10 }}>
         <ScrollView>
-          {lists?.data?.length === 0 ? (
+          {lists?.loading ? (
+            <LoadingScreen Loading2 />
+          ) : lists?.data?.length === 0 ? (
             <View>
               <NoContent to={() => navigation.navigate('Home')} />
             </View>
-          ) : lists?.loading ? (
-            <LoadingScreen Loading2 />
           ) : (
             lists?.data?.length > 0 &&
             lists?.data?.map(data => {
@@ -189,7 +190,8 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))}
+                          }))
+                        }
                       />
                     }
                   />
