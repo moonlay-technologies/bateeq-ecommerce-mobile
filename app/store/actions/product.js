@@ -3,7 +3,9 @@ import {
   GET_PROD_COLL_LATEST,
   GET_PROD_COLL_LATEST_SHOW,
   GET_PROD_COLL_OUR_CATEGORY,
-  GET_PROD_COLL_SEARCH
+  GET_PROD_COLL_SEARCH,
+  GET_PROD_BY_ID,
+  GET_PROD_RECOMMENDATION_BY_PROD_ID,
 } from '../constants/product';
 
 /**
@@ -21,7 +23,6 @@ export const CollectionSearch = payload => {
   };
 };
 
-
 /**
  *
  * @param {object} payload
@@ -31,11 +32,11 @@ export const CollectionSearch = payload => {
  * @returns {{payload, type: string}}
  * @constructor
  */
-export function CollectionsOurCategory(payload){
+export function CollectionsOurCategory(payload) {
   return {
     type: REQUEST(GET_PROD_COLL_OUR_CATEGORY),
-    payload
-  }
+    payload,
+  };
 }
 
 /**
@@ -47,11 +48,11 @@ export function CollectionsOurCategory(payload){
  * @returns {{payload, type: string}}
  * @constructor
  */
-export function CollectionProductLatest(payload){
-  return{
+export function CollectionProductLatest(payload) {
+  return {
     type: REQUEST(GET_PROD_COLL_LATEST),
-    payload
-  }
+    payload,
+  };
 }
 
 /**
@@ -61,9 +62,34 @@ export function CollectionProductLatest(payload){
  * @returns {{payload, type: string}}
  * @constructor
  */
-export function CollectionProductLatestShow(payload){
-  return{
+export function CollectionProductLatestShow(payload) {
+  return {
     type: REQUEST(GET_PROD_COLL_LATEST_SHOW),
-    payload
-  }
+    payload,
+  };
+}
+
+/**
+ * @param {object} payload
+ * @returns {{ payload, type: string }}
+ */
+
+export function getProductById(payload) {
+  return {
+    type: REQUEST(GET_PROD_BY_ID),
+    payload,
+  };
+}
+
+/**
+ * @param {object} payload
+ * @returns {{payload, type: string}}
+ */
+
+export function getProductRecommendation(payload) {
+  console.log('getProductRecommendation', payload);
+  return {
+    type: REQUEST(GET_PROD_RECOMMENDATION_BY_PROD_ID),
+    payload,
+  };
 }

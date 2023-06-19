@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as yup from 'yup';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { Snackbar } from 'react-native-paper';
-import { connect, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,14 +19,25 @@ import CustomHTML from '../../components/CustomHtml';
 import { COLORS, FONTS } from '../../constants/theme';
 import { formatWithCommas } from '../../utils/helper';
 import { findVariantIdByOptions } from './helper';
-import { ADD_TO_CART } from '../../graphql/mutation';
-import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
-import { setCartId } from '../../store/reducer';
-import { CartGetList } from '../../store/actions';
+import { ADD_ITEM_TO_CART } from '../../graphql/mutation';
+
+import { CartGetList, getProductById, getProductRecommendation } from '../../store/actions';
 import Notification from '../../components/NotificationComponent';
 
 function ProductDetail(props) {
-  const { navigation, route, cartId, CartGetList } = props;
+  const {
+    navigation,
+    route,
+    cartId,
+    CartGetList: cartGetList,
+    getProductById: getProductId,
+    getProductRecommendation: getRecommendation,
+    productData,
+    loading,
+    recommendationProducts,
+    recommendationLoading,
+  } = props;
+
   const [options, setOptions] = useState({
     color: [],
     size: [],
@@ -50,108 +61,37 @@ function ProductDetail(props) {
 
   const { id } = route.params;
   const scrollViewRef = useRef(null);
-  const [cartLinesAdd] = useMutation(ADD_TO_CART);
+  const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);
   const [isSnackbar, setIsSnackbar] = useState(false);
-  const [productRecommendations, setProductRecommendations] = useState([]);
   const [snackText] = useState('Loading...');
   const [errors, setErrors] = useState({});
   const [qty, setQty] = useState(1);
-  const cart = useSelector(state => state.cart);
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [notifState, setNotifState] = useState(false);
-  const [product, setProduct] = useState({
-    id: '',
-    descriptionHtml: '',
-    title: '',
-    images: [],
-    variants: [],
-  });
+  const [onWishList, setOnWishList] = useState(false);
 
   const [amount, setAmount] = useState({
     currencyCode: '',
     original_price: '',
     discounted_price: '',
   });
-  const [variants, setVariants] = useState({
+
+  const [variantOptions, setvariantOptions] = useState({
     size: '',
     color: '',
   });
 
-  const {
-    data: productData,
-    error: productDataError,
-    loading: productDataLoad,
-  } = useQuery(GET_PRODUCT_BY_ID, {
-    fetchPolicy: 'no-cache',
-    variables: {
-      id,
-    },
-  });
-  const {
-    data: optionData,
-    error: getOptionsError,
-    loading: optionDataLoad,
-  } = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
-    fetchPolicy: 'no-cache',
-    variables: {
-      id,
-    },
-  });
-  const {
-    data: productReccomendationData,
-    error: productRecommendationError,
-    loading: productRecommendationLoad,
-  } = useQuery(GET_PRODUCT_RECOMMENDATION, {
-    variables: {
-      productId: id,
-    },
-  });
-
-  const isLoading = [productDataLoad, optionDataLoad, productRecommendationLoad].some(i => i === true);
-  const isError = [productRecommendationError, productDataError, getOptionsError].some(i => i);
-  console.log('[productRecommendationError, productDataError, getOptionsError]', [
-    productRecommendationError,
-    productDataError,
-    getOptionsError,
-  ]);
   useEffect(() => {
-    if (!isLoading) {
-      const colorOptions = [];
-      const sizeOptions = [];
+    getProductId({ id });
+    getRecommendation({ id });
+  }, []);
 
-      const {
-        id: productID,
-        descriptionHtml,
-        title,
-        totalInventory,
-        images: { edges },
-        variants: { edges: variantEdge },
-      } = productData.product;
-
-      const [
-        {
-          node: { compareAtPrice, price },
-        },
-      ] = variantEdge;
-
-      setAmount({
-        currencyCode: price?.currencyCode,
-        original_price: price?.amount,
-        discounted_price: compareAtPrice?.amount,
-      });
-      setProduct({ id: productID, descriptionHtml, title, images: edges, variants: variantEdge, totalInventory });
-      const productRecommendation = productReccomendationData?.productRecommendations.map(d => ({
-        id: d.id,
-        title: d.title,
-        image: d.images.edges.find(i => i)?.node.url,
-        compareAtPrice: d.variants.edges.find(i => i)?.node.compareAtPrice,
-        price: d.variants.edges.find(i => i)?.node.price.amount,
-      }));
-
-      setProductRecommendations(productRecommendation || []);
-
-      const optionsVariant = optionData?.product?.options || [];
+  useEffect(() => {
+    const colorOptions = [];
+    const sizeOptions = [];
+    if (productData.options && productData.variants) {
+      const optionsVariant = productData?.options || [];
 
       optionsVariant.forEach(option => {
         if (option.name.toLowerCase() === 'color') {
@@ -171,122 +111,129 @@ function ProductDetail(props) {
           );
         }
       });
+
+      const variantData = productData.variants[0];
+      setvariantOptions({
+        size: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'size')?.value,
+        color: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'color')?.value,
+      });
+      setAmount({
+        currencyCode: variantData?.node?.price?.currencyCode,
+        original_price: variantData?.node?.price?.amount,
+        discounted_price: variantData?.node?.compareAtPrice?.amount,
+      });
       setOptions({
         color: colorOptions || [],
         size: sizeOptions || [],
       });
-      if (cart) {
-        setCartId(cart?.id);
-      }
-    } else if (isError) {
-      Toast.show({
-        type: 'error',
-        text1: 'oops!',
-        text2:
-          productRecommendationError?.message ||
-          productDataError?.message ||
-          getOptionsError?.message ||
-          'something went wrong',
-      });
     }
-  }, [isLoading, isError, cart, productData, optionData, productReccomendationData]);
+  }, [productData]);
 
   const onSelectValue = (type, value) => {
     if (type === 'size') {
-      setVariants(prev => ({
+      setvariantOptions(prev => ({
         ...prev,
         size: value,
       }));
     } else if (type === 'color') {
-      setVariants(prev => ({
+      setvariantOptions(prev => ({
         ...prev,
         color: value,
       }));
     }
   };
 
-  const variantId = product?.variants.length > 0 ? findVariantIdByOptions(product?.variants, variants) : '';
-
+  const variantId =
+    productData?.variants.length > 0 ? findVariantIdByOptions(productData?.variants, variantOptions) : '';
+  console.log('variantid', variantId);
   const onSubmit = () => {
     setOnSubmitLoading(true);
-    const body = {
-      quantity: qty,
-      size: variants.size,
-      color: variants.color,
-      variant_id: variantId,
-      cartId: cartId || '',
-    };
-    schema
-      .validate(body, { abortEarly: false })
-      .then(async result => {
-        const payload = {
-          cartId: result.cartId,
-          lines: [
-            {
-              merchandiseId: result.variant_id,
-              quantity: result.quantity,
-              attributes: [
-                ...(result?.color ? [{ key: 'Color', value: result.color }] : []),
-                {
-                  key: 'Size',
-                  value: result?.size,
-                },
-              ],
-            },
-          ],
-        };
-        console.log('payload', payload);
-        const { data: addLine } = await cartLinesAdd({
-          variables: payload,
-        });
-        console.log('addLine', addLine);
+    if (variantId) {
+      const body = {
+        quantity: qty,
+        size: variantOptions.size,
+        color: variantOptions.color,
+        variant_id: variantId,
+        cartId: cartId || '',
+      };
+      schema
+        .validate(body, { abortEarly: false })
+        .then(async result => {
+          const payload = {
+            cartId: result.cartId,
+            lines: [
+              {
+                merchandiseId: result.variant_id,
+                quantity: result.quantity,
+                attributes: [
+                  ...(result?.color ? [{ key: 'Color', value: result.color }] : []),
+                  {
+                    key: 'Size',
+                    value: result?.size,
+                  },
+                ],
+              },
+            ],
+          };
+          console.log('payload', payload);
+          const { data: addLine } = await cartLinesAdd({
+            variables: payload,
+          });
+          console.log('addLine', addLine);
 
-        if (addLine?.cartLinesAdd?.cart.id) {
-          setNotifState(true);
-          setTimeout(() => {
-            setNotifState(false);
-          }, 5000);
-          setErrors({});
-          setOptions({
-            color: [],
-            size: [],
-          });
-          setVariants({
-            size: '',
-            color: '',
-          });
-          CartGetList({
-            first: 10,
-            last: 0,
-            id: cartId,
-          });
-        } else {
-          console.log('errors', errors);
-          Toast.show({
-            type: 'error',
-            text1: 'oops! something went wrong',
-            text2: errors?.originalError?.message,
-          });
-        }
-        setOnSubmitLoading(false);
-      })
-      .catch(error => {
-        if (error.name === 'ValidationError') {
-          const errorsVal = error.inner.reduce((acc, err) => {
-            const { path, message } = err;
-            acc[path] = message;
-            return acc;
-          }, {});
-          setErrors(errorsVal);
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: 'oops!',
-            text2: error?.originalError?.message || 'something went wrong',
-          });
-        }
-        setOnSubmitLoading(false);
+          if (addLine?.cartLinesAdd?.cart.id) {
+            setNotifState(true);
+            setTimeout(() => {
+              setNotifState(false);
+            }, 5000);
+            setErrors({});
+            setOptions({
+              color: [],
+              size: [],
+            });
+            setvariantOptions({
+              size: '',
+              color: '',
+            });
+            cartGetList({
+              first: 10,
+              last: 0,
+              id: cartId,
+            });
+          } else {
+            console.log('errors', errors);
+            Toast.show({
+              type: 'error',
+              text1: 'oops! something went wrong',
+              text2: errors?.originalError?.message,
+            });
+          }
+          setOnSubmitLoading(false);
+        })
+        .catch(error => {
+          if (error.name === 'ValidationError') {
+            const errorsVal = error.inner.reduce((acc, err) => {
+              const { path, message } = err;
+              acc[path] = message;
+              return acc;
+            }, {});
+            setErrors(errorsVal);
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: 'oops!',
+              text2: error?.originalError?.message || 'something went wrong',
+            });
+          }
+          setOnSubmitLoading(false);
+        });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'oops!',
+        text2: 'invalid variant ID',
       });
+    }
   };
 
   const handleQuantity = type => {
@@ -296,22 +243,22 @@ function ProductDetail(props) {
       }
     }
     if (type === 'in') {
-      if (product?.totalInventory <= 0) {
+      if (productData?.totalInventory <= 0) {
         setQty(qty);
       }
-      if (qty < product?.totalInventory) {
+      if (qty < productData?.totalInventory) {
         setQty(qty + 1);
       }
     }
   };
 
   useEffect(() => {
-    if (productRecommendations.length > 0) {
-      const shuffledProductsRecommendations = productRecommendations.sort(() => 0.5 - Math.random());
+    if (recommendationProducts.length > 0) {
+      const shuffledProductsRecommendations = recommendationProducts.sort(() => 0.5 - Math.random());
       const selectedProducts = shuffledProductsRecommendations.slice(0, 2);
       setRandomProductsRecommendation(selectedProducts);
     }
-  }, [productRecommendations]);
+  }, [recommendationProducts]);
   // <View>
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
@@ -321,12 +268,12 @@ function ProductDetail(props) {
           <HeaderComponent withoutCartAndLogo backAction icon="back" title="back" />
         </View>
         <View style={{ paddingHorizontal: 20 }}>
-          {isLoading ? (
+          {loading ? (
             <LoadingScreen type="circle" />
           ) : (
             <Swiper style={{ height: 500 }} dotStyle={styles.dotStyle} activeDotStyle={styles.activeDotStyle}>
-              {product.images.length > 0 &&
-                product?.images?.map(dt => {
+              {productData?.images?.length > 0 &&
+                productData?.images?.map(dt => {
                   return (
                     <View key={dt.id}>
                       <Image
@@ -349,7 +296,7 @@ function ProductDetail(props) {
         </View>
         <View style={{ paddingHorizontal: 20 }}>
           <View style={styles.section}>
-            <Text style={styles.title}>{product?.title || ''}</Text>
+            <Text style={styles.title}>{productData?.title || ''}</Text>
             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
               {amount.original_price && (
                 <Text style={styles.lineAmount}>
@@ -362,7 +309,7 @@ function ProductDetail(props) {
                 </Text>
               )}
             </View>
-            {product && <CustomHTML htmlContent={product.descriptionHtml} />}
+            {productData && <CustomHTML htmlContent={productData.descriptionHtml} />}
 
             <View style={{ width: '100%', marginTop: 10 }}>
               <SelectInput
@@ -388,16 +335,16 @@ function ProductDetail(props) {
 
               <View>
                 <View style={{ marginTop: -30, marginBottom: 10 }}>
-                  {product?.totalInventory <= 0 ? (
+                  {productData?.totalInventory <= 0 ? (
                     <View style={styles.container}>
                       <Text style={{ ...styles.text, color: COLORS.danger }}>
                         * Temporarily out of stock: Please check back later
                       </Text>
                     </View>
-                  ) : product?.totalInventory <= 5 && product?.totalInventory > 0 ? (
+                  ) : productData?.totalInventory <= 5 && productData?.totalInventory > 0 ? (
                     <View style={styles.container}>
                       <Text style={{ ...styles.text, color: COLORS.orangeWarning }}>
-                        {`Grab yours now! Limited quantity: ${product?.totalInventory} left.`}
+                        {`Grab yours now! Limited quantity: ${productData?.totalInventory} left.`}
                       </Text>
                     </View>
                   ) : null}
@@ -465,7 +412,10 @@ function ProductDetail(props) {
                   justifyContent: 'space-between',
                 }}
               >
-                {randomProductsRecommendation.length > 0 &&
+                {recommendationLoading ? (
+                  <LoadingScreen type="circle" />
+                ) : (
+                  randomProductsRecommendation.length > 0 &&
                   randomProductsRecommendation.map(
                     ({ image, title, price, compareAtPrice, id: productRecommendationId }) => {
                       return (
@@ -487,7 +437,8 @@ function ProductDetail(props) {
                         </View>
                       );
                     }
-                  )}
+                  )
+                )}
               </View>
             </View>
           </View>
@@ -526,7 +477,7 @@ function ProductDetail(props) {
             iconStyles={{ marginLeft: 18 }}
             icon={FeatherIcon}
             iconName="shopping-bag"
-            disabled={onSubmitLoading || product?.totalInventory <= 0}
+            disabled={onSubmitLoading || productData?.totalInventory <= 0}
           />
         </View>
       </View>
@@ -537,7 +488,7 @@ function ProductDetail(props) {
         action={{
           label: 'Wishlist',
           onPress: () => {
-            navigation.navigate('Wishlist');
+            setOnWishList(prev => !prev);
           },
         }}
       >
@@ -547,11 +498,18 @@ function ProductDetail(props) {
   );
 }
 export default connect(
-  ({ Cart }) => {
+  ({ Cart, Product }) => {
+    console.log('product', Product);
     const { options } = Cart;
-    return { cartId: options?.cartId };
+    const {
+      collections: {
+        detail: { data: productData, loading },
+        recommendations: { data: recommendationProducts, loading: recommendationLoading },
+      },
+    } = Product;
+    return { cartId: options?.cartId, productData, loading, recommendationProducts, recommendationLoading };
   },
-  { CartGetList }
+  { CartGetList, getProductById, getProductRecommendation }
 )(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({

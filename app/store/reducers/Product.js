@@ -1,9 +1,11 @@
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
 import {
+  GET_PROD_BY_ID,
   GET_PROD_COLL_LATEST,
   GET_PROD_COLL_LATEST_SHOW,
   GET_PROD_COLL_OUR_CATEGORY,
-  GET_PROD_COLL_SEARCH
+  GET_PROD_COLL_SEARCH,
+  GET_PROD_RECOMMENDATION_BY_PROD_ID,
 } from '../constants/product';
 
 const initialState = {
@@ -29,9 +31,9 @@ const initialState = {
     },
     latest: {
       show: {
-        loading:true,
+        loading: true,
         variables: {
-          handle:'latest-collection'
+          handle: 'latest-collection',
         },
         data: null,
       },
@@ -45,12 +47,21 @@ const initialState = {
       pagination: {},
       data: [],
     },
+    detail: {
+      loading: true,
+      data: {},
+    },
+    recommendations: {
+      loading: true,
+      data: [],
+    },
   },
 };
 
 export default function (state = initialState, action) {
   const { type, payload } = action;
   switch (type) {
+    // get product collection
     case REQUEST(GET_PROD_COLL_SEARCH):
       return {
         ...state,
@@ -91,6 +102,7 @@ export default function (state = initialState, action) {
         },
       };
 
+    // get product collection category
     case REQUEST(GET_PROD_COLL_OUR_CATEGORY):
       return {
         ...state,
@@ -98,18 +110,17 @@ export default function (state = initialState, action) {
           ...state.collections,
           ourCategory: {
             ...state.collections.ourCategory,
-            loading:true,
-            data: []
-          }
-        }
-      }
+            loading: true,
+            data: [],
+          },
+        },
+      };
     case SUCCESS(GET_PROD_COLL_OUR_CATEGORY):
-      if(payload?.data && Array.isArray(payload?.data) && payload?.data.length > 0){
-        state.collections.ourCategory.data = payload.data.map((child)=> ({
+      if (payload?.data && Array.isArray(payload?.data) && payload?.data.length > 0) {
+        state.collections.ourCategory.data = payload.data.map(child => ({
           ...child,
           loading: false,
-        }))
-
+        }));
       }
       return {
         ...state,
@@ -117,11 +128,11 @@ export default function (state = initialState, action) {
           ...state.collections,
           ourCategory: {
             ...state.collections.ourCategory,
-            loading:false,
-            data: [...state.collections.ourCategory.data]
-          }
-        }
-      }
+            loading: false,
+            data: [...state.collections.ourCategory.data],
+          },
+        },
+      };
     case FAILURE(GET_PROD_COLL_OUR_CATEGORY):
       return {
         ...state,
@@ -129,12 +140,12 @@ export default function (state = initialState, action) {
           ...state.collections,
           ourCategory: {
             ...state.collections.ourCategory,
-            loading:false,
-            data: []
-          }
-        }
-      }
-
+            loading: false,
+            data: [],
+          },
+        },
+      };
+    //  get product collection lates
     case REQUEST(GET_PROD_COLL_LATEST):
       return {
         ...state,
@@ -142,18 +153,17 @@ export default function (state = initialState, action) {
           ...state.collections,
           latest: {
             ...state.collections.latest,
-            loading:true,
-            data: []
-          }
-        }
-      }
+            loading: true,
+            data: [],
+          },
+        },
+      };
     case SUCCESS(GET_PROD_COLL_LATEST):
-      if(payload?.data && Array.isArray(payload?.data) && payload?.data.length > 0){
-        state.collections.latest.data = payload.data.map((child)=> ({
+      if (payload?.data && Array.isArray(payload?.data) && payload?.data.length > 0) {
+        state.collections.latest.data = payload.data.map(child => ({
           ...child,
           loading: false,
-        }))
-
+        }));
       }
       return {
         ...state,
@@ -161,11 +171,11 @@ export default function (state = initialState, action) {
           ...state.collections,
           latest: {
             ...state.collections.latest,
-            loading:false,
-            data: [...state.collections.latest.data]
-          }
-        }
-      }
+            loading: false,
+            data: [...state.collections.latest.data],
+          },
+        },
+      };
     case FAILURE(GET_PROD_COLL_LATEST):
       return {
         ...state,
@@ -173,12 +183,13 @@ export default function (state = initialState, action) {
           ...state.collections,
           latest: {
             ...state.collections.latest,
-            loading:false,
-            data: []
-          }
-        }
-      }
+            loading: false,
+            data: [],
+          },
+        },
+      };
 
+    //  get product collection latest show
     case REQUEST(GET_PROD_COLL_LATEST_SHOW):
       return {
         ...state,
@@ -188,12 +199,12 @@ export default function (state = initialState, action) {
             ...state.collections.latest,
             show: {
               ...state.collections.latest.show,
-              loading:true,
-              data: null
-            }
-          }
-        }
-      }
+              loading: true,
+              data: null,
+            },
+          },
+        },
+      };
     case SUCCESS(GET_PROD_COLL_LATEST_SHOW):
       return {
         ...state,
@@ -204,11 +215,11 @@ export default function (state = initialState, action) {
             show: {
               ...state.collections.latest.show,
               loading: false,
-              data: payload?.data ?? null
-            }
-          }
-        }
-      }
+              data: payload?.data ?? null,
+            },
+          },
+        },
+      };
     case FAILURE(GET_PROD_COLL_LATEST_SHOW):
       return {
         ...state,
@@ -218,13 +229,83 @@ export default function (state = initialState, action) {
             ...state.collections.latest,
             show: {
               ...state.collections.latest.show,
-              loading:false,
-              data: null
-            }
-          }
-        }
-      }
+              loading: false,
+              data: null,
+            },
+          },
+        },
+      };
 
+    // get product detail by id
+    case REQUEST(GET_PROD_BY_ID):
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          detail: {
+            loading: true,
+            data: {},
+          },
+        },
+      };
+    case SUCCESS(GET_PROD_BY_ID):
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          detail: {
+            ...state.collections.detail,
+            loading: false,
+            data: payload,
+          },
+        },
+      };
+    case FAILURE(GET_PROD_BY_ID):
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          detail: {
+            loading: false,
+            data: {},
+          },
+        },
+      };
+
+    // get product recomendation by product id
+    case REQUEST(GET_PROD_RECOMMENDATION_BY_PROD_ID):
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          recommendations: {
+            loading: true,
+            data: [],
+          },
+        },
+      };
+    case SUCCESS(GET_PROD_RECOMMENDATION_BY_PROD_ID):
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          recommendations: {
+            loading: false,
+            data: payload,
+          },
+        },
+      };
+    case FAILURE(GET_PROD_RECOMMENDATION_BY_PROD_ID):
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          recommendations: {
+            loading: false,
+            data: [],
+          },
+        },
+      };
     default:
       return state;
   }

@@ -3,7 +3,7 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, FONTS } from '../constants/theme';
 
-const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, categories }) => {
+function FeaturedCard({ image, title, dataCollection, imagePath, hiddenBtn, categories }) {
   const navigation = useNavigation();
 
   const navigateToItems = query => {
@@ -14,7 +14,7 @@ const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, cate
   };
 
   const findCategory = description => {
-    return dataCollection.find(categories => categories?.description === description);
+    return dataCollection.find(category => category?.description === description);
   };
 
   const handlePress = () => {
@@ -47,10 +47,7 @@ const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, cate
   };
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={handlePress}
-    >
+    <TouchableOpacity activeOpacity={0.9} onPress={handlePress}>
       <Image
         style={{
           width: '100%',
@@ -61,7 +58,7 @@ const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, cate
       />
       <View
         style={{
-            flex:1,
+          flex: 1,
           position: 'absolute',
           width: '100%',
           // paddingLeft: '35%',
@@ -72,7 +69,7 @@ const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, cate
       >
         <View
           style={{
-              alignContent:"center",
+            alignContent: 'center',
             position: 'absolute',
             top: 0,
             left: 0,
@@ -132,6 +129,6 @@ const FeaturedCard = ({ image, title, dataCollection, imagePath, hiddenBtn, cate
       </View>
     </TouchableOpacity>
   );
-};
+}
 
 export default FeaturedCard;

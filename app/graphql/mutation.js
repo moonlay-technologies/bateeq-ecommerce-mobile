@@ -48,7 +48,24 @@ export const EDIT_DETAIL_ACCOUNT = gql`
   }
 `;
 
-export const ADD_TO_CART = gql`
+export const ADD_TO_CART = `
+  mutation ($cartId: ID!, $lines: [CartLineInput!]!, $country: CountryCode = ZZ, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        id
+        totalQuantity
+      }
+      userErrors {
+        message
+        field
+        code
+      }
+    }
+  }
+`;
+
+export const ADD_ITEM_TO_CART = gql`
   mutation ($cartId: ID!, $lines: [CartLineInput!]!, $country: CountryCode = ZZ, $language: LanguageCode)
   @inContext(country: $country, language: $language) {
     cartLinesAdd(cartId: $cartId, lines: $lines) {

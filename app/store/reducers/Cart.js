@@ -169,10 +169,12 @@ export default function (state = initialState, action) {
         },
       };
     case FAILURE(CART_LINE_ITEM_ADD):
+      console.log('payload action', [action]);
       return {
         ...state,
         options: {
           ...state.options,
+          message: action?.message,
           loading: false,
         },
       };

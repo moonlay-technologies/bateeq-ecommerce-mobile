@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const GET_PRODUCT_RECOMMENDATION = gql`
+export const GET_PRODUCT_RECOMMENDATION = `
   query productRecommendations($productId: ID!) {
     productRecommendations(productId: $productId) {
       id
@@ -28,7 +28,7 @@ export const GET_PRODUCT_RECOMMENDATION = gql`
   }
 `;
 
-export const GET_PRODUCT_BY_ID = gql`
+export const GET_PRODUCT_BY_ID = `
   query getProductById($id: ID!) {
     product(id: $id) {
       id
@@ -36,7 +36,11 @@ export const GET_PRODUCT_BY_ID = gql`
       descriptionHtml
       title
       totalInventory
-      images(first: 4) {
+      options {
+        name
+        values
+      }
+      images(first: 5) {
         edges {
           node {
             url
@@ -252,7 +256,7 @@ export const __GQL_GET_PAGES = `query getPageStory($handle: String!) {
       body
       bodySummary
     }
-  }`
+  }`;
 export const GET_PAGES = gql`
   query getPageStory($handle: String!) {
     page(handle: $handle) {
@@ -263,7 +267,6 @@ export const GET_PAGES = gql`
     }
   }
 `;
-
 
 /**
  * @type {string}
@@ -279,7 +282,7 @@ export const __GQL_SHOW_LATEST_COLLECTION = `query getCollectionIdFromHandle($ha
         url
       }
     }
-  }`
+  }`;
 
 export const GET_LATEST_COLLECTION = gql`
   query getCollectionIdFromHandle($handle: String!) {
@@ -354,7 +357,7 @@ export const __GQL_GET_PRODUCT_LIST_BY_CATEGORY = `query GetProducts($first: Int
         }
       }
     }
-  }`
+  }`;
 export const GET_LIST_CATEGORIES = gql`
   query GetProducts($first: Int!, $query: String!, $after: String) {
     products(first: $first, query: $query, after: $after) {
