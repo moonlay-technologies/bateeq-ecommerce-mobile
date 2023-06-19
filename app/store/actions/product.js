@@ -87,7 +87,6 @@ export function getProductById(payload) {
  */
 
 export function getProductRecommendation(payload) {
-  console.log('getProductRecommendation', payload);
   return {
     type: REQUEST(GET_PROD_RECOMMENDATION_BY_PROD_ID),
     payload,

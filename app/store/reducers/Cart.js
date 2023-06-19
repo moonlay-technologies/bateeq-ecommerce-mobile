@@ -122,7 +122,6 @@ export default function (state = initialState, action) {
       };
     case SUCCESS(GET_CART_LIST):
       if (Array.isArray(action?.payload?.data) && action?.payload?.data.length > 0) {
-        console.log('action SUCCESS', action);
         state.lists.data =
           action?.payload?.data.map(item => ({
             ...item,
@@ -169,7 +168,6 @@ export default function (state = initialState, action) {
         },
       };
     case FAILURE(CART_LINE_ITEM_ADD):
-      console.log('payload action', [action]);
       return {
         ...state,
         options: {

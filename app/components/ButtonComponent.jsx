@@ -53,7 +53,6 @@ function Button(props) {
       ]}
       disabled={disabled}
     >
-      {/* <FontAwesome5Icon name="circle-notch" color="#d0d0d0" solid /> */}
       {title && (
         <Text
           style={{

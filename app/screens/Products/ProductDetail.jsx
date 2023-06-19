@@ -8,21 +8,19 @@ import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { ADD_ITEM_TO_CART } from '../../graphql/mutation';
+import { CartGetList, getProductById, getProductRecommendation } from '../../store/actions';
+import { formatWithCommas, findVariantIdByOptions } from '../../utils/helper';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
-import HeaderComponent from '../../components/HeaderComponent';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
+import Notification from '../../components/NotificationComponent';
+import HeaderComponent from '../../components/HeaderComponent';
 import LoadingScreen from '../../components/LoadingView';
 import SelectInput from '../../components/SelectInput';
 import Button from '../../components/ButtonComponent';
 import CustomHTML from '../../components/CustomHtml';
-
 import { COLORS, FONTS } from '../../constants/theme';
-import { formatWithCommas } from '../../utils/helper';
-import { findVariantIdByOptions } from './helper';
-import { ADD_ITEM_TO_CART } from '../../graphql/mutation';
-
-import { CartGetList, getProductById, getProductRecommendation } from '../../store/actions';
-import Notification from '../../components/NotificationComponent';
 
 function ProductDetail(props) {
   const {
@@ -56,20 +54,27 @@ function ProductDetail(props) {
       }
       return pass;
     }),
+    variant_id: yup.string().required() ,
     cartId: yup.string().required(),
   });
 
   const { id } = route.params;
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);
-  const [isSnackbar, setIsSnackbar] = useState(false);
+  const [qty, setQty] = useState(1);
   const [snackText] = useState('Loading...');
   const [errors, setErrors] = useState({});
-  const [qty, setQty] = useState(1);
+  const [variantId, setVariantId] = useState('');
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
-  const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
-  const [notifState, setNotifState] = useState(false);
+  const [isSnackbar, setIsSnackbar] = useState(false);
   const [onWishList, setOnWishList] = useState(false);
+  const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
+  const [notifState, setNotifState] = useState({
+    show: false,
+    text: '',
+    navText: '',
+    to: '',
+  });
 
   const [amount, setAmount] = useState({
     currencyCode: '',
@@ -143,17 +148,23 @@ function ProductDetail(props) {
     }
   };
 
-  const variantId =
-    productData?.variants.length > 0 ? findVariantIdByOptions(productData?.variants, variantOptions) : '';
-  console.log('variantid', variantId);
+  useEffect(() => {
+    if (productData?.variants?.length > 0) {
+      const varId = findVariantIdByOptions(productData?.variants, variantOptions);
+      if (varId) {
+        setVariantId(varId);
+      }
+      setVariantId('');
+    }
+  }, [variantOptions]);
+
   const onSubmit = () => {
     setOnSubmitLoading(true);
-    if (variantId) {
       const body = {
         quantity: qty,
         size: variantOptions.size,
         color: variantOptions.color,
-        variant_id: variantId,
+        variant_id: variantId || '',
         cartId: cartId || '',
       };
       schema
@@ -175,22 +186,21 @@ function ProductDetail(props) {
               },
             ],
           };
-          console.log('payload', payload);
+
           const { data: addLine } = await cartLinesAdd({
             variables: payload,
           });
-          console.log('addLine', addLine);
 
           if (addLine?.cartLinesAdd?.cart.id) {
-            setNotifState(true);
+            setNotifState(prev => ({
+              ...prev,
+              show: true,
+            }));
             setTimeout(() => {
-              setNotifState(false);
+              setNotifState({ show: false, text: '', navText: '', to: '' });
             }, 5000);
             setErrors({});
-            setOptions({
-              color: [],
-              size: [],
-            });
+
             setvariantOptions({
               size: '',
               color: '',
@@ -201,22 +211,30 @@ function ProductDetail(props) {
               id: cartId,
             });
           } else {
-            console.log('errors', errors);
             Toast.show({
               type: 'error',
-              text1: 'oops! something went wrong',
-              text2: errors?.originalError?.message,
+              text1: 'oops!',
+              text2: 'something went wrong',
             });
           }
           setOnSubmitLoading(false);
         })
         .catch(error => {
+
           if (error.name === 'ValidationError') {
+            if(error.inner.find(i => i.path === 'variant_id')) {
+              Toast.show({
+                type: 'error',
+                text1: 'Variant not available for the selected options.',
+                text2: 'Please choose different options.',
+              });
+            }
             const errorsVal = error.inner.reduce((acc, err) => {
               const { path, message } = err;
               acc[path] = message;
               return acc;
             }, {});
+
             setErrors(errorsVal);
           } else {
             Toast.show({
@@ -227,13 +245,6 @@ function ProductDetail(props) {
           }
           setOnSubmitLoading(false);
         });
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'oops!',
-        text2: 'invalid variant ID',
-      });
-    }
   };
 
   const handleQuantity = type => {
@@ -259,7 +270,7 @@ function ProductDetail(props) {
       setRandomProductsRecommendation(selectedProducts);
     }
   }, [recommendationProducts]);
-  // <View>
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
@@ -356,7 +367,7 @@ function ProductDetail(props) {
                     color: COLORS.title,
                   }}
                 >
-                  Quantity
+                  {`Quantity`}
                   <Text style={{ color: COLORS.danger }}>*</Text>
                 </Text>
                 <View
@@ -374,7 +385,7 @@ function ProductDetail(props) {
                   </TouchableOpacity>
                   <Text style={styles.quantity}>{qty}</Text>
                   <TouchableOpacity
-                    // (
+                 
                     onPress={() => handleQuantity('in')}
                     style={{ ...styles.icon, backgroundColor: COLORS.black }}
                   >
@@ -447,7 +458,7 @@ function ProductDetail(props) {
         <Footer />
       </ScrollView>
 
-      <Notification visible={notifState} />
+      <Notification visible={notifState.show} text={notifState.text} navText={notifState.navText} to={notifState.to} />
 
       <View
         style={{
@@ -460,12 +471,46 @@ function ProductDetail(props) {
       >
         <View style={{ marginRight: 20, paddingVertical: 10 }}>
           <Button
-            onPress={() => navigation.navigate('Wishlist')}
+            onPress={() => {
+              setOnWishList(prev => !prev);
+              if (onWishList) {
+                setNotifState({
+                  show: true,
+                  text: 'Item removed from wishlist',
+                  navText: 'see wishlist',
+                  to: 'Wishlist',
+                });
+                setTimeout(() => {
+                  setNotifState({
+                    show: false,
+                    text: '',
+                    navText: '',
+                    to: '',
+                  });
+                }, 5000);
+              } else {
+                setNotifState({
+                  show: true,
+                  text: 'Item added to wishlist',
+                  navText: 'see wishlist',
+                  to: 'Wishlist',
+                });
+                setTimeout(() => {
+                  setNotifState({
+                    show: false,
+                    text: '',
+                    navText: '',
+                    to: '',
+                  });
+                }, 5000);
+              }
+            }}
             title="Wishlist"
             outline
             size="xs"
+            iconColor="red"
             iconStyles={{ marginLeft: 18 }}
-            icon={FeatherIcon}
+            icon={onWishList ? FontAwesome : FeatherIcon}
             iconName="heart"
           />
         </View>
