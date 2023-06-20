@@ -98,8 +98,7 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -190,8 +189,7 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))
-                        }
+                          }))}
                       />
                     }
                   />
@@ -231,7 +229,7 @@ function CartScreen({ navigation, route, ...props }) {
               icon={Ionicons}
               iconName="md-arrow-forward"
               textColor="#fff"
-              disabled={isLoading || lists?.data?.length > 0}
+              disabled={isLoading || lists?.data?.length === 0}
             />
           </View>
         </ScrollView>
