@@ -144,7 +144,7 @@ export function* __updateAccount() {
           findKey(response, ['data', 'customerUpdate', 'customer']) ||
           findKey(response, ['data', 'customerUpdate', 'customerAccessToken'])
         ) {
-          if (findKey(response, ['data', 'customerUpdate', 'customerAccessToken', 'accessToken'])) {
+          if (findKey(response, ['data', 'customerUpdate', 'customerAccessToken'])) {
             AsyncStorage.setItem(
               'accessToken',
               findKey(response, ['data', 'customerUpdate', 'customerAccessToken', 'accessToken'])
@@ -155,7 +155,9 @@ export function* __updateAccount() {
               type: SUCCESS(EDIT_ACCOUNT),
               payload: {
                 info: findKey(response, ['data', 'customerUpdate', 'customer']),
-                token: findKey(response, ['data', 'customerUpdate', 'customerAccessToken']),
+                ...(findKey(response, ['data', 'customerUpdate', 'customerAccessToken']) && {
+                  token: findKey(response, ['data', 'customerUpdate', 'customerAccessToken']),
+                }),
               },
             }),
             put({ type: REQUEST(NAVIGATE_TO), payload: 'Account' }),
@@ -174,7 +176,6 @@ export function* __updateAccount() {
           ]);
         }
       } catch (err) {
-        console.log('error', err);
         yield all([
           put({
             type: FAILURE(EDIT_ACCOUNT),
