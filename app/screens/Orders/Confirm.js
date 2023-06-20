@@ -20,7 +20,6 @@ const Confirm = ({ ...props }) => {
     },
   });
 
-
   useEffect(() => {
     if (data) {
       setDataOrdersPending(data?.customer?.orders?.nodes);
@@ -38,14 +37,14 @@ const Confirm = ({ ...props }) => {
         dataOrdersPending.map(data => (
           <CartItem
             key={data.id}
-            orderId= {data.id}
+            orderId={data.id}
             productId={data?.lineItems?.nodes[0]?.sku}
-            imageSrc={data?.lineItems?.nodes[0]?.product?.images?.nodes[0]?.url}
-            title={data.lineItems.nodes[0].product.title}
+            orderName={data?.name}
+            // title={data.lineItems.nodes[0].product.title}
             // price={data.price}
             date={data.createdAt}
-            quantity={data?.subtotalLineItemsQuantity}
-            size={data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]?.selectedOptions[1]?.value}
+            // quantity={data?.subtotalLineItemsQuantity}
+            // size={data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]?.selectedOptions[1]?.value}
             status={data.displayFinancialStatus}
           />
         ))}

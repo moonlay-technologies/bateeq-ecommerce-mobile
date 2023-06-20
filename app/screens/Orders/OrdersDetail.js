@@ -95,8 +95,8 @@ function OrderDetail({ route }) {
                 }}
               >{`Payment Status : ${detailOrder?.displayFinancialStatus}`}</Text>
             </View>
-            <Text style={{ marginTop: 10, ...FONTS.fontBold }}>
-              <Text style={{ color: 'black' }}>Shipping Address :</Text>{' '}
+            <Text style={{ marginTop: 10, ...FONTS.fontBold, color: 'black' }}>
+              <Text style={{ color: 'black', fontWeight: '100' }}>Shipping Address :</Text>
               {`${detailOrder?.shippingAddress?.address1} ${detailOrder?.shippingAddress?.address2} ${detailOrder?.shippingAddress?.city} ${detailOrder?.shippingAddress?.province} ${detailOrder?.shippingAddress?.country}   `}
             </Text>
           </View>
@@ -129,11 +129,11 @@ function OrderDetail({ route }) {
                 >
                   {item.name}
                 </Text>
-                <Text style={{ ...FONTS.fontSatoshiRegular, marginTop: 20 }}>
-                  Variant: <Text style={{ color: COLORS.title, ...FONTS.fontSatoshiBold }}>{item.variantTitle}</Text>
+                <Text style={{ ...FONTS.fontSatoshiRegular, marginTop: 20, color: 'black' }}>
+                  Variant: <Text style={{ color: 'black', ...FONTS.fontSatoshiBold }}>{item.variantTitle}</Text>
                 </Text>
-                <Text style={{ ...FONTS.fontSatoshiRegular, marginTop: 20 }}>
-                  Qty: <Text style={{ color: COLORS.title, ...FONTS.fontSatoshiBold }}>{item.quantity}</Text>
+                <Text style={{ ...FONTS.fontSatoshiRegular, marginTop: 20, color: 'black' }}>
+                  Qty: <Text style={{ color: 'black', ...FONTS.fontSatoshiBold }}>{item.quantity}</Text>
                 </Text>
                 <View
                   style={{

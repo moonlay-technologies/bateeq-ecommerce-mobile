@@ -6,11 +6,11 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { connect, useDispatch, useSelector } from 'react-redux';
+import { connect } from 'react-redux';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 
-import { setCartId } from '../store/reducer';
 import { CartGetList } from '../store/actions';
+import { CommonActions } from '@react-navigation/native';
 
 function CustomDrawer({ navigation, customerInfo, ...props }) {
   let { cartId, CartGetList, CustomDrawer } = props;
@@ -22,6 +22,15 @@ function CustomDrawer({ navigation, customerInfo, ...props }) {
       name: 'Home',
 
       navigate: 'Home',
+      onPress: async () => {
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [{ name: 'Home' }],
+          })
+        );
+        navigation.closeDrawer();
+      },
     },
 
     {
@@ -136,7 +145,7 @@ function CustomDrawer({ navigation, customerInfo, ...props }) {
                   ? data?.onPress
                   : async () => {
                       if (
-                        data.navigate == 'Home' ||
+                        // data.navigate == 'Home' ||
                         data.navigate == 'Cart' ||
                         data.navigate == 'Account' ||
                         data.navigate == 'Favourite' ||

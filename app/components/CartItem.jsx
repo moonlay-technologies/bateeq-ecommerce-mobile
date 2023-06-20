@@ -6,12 +6,12 @@ import { useNavigation } from '@react-navigation/native';
 
 function CartItem({
   orderId,
-  productId,
-  image,
-  imageSrc,
-  title,
-  quantity,
-  size,
+  // productId,
+  // image,
+  orderName,
+  // title,
+  // quantity,
+  // size,
   status,
   // desc,
   date,
@@ -39,123 +39,29 @@ function CartItem({
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{formattedDate}</Text>
-          <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{productId || 'NO SKU'}</Text>
+          {/* <Text style={{ ...FONTS.fontSatoshiBold, color: COLORS.title }}>{productId || 'NO SKU'}</Text> */}
         </View>
         <View
-          activeOpacity={0.9}
           style={{
-            flexDirection: 'row',
-            paddingHorizontal: 15,
+            flex: 1,
             paddingBottom: 15,
             paddingTop: 15,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <Image
+          <Text>Order: </Text>
+          <Text
+            numberOfLines={1}
             style={{
-              height: 120,
-              width: 80,
-              // borderRadius:8,
-              marginRight: 12,
+              ...FONTS.fontSatoshiBold,
+              color: COLORS.title,
+              fontSize: 16,
             }}
-            source={{ uri: imageSrc }}
-          />
-          <View style={{ flex: 1, paddingBottom: 7 }}>
-            <Text
-              numberOfLines={1}
-              style={{
-                ...FONTS.fontSatoshiBold,
-                color: COLORS.title,
-                // marginBottom: 4,
-                fontSize: 16,
-              }}
-            >
-              {title}
-            </Text>
-            <Text numberOfLines={1} style={{ ...FONTS.fontSatoshiRegular, color: '#BCBCBC' }}>
-              Size: <Text style={{ color: COLORS.title, ...FONTS.fontSatoshiBold }}>{size}</Text>
-            </Text>
-            <Text style={{ ...FONTS.fontSatoshiRegular, marginTop: 20 }}>
-              Qty: <Text style={{ color: COLORS.title, ...FONTS.fontSatoshiBold }}>{quantity}</Text>
-            </Text>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginTop: 12,
-              }}
-            >
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  flex: 1,
-                }}
-              >
-                <Text style={{ ...FONTS.fontSatoshiRegular }}>{quantity > 1 ? 'and +1 item more' : null}</Text>
-                {/* <Text
-                style={{
-                  ...FONTS.fontSm,
-                  textDecorationLine: 'line-through',
-                  marginLeft: 8,
-                }}>
-                {oldPrice}
-              </Text> */}
-              </View>
-            </View>
-            {/* <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}>
-            <TouchableOpacity
-              onPress={() =>
-                itemQuantity > 1 && setItemQuantity(itemQuantity - 1)
-              }
-              style={{
-                height: 32,
-                width: 30,
-                borderWidth: 1,
-                // borderRadius:6,
-                borderColor: COLORS.borderColor,
-                backgroundColor: '#AAAAAA',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <FeatherIcon size={14} color={COLORS.white} name="minus" />
-            </TouchableOpacity>
-            <Text
-              style={{
-                ...FONTS.fontSatoshiBold,
-                color: COLORS.title,
-                width: 120,
-                textAlign: 'center',
-                borderWidth: 1,
-                marginHorizontal: 8,
-                paddingVertical: 5,
-                paddingHorizontal: 50,
-              }}>
-              {itemQuantity}
-            </Text>
-            <TouchableOpacity
-              onPress={() => setItemQuantity(itemQuantity + 1)}
-              style={{
-                height: 32,
-                width: 30,
-                borderWidth: 1,
-                // borderRadius:6,
-                backgroundColor: '#303030',
-                borderColor: COLORS.borderColor,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}>
-              <FeatherIcon size={14} color={COLORS.white} name="plus" />
-            </TouchableOpacity>
-          </View> */}
-            {/* <View style={{flexDirection:'row',alignItems:'center'}}>
-                      <Text style={{...FONTS.h6,marginRight:15}}>{price}</Text>
-                      <Text style={{...FONTS.fontXs,textDecorationLine:'line-through'}}>{oldPrice}</Text>
-                  </View> */}
-          </View>
+          >
+            {orderName}
+          </Text>
         </View>
         <View
           style={{

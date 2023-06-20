@@ -6,6 +6,7 @@ export const GET_ORDERS = gql`
       orders(first: 10, query: $query) {
         nodes {
           id
+          name
           subtotalLineItemsQuantity
           totalPriceSet {
             presentmentMoney {
