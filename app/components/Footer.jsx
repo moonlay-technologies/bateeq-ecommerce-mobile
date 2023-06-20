@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Linking } from 'react-native';
 import { COLORS, FONTS } from '../constants/theme';
 import { useNavigation } from '@react-navigation/native';
 import { useQuery } from '@apollo/client';
@@ -56,6 +56,7 @@ function ExpandableSection({ title, children }) {
 export const Footer = ({ dataPagesStory }) => {
   const navigation = useNavigation();
   const [pageContactUs, setPageContactUs] = useState(null);
+  console.log('pageContactUs', pageContactUs);
   const [pageFaq, setPageFaq] = useState(null);
 
   const { data: dataPageContactUs, loading: loadingPages } = useQuery(GET_PAGES, {
@@ -159,7 +160,7 @@ export const Footer = ({ dataPagesStory }) => {
             style={{ marginBottom: 10 }}
             onPress={() =>
               navigation.navigate('PagesInShopify', {
-                dataPages: dataPageShippingPolicy.shop.refundPolicy,
+                dataPages: pageFaq,
                 loadingPages,
               })
             }
@@ -231,32 +232,30 @@ export const Footer = ({ dataPagesStory }) => {
         </View>
       </ExpandableSection>
 
-      <ExpandableSection title="About Us">
+      <ExpandableSection title="About Company">
         <View style={{ gap: 10 }}>
           <TouchableOpacity style={{ marginBottom: 10 }}>
             <Text
               style={{
                 color: COLORS.title,
               }}
-              onPress={() =>
-                navigation.navigate('PagesInShopify', {
-                  dataPages: dataPagesStory,
-                  loadingPages,
-                })
-              }
+              onPress={() => Linking.openURL('http://www.bateeq.com/our-story/')}
             >
-              Our Story
+              About Bateeq
             </Text>
           </TouchableOpacity>
-          {/* <TouchableOpacity style={{ marginBottom: 10 }}>
+          <TouchableOpacity
+            style={{ marginBottom: 10 }}
+            onPress={() => Linking.openURL('http://www.bateeq.com/sustainability-journey/')}
+          >
             <Text
               style={{
                 color: COLORS.title,
               }}
             >
-              Blog
+              Our Responsibility
             </Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity>
         </View>
       </ExpandableSection>
     </View>
