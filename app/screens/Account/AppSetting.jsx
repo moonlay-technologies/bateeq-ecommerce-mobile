@@ -98,7 +98,6 @@ function AppSetting({ ...props }) {
                     { ...FONTS.font, color: COLORS.title },
                   ]}
                 />
-                <Text>You can only change the password once</Text>
                 {touched.password && errors.password && (
                   <Text style={GlobalStyleSheet.errorMessage}>{errors.password}</Text>
                 )}

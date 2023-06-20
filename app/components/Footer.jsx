@@ -84,7 +84,7 @@ export const Footer = ({ dataPagesStory }) => {
     if (dataPageFaq) {
       setPageFaq(dataPageFaq?.page);
     }
-  }, []);
+  }, [dataPageContactUs, dataPageFaq]);
 
   return (
     <View style={{ padding: 30, backgroundColor: '#EEEEEE' }}>
