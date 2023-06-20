@@ -140,7 +140,16 @@ export function* __updateAccount() {
           },
         });
 
-        if (findKey(response, ['data', 'customerUpdate', 'customer'])) {
+        if (
+          findKey(response, ['data', 'customerUpdate', 'customer']) ||
+          findKey(response, ['data', 'customerUpdate', 'customerAccessToken'])
+        ) {
+          if (findKey(response, ['data', 'customerUpdate', 'customerAccessToken', 'accessToken'])) {
+            AsyncStorage.setItem(
+              'accessToken',
+              findKey(response, ['data', 'customerUpdate', 'customerAccessToken', 'accessToken'])
+            );
+          }
           yield all([
             put({
               type: SUCCESS(EDIT_ACCOUNT),
@@ -165,6 +174,7 @@ export function* __updateAccount() {
           ]);
         }
       } catch (err) {
+        console.log('error', err);
         yield all([
           put({
             type: FAILURE(EDIT_ACCOUNT),
