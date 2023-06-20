@@ -98,15 +98,14 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
       />
 
       <View style={{ paddingHorizontal: 20 }}>
-        <Header backAction={() => navigation.goBack()} titleLeft title="back" leftIcon="back" />
+        <Header backAction={() => navigation.goBack()} titleLeft title="Back" leftIcon="back" />
       </View>
 
       <Text
@@ -190,8 +189,7 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))
-                        }
+                          }))}
                       />
                     }
                   />

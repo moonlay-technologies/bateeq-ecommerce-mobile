@@ -13,7 +13,7 @@ const initialState = {
       first_name: null,
       last_name: null,
       phone: null,
-      company: null
+      company: null,
     },
   },
   collections: {
@@ -122,6 +122,7 @@ export default function (state = initialState, action) {
           },
         },
       };
+
     case REQUEST(EDIT_ACCOUNT):
       return {
         ...state,

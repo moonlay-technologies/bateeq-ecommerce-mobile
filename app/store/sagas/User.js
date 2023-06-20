@@ -1,5 +1,5 @@
 import { all, takeEvery, put, fork, call } from 'redux-saga/effects';
-import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
+import { gql } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
@@ -147,6 +147,7 @@ export function* __updateAccount() {
               },
             }),
           ]);
+
           Toast.show({
             type: 'success',
             text1: 'Save data success',
