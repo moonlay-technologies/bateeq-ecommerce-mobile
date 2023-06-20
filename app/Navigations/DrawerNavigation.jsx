@@ -4,7 +4,7 @@ import CustomDrawer from './CustomDrawer';
 import BottomNavigation from './BottomNavigation';
 
 const Drawer = createDrawerNavigator();
-const DrawerNavigation = props => {
+function DrawerNavigation(props) {
   return (
     <Drawer.Navigator
       initialRouteName="BottomNavigation"
@@ -12,13 +12,12 @@ const DrawerNavigation = props => {
         headerShown: false,
       }}
       drawerContent={props => {
-        console.log('props', props.navigation);
         return <CustomDrawer navigation={props.navigation} />;
       }}
     >
       <Drawer.Screen name="BottomNavigation" component={BottomNavigation} />
     </Drawer.Navigator>
   );
-};
+}
 
 export default DrawerNavigation;

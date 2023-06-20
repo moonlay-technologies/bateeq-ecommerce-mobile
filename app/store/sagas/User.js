@@ -131,6 +131,7 @@ export function* __updateAccount() {
         const mutation = gql`
           ${__GQL_EDIT_DETAIL_ACCOUNT}
         `;
+
         const response = yield call(client.mutate, {
           mutation,
           variables: {
@@ -145,6 +146,7 @@ export function* __updateAccount() {
               type: SUCCESS(EDIT_ACCOUNT),
               payload: {
                 info: findKey(response, ['data', 'customerUpdate', 'customer']),
+                token: findKey(response, ['data', 'customerUpdate', 'customerAccessToken']),
               },
             }),
             put({ type: REQUEST(NAVIGATE_TO), payload: 'Account' }),

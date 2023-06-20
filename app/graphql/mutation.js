@@ -27,6 +27,10 @@ export const __GQL_EDIT_DETAIL_ACCOUNT = `mutation customerUpdate(
         lastName
         email
       }
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
       customerUserErrors {
         message
       }

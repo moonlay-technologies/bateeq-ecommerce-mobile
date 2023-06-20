@@ -1,22 +1,25 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, Alert, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, TextInput, Text, TouchableOpacity } from 'react-native';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 import CustomButton from '../../components/CustomButton';
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import Header from '../../layout/Header';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { Formik } from 'formik';
 import { gqlError } from '../../utils/eror-handling';
-import * as Yup from 'yup';
 import { UpdateAccount } from '../../store/actions/user';
-import { connect } from 'react-redux';
-import { useNavigation } from '@react-navigation/native';
-import FeatherIcon from 'react-native-vector-icons/Feather';
+import { resetNavigation } from '../../store/actions';
 
 function AppSetting({ ...props }) {
+  const { options, UpdateAccount: updateAccount } = props;
+  const dispatch = useDispatch();
   const navigation = useNavigation();
-  const [handlePassword, setHandlePassword] = useState(true);
-  let { options, UpdateAccount } = props;
+  const navigationState = useSelector(state => state.Navigation.navigationState);
+  const [handlePassword, setHandlePassword] = useState(false);
 
   const initialValues = {
     password: '',
@@ -30,13 +33,20 @@ function AppSetting({ ...props }) {
     gqlError({ error: err, Toast });
   };
 
+  useEffect(() => {
+    if (navigationState.navigation) {
+      navigation.navigate(`${navigationState?.navigation}`);
+
+      dispatch(resetNavigation());
+    }
+  }, [navigationState]);
+
   const handleUpdatePassword = async values => {
     try {
-      UpdateAccount({
+      updateAccount({
         customer: values,
         accessToken: options?.token,
       });
-      navigation.navigate('Account');
     } catch (error) {
       onError(error);
     }
@@ -95,7 +105,7 @@ function AppSetting({ ...props }) {
               </View>
             </View>
             <View style={{ marginTop: 10 }}>
-              <CustomButton title={'Update Password'} onPress={handleSubmit} />
+              <CustomButton title="Update Password" onPress={handleSubmit} />
             </View>
           </View>
         )}
@@ -106,7 +116,7 @@ function AppSetting({ ...props }) {
 
 export default connect(
   ({ User }) => {
-    let { options, collections } = User;
+    const { options, collections } = User;
     return { options, collections };
   },
   { UpdateAccount }
