@@ -1,0 +1,2 @@
+export const NAVIGATE_TO = 'NAVIGATE/TO';
+export const RESET_NAVIGATION = 'RESET/NAVIGATION';

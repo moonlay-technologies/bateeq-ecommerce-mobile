@@ -130,7 +130,6 @@ export function* __collectionOurCategory() {
             }),
           ]);
         }
-        console.log({ response });
       } catch (err) {
         yield all([
           put({

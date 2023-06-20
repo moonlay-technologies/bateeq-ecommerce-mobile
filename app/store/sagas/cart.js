@@ -13,11 +13,7 @@ import { REQUEST, SUCCESS, FAILURE } from '../actions/action.type';
 import { client } from '../../../index';
 import { __GQL_CART_INITIAL } from '../../service/graphql/mutation/cart/index.gql';
 import { findKey } from '../../utils/helper';
-import { ADD_TO_CART, CREATE_CART } from '../../graphql/mutation';
-
-const getCartId = async () => {
-  await AsyncStorage.getItem('cart');
-};
+import { ADD_TO_CART } from '../../graphql/mutation';
 
 export function* __cartGenerateId() {
   yield takeEvery(REQUEST(GENERATE_CART_ID), function* ({ payload }) {
@@ -91,12 +87,10 @@ export function* __cartGenerateId() {
             }
           })
           .catch(err => {
-            console.log('errorrrr', err);
             return null;
           });
       }
     } catch (err) {
-      console.log('error', err);
       yield put({
         type: FAILURE(GENERATE_CART_ID),
         payload: err?.message ?? 'Some Error',

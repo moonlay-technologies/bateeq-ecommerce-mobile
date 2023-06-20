@@ -174,7 +174,6 @@ function ProductDetail(props) {
       schema
         .validate(body, { abortEarly: false })
         .then(async result => {
-          console.log('resullttt', result)
           const payload = {
             cartId: result.cartId,
             lines: [
@@ -224,7 +223,6 @@ function ProductDetail(props) {
           setOnSubmitLoading(false);
         })
         .catch(error => {
-          console.log('errorrr', error)
           if (error.name === 'ValidationError') {
             if(error.inner.find(i => i.path === 'variant_id')) {
               Toast.show({
@@ -433,7 +431,6 @@ function ProductDetail(props) {
                   randomProductsRecommendation.length > 0 &&
                   randomProductsRecommendation.map(
                     ({ image, title, price, compareAtPrice, id: productRecommendationId }) => {
-                      console.log('randomProductsRecommendations', [id, productRecommendationId])
                       return (
                         <View
                           key={productRecommendationId}
@@ -558,7 +555,6 @@ function ProductDetail(props) {
 }
 export default connect(
   ({ Cart, Product }) => {
-    console.log('product', Product);
     const { options } = Cart;
     const {
       collections: {

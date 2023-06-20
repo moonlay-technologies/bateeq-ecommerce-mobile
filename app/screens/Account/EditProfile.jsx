@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import CustomButton from '../../components/CustomButton';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import Header from '../../layout/Header';
 import { gqlError } from '../../utils/eror-handling';
 import { UpdateAccount } from '../../store/actions/user';
 import Button from '../../components/ButtonComponent';
+import { resetNavigation } from '../../store/actions';
 
 function EditProfile({ route, ...props }) {
   const { options, collections, UpdateAccount: updateAccount } = props;
+  const navigationState = useSelector(state => state.Navigation.navigationState);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [isFocused3, setisFocused3] = useState(false);
@@ -43,15 +45,20 @@ function EditProfile({ route, ...props }) {
     gqlError({ error: err, Toast });
   };
 
+  useEffect(() => {
+    if (navigationState.navigation) {
+      navigation.navigate(`${navigationState?.navigation}`);
+
+      dispatch(resetNavigation());
+    }
+  }, [navigationState]);
+
   const handleOnSubmit = async values => {
     try {
       updateAccount({
         customer: values,
         accessToken: options?.token,
       });
-      setTimeout(() => {
-        navigation.navigate('Account');
-      }, 2000);
     } catch (error) {
       onError(error);
     }

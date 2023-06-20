@@ -7,6 +7,7 @@ import User from './User';
 import Checkout from './Checkout';
 import Address from './address';
 import Pages from './Pages';
+import Navigation from './navigation';
 
 const rootReducers = combineReducers({
   Cart,
@@ -17,5 +18,6 @@ const rootReducers = combineReducers({
   Address,
   Product,
   Auth,
+  Navigation,
 });
 export default rootReducers;

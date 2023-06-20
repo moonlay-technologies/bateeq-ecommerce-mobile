@@ -10,6 +10,7 @@ import { SET_AUTH } from '../constants/Auth';
 import { GENERATE_CART_ID } from '../constants';
 import { __GQL_EDIT_DETAIL_ACCOUNT } from '../../graphql/mutation';
 import { findKey } from '../../utils/helper';
+import { NAVIGATE_TO } from '../constants/navigation';
 
 export function* __loadUser() {
   yield takeEvery(REQUEST(LOAD_USER), function* ({ payload }) {
@@ -146,6 +147,7 @@ export function* __updateAccount() {
                 info: findKey(response, ['data', 'customerUpdate', 'customer']),
               },
             }),
+            put({ type: REQUEST(NAVIGATE_TO), payload: 'Account' }),
           ]);
 
           Toast.show({
