@@ -66,7 +66,6 @@ export const findVariantIdByOptions = (product, options) => {
 export function getSrcInTag(html){
   // let pattern = /(?<=src=").*?(?=["])/g
   // let src = html.match(pattern)
-  // console.log({src})
   return html
   // return Array.isArray(src) && src.length > 0 ? src[0]: null
 }

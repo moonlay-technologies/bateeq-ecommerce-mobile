@@ -24,7 +24,6 @@ function CartItem({
     navigation.navigate('OrderDetail', { orderId: orderId });
   };
 
-  console.log('key', orderId);
   return (
     <View style={{ flex: 1, paddingHorizontal: 15, marginVertical: 20 }}>
       <TouchableOpacity

@@ -11,7 +11,6 @@ import {
 } from '../constants';
 import { REQUEST, SUCCESS, FAILURE } from '../actions/action.type';
 import { client } from '../../../index';
-import { __GQL_CART_INITIAL } from '../../service/graphql/mutation/cart/index.gql';
 import { findKey } from '../../utils/helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
 import {Toast} from "react-native-toast-message/lib/src/Toast";
@@ -113,7 +112,6 @@ export function* __cartGenerateId() {
         }
       }
     } catch (err) {
-      console.log({err},'@@redux/CART/GENERATEID')
       yield put({
         type: FAILURE(GENERATE_CART_ID),
         payload: err?.message ?? 'Some Error',
@@ -355,7 +353,13 @@ export function* __DeleteListOfItemCart() {
           },
         });
 
+        Object.assign(findKey(data,['cartLinesRemove','cart']),{lineId:payload?.lineIds})
         if (findKey(data, ['cartLinesRemove', 'cart'])) {
+          Toast.show({
+            type: 'success',
+            text1: 'Successfully: deleted list of item product',
+            visibilityTime: 2000,
+          });
           yield all([
             put({
               type: SUCCESS(DELETE_CART_LIST_OF_ITEM),
@@ -363,12 +367,18 @@ export function* __DeleteListOfItemCart() {
             }),
           ]);
         } else {
+          yield all([
+            put({
+              type: FAILURE(DELETE_CART_LIST_OF_ITEM),
+              payload: payload,
+            }),
+          ]);
         }
       } catch (err) {
         yield all([
           put({
             type: FAILURE(DELETE_CART_LIST_OF_ITEM),
-            payload: {},
+            payload: payload,
           }),
         ]);
       }

@@ -21,18 +21,11 @@ function Completed({ ...props }) {
     },
   });
 
-  console.log('data complete', data);
-
   useEffect(() => {
     if (data) {
       setDataOrders(data?.customer?.orders?.nodes);
     }
   }, [data]);
-
-  console.log(
-    'dataOrders',
-    dataOrders.map(e => e.totalPriceSet.presentmentMoney.amount)
-  );
 
   return (
     <ScrollView>
