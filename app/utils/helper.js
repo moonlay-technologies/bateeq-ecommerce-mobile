@@ -61,3 +61,55 @@ export const findVariantIdByOptions = (product, options) => {
   }
   return null;
 };
+
+
+export function getSrcInTag(html){
+  // let pattern = /(?<=src=").*?(?=["])/g
+  // let src = html.match(pattern)
+  // console.log({src})
+  return html
+  // return Array.isArray(src) && src.length > 0 ? src[0]: null
+}
+
+export function getIframeHtml(html){
+  // let patternIframe = /<iframe.*?<\/iframe>/
+
+  try{
+    // let iframe = html.match(patternIframe)
+    // if(Array.isArray(iframe) && iframe.length > 0){
+    //   iframe = iframe.map((item)=> item.replace(/style="(.*?)"/,' '))
+    // }
+    return html
+  }catch(err){
+    return null
+  }
+}
+
+export function clearTagHtml(html){
+  // let patternIframe = /<iframe.*?<\/iframe>/
+  try{
+    let tagHtml = []
+    // let clearHtml = html.replace(/\n/g,' ')
+    // let pattern = /<.*?[^>]+>[^<]*<\/[^>]+>/
+    // tagHtml = clearHtml.match(pattern)
+    //
+    // tagHtml = tagHtml.map((item)=> {
+    //   if(Array.isArray(getIframeHtml(item)) && getIframeHtml(item).length > 0){
+    //     return getIframeHtml(item)[0]
+    //   }
+    //   return item
+    // }).join(' ')
+
+    return {
+      __tag:tagHtml ?? [],
+      __html:html,
+      // patternIframe
+    }
+  }catch(err){
+    return {
+      __tag:[],
+      __html:html,
+      // patternIframe
+    }
+  }
+}
