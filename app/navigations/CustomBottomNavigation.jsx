@@ -47,6 +47,11 @@ function CustomBottomNavigation({ state, descriptors, navigation }) {
         const isFocused = state.index === index;
 
         const onPress = () => {
+            console.log({
+                type: 'tabPress',
+                target: route.key,
+                canPreventDefault: true,
+            })
           const event = navigation.emit({
             type: 'tabPress',
             target: route.key,

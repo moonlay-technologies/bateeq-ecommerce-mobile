@@ -40,6 +40,7 @@ const AllCart = ({ ...props }) => {
       {dataOrders &&
         dataOrders.map(data => (
           <CartItem
+              {...data}
             key={data.id}
             orderId={data.id}
             productId={data?.lineItems?.nodes[0]?.sku}
