@@ -56,7 +56,6 @@ function ExpandableSection({ title, children }) {
 export const Footer = ({ dataPagesStory }) => {
   const navigation = useNavigation();
   const [pageContactUs, setPageContactUs] = useState(null);
-  console.log('pageContactUs', pageContactUs);
   const [pageFaq, setPageFaq] = useState(null);
 
   const { data: dataPageContactUs, loading: loadingPages } = useQuery(GET_PAGES, {
@@ -84,7 +83,7 @@ export const Footer = ({ dataPagesStory }) => {
     if (dataPageFaq) {
       setPageFaq(dataPageFaq?.page);
     }
-  }, []);
+  }, [dataPageContactUs, dataPageFaq]);
 
   return (
     <View style={{ padding: 30, backgroundColor: '#EEEEEE' }}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Formik } from 'formik';
@@ -15,6 +15,7 @@ import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import CustomButton from '../../components/CustomButton';
 import { CartGenerateId } from '../../store/actions';
+import { AuthUser } from '../../store/actions/auth';
 
 const ValidateSchema = Yup.object().shape({
   customer: Yup.object().shape({
@@ -26,7 +27,7 @@ const ValidateSchema = Yup.object().shape({
 });
 
 function SignIn(props) {
-  const { CartGenerateId, cartId } = props;
+  const { CartGenerateId, cartId, AuthUser } = props;
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
@@ -38,47 +39,49 @@ function SignIn(props) {
   const handleOnSubmit = async values => {
     try {
       setIsLoading(true);
-
-      const { data } = await CustomerAccessTokenCreateMutation({
-        fetchPolicy: 'no-cache',
-        variables: {
-          email: values.customer.email,
-          password: values.customer.password,
-        },
+      AuthUser({
+        email: values.customer.email,
+        password: values.customer.password,
       });
-      console.log('daaata signin', data);
-      console.log('value', values);
-      const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
-
-      if (accessToken) {
-        Toast.show({
-          type: 'success',
-          text1: 'Login Success',
-          visibilityTime: 2000,
-        });
-        if (!cartId) {
-          // await AsyncStorage.setItem('cart',)
-          CartGenerateId({
-            token: accessToken,
-          });
-        }
-        CartGenerateId({
-          token: accessToken,
-        });
-        await AsyncStorage.setItem('accessToken', accessToken);
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'DrawerNavigation' }],
-          })
-        );
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Incorrect email or password',
-          visibilityTime: 3000,
-        });
-      }
+      // const { data } = await CustomerAccessTokenCreateMutation({
+      //   fetchPolicy: 'no-cache',
+      //   variables: {
+      //     email: values.customer.email,
+      //     password: values.customer.password,
+      //   },
+      // });
+      //
+      // const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
+      //
+      // if (accessToken) {
+      //   Toast.show({
+      //     type: 'success',
+      //     text1: 'Login Success',
+      //     visibilityTime: 2000,
+      //   });
+      //   if (!cartId) {
+      //   //   // await AsyncStorage.setItem('cart',)
+      //     CartGenerateId({
+      //       token: accessToken,
+      //     });
+      //   }
+      // CartGenerateId({
+      //   token: accessToken,
+      // });
+      // await AsyncStorage.setItem('accessToken', accessToken);
+      // navigation.dispatch(
+      //   CommonActions.reset({
+      //     index: 0,
+      //     routes: [{ name: 'DrawerNavigation' }],
+      //   })
+      // );
+      // } else {
+      //   Toast.show({
+      //     type: 'error',
+      //     text1: 'Incorrect email or password',
+      //     visibilityTime: 3000,
+      //   });
+      // }
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -285,5 +288,5 @@ export default connect(
     const { cartId } = options;
     return { cartId };
   },
-  { CartGenerateId }
+  { CartGenerateId, AuthUser }
 )(React.memo(SignIn));

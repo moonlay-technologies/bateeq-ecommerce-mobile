@@ -36,80 +36,73 @@ function SignUp(props) {
   // const [inputPasswordConfirmation, setInputPasswordConfirmation] =
   //   useState(null);
 
-  const validationSchema = Yup.object().shape({
-    customer: Yup.object().shape({
-      first_name: Yup.string().required('Required'),
-      phone: Yup.string().required('Required'),
-      email: Yup.string().email('Invalid email address').required('Required'),
-      password: Yup.string().min(8, 'Password must be at least 8 characters long').required('Required'),
-      password_confirmation: Yup.string()
-        .oneOf([Yup.ref('password')], 'Passwords do not match')
-        .required('Required'),
-      // agreement: Yup.boolean().oneOf([true], 'Please accept the terms and conditions'),
-    }),
-  });
+  // const validationSchema = Yup.object().shape({
+  //   customer: Yup.object().shape({
+  //     first_name: Yup.string().required('Required'),
+  //     phone: Yup.string().required('Required'),
+  //     email: Yup.string().email('Invalid email address').required('Required'),
+  //     password: Yup.string().min(8, 'Password must be at least 8 characters long').required('Required'),
+  //     password_confirmation: Yup.string()
+  //       .oneOf([Yup.ref('password')], 'Passwords do not match')
+  //       .required('Required'),
+  // agreement: Yup.boolean().oneOf([true], 'Please accept the terms and conditions'),
+  //   }),
+  // });
 
-  // const validateForm = values => {
-  //   const errors = {};
+  const validateForm = values => {
+    const errors = {};
 
-  //   if (!values.customer.first_name) {
-  //     errors.customer = { ...errors.customer, first_name: 'Required' };
-  //   }
+    if (!values.customer.first_name) {
+      errors.customer = { ...errors.customer, first_name: 'Required' };
+    }
 
-  //   if (!values.customer.phone) {
-  //     errors.customer = { ...errors.customer, phone: 'Required' };
-  //   }
+    if (!values.customer.phone) {
+      errors.customer = { ...errors.customer, phone: 'Required' };
+    }
 
-  //   if (!values.customer.email) {
-  //     errors.customer = { ...errors.customer, email: 'Required' };
-  //   } else if (!/\S+@\S+\.\S+/.test(values.customer.email)) {
-  //     errors.customer = { ...errors.customer, email: 'Invalid email address' };
-  //   }
+    if (!values.customer.email) {
+      errors.customer = { ...errors.customer, email: 'Required' };
+    } else if (!/\S+@\S+\.\S+/.test(values.customer.email)) {
+      errors.customer = { ...errors.customer, email: 'Invalid email address' };
+    }
 
-  //   if (!values.customer.password) {
-  //     errors.customer = { ...errors.customer, password: 'Required' };
-  //   } else if (values.customer.password.length < 8) {
-  //     errors.customer = {
-  //       ...errors.customer,
-  //       password: 'Password must be at least 8 characters long',
-  //     };
-  //   }
+    if (!values.customer.password) {
+      errors.customer = { ...errors.customer, password: 'Required' };
+    } else if (values.customer.password.length < 8) {
+      errors.customer = {
+        ...errors.customer,
+        password: 'Password must be at least 8 characters long',
+      };
+    }
 
-  //   if (!values.customer.password_confirmation) {
-  //     errors.customer = { ...errors.customer, password_confirmation: 'Required' };
-  //   } else if (values?.customer?.password_confirmation === values?.customer?.password) {
-  //     if (!passwordsMatched) {
-  //       Toast.show({
-  //         type: 'success',
-  //         text1: 'Passwords match',
-  //         visibilityTime: 2000,
-  //       });
-  //       setPasswordsMatched(true);
-  //     }
-  //   } else {
-  //     if (passwordsMatched) {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: 'Passwords do not match',
-  //         visibilityTime: 2000,
-  //       });
-  //       setPasswordsMatched(false);
-  //     }
-  //     errors.customer = {
-  //       ...errors.customer,
-  //       password_confirmation: 'Passwords do not match',
-  //     };
-  //   }
+    if (!values.customer.password_confirmation) {
+      errors.customer = { ...errors.customer, password_confirmation: 'Required' };
+    } else if (values?.customer?.password_confirmation === values?.customer?.password) {
+      if (!passwordsMatched) {
+        Toast.show({
+          type: 'success',
+          text1: 'Passwords match',
+          visibilityTime: 2000,
+        });
+        setPasswordsMatched(true);
+      }
+    } else {
+      if (passwordsMatched) {
+        Toast.show({
+          type: 'error',
+          text1: 'Passwords do not match',
+          visibilityTime: 2000,
+        });
+        setPasswordsMatched(false);
+      }
+      errors.customer = {
+        ...errors.customer,
+        password_confirmation: 'Passwords do not match',
+      };
+    }
 
-  //   if (!values.customer.agreement) {
-  //     errors.customer = {
-  //       ...errors.customer,
-  //       agreement: 'Please accept the terms and conditions',
-  //     };
-  //   }
-
-  //   return errors;
-  // };
+    return errors;
+  };
 
   const showToast = () => {
     Toast.show({
@@ -220,8 +213,8 @@ function SignUp(props) {
           onSubmit={values => {
             handleOnSubmit(values);
           }}
-          // validate={validateForm}
-          validationSchema={validationSchema}
+          validate={validateForm}
+          // validationSchema={validationSchema}
         >
           {({ handleChange, handleBlur, handleSubmit, setFieldValue, values, errors, touched }) => (
             <>
