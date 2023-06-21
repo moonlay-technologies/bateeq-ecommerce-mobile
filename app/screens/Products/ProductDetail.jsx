@@ -223,13 +223,24 @@ function ProductDetail(props) {
           setOnSubmitLoading(false);
         })
         .catch(error => {
+          console.log('error', error)
           if (error.name === 'ValidationError') {
-            if(error.inner.find(i => i.path === 'variant_id')) {
-              Toast.show({
-                type: 'error',
-                text1: 'Variant not available for the selected options.',
-                text2: 'Please choose different options.',
-              });
+            if(error.inner.find(i => i.path === 'variant_id') || error.inner.find(i => i.path === 'cartId')) {
+              if(error.inner.find(i => i.path === 'variant_id') ) {
+                Toast.show({
+                  type: 'error',
+                  text1: 'Variant not available for the selected options.',
+                  text2: 'Please choose different options.',
+                });
+              }
+              if(error.inner.find(i => i.path === 'cartId')) {
+                Toast.show({
+                  type: 'error',
+                  text1: 'The cart id is missing',
+                  text2: 'Please provide the valid ID',
+                });
+              }
+       
             }
             const errorsVal = error.inner.reduce((acc, err) => {
               const { path, message } = err;
@@ -533,7 +544,7 @@ function ProductDetail(props) {
             iconStyles={{ marginLeft: 18 }}
             icon={FeatherIcon}
             iconName="shopping-bag"
-            disabled={onSubmitLoading || productData?.totalInventory <= 0}
+            disabled={onSubmitLoading }
           />
         </View>
       </View>

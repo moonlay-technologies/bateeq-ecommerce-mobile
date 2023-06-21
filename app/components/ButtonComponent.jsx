@@ -83,12 +83,13 @@ export default Button;
 
 const styles = StyleSheet.create({
   default: {
+    height: 50,
     paddingHorizontal: 18,
     paddingVertical: 12,
-    borderRadius: 20,
   },
   defaultText: {
-    ...FONTS.h6,
+    ...FONTS.fontSatoshiBold,
+    fontSize: 14,
   },
   xs: {
     paddingHorizontal: 8,

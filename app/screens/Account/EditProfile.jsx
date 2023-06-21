@@ -55,6 +55,7 @@ function EditProfile({ route, ...props }) {
 
   const handleOnSubmit = async values => {
     try {
+      // setIsLoading(true);
       updateAccount({
         customer: values,
         accessToken: options?.token,
@@ -82,7 +83,13 @@ function EditProfile({ route, ...props }) {
         validationSchema={ValidationSchema}
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
-          <View style={{ flex: 1 }}>
+          <View
+            style={
+              {
+                // flex: 1
+              }
+            }
+          >
             <ScrollView>
               <View style={GlobalStyleSheet.container}>
                 <View style={GlobalStyleSheet.inputGroup}>
@@ -181,8 +188,13 @@ function EditProfile({ route, ...props }) {
                 </View>
               </View>
             </ScrollView>
-            <View style={{ marginBottom: 20, alignItems: 'center' }}>
-              <Button title="Save Details" size="xxl" onPress={handleSubmit} disabled={options?.loading} />
+            <View style={{ alignItems: 'center' }}>
+              <Button
+                title={`${options?.loading ? 'Saving ...' : 'Save Details'}`}
+                size="xxl"
+                onPress={handleSubmit}
+                disabled={options?.loading}
+              />
             </View>
           </View>
         )}

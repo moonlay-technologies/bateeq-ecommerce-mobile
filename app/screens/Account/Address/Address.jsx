@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
 import OcticonsIcon from 'react-native-vector-icons/Octicons';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import { useDispatch, connect } from 'react-redux';
+import { connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
 import Modal from '../../../components/ActionModalComponent';
 import LoadingComponent from '../../../components/LoadingView';
-import { setAddress } from '../../../store/reducer';
 import HeaderComponent from '../../../components/HeaderComponent';
 import Button from '../../../components/ButtonComponent';
 import { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress } from '../../../store/actions/address';
@@ -25,9 +24,7 @@ function AddressScreen(props) {
     updateDefaultCustomerAddress: updateDefaultAddress,
   } = props;
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
-  const [isLoading, setIsLoading] = useState(false);
   const [addressSelected, setAddressSelected] = useState();
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [showModal, setShowModal] = useState({
@@ -44,12 +41,10 @@ function AddressScreen(props) {
   useEffect(() => {
     if (addressList?.isChange) {
       getAddress({ token, limit: 10 });
-      setIsLoadingDelete(addressList?.loading);
     }
   }, [addressList]);
 
   const handleSelectAddress = value => {
-    dispatch(setAddress(''));
     setAddressSelected(value);
   };
 
@@ -88,7 +83,6 @@ function AddressScreen(props) {
           <Text style={[FONTS.fontSatoshiBold, { color: COLORS.title, marginBottom: 10, fontSize: 24 }]}>
             Select Address
           </Text>
-          {addressList?.data.length > 0 && <LoadingComponent type="circle" />}
           <Modal
             text={`${showModal?.data?.company || 'this address'} will be deleted from your adresses list`}
             onOpen={showModal.show}
@@ -98,8 +92,8 @@ function AddressScreen(props) {
                 ...prev,
                 show: !prev.show,
               }))}
-            submitText={isLoading ? 'Deleting ...' : 'Delete'}
-            disabled={isLoading}
+            submitText={addressList?.loading ? 'Deleting ...' : 'Delete'}
+            disabled={addressList?.loading}
             onContinue={handleDelete}
           />
           {addressList?.data.length > 0 ? (
@@ -119,7 +113,7 @@ function AddressScreen(props) {
                   onPress={() => handleSelectAddress(item)}
                   key={`${address1}`}
                 >
-                  {isLoadingDelete && showModal?.data?.id === id ? (
+                  {(isLoadingDelete && showModal?.data?.id === id) || addressList?.loading ? (
                     <LoadingComponent type="circle" key={id} />
                   ) : (
                     <View>
@@ -198,7 +192,7 @@ function AddressScreen(props) {
             />
             <Button
               onPress={onSubmit}
-              title={isLoading ? 'Saving ...' : 'Select Address'}
+              title={addressList?.loading ? 'Loading ...' : 'Select Address'}
               size="xxl"
               icon={OcticonsIcon}
               iconName="check"

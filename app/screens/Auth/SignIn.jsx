@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomButton from '../../components/CustomButton';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { COLORS, FONTS } from '../../constants/theme';
-import HeaderBateeq from '../../components/HeaderBateeq';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import LoadingScreen from '../../components/LoadingView';
 import { useMutation } from '@apollo/client';
 import { useNavigation, CommonActions } from '@react-navigation/native';
-import { AUTH_LOGIN } from '../../graphql/mutation';
 import { connect } from 'react-redux';
+import { AUTH_LOGIN } from '../../graphql/mutation';
+import LoadingScreen from '../../components/LoadingView';
+import HeaderBateeq from '../../components/HeaderBateeq';
+import { COLORS, FONTS } from '../../constants/theme';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import CustomButton from '../../components/CustomButton';
 import { CartGenerateId } from '../../store/actions';
 
 const ValidateSchema = Yup.object().shape({
@@ -25,8 +25,8 @@ const ValidateSchema = Yup.object().shape({
   }),
 });
 
-const SignIn = props => {
-  let { CartGenerateId, cartId } = props;
+function SignIn(props) {
+  const { CartGenerateId, cartId } = props;
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
@@ -46,7 +46,8 @@ const SignIn = props => {
           password: values.customer.password,
         },
       });
-
+      console.log('daaata signin', data);
+      console.log('value', values);
       const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
 
       if (accessToken) {
@@ -95,7 +96,6 @@ const SignIn = props => {
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <HeaderBateeq signin />
       {isLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <LoadingScreen />
@@ -108,6 +108,7 @@ const SignIn = props => {
             backgroundColor: COLORS.white,
           }}
         >
+          <HeaderBateeq signin />
           <View style={{ marginBottom: 20 }}>
             <Text
               style={{
@@ -243,7 +244,7 @@ const SignIn = props => {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  <CustomButton onPress={handleSubmit} title="Login" arrowIcon={true} logout />
+                  <CustomButton onPress={handleSubmit} title="Login" arrowIcon logout />
                 </>
               );
             }}
@@ -276,12 +277,12 @@ const SignIn = props => {
       )}
     </ScrollView>
   );
-};
+}
 
 export default connect(
   ({ Cart }) => {
-    let { options } = Cart;
-    let { cartId } = options;
+    const { options } = Cart;
+    const { cartId } = options;
     return { cartId };
   },
   { CartGenerateId }

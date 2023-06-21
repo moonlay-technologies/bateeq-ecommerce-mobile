@@ -1,5 +1,6 @@
 import React from 'react';
 import { TextInput, View, Text, StyleSheet } from 'react-native';
+import { useSelector } from 'react-redux';
 import { GlobalStyleSheet } from '../constants/StyleSheet';
 import { COLORS } from '../constants/theme';
 
@@ -15,9 +16,10 @@ function Input({
   numberOfLines,
   name,
 }) {
+  const currentTheme = useSelector(state => state.Theme.mode);
   return (
     <View style={GlobalStyleSheet.inputGroup}>
-      <Text style={GlobalStyleSheet.label}>{label}</Text>
+      <Text style={currentTheme === 'dark' ? GlobalStyleSheet.label : GlobalStyleSheet.label}>{label}</Text>
       <TextInput
         keyboardType={keyboardType}
         placeholder={placeholder}
@@ -25,7 +27,7 @@ function Input({
         onChangeText={handleInputChange}
         defaultValue={value}
         onSubmitEditing={onSubmitEditing}
-        style={GlobalStyleSheet.formControl}
+        style={[GlobalStyleSheet.formControl, currentTheme === 'dark' && { color: COLORS.black }]}
         placeholderTextColor={COLORS.label}
         numberOfLines={numberOfLines}
       />

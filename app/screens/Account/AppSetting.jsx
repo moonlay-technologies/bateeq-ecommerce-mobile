@@ -6,13 +6,13 @@ import * as Yup from 'yup';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import CustomButton from '../../components/CustomButton';
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import Header from '../../layout/Header';
 import { gqlError } from '../../utils/eror-handling';
 import { UpdateAccount } from '../../store/actions/user';
 import { resetNavigation } from '../../store/actions';
+import Button from '../../components/ButtonComponent';
 
 function AppSetting({ ...props }) {
   const { options, UpdateAccount: updateAccount } = props;
@@ -98,14 +98,18 @@ function AppSetting({ ...props }) {
                     { ...FONTS.font, color: COLORS.title },
                   ]}
                 />
-                <Text>You can only change the password once</Text>
                 {touched.password && errors.password && (
                   <Text style={GlobalStyleSheet.errorMessage}>{errors.password}</Text>
                 )}
               </View>
             </View>
             <View style={{ marginTop: 10 }}>
-              <CustomButton title="Update Password" onPress={handleSubmit} />
+              <Button
+                title={`${options?.loading ? 'Loading ...' : 'Update Password'}`}
+                onPress={handleSubmit}
+                style={{ marginTop: 10 }}
+                disabled={options?.loading}
+              />
             </View>
           </View>
         )}
