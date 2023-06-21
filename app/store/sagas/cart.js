@@ -14,83 +14,106 @@ import { client } from '../../../index';
 import { __GQL_CART_INITIAL } from '../../service/graphql/mutation/cart/index.gql';
 import { findKey } from '../../utils/helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
+import {Toast} from "react-native-toast-message/lib/src/Toast";
 
 export function* __cartGenerateId() {
-  yield takeEvery(REQUEST(GENERATE_CART_ID), function* ({ payload }) {
+  yield takeEvery(REQUEST(GENERATE_CART_ID), function*({ payload }) {
     try {
-      const newPayload = {
-        id: null,
-        totalQuantity: 0,
-      };
-
-      AsyncStorage.getItem('cart').then(cartId => {
-        if (cartId) {
-          Reflect.set(payload, 'id', cartId);
-        }
-      });
-
-      if (payload?.id) {
-        if (!AsyncStorage.getItem('cart')) {
-          AsyncStorage.setItem('cart', payload?.id);
-        }
+      const cart = yield call(AsyncStorage.getItem,'cart')
+      if(cart){
         yield all([
-          put({
-            type: SUCCESS(GENERATE_CART_ID),
-            payload,
-          }),
-        ]);
-      } else if (payload.token) {
-        AsyncStorage.getItem('cart')
-          .then(function* (cartId) {
-            if (!cartId) {
-              const mutation = gql`
-                ${__GQL_CART_INITIAL}
-              `;
-
-              const data = yield call(client.mutate, {
-                mutation,
-                variables: {
-                  input: {
-                    buyerIdentity: {
-                      customerAccessToken: payload.token,
-                    },
-                    note: '',
-                  },
-                },
-              });
-
-              if (
-                findKey(data, ['cartCreate', 'cart']) &&
-                Object.keys(findKey(data, ['cartCreate', 'cart'])).length > 0
-              ) {
-                Object.entries(findKey(data, ['cartCreate', 'cart'])).map(([key, value]) => {
-                  Reflect.set(newPayload, key, value);
-                });
-
-                AsyncStorage.setItem('cart', newPayload?.id);
-                yield put({
-                  type: SUCCESS(GENERATE_CART_ID),
-                  payload: newPayload,
-                });
-              } else {
-                yield put({
-                  type: FAILURE(GENERATE_CART_ID),
-                  payload: 'Some Error',
-                });
+            put({
+              type: SUCCESS(GENERATE_CART_ID),
+              payload: {
+                ...payload,
+                id:cart
+              },
+            }),
+          ]);
+      }else{
+          const mutation = gql`mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
+          @inContext(country: $country, language: $language) {
+            cartCreate(input: $input) {
+              cart {
+                id
+                note
+                totalQuantity
+                __typename
+                lines(first: 10) {
+                  edges {
+                    node {
+                      __typename
+                      cost {
+                        amountPerQuantity {
+                          amount
+                          currencyCode
+                        }
+                        compareAtAmountPerQuantity {
+                          amount
+                          currencyCode
+                        }
+                        totalAmount {
+                          amount
+                          currencyCode
+                        }
+                      }
+                    }
+                  }
+                }
+                attributes {
+                  key
+                  value
+                  __typename
+                }
+                cost {
+                  totalAmount {
+                    amount
+                  }
+                }
               }
-            } else {
-              Reflect.set(newPayload, 'id', cartId);
-              yield put({
-                type: SUCCESS(GENERATE_CART_ID),
-                payload: newPayload,
-              });
+              userErrors {
+                field
+                message
+              }
+            }
+          }`;
+          const response = yield call(client.mutate, {
+            mutation,
+            variables: {
+              input: {
+                buyerIdentity: {
+                  customerAccessToken: payload.token,
+                },
+                note: '',
+              },
             }
           })
-          .catch(err => {
-            return null;
+
+        if(findKey(response,['data','cartCreate','cart','id'])){
+          yield call(AsyncStorage.setItem,'cart',findKey(response,['data','cartCreate','cart','id']))
+          yield all([
+              put({
+                type:SUCCESS(GENERATE_CART_ID),
+                payload: {
+                  id:findKey(response,['data','cartCreate','cart','id'])
+                }
+              })
+          ])
+        }else{
+          Toast.show({
+            type: 'error',
+            text1: 'Oops!',
+            text2: 'Error: failed generate cartId',
           });
+          yield all([
+            put({
+              type:FAILURE(GENERATE_CART_ID)
+            })
+          ])
+        }
       }
     } catch (err) {
+      console.log({err},'@@redux/CART/GENERATEID')
       yield put({
         type: FAILURE(GENERATE_CART_ID),
         payload: err?.message ?? 'Some Error',

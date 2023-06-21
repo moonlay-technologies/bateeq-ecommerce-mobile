@@ -12,7 +12,7 @@ import { COLORS, FONTS, IMAGES } from '../constants/theme';
 import { CartGetList } from '../store/actions';
 import { CommonActions } from '@react-navigation/native';
 
-function CustomDrawer({ navigation, customerInfo, ...props }) {
+function CustomDrawer({ navigation, customerInfo,options, ...props }) {
   let { cartId, CartGetList, CustomDrawer } = props;
 
   const navItem = [
@@ -88,53 +88,74 @@ function CustomDrawer({ navigation, customerInfo, ...props }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-      <View
-        style={{
-          flexDirection: 'row',
+        {
+            options?.loading ? (
+                <View style={{
+                    flexDirection: 'row',
 
-          paddingHorizontal: 20,
+                    paddingHorizontal: 20,
 
-          paddingVertical: 20,
+                    paddingVertical: 20,
 
-          borderBottomWidth: 1,
+                    borderBottomWidth: 1,
 
-          borderBottomColor: COLORS.borderColor,
+                    borderBottomColor: COLORS.borderColor,
 
-          marginBottom: 10,
-        }}
-      >
-        <Image
-          style={{
-            height: 50,
+                    marginBottom: 10,
+                }}>
+                    <Text>Loading...</Text>
+                </View>
+            ): (
+                <View
+                    style={{
+                        flexDirection: 'row',
 
-            width: 50,
+                        paddingHorizontal: 20,
 
-            marginRight: 10,
+                        paddingVertical: 20,
 
-            borderRadius: 50,
-          }}
-          source={IMAGES.user}
-        />
+                        borderBottomWidth: 1,
 
-        <View style={{ flex: 1 }}>
-          <Text
-            style={{
-              ...FONTS.fontSatoshiBold,
+                        borderBottomColor: COLORS.borderColor,
 
-              fontSize: 18,
+                        marginBottom: 10,
+                    }}
+                >
+                    <Image
+                        style={{
+                            height: 50,
 
-              color: COLORS.title,
+                            width: 50,
 
-              top: 2,
-            }}
-          >
-            {CustomDrawer?.firstName || CustomDrawer?.first_name || ''}{' '}
-            {CustomDrawer?.lastName || CustomDrawer?.last_name || ''}
-          </Text>
+                            marginRight: 10,
 
-          <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{CustomDrawer?.email}</Text>
-        </View>
-      </View>
+                            borderRadius: 50,
+                        }}
+                        source={IMAGES.user}
+                    />
+
+                    <View style={{ flex: 1 }}>
+                        <Text
+                            style={{
+                                ...FONTS.fontSatoshiBold,
+
+                                fontSize: 18,
+
+                                color: COLORS.title,
+
+                                top: 2,
+                            }}
+                        >
+                            {options?.info?.firstName ?? "-"}{' '}
+                            {options?.info?.lastName ?? "-"}
+                        </Text>
+
+                        <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{options?.info?.email ?? "-"}</Text>
+                    </View>
+                </View>
+            )
+        }
+
 
       <View style={{ flex: 1 }}>
         {navItem.map((data, index) => {
@@ -230,6 +251,7 @@ export default connect(
     let { options } = User;
     let { cartId } = Cart.options;
     return {
+        options,
       CustomDrawer: options?.info,
       cartId,
     };

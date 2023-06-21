@@ -14,33 +14,37 @@ function App({ ...props }) {
     setNewLoad(true);
     AsyncStorage.getItem('accessToken')
       .then(val => {
-        if (val) {
-          setToken(val);
-          setNewToken(val);
-        }
-        setNewLoad(false);
+          LoadUsers({
+              accessToken: val,
+          });
+        // if (val) {
+        //   setToken(val);
+        //   setNewToken(val);
+        // }
+        // setNewLoad(false);
       })
       .catch(err => {
         setNewLoad(false);
       });
-  }, []);
+  }, [LoadUsers]);
 
-  useEffect(() => {
-    if (!newLoad) {
-      LoadUsers({
-        accessToken: options?.token,
-      });
-    }
-  }, [LoadUsers, newLoad, newToken]);
+  // useEffect(() => {
+  //   // if (!newLoad) {
+  //     LoadUsers({
+  //       accessToken: options?.token,
+  //     });
+  //   // }
+  // }, [LoadUsers, newLoad,options?.token, newToken]);
 
+    console.log({props})
   return <Routes />;
 }
 export default connect(
-  ({ Auth, User }) => {
+  ({ Auth, User,...state }) => {
     const { isAuthenticated } = Auth;
     const { options, loading } = User;
 
-    return { options, isAuthenticated, loading, User };
+    return { options, isAuthenticated, loading, User ,state};
   },
   { LoadUsers, setToken }
 )(App);
