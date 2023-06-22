@@ -4,6 +4,7 @@ import IframeRenderer, { iframeModel } from '@native-html/iframe-plugin';
 import WebView from 'react-native-webview';
 import LoadingScreen from "./LoadingView";
 import React from "react";
+import {findKey} from "../utils/helper";
 
 const renderers = {
   iframe: IframeRenderer
@@ -13,15 +14,7 @@ const customHTMLElementModels = {
   iframe: iframeModel
 }
 
-function provideEmbeddedHeaders(uri, tagName) {
-  console.log({uri,tagName})
-  if (tagName === "iframe") {
-    // Pass an authorization header to all iframes in protected-domain.com
-    return {
-      Authorization: "AIzaSyCyRAbemvjs7zuMDs0mQugP9xPnE3p1ziU"
-    }
-  }
-}
+function provideEmbeddedHeaders(uri, tagName) {}
 /**
  *
  * @param htmlContent
@@ -60,6 +53,17 @@ const CustomHTML = ({ htmlContent, limit, blog_id, ...props }) => {
     const ignoredTags = [];
     const paragraphEndIndex = htmlContent.indexOf('</p>') + 4;
     const previewText = htmlContent.slice(0, paragraphEndIndex);
+
+    const sources = ()=> {
+      if(findKey(props,['source'])){
+        return {
+          ...findKey(props,['source'])
+        }
+      }
+      return {
+        html:blog_id ? previewText : htmlContent
+      }
+    }
     return (
       <View style={styles.container}>
         <RenderHTML
@@ -68,7 +72,7 @@ const CustomHTML = ({ htmlContent, limit, blog_id, ...props }) => {
             WebView={WebView}
             customHTMLElementModels={customHTMLElementModels}
             provideEmbeddedHeaders={provideEmbeddedHeaders}
-          source={{ html: blog_id ? previewText : htmlContent }}
+          source={{...sources()}}
             style={{
               width:"100%",
               height:screen.height,

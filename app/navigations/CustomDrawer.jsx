@@ -11,9 +11,13 @@ import { COLORS, FONTS, IMAGES } from '../constants/theme';
 
 import { CartGetList } from '../store/actions';
 import { CommonActions } from '@react-navigation/native';
+import { setCartId } from '../store/reducer';
+import { useDispatch } from 'react-redux';
 
-function CustomDrawer({ navigation, customerInfo,options, ...props }) {
-  let { cartId, CartGetList, CustomDrawer } = props;
+function CustomDrawer({ navigation, customerInfo, options, ...props }) {
+  let { cartId, CartGetList } = props;
+
+  const dispatch = useDispatch();
 
   const navItem = [
     {
@@ -80,7 +84,13 @@ function CustomDrawer({ navigation, customerInfo,options, ...props }) {
       navigate: 'SignIn',
       onPress: async () => {
         await AsyncStorage.removeItem('accessToken').then(() => {
-          navigation.navigate('SignIn');
+          navigation.dispatch(
+            CommonActions.reset({
+              index: 0,
+              routes: [{ name: 'SignIn' }],
+            })
+          );
+          dispatch(setCartId(''));
         });
       },
     },
@@ -88,74 +98,72 @@ function CustomDrawer({ navigation, customerInfo,options, ...props }) {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.white }}>
-        {
-            options?.loading ? (
-                <View style={{
-                    flexDirection: 'row',
+      {options?.loading ? (
+        <View
+          style={{
+            flexDirection: 'row',
 
-                    paddingHorizontal: 20,
+            paddingHorizontal: 20,
 
-                    paddingVertical: 20,
+            paddingVertical: 20,
 
-                    borderBottomWidth: 1,
+            borderBottomWidth: 1,
 
-                    borderBottomColor: COLORS.borderColor,
+            borderBottomColor: COLORS.borderColor,
 
-                    marginBottom: 10,
-                }}>
-                    <Text>Loading...</Text>
-                </View>
-            ): (
-                <View
-                    style={{
-                        flexDirection: 'row',
+            marginBottom: 10,
+          }}
+        >
+          <Text>Loading...</Text>
+        </View>
+      ) : (
+        <View
+          style={{
+            flexDirection: 'row',
 
-                        paddingHorizontal: 20,
+            paddingHorizontal: 20,
 
-                        paddingVertical: 20,
+            paddingVertical: 20,
 
-                        borderBottomWidth: 1,
+            borderBottomWidth: 1,
 
-                        borderBottomColor: COLORS.borderColor,
+            borderBottomColor: COLORS.borderColor,
 
-                        marginBottom: 10,
-                    }}
-                >
-                    <Image
-                        style={{
-                            height: 50,
+            marginBottom: 10,
+          }}
+        >
+          <Image
+            style={{
+              height: 50,
 
-                            width: 50,
+              width: 50,
 
-                            marginRight: 10,
+              marginRight: 10,
 
-                            borderRadius: 50,
-                        }}
-                        source={IMAGES.user}
-                    />
+              borderRadius: 50,
+            }}
+            source={IMAGES.user}
+          />
 
-                    <View style={{ flex: 1 }}>
-                        <Text
-                            style={{
-                                ...FONTS.fontSatoshiBold,
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                ...FONTS.fontSatoshiBold,
 
-                                fontSize: 18,
+                fontSize: 18,
 
-                                color: COLORS.title,
+                color: COLORS.title,
 
-                                top: 2,
-                            }}
-                        >
-                            {options?.info?.firstName ?? "-"}{' '}
-                            {options?.info?.lastName ?? "-"}
-                        </Text>
+                top: 2,
+              }}
+            >
+              {options?.info?.firstName ?? '-'} {options?.info?.lastName ?? '-'}
+            </Text>
 
-                        <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{options?.info?.email ?? "-"}</Text>
-                    </View>
-                </View>
-            )
-        }
-
+            <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{options?.info?.email ?? '-'}</Text>
+          </View>
+        </View>
+      )}
 
       <View style={{ flex: 1 }}>
         {navItem.map((data, index) => {
@@ -251,7 +259,7 @@ export default connect(
     let { options } = User;
     let { cartId } = Cart.options;
     return {
-        options,
+      options,
       CustomDrawer: options?.info,
       cartId,
     };

@@ -5,11 +5,12 @@ import { useQuery } from '@apollo/client';
 import { GET_ORDERS } from '../../graphql/admin/queries';
 import LoadingScreen from '../../components/LoadingView';
 import { connect } from 'react-redux';
+
 const Canceled = ({ ...props }) => {
   let { info } = props;
   const [dataOrders, setDataOrders] = useState([]);
   const { data, loading } = useQuery(GET_ORDERS, {
-    fetchPolicy: 'no-cache',
+    fetchPolicy: 'cache-and-network',
     variables: {
       customerId: info?.id,
       query: 'financial_status:expired',
@@ -27,18 +28,19 @@ const Canceled = ({ ...props }) => {
   return (
     <ScrollView>
       {loading && (
-        <View style={{ height: '50%', backgroundColor: 'red' }}>
+        <View style={{ height: '50%' }}>
           <LoadingScreen Loading3 />
         </View>
       )}
       {dataOrders.length === 0 && (
         <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', height: 500 }}>
-          <Text style={{ color: 'black', fontSize: 16 }}>{`Yeay, No orders were canceled :D`}</Text>
+          <Text style={{ color: 'black', fontSize: 16 }}>{`Yeay ,No orders were canceled :D`}</Text>
         </View>
       )}
       {dataOrders &&
         dataOrders.map(data => (
           <CartItem
+            {...data}
             key={data.id}
             orderId={data.id}
             productId={data?.lineItems?.nodes[0]?.sku}

@@ -114,11 +114,9 @@ function SignUp(props) {
   };
 
   const handleOnSubmit = values => {
-    console.log('values', values);
     setIsLoading(true);
     AuthenApi.store(values)
       .then(res => {
-        console.log('res AuthenApi', res);
         if (res.status === 201) {
           setIsLoading(false);
           showToast();
@@ -193,7 +191,6 @@ function SignUp(props) {
           </Text>
           <Text style={{ ...FONTS.fontSatoshiRegular }}>
             Register your bateeq account to enjoy benefits from our membership.
-{' '}
           </Text>
         </View>
 

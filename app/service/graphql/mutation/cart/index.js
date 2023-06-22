@@ -30,7 +30,6 @@ export class GqlCart extends MutationGql{
 
     create(){
         this.eventName = CART_ADD
-        console.log({name:this.eventName})
         return [ null, function(){}]
         // return this.mutation()
     }

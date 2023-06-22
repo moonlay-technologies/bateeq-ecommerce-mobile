@@ -1,9 +1,10 @@
 import React from 'react';
 import WebView from 'react-native-webview';
 import { connect } from 'react-redux';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import LoadingScreen from '../../components/LoadingView';
-import { GetCheckoutId } from '../../store/actions/checkout';
+import { GetCheckoutId } from '../../store/actions';
+import {findKey} from "../../utils/helper";
 
 function CheckoutScreen({ loading, checkout }) {
   if (loading) {
@@ -19,7 +20,8 @@ function CheckoutScreen({ loading, checkout }) {
       </View>
     );
   }
-  return <WebView source={{ uri: checkout?.data?.webUrl }} style={{ flex: 1 }} />;
+
+    return <WebView source={{ uri: findKey(checkout,['data','webUrl']) }} style={{ flex: 1 }} />
 }
 
 export default connect(

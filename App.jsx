@@ -14,21 +14,16 @@ function App({ ...props }) {
   const [theme, setTheme] = useState(currentColor);
 
   useEffect(() => {
-    setNewLoad(true);
-    AsyncStorage.getItem('accessToken')
-      .then(val => {
-        LoadUsers({
-          accessToken: val,
-        });
-        // if (val) {
-        //   setToken(val);
-        //   setNewToken(val);
-        // }
-        // setNewLoad(false);
-      })
-      .catch(err => {
-        setNewLoad(false);
+    AsyncStorage.getItem('accessToken').then(val => {
+      LoadUsers({
+        accessToken: val,
       });
+      // if (val) {
+      //   setToken(val);
+      //   setNewToken(val);
+      // }
+      // setNewLoad(false);
+    });
   }, [LoadUsers]);
 
   // useEffect(() => {

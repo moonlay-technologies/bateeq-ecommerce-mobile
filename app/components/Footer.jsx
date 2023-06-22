@@ -231,7 +231,7 @@ export const Footer = ({ dataPagesStory }) => {
         </View>
       </ExpandableSection>
 
-      <ExpandableSection title="About Company">
+      <ExpandableSection title="Our Company">
         <View style={{ gap: 10 }}>
           <TouchableOpacity style={{ marginBottom: 10 }}>
             <Text

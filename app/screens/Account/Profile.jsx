@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation, CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
@@ -50,7 +50,12 @@ function Profile() {
 
   useEffect(() => {
     if (isLoggedOut && isFocused) {
-      navigation.navigate('SignIn');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'SignIn' }],
+        })
+      );
     }
   }, [isLoggedOut, isFocused, navigation]);
 
@@ -235,7 +240,6 @@ function Profile() {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
                   dispatch(setCartId(''));
-                  navigation.navigate('SignIn');
                 }}
                 logout
               />
