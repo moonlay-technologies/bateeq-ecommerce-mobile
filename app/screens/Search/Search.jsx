@@ -211,16 +211,13 @@ const Search = props => {
           style={{
             ...FONTS.font,
             flex: 1,
-            color: 'black',
+            color: COLORS.title,
             borderWidth: 1,
             paddingHorizontal: 12,
             borderRadius: 5,
             marginBottom: 24,
           }}
           blurOnSubmit={true}
-          onBlur={e => {
-            console.log(e);
-          }}
           placeholder="e.g T-shirt / Dress"
           placeholderTextColor={COLORS.text}
           value={valSearch}

@@ -10,6 +10,7 @@ import {
   PUT_CART_TOTAL_QTY,
 } from '../constants';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
+import {findKey} from "../../utils/helper";
 
 /**
  *
@@ -78,12 +79,12 @@ export default function (state = initialState, action) {
 
     case REQUEST(DELETE_CART_LIST_OF_ITEM):
       if (Array.isArray(action?.payload?.lineIds) && action?.payload?.lineIds.length > 0) {
-        for (let i = 0; i < state.lists.data.length; i++) {
-          if (typeof state.lists.data[i] !== 'undefined') {
-            const item = state.lists.data[i];
+        for (const element of state.lists.data) {
+          if (typeof element !== 'undefined') {
+            const item = element;
             const filtered = action?.payload?.lineIds.filter(str => str === item?.id);
             if (filtered.length > 0) {
-              state.lists.data[i].loading = true;
+              element.loading = true;
             }
           }
         }
@@ -96,8 +97,8 @@ export default function (state = initialState, action) {
         },
       };
     case SUCCESS(DELETE_CART_LIST_OF_ITEM):
-      if (action?.payload?.id) {
-        state.lists.data = [...state.lists.data.filter(item => item?.id !== action?.payload?.id)];
+      if(findKey(action,['payload']) && findKey(action,['payload','lineId'])){
+        state.lists.data = [ ...state.lists.data.filter((item)=> findKey(action,['payload','lineId']).filter((child)=> child !== item.id).length > 0 ? item : null)]
       }
       return {
         ...state,
@@ -107,9 +108,33 @@ export default function (state = initialState, action) {
         },
         lists: {
           ...state.lists,
-          data: [...state.lists.data],
+          data: [...state.lists.data]
         },
       };
+    case FAILURE(DELETE_CART_LIST_OF_ITEM):
+      if (Array.isArray(action?.payload?.lineIds) && action?.payload?.lineIds.length > 0) {
+        for (const element of state.lists.data) {
+          if (typeof element !== 'undefined') {
+            const item = element;
+            const filtered = action?.payload?.lineIds.filter(str => str === item?.id);
+            if (filtered.length > 0) {
+              element.loading = false;
+            }
+          }
+        }
+      }
+      return {
+        ...state,
+        options: {
+          ...state.options,
+          totalQuantity: action?.payload?.totalQuantity ?? state.options?.totalQuantity ?? 0,
+        },
+        lists: {
+          ...state.lists,
+          data: [...state.lists.data]
+        },
+      };
+
 
     case REQUEST(GET_CART_LIST):
       return {

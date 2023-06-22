@@ -205,7 +205,6 @@ function EditProfile({ route, ...props }) {
 
 export default connect(
   ({ User }) => {
-    console.log('USERRR', User);
     const { options, collections } = User;
     return { options, collections };
   },

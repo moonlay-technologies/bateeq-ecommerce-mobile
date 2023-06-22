@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation, CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { useDispatch } from 'react-redux';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
@@ -45,11 +44,15 @@ function Profile() {
   const [isLoading, setIsLoading] = useState(false);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     if (isLoggedOut && isFocused) {
-      navigation.navigate('SignIn');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'SignIn' }],
+        })
+      );
     }
   }, [isLoggedOut, isFocused, navigation]);
 

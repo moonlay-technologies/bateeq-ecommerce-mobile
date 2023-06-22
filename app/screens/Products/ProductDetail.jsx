@@ -191,7 +191,6 @@ function ProductDetail(props) {
             ],
           };
 
-          console.log({payload})
           const { data: addLine } = await cartLinesAdd({
             variables: payload,
           });
