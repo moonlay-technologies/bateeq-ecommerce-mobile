@@ -14,7 +14,6 @@ import italian from '../../assets/images/flags/italian.png';
 import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
-import { setCartId } from '../../store/reducer';
 import HeaderComponent from '../../components/HeaderComponent';
 import UserInfo from '../../components/UserInfo';
 
@@ -234,7 +233,6 @@ function Profile() {
                 onPress={async () => {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
-                  dispatch(setCartId(''));
                   navigation.navigate('SignIn');
                 }}
                 logout

@@ -9,11 +9,11 @@ export function formatWithCommas(n) {
 export const renderHTMLContent = html => {
   const paragraphs = html.split('</p>');
 
-  return paragraphs.map((paragraph, index) => {
+  return paragraphs.map(paragraph => {
     const text = paragraph.replace(/<[^>]+>/g, '');
 
     // eslint-disable-next-line react/jsx-filename-extension
-    return <Text key={index}>{text}</Text>;
+    return <Text key={paragraph}>{text}</Text>;
   });
 };
 
@@ -27,9 +27,12 @@ export const findKey = (data, key) => {
   if (typeof data === 'object') {
     if (Array.isArray(key) && key.length > 0) {
       let value = data;
+      // if (data) {
       for (const k of key) {
         value = value[k];
+        // }
       }
+
       return value;
     }
     if (typeof key === 'string') {
@@ -62,33 +65,32 @@ export const findVariantIdByOptions = (product, options) => {
   return null;
 };
 
-
-export function getSrcInTag(html){
+export function getSrcInTag(html) {
   // let pattern = /(?<=src=").*?(?=["])/g
   // let src = html.match(pattern)
   // console.log({src})
-  return html
+  return html;
   // return Array.isArray(src) && src.length > 0 ? src[0]: null
 }
 
-export function getIframeHtml(html){
+export function getIframeHtml(html) {
   // let patternIframe = /<iframe.*?<\/iframe>/
 
-  try{
+  try {
     // let iframe = html.match(patternIframe)
     // if(Array.isArray(iframe) && iframe.length > 0){
     //   iframe = iframe.map((item)=> item.replace(/style="(.*?)"/,' '))
     // }
-    return html
-  }catch(err){
-    return null
+    return html;
+  } catch (err) {
+    return null;
   }
 }
 
-export function clearTagHtml(html){
+export function clearTagHtml(html) {
   // let patternIframe = /<iframe.*?<\/iframe>/
-  try{
-    let tagHtml = []
+  try {
+    const tagHtml = [];
     // let clearHtml = html.replace(/\n/g,' ')
     // let pattern = /<.*?[^>]+>[^<]*<\/[^>]+>/
     // tagHtml = clearHtml.match(pattern)
@@ -101,15 +103,15 @@ export function clearTagHtml(html){
     // }).join(' ')
 
     return {
-      __tag:tagHtml ?? [],
-      __html:html,
+      __tag: tagHtml ?? [],
+      __html: html,
       // patternIframe
-    }
-  }catch(err){
+    };
+  } catch (err) {
     return {
-      __tag:[],
-      __html:html,
+      __tag: [],
+      __html: html,
       // patternIframe
-    }
+    };
   }
 }
