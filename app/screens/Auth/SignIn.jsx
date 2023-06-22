@@ -15,7 +15,7 @@ import { useNavigation, CommonActions } from '@react-navigation/native';
 import { AUTH_LOGIN } from '../../graphql/mutation';
 import { connect } from 'react-redux';
 import { CartGenerateId } from '../../store/actions';
-import {AuthUser} from "../../store/actions/auth";
+import { AuthUser } from '../../store/actions/auth';
 
 const ValidateSchema = Yup.object().shape({
   customer: Yup.object().shape({
@@ -40,9 +40,9 @@ const SignIn = props => {
     try {
       setIsLoading(true);
       AuthUser({
-        email:values.customer.email,
-        password:values.customer.password
-      })
+        email: values.customer.email,
+        password: values.customer.password,
+      });
 
       // const { data } = await CustomerAccessTokenCreateMutation({
       //   fetchPolicy: 'no-cache',
@@ -66,16 +66,16 @@ const SignIn = props => {
       //       token: accessToken,
       //     });
       //   }
-        // CartGenerateId({
-        //   token: accessToken,
-        // });
-        // await AsyncStorage.setItem('accessToken', accessToken);
-        // navigation.dispatch(
-        //   CommonActions.reset({
-        //     index: 0,
-        //     routes: [{ name: 'DrawerNavigation' }],
-        //   })
-        // );
+      // CartGenerateId({
+      //   token: accessToken,
+      // });
+      // await AsyncStorage.setItem('accessToken', accessToken);
+      // navigation.dispatch(
+      //   CommonActions.reset({
+      //     index: 0,
+      //     routes: [{ name: 'DrawerNavigation' }],
+      //   })
+      // );
       // } else {
       //   Toast.show({
       //     type: 'error',
@@ -289,5 +289,5 @@ export default connect(
     let { cartId } = options;
     return { cartId };
   },
-  { CartGenerateId,AuthUser }
+  { CartGenerateId, AuthUser }
 )(React.memo(SignIn));

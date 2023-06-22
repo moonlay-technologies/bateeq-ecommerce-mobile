@@ -62,32 +62,31 @@ export const findVariantIdByOptions = (product, options) => {
   return null;
 };
 
-
-export function getSrcInTag(html){
+export function getSrcInTag(html) {
   // let pattern = /(?<=src=").*?(?=["])/g
   // let src = html.match(pattern)
-  return html
+  return html;
   // return Array.isArray(src) && src.length > 0 ? src[0]: null
 }
 
-export function getIframeHtml(html){
+export function getIframeHtml(html) {
   // let patternIframe = /<iframe.*?<\/iframe>/
 
-  try{
+  try {
     // let iframe = html.match(patternIframe)
     // if(Array.isArray(iframe) && iframe.length > 0){
     //   iframe = iframe.map((item)=> item.replace(/style="(.*?)"/,' '))
     // }
-    return html
-  }catch(err){
-    return null
+    return html;
+  } catch (err) {
+    return null;
   }
 }
 
-export function clearTagHtml(html){
+export function clearTagHtml(html) {
   // let patternIframe = /<iframe.*?<\/iframe>/
-  try{
-    let tagHtml = []
+  try {
+    let tagHtml = [];
     // let clearHtml = html.replace(/\n/g,' ')
     // let pattern = /<.*?[^>]+>[^<]*<\/[^>]+>/
     // tagHtml = clearHtml.match(pattern)
@@ -100,15 +99,15 @@ export function clearTagHtml(html){
     // }).join(' ')
 
     return {
-      __tag:tagHtml ?? [],
-      __html:html,
+      __tag: tagHtml ?? [],
+      __html: html,
       // patternIframe
-    }
-  }catch(err){
+    };
+  } catch (err) {
     return {
-      __tag:[],
-      __html:html,
+      __tag: [],
+      __html: html,
       // patternIframe
-    }
+    };
   }
 }

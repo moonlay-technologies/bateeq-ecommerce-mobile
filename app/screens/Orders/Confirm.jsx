@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import CartItem from '../../components/CartItem';
 import { useQuery } from '@apollo/client';
 import { GET_ORDERS } from '../../graphql/admin/queries';
@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 
 const Confirm = ({ ...props }) => {
   let { info } = props;
-  const [dataOrdersPending, setDataOrdersPending] = useState([]);
+  const [dataOrders, setDataOrders] = useState([]);
   const { data, loading } = useQuery(GET_ORDERS, {
     fetchPolicy: 'cache-and-network',
     variables: {
@@ -22,20 +22,25 @@ const Confirm = ({ ...props }) => {
 
   useEffect(() => {
     if (data) {
-      setDataOrdersPending(data?.customer?.orders?.nodes);
+      setDataOrders(data?.customer?.orders?.nodes);
     }
   }, [data]);
   return (
     <ScrollView>
-      {loading && <LoadingScreen Loading2 />}
-      {dataOrdersPending.length === 0 && (
-        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', height: 500 }}>
-          <Text style={{ color: 'black', fontSize: 16 }}>No orders need to be confirmed</Text>
+      {loading && (
+        <View style={{ height: '50%' }}>
+          <LoadingScreen Loading3 />
         </View>
       )}
-      {dataOrdersPending &&
-        dataOrdersPending.map(data => (
+      {dataOrders.length === 0 && (
+        <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1, flexDirection: 'column', height: 500 }}>
+          <Text style={{ color: 'black', fontSize: 16 }}>{`no orders confirmed`}</Text>
+        </View>
+      )}
+      {dataOrders &&
+        dataOrders.map(data => (
           <CartItem
+            {...data}
             key={data.id}
             orderId={data.id}
             productId={data?.lineItems?.nodes[0]?.sku}
@@ -51,7 +56,6 @@ const Confirm = ({ ...props }) => {
     </ScrollView>
   );
 };
-
 export default connect(({ User }) => {
   let { options } = User;
   let { info } = options;

@@ -89,11 +89,11 @@ function ProductItem({
             justifyContent: 'center',
           }}
         >
-          {isLike ? (
+          {/* {isLike ? (
             <FontAwesome color={COLORS.primary} size={24} name="heart" />
           ) : (
             <FontAwesome color={COLORS.white} size={24} name="heart-o" />
-          )}
+          )} */}
         </TouchableOpacity>
       </View>
       <View

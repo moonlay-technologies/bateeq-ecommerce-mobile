@@ -1,13 +1,12 @@
 import React from 'react';
 import { Image, TouchableOpacity, View } from 'react-native';
 import { useSharedValue, withTiming } from 'react-native-reanimated';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, CommonActions } from '@react-navigation/native';
 import { COLORS, SIZES } from '../constants/theme';
 import home from '../assets/images/icons/home.png';
 import favourite from '../assets/images/icons/favourite.png';
 import search from '../assets/images/icons/search.png';
 import user from '../assets/images/icons/user.png';
-// import cart from '../assets/images/icons/cart.png';
 import receipt from '../assets/images/icons/receipt.png';
 
 function CustomBottomNavigation({ state, descriptors, navigation }) {
@@ -36,6 +35,7 @@ function CustomBottomNavigation({ state, descriptors, navigation }) {
       }}
     >
       {state.routes.map((route, index) => {
+        console.log('route', route);
         const { options } = descriptors[route.key];
         const label =
           options.tabBarLabel !== undefined
@@ -47,21 +47,24 @@ function CustomBottomNavigation({ state, descriptors, navigation }) {
         const isFocused = state.index === index;
 
         const onPress = () => {
-            console.log({
-                type: 'tabPress',
-                target: route.key,
-                canPreventDefault: true,
-            })
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          });
+          if (isFocused && route.name === 'Home') {
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Home' }],
+              })
+            );
+          } else {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
 
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate({ name: route.name, merge: true });
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate({ name: route.name, merge: true });
+            }
           }
-          activeTab();
         };
 
         return (

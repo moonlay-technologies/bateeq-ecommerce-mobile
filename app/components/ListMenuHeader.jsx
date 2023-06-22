@@ -91,6 +91,19 @@ const MenuItem = ({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
     }
   };
 
+  const renderSubMenuItems = items => {
+    return items.map(subItem => (
+      <MenuItem
+        key={subItem.id}
+        item={subItem}
+        onCloseSubMenu={closeSubMenu}
+        isSubMenuOpen={subMenuOpenStates[subItem.id] || false}
+        setSubMenuOpen={value => toggleSubMenu(subItem.id, value)}
+        onPress={() => handleSubItemPress(subItem)}
+      />
+    ));
+  };
+
   return (
     <View style={styles.menuItemContainer}>
       <TouchableOpacity onPress={onPress || handlePress} ref={menuItemRef}>
@@ -137,7 +150,7 @@ const MenuListHeader = ({ dataListMenu, dataStory }) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.menuContainer} horizontal showsHorizontalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={styles.menuContainer} vertical showsHorizontalScrollIndicator={false}>
       {dataListMenu?.menu?.items?.map(item => (
         <MenuItem
           key={item.id}
@@ -165,6 +178,8 @@ const styles = StyleSheet.create({
   menuItemTitle: {
     fontSize: 13,
     color: '#333',
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   modalContainer: {
     flex: 1,
@@ -179,6 +194,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     zIndex: 999,
+    maxHeight: 200,
   },
   subMenuScrollContainer: {
     flexGrow: 1,
