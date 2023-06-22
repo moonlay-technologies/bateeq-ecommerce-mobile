@@ -2,13 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import * as yup from 'yup';
 import { useMutation } from '@apollo/client';
-import { Snackbar } from 'react-native-paper';
 import { connect } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { ADD_ITEM_TO_CART } from '../../graphql/mutation';
 import { CartGetList, getProductById, getProductRecommendation } from '../../store/actions';
 import { formatWithCommas, findVariantIdByOptions } from '../../utils/helper';
@@ -63,12 +61,9 @@ function ProductDetail(props) {
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);
   const [qty, setQty] = useState(1);
-  const [snackText] = useState('Loading...');
   const [errors, setErrors] = useState({});
   const [variantId, setVariantId] = useState('');
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
-  const [isSnackbar, setIsSnackbar] = useState(false);
-  const [onWishList, setOnWishList] = useState(false);
   const [isChangeId, setIsChangeId] = useState(false)
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [notifState, setNotifState] = useState({
@@ -482,85 +477,23 @@ function ProductDetail(props) {
 
       <Notification visible={notifState.show} text={notifState.text} navText={notifState.navText} to={notifState.to} />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
+      <View style={{
+          display: 'flex', 
+          flexDirection: 'row', 
           paddingHorizontal: 15,
           paddingVertical: 12,
-        }}
-      >
-        <View style={{ marginRight: 20, paddingVertical: 10 }}>
-          <Button
-            onPress={() => {
-              setOnWishList(prev => !prev);
-              if (onWishList) {
-                setNotifState({
-                  show: true,
-                  text: 'Item removed from wishlist',
-                  navText: 'see wishlist',
-                  to: 'Wishlist',
-                });
-                setTimeout(() => {
-                  setNotifState({
-                    show: false,
-                    text: '',
-                    navText: '',
-                    to: '',
-                  });
-                }, 5000);
-              } else {
-                setNotifState({
-                  show: true,
-                  text: 'Item added to wishlist',
-                  navText: 'see wishlist',
-                  to: 'Wishlist',
-                });
-                setTimeout(() => {
-                  setNotifState({
-                    show: false,
-                    text: '',
-                    navText: '',
-                    to: '',
-                  });
-                }, 5000);
-              }
-            }}
-            title="Wishlist"
-            outline
-            size="xs"
-            iconColor="red"
-            iconStyles={{ marginLeft: 18 }}
-            icon={onWishList ? FontAwesome : FeatherIcon}
-            iconName="heart"
-          />
-        </View>
-        <View>
+        }}>
+        <View style={{width: '100%'}}>
           <Button
             onPress={onSubmit}
-            title={onSubmitLoading ? 'Loading ...' : 'Add To Cart'}
-            size="xs"
-            iconStyles={{ marginLeft: 18 }}
+            title={onSubmitLoading ? 'Loading ...' : 'Add to Cart'}
+            iconSize={20}
+            iconName='shopping-bag'
             icon={FeatherIcon}
-            iconName="shopping-bag"
             disabled={onSubmitLoading }
           />
+          </View>
         </View>
-      </View>
-      <Snackbar
-        visible={isSnackbar}
-        duration={3000}
-        onDismiss={() => setIsSnackbar(false)}
-        action={{
-          label: 'Wishlist',
-          onPress: () => {
-            setOnWishList(prev => !prev);
-          },
-        }}
-      >
-        {snackText}
-      </Snackbar>
     </SafeAreaView>
   );
 }
@@ -635,7 +568,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
   },
   container: {
-    backgroundColor: COLORS.LIGHT, // Customize the background color
+    backgroundColor: COLORS.light, // Customize the background color
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
