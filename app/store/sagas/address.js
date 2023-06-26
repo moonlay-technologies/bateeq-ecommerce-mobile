@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client';
 import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { GET_CUSTOMER_ADDRESS } from '../../graphql/queries';
 import { client } from '../../..';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
@@ -24,17 +23,13 @@ export function* getUserAddress() {
       const query = gql`
         ${GET_CUSTOMER_ADDRESS}
       `;
-
-      const variables = {
-        fetchPolicy: 'no-cache',
-        accessToken: payload?.token,
-
-        limit: payload?.limit || 20,
-      };
-
       const response = yield call(client.query, {
         query,
-        variables,
+        variables: {
+          //   fetchPolicy: 'no-cache',
+          accessToken: payload?.token,
+          limit: 20,
+        },
       });
 
       if (response.data.customer.addresses) {
@@ -61,29 +56,15 @@ export function* createUserAddress() {
       `;
       const response = yield call(client.mutate, {
         mutation,
-
         variables: {
           ...payload,
         },
       });
-
       if (response.data.customerAddressCreate.customerAddress) {
-        yield all([
-          put({ type: SUCCESS(CREATE_ADDRESS), payload: response.data.customerAddressCreate.customerAddress }),
-          put({ type: REQUEST(GET_ADDRESS_LIST), payload: { token: payload?.customerAccessToken } }),
-        ]);
-        Toast.show({
-          type: 'success',
-          text1: 'New address added successfully',
-        });
+        yield put({ type: SUCCESS(CREATE_ADDRESS), payload: response.data.customerAddressCreate.customerAddress });
       }
     } catch (error) {
       yield put({ type: FAILURE(CREATE_ADDRESS) });
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to add your address.',
-        text2: ' Please try again',
-      });
     }
   });
 }
@@ -103,23 +84,10 @@ export function* updateUserAddresses() {
       });
       if (response.data.customerAddressUpdate.customerAddress) {
         const newPayload = { id: response.data.customerAddressUpdate.customerAddress.id, hasEdit: true };
-
-        yield all([
-          put({ type: SUCCESS(UPDATE_ADDRESS), payload: newPayload }),
-          put({ type: REQUEST(GET_ADDRESS_LIST), payload: { token: payload?.customerAccessToken } }),
-        ]);
-        Toast.show({
-          type: 'success',
-          text1: 'Address updated sucessfully',
-        });
+        yield put({ type: SUCCESS(UPDATE_ADDRESS), payload: newPayload });
       }
     } catch (error) {
       yield put({ type: FAILURE(UPDATE_ADDRESS) });
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to update your address.',
-        text2: ' Please try again',
-      });
     }
   });
 }
@@ -140,23 +108,10 @@ export function* updateDefaultUserAddresses() {
 
       if (response.data.customerDefaultAddressUpdate.customer) {
         const newPayload = { id: response.data.customerDefaultAddressUpdate.customer.id, hasEdit: true };
-
-        yield all([
-          put({ type: SUCCESS(UPDATE_DEFAULT_ADDRESS), payload: newPayload }),
-          put({ type: REQUEST(GET_ADDRESS_LIST), payload: { token: payload?.customerAccessToken } }),
-        ]);
-        Toast.show({
-          type: 'success',
-          text1: 'Default address updated successfully!',
-        });
+        yield put({ type: SUCCESS(UPDATE_DEFAULT_ADDRESS), payload: newPayload });
       }
     } catch (error) {
       yield put({ type: FAILURE(UPDATE_DEFAULT_ADDRESS) });
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to update your default address.',
-        text2: ' Please try again',
-      });
     }
   });
 }
@@ -177,22 +132,10 @@ export function* deleteUserAddress() {
 
       if (response.data.customerAddressDelete) {
         const newPayload = { id: response.data.customerAddressDelete.deletedCustomerAddressId, hasEdit: true };
-        yield all([
-          put({ type: SUCCESS(DELETE_ADDRESS), payload: newPayload }),
-          put({ type: REQUEST(GET_ADDRESS_LIST), payload: { token: payload?.customerAccessToken } }),
-        ]);
-        Toast.show({
-          type: 'success',
-          text1: 'Address deleted successfully!',
-        });
+        yield put({ type: SUCCESS(DELETE_ADDRESS), payload: newPayload });
       }
     } catch (error) {
       yield put({ type: FAILURE(DELETE_ADDRESS) });
-      Toast.show({
-        type: 'error',
-        text1: 'Failed to delete address.',
-        text2: ' Please try again',
-      });
     }
   });
 }
