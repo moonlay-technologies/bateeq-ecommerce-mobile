@@ -241,6 +241,7 @@ function CartScreen({ navigation, route, ...props }) {
 export default connect(
   ({ Cart, User }) => {
     const { options, lists } = Cart;
+    console.log('lists', lists);
     const {
       options: userOptions,
       collections: {

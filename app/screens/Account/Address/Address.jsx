@@ -17,14 +17,15 @@ import NoContent from '../../../components/NoContent';
 function AddressScreen(props) {
   const {
     token,
+    route,
     getAddressList: getAddress,
     addressList,
     defaultAddress,
     removeCustomerAddress: removeAddress,
     updateDefaultCustomerAddress: updateDefaultAddress,
+    actionLoading,
   } = props;
   const navigation = useNavigation();
-
   const [addressSelected, setAddressSelected] = useState();
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [showModal, setShowModal] = useState({
@@ -33,16 +34,8 @@ function AddressScreen(props) {
   });
 
   useEffect(() => {
-    if (!addressList?.isChange) {
-      getAddress({ token, limit: 10 });
-    }
+    getAddress({ token, limit: 10 });
   }, []);
-
-  useEffect(() => {
-    if (addressList?.isChange) {
-      getAddress({ token, limit: 10 });
-    }
-  }, [addressList]);
 
   const handleSelectAddress = value => {
     setAddressSelected(value);
@@ -58,7 +51,10 @@ function AddressScreen(props) {
       ...prev,
       show: !prev.show,
     }));
-    setIsLoadingDelete(false);
+    setTimeout(() => {
+      getAddress({ token, limit: 10 });
+      setIsLoadingDelete(false);
+    }, 500);
   };
 
   const onSubmit = async () => {
@@ -113,7 +109,9 @@ function AddressScreen(props) {
                   onPress={() => handleSelectAddress(item)}
                   key={`${address1}`}
                 >
-                  {(isLoadingDelete && showModal?.data?.id === id) || addressList?.loading ? (
+                  {(isLoadingDelete && showModal?.data?.id === id) ||
+                  addressList?.loading ||
+                  (actionLoading && route?.params?.editedId === id) ? (
                     <LoadingComponent type="circle" key={id} />
                   ) : (
                     <View>
@@ -168,6 +166,8 @@ function AddressScreen(props) {
                 </TouchableOpacity>
               );
             })
+          ) : addressList?.data.length === 0 && addressList?.loading ? (
+            <LoadingComponent type="circle" />
           ) : (
             <NoContent text="No addresses found. Please add an address." icon={FontAwesome} name="address-book" />
           )}
@@ -262,8 +262,9 @@ export default connect(
       options: { token },
       collections: { address },
     } = User;
-    const { addressList, defaultAddress } = Address;
-    return { token, address, addressList, defaultAddress };
+    const { addressList, defaultAddress, actionLoading } = Address;
+
+    return { token, address, addressList, defaultAddress, actionLoading };
   },
   { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress }
 )(React.memo(AddressScreen));

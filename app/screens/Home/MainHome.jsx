@@ -22,10 +22,11 @@ import OurStory from '../../components/screens/home/our-story';
 import HeaderComponent from '../../components/HeaderComponent';
 import LoadingScreen from '../../components/LoadingView';
 import { Footer } from '../../components/Footer';
+import MenuListHeader from '../../components/ListMenuHeader';
 
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
-
+  console.log('navigation MainHome', navigation);
   const [pageStory, setPageStory] = useState(null);
   const [dataBanner, setDataBanner] = useState([]);
   const [imageSliderCollection, setImageSliderCollection] = useState([]);
@@ -92,7 +93,8 @@ function MainHome(props) {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      <HeaderComponent dataListMenu={dataSideMenuNavigation} dataPageStory={pageStory} showListMenu />
+      <HeaderComponent />
+      <MenuListHeader dataListMenu={dataSideMenuNavigation} dataPageStory={pageStory} />
       <ScrollView>
         {dataImageBannerLoading && <LoadingScreen Loading3 />}
         <Swiper
@@ -139,7 +141,7 @@ function MainHome(props) {
           }}
         />
 
-        <LatestCollections />
+        <LatestCollections navigate={navigation} />
 
         <OurCategory />
 

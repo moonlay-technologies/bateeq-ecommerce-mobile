@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const MenuItem = ({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) => {
+function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) {
   const navigation = useNavigation();
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const menuItemRef = useRef(null);
@@ -133,9 +133,9 @@ const MenuItem = ({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
       )}
     </View>
   );
-};
+}
 
-const MenuListHeader = ({ dataListMenu, dataStory }) => {
+function MenuListHeader({ dataListMenu, dataStory }) {
   const [subMenuOpenStates, setSubMenuOpenStates] = useState({});
 
   const toggleSubMenu = (itemId, value) => {
@@ -163,7 +163,7 @@ const MenuListHeader = ({ dataListMenu, dataStory }) => {
       ))}
     </ScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   menuContainer: {

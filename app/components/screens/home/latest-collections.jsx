@@ -32,7 +32,7 @@ function mapStateToProps({ Product }) {
  * @returns {JSX.Element}
  */
 function LatestCollections(props) {
-  const { collections, CollectionProductLatest, CollectionProductLatestShow } = props;
+  const { collections, CollectionProductLatest, CollectionProductLatestShow, navigate } = props;
   const screen = useWindowDimensions();
   const navigation = useNavigation();
 
@@ -115,8 +115,8 @@ function LatestCollections(props) {
                         onPress={() =>
                           navigation.navigate('ProductDetail', {
                             id: product?.id ?? '-',
-                          })
-                        }
+                            navTo: navigate,
+                          })}
                         imageSrc={product?.images?.edges[0].node.url}
                         title={product?.title}
                         price={product?.variants?.edges[0].node.price.amount}
