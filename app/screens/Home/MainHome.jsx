@@ -25,7 +25,7 @@ import { Footer } from '../../components/Footer';
 
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
-
+  console.log('navigation MainHome', navigation);
   const [pageStory, setPageStory] = useState(null);
   const [dataBanner, setDataBanner] = useState([]);
   const [imageSliderCollection, setImageSliderCollection] = useState([]);
@@ -92,7 +92,7 @@ function MainHome(props) {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      <HeaderComponent dataListMenu={dataSideMenuNavigation} dataPageStory={pageStory} showListMenu />
+      {/* <HeaderComponent dataListMenu={dataSideMenuNavigation} dataPageStory={pageStory} showListMenu /> */}
       <ScrollView>
         {dataImageBannerLoading && <LoadingScreen Loading3 />}
         <Swiper
@@ -139,7 +139,7 @@ function MainHome(props) {
           }}
         />
 
-        <LatestCollections />
+        <LatestCollections navigate={navigation} />
 
         <OurCategory />
 

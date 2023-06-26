@@ -55,102 +55,48 @@ import PagesInShopify from '../screens/Pages/PageByRoute';
 import OrderDetail from '../screens/Orders/OrdersDetail';
 import AppSetting from '../screens/Account/AppSetting';
 import ResetPassword from '../screens/Auth/ResetPassword';
+import HeaderComponent from '../components/HeaderComponent';
+import { AuthScreens, Screens } from './MenuNavigation';
 
 const StackComponent = createNativeStackNavigator();
 
 function StackNavigator({ isAuthenticated }) {
   if (isAuthenticated) {
     return (
+      <>
+        <HeaderComponent />
+        <StackComponent.Navigator
+          initialRouteName="DrawerNavigation"
+          detachInactiveScreens
+          screenOptions={{
+            headerShown: false,
+            cardStyle: { backgroundColor: 'transparent' },
+          }}
+        >
+          {AuthScreens?.map(i => (
+            <StackComponent.Screen key={i.name} name={i.name} component={i.component} />
+          ))}
+        </StackComponent.Navigator>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <HeaderComponent />
       <StackComponent.Navigator
-        initialRouteName="DrawerNavigation"
+        initialRouteName="Onboarding"
         detachInactiveScreens
         screenOptions={{
           headerShown: false,
           cardStyle: { backgroundColor: 'transparent' },
         }}
       >
-        {/*<StackComponent.Screen name="Splash" component={Splash} />*/}
-        <StackComponent.Screen name="DrawerNavigation" component={DrawerNavigation} />
-        <StackComponent.Screen name="Products" component={Products} />
-        <StackComponent.Screen name="OrderDetail" component={OrderDetail} />
-        <StackComponent.Screen name="EditProfile" component={EditProfile} />
-        <StackComponent.Screen name="Address" component={Address} />
-        <StackComponent.Screen name="AddAddress" component={AddAddress} />
-        <StackComponent.Screen name="EditAddress" component={EditAddress} />
-        <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
-        <StackComponent.Screen name="Checkout" component={Checkout} />
-        <StackComponent.Screen name="Payment" component={Payment} />
-        <StackComponent.Screen name="PagesInShopify" component={PagesInShopify} />
-        <StackComponent.Screen name="Items" component={Items} />
-        <StackComponent.Screen name="SignIn" component={SignIn} />
-        <StackComponent.Screen name="SignUp" component={SignUp} />
-        <StackComponent.Screen name="AppSetting" component={AppSetting} />
-        <StackComponent.Screen name="ResetPassword" component={ResetPassword} />
+        {Screens.map(screen => {
+          return <StackComponent.Screen key={screen.name} name={screen.name} component={screen.component} />;
+        })}
       </StackComponent.Navigator>
-    );
-  }
-
-  return (
-    <StackComponent.Navigator
-      initialRouteName="Onboarding"
-      detachInactiveScreens
-      screenOptions={{
-        headerShown: false,
-        cardStyle: { backgroundColor: 'transparent' },
-      }}
-    >
-      <StackComponent.Screen name="SignIn" component={SignIn} />
-      <StackComponent.Screen name="ResetPassword" component={ResetPassword} />
-      <StackComponent.Screen name="Home" component={MainHome} />
-      <StackComponent.Screen name="ProductDetail" component={ProductDetail} />
-      <StackComponent.Screen name="Items" component={Items} />
-      <StackComponent.Screen name="OrderDetail" component={OrderDetail} />
-      <StackComponent.Screen name="Cart" component={Cart} />
-      <StackComponent.Screen name="Onboarding" component={Onboarding} />
-      <StackComponent.Screen name="Welcome" component={Welcome} />
-      <StackComponent.Screen name="SignUp" component={SignUp} />
-      <StackComponent.Screen name="DrawerNavigation" component={DrawerNavigation} />
-      <StackComponent.Screen name="CategoryHome" component={CategoryHome} />
-      <StackComponent.Screen name="Products" component={Products} />
-      <StackComponent.Screen name="Featured" component={Featured} />
-      <StackComponent.Screen name="Orders" component={Orders} />
-      <StackComponent.Screen name="DeliveryTracking" component={DeliveryTracking} />
-      <StackComponent.Screen name="Wishlist" component={Wishlist} />
-      <StackComponent.Screen name="Profile" component={Profile} />
-      <StackComponent.Screen name="Address" component={Address} />
-      <StackComponent.Screen name="EditProfile" component={EditProfile} />
-      <StackComponent.Screen name="Coupons" component={Coupons} />
-      <StackComponent.Screen name="Payment" component={Payment} />
-      <StackComponent.Screen name="AddAddress" component={AddAddress} />
-      <StackComponent.Screen name="Filter" component={Filter} />
-      <StackComponent.Screen name="Search" component={Search} />
-      <StackComponent.Screen name="Components" component={Components} />
-      <StackComponent.Screen name="Accordion" component={AccordionScreen} />
-      <StackComponent.Screen name="ActionSheet" component={ActionSheet} />
-      <StackComponent.Screen name="ActionModals" component={ActionModals} />
-      <StackComponent.Screen name="Buttons" component={Buttons} />
-      <StackComponent.Screen name="Charts" component={Charts} />
-      <StackComponent.Screen name="Chips" component={Chips} />
-      <StackComponent.Screen name="CollapseElements" component={CollapseElements} />
-      <StackComponent.Screen name="DividerElements" component={DividerElements} />
-      <StackComponent.Screen name="FileUploads" component={FileUploads} />
-      <StackComponent.Screen name="Inputs" component={Inputs} />
-      <StackComponent.Screen name="Headers" component={Headers} />
-      <StackComponent.Screen name="Footers" component={Footers} />
-      <StackComponent.Screen name="TabStyle1" component={TabStyle1} />
-      <StackComponent.Screen name="TabStyle2" component={TabStyle2} />
-      <StackComponent.Screen name="TabStyle3" component={TabStyle3} />
-      <StackComponent.Screen name="TabStyle4" component={TabStyle4} />
-      <StackComponent.Screen name="lists" component={ListScreen} />
-      <StackComponent.Screen name="Paginations" component={Paginations} />
-      <StackComponent.Screen name="Pricings" component={Pricings} />
-      <StackComponent.Screen name="Snackbars" component={Snackbars} />
-      <StackComponent.Screen name="Swipeable" component={SwipeableScreen} />
-      <StackComponent.Screen name="Tabs" component={Tabs} />
-      <StackComponent.Screen name="Tables" component={Tables} />
-      <StackComponent.Screen name="Toggles" component={Toggles} />
-      <StackComponent.Screen name="Checkout" component={Checkout} />
-    </StackComponent.Navigator>
+    </>
   );
 }
 

@@ -27,17 +27,9 @@ const PagesInShopify = ({route}) => {
               {dataPages?.title}
             </Text>
             <CustomHTML
-                useWebKit={true}
-                scrollEnabled={false}
-                htmlContent={clearTagHtml(dataPages?.body)?.__html} htmlStyle={{
-              img: {
-                overflow:"hidden",
-                borderRadius: 10,
-                left:-5,
-                width:`${screen.width / 2 - 30}px`,
-                objectFit:"cover",
-              }
-            }}/>
+             htmlContent={dataPages?.body}
+             dataPages={dataPages}
+            />
 
           </View>
         </ScrollView>

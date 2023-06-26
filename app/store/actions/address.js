@@ -2,6 +2,7 @@ import {
   CREATE_ADDRESS,
   DELETE_ADDRESS,
   GET_ADDRESS_LIST,
+  REFETCH_ADDRESS_LIST,
   UPDATE_ADDRESS,
   UPDATE_DEFAULT_ADDRESS,
 } from '../constants/address';
@@ -18,6 +19,15 @@ export function getAddressList(payload) {
     type: REQUEST(GET_ADDRESS_LIST),
     payload,
   };
+}
+
+/**
+ * @returns {{ type: string }}
+ * @constructor
+ */
+
+export function refetchAddressList() {
+  return { type: REQUEST(REFETCH_ADDRESS_LIST) };
 }
 
 /**

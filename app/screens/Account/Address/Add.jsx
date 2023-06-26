@@ -13,7 +13,7 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import InputTextArea from '../../../components/InputTextArea';
 import Button from '../../../components/ButtonComponent';
 import Input from '../../../components/InputComponent';
-import { createAddress } from '../../../store/actions/address';
+import { createAddress, getAddressList } from '../../../store/actions/address';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -28,7 +28,7 @@ const schema = yup.object().shape({
   postal_code: yup.string().required(),
 });
 
-function AddAddress({ navigation, token, createAddress: creatingAddress }) {
+function AddAddress({ navigation, token, createAddress: creatingAddress, getAddressList: getAddress }) {
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -155,7 +155,8 @@ function AddAddress({ navigation, token, createAddress: creatingAddress }) {
         });
         setTimeout(() => {
           setIsLoading(false);
-          navigation.navigate('Address', { refetch });
+          getAddress({ token, limit: 10, refetch: true });
+          navigation.navigate('Address');
         }, 1000);
       })
       .catch(err => {
@@ -310,5 +311,5 @@ export default connect(
       token,
     };
   },
-  { createAddress }
+  { createAddress, getAddressList }
 )(AddAddress);

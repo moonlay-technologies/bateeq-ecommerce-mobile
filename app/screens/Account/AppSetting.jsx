@@ -14,7 +14,7 @@ import { UpdateAccount } from '../../store/actions/user';
 import { resetNavigation } from '../../store/actions';
 import Button from '../../components/ButtonComponent';
 
-function AppSetting({ ...props }) {
+function AppSettingScreen({ ...props }) {
   const { options, UpdateAccount: updateAccount } = props;
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -54,7 +54,7 @@ function AppSetting({ ...props }) {
 
   return (
     <View style={{ padding: 20 }}>
-      <Header titleLeft leftIcon="back" title="App Setting" />
+      <Header titleLeft leftIcon="back" title="Change Password" />
       <Formik
         initialValues={initialValues}
         onSubmit={values => {
@@ -124,4 +124,4 @@ export default connect(
     return { options, collections };
   },
   { UpdateAccount }
-)(React.memo(AppSetting));
+)(React.memo(AppSettingScreen));

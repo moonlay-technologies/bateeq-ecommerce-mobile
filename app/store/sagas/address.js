@@ -7,6 +7,7 @@ import {
   CREATE_ADDRESS,
   DELETE_ADDRESS,
   GET_ADDRESS_LIST,
+  REFETCH_ADDRESS_LIST,
   UPDATE_ADDRESS,
   UPDATE_DEFAULT_ADDRESS,
 } from '../constants/address';
@@ -23,14 +24,27 @@ export function* getUserAddress() {
       const query = gql`
         ${GET_CUSTOMER_ADDRESS}
       `;
-      const response = yield call(client.query, {
-        query,
-        variables: {
-          //   fetchPolicy: 'no-cache',
-          accessToken: payload?.token,
-          limit: 20,
-        },
-      });
+      console.log('payload', payload);
+      let response;
+      const variables = {
+        fetchPolicy: 'no-cache',
+        accessToken: payload?.token,
+        limit: payload?.limit || 20,
+      };
+      console.log('payload?.refetch', payload?.refetch);
+      if (payload?.refetch) {
+        console.log('masuk gaa');
+        response = yield call(client.refetchQueries, [{ query, variables }]);
+
+        console.log('response refetchQueries', response);
+      } else {
+        response = yield call(client.query, {
+          query,
+          variables,
+        });
+        console.log('response biasa', response);
+      }
+      console.log('reuslt response', response);
 
       if (response.data.customer.addresses) {
         const newPayload = {
@@ -43,6 +57,23 @@ export function* getUserAddress() {
     } catch (error) {
       yield put({
         type: FAILURE(GET_ADDRESS_LIST),
+      });
+    }
+  });
+}
+
+export function* refetchUserAddress() {
+  yield takeEvery(REQUEST(REFETCH_ADDRESS_LIST), function* ({ payload }) {
+    try {
+      const query = gql`
+        ${GET_CUSTOMER_ADDRESS}
+      `;
+      yield call(client.refetchQueries, [{ query, variables: { fetchPolicy: 'no-cache' } }]);
+      yield put({ type: SUCCESS(REFETCH_ADDRESS_LIST) });
+    } catch (error) {
+      console.log('refecth error', error);
+      yield put({
+        type: FAILURE(REFETCH_ADDRESS_LIST),
       });
     }
   });

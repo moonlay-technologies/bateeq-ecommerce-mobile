@@ -35,7 +35,6 @@ function CustomBottomNavigation({ state, descriptors, navigation }) {
       }}
     >
       {state.routes.map((route, index) => {
-        console.log('route', route);
         const { options } = descriptors[route.key];
         const label =
           options.tabBarLabel !== undefined
@@ -71,7 +70,7 @@ function CustomBottomNavigation({ state, descriptors, navigation }) {
           <View
             key={index}
             style={{
-              width: '20%',
+              width: '25%',
               alignItems: 'center',
             }}
           >
@@ -92,9 +91,9 @@ function CustomBottomNavigation({ state, descriptors, navigation }) {
                 source={
                   label === 'Home'
                     ? home
-                    : label === 'Favourite'
-                    ? favourite
-                    : label === 'Search'
+                    : // : label === 'Favourite'
+                    // ? favourite
+                    label === 'Search'
                     ? search
                     : label === 'Account'
                     ? user

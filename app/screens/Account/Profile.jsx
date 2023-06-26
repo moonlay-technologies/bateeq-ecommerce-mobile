@@ -4,6 +4,7 @@ import { useIsFocused, useNavigation, CommonActions } from '@react-navigation/na
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import { connect } from 'react-redux';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
@@ -15,6 +16,7 @@ import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import HeaderComponent from '../../components/HeaderComponent';
 import UserInfo from '../../components/UserInfo';
+import { getAddressList } from '../../store/actions/address';
 
 const languagetData = [
   {
@@ -38,7 +40,7 @@ const languagetData = [
     name: 'Spanish',
   },
 ];
-function Profile() {
+function Profile({ token, getAddressList: getAddress }) {
   const navigation = useNavigation();
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -119,7 +121,7 @@ function Profile() {
           backgroundColor: COLORS.backgroundColor,
         }}
       >
-        <HeaderComponent />
+        {/* <HeaderComponent /> */}
         <ScrollView>
           <Text
             style={{
@@ -158,7 +160,10 @@ function Profile() {
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Address')}
+                onPress={() => {
+                  navigation.navigate('Address');
+                  getAddress({ token, limit: 10, refetch: true });
+                }}
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -197,7 +202,7 @@ function Profile() {
                     flex: 1,
                   }}
                 >
-                  App Setting
+                  Change Password
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
@@ -248,4 +253,12 @@ function Profile() {
   );
 }
 
-export default Profile;
+export default connect(
+  ({ User }) => {
+    const {
+      options: { token },
+    } = User;
+    return { token };
+  },
+  { getAddressList }
+)(Profile);

@@ -6,16 +6,15 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
+import { CommonActions } from '@react-navigation/native';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 
 import { CartGetList } from '../store/actions';
-import { CommonActions } from '@react-navigation/native';
 import { setCartId } from '../store/reducer';
-import { useDispatch } from 'react-redux';
 
 function CustomDrawer({ navigation, customerInfo, options, ...props }) {
-  let { cartId, CartGetList } = props;
+  const { cartId, CartGetList } = props;
 
   const dispatch = useDispatch();
 
@@ -157,7 +156,9 @@ function CustomDrawer({ navigation, customerInfo, options, ...props }) {
                 top: 2,
               }}
             >
-              {options?.info?.firstName ?? '-'} {options?.info?.lastName ?? '-'}
+              {options?.info?.firstName ?? '-'} 
+{' '}
+{options?.info?.lastName ?? '-'}
             </Text>
 
             <Text style={{ ...FONTS.fontSatoshiRegular, color: 'rgba(0,0,0,.6)' }}>{options?.info?.email ?? '-'}</Text>
@@ -175,17 +176,18 @@ function CustomDrawer({ navigation, customerInfo, options, ...props }) {
                   : async () => {
                       if (
                         // data.navigate == 'Home' ||
-                        data.navigate == 'Cart' ||
-                        data.navigate == 'Account' ||
-                        data.navigate == 'Favourite' ||
-                        data.navigate == 'Orders'
+                        // data.navigate == 'Cart' ||
+                        data.navigate === 'Account' ||
+                        data.navigate === 'Favourite' ||
+                        data.navigate === 'Orders'
                       ) {
                         navigation.navigate('BottomNavigation', {
                           screen: data.navigate,
                         });
-                      } else {
-                        navigation.navigate(data.navigate);
                       }
+                      // else {
+                      //   navigation.navigate(data.navigate);
+                      // }
 
                       navigation.closeDrawer();
                     }
@@ -256,8 +258,8 @@ function CustomDrawer({ navigation, customerInfo, options, ...props }) {
 
 export default connect(
   ({ User, Cart }) => {
-    let { options } = User;
-    let { cartId } = Cart.options;
+    const { options } = User;
+    const { cartId } = Cart.options;
     return {
       options,
       CustomDrawer: options?.info,

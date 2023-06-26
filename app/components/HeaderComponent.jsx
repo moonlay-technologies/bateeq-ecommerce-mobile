@@ -33,6 +33,7 @@ function HeaderComponent({
   dataPageStory,
   showListMenu,
   dataListMenu,
+  navTo,
   options,
   ...props
 }) {
@@ -55,15 +56,20 @@ function HeaderComponent({
   };
 
   const onPressBack = () => {
-    if (backAction) {
-      navigation.goBack();
-    } else if (
-      'openDrawer' in navigation &&
-      typeof navigation?.openDrawer !== 'undefined' &&
-      typeof navigation?.openDrawer === 'function'
-    ) {
-      navigation?.openDrawer();
-    }
+    console.log('navigation onPressBack', navigation);
+    // if (backAction) {
+    //   navigation.goBack();
+    // } else if (navTo) {
+    //   console.log('navTo headerComponent', navTo);
+    //   navTo.openDrawer();
+    // } else if (
+    //   'openDrawer' in navigation &&
+    //   typeof navigation?.openDrawer !== 'undefined' &&
+    //   typeof navigation?.openDrawer === 'function'
+    // ) {
+    //   console.log('navigation onPressBack', navigation);
+    // navigation.openDrawer();
+    // }
   };
 
   const onNavigateCart = () => {

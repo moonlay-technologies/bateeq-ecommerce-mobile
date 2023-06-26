@@ -38,7 +38,7 @@ function ProductDetail(props) {
     color: [],
     size: [],
   });
-
+  console.log('navigation props', navigation)
   const schema = yup.object().shape({
     quantity: yup.number().required(),
     size: yup.string().required(),
@@ -56,7 +56,7 @@ function ProductDetail(props) {
     cartId: yup.string().required(),
   });
 
-  const { id } = route.params;
+  const { id , navTo} = route.params;
   const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);
@@ -190,6 +190,8 @@ function ProductDetail(props) {
             variables: payload,
           });
 
+          console.log('cartLinesAdd', addLine)
+
           if (addLine?.cartLinesAdd?.cart.id) {
             setNotifState({
               show: true
@@ -278,11 +280,12 @@ function ProductDetail(props) {
       setRandomProductsRecommendation(selectedProducts);
     }
   }, [recommendationProducts]);
-
+  console.log('navTo', navTo)
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
-        <HeaderComponent />
+        <HeaderComponent navTo={navTo} />
+        <Button title='tessss' onPress={() => navTo.openDrawer()} />
         <View style={{ paddingHorizontal: 20 }}>
           <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
         </View>

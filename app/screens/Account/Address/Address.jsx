@@ -11,7 +11,12 @@ import Modal from '../../../components/ActionModalComponent';
 import LoadingComponent from '../../../components/LoadingView';
 import HeaderComponent from '../../../components/HeaderComponent';
 import Button from '../../../components/ButtonComponent';
-import { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress } from '../../../store/actions/address';
+import {
+  getAddressList,
+  removeCustomerAddress,
+  updateDefaultCustomerAddress,
+  refetchAddressList,
+} from '../../../store/actions/address';
 import NoContent from '../../../components/NoContent';
 
 function AddressScreen(props) {
@@ -22,6 +27,7 @@ function AddressScreen(props) {
     defaultAddress,
     removeCustomerAddress: removeAddress,
     updateDefaultCustomerAddress: updateDefaultAddress,
+    refetchAddressList: refetchAddress,
   } = props;
   const navigation = useNavigation();
 
@@ -32,17 +38,17 @@ function AddressScreen(props) {
     data: '',
   });
 
-  useEffect(() => {
-    if (!addressList?.isChange) {
-      getAddress({ token, limit: 10 });
-    }
-  }, []);
+  // useEffect(() => {
+  //   getAddress({ token, limit: 10 });
+  // }, []);
 
-  useEffect(() => {
-    if (addressList?.isChange) {
-      getAddress({ token, limit: 10 });
-    }
-  }, [addressList]);
+  // useEffect(() => {
+  //   if (addressList?.isChange) {
+  //     console.log('gamasuk sini ya ');
+  //     refetchAddress();
+  //     getAddress({ token, limit: 10 });
+  //   }
+  // }, [addressList]);
 
   const handleSelectAddress = value => {
     setAddressSelected(value);
@@ -58,7 +64,10 @@ function AddressScreen(props) {
       ...prev,
       show: !prev.show,
     }));
-    setIsLoadingDelete(false);
+    await getAddress({ token, limit: 10, refetch: true });
+    setTimeout(() => {
+      setIsLoadingDelete(false);
+    }, 500);
   };
 
   const onSubmit = async () => {
@@ -91,7 +100,8 @@ function AddressScreen(props) {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))}
+              }))
+            }
             submitText={addressList?.loading ? 'Deleting ...' : 'Delete'}
             disabled={addressList?.loading}
             onContinue={handleDelete}
@@ -158,7 +168,8 @@ function AddressScreen(props) {
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
-                        }))}
+                        }))
+                      }
                       title={<FeatherIcon name="trash-2" size={16} style={styles.icon} />}
                       style={{ borderColor: COLORS.danger, marginLeft: 20 }}
                       outline
@@ -263,7 +274,8 @@ export default connect(
       collections: { address },
     } = User;
     const { addressList, defaultAddress } = Address;
+    console.log('ADDRESS STATE REDUCER', Address);
     return { token, address, addressList, defaultAddress };
   },
-  { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress }
+  { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress, refetchAddressList }
 )(React.memo(AddressScreen));
