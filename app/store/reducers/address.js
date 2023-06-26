@@ -13,6 +13,7 @@ const initialState = {
     data: [],
     isChange: false,
   },
+  actionLoading: false,
   defaultAddress: {
     loading: true,
     data: {},
@@ -29,6 +30,7 @@ export default function (state = initialState, action) {
         ...state,
       };
     case SUCCESS(GET_ADDRESS_LIST):
+      console.log('get Address reducer', payload?.addresses);
       return {
         ...state,
         addressList: {
@@ -61,6 +63,7 @@ export default function (state = initialState, action) {
           isChange: true,
           ...state.addressList,
         },
+        actionLoading: true,
         ...state.defaultAddress,
       };
     case SUCCESS(UPDATE_ADDRESS):
@@ -71,6 +74,7 @@ export default function (state = initialState, action) {
           isChange: true,
           ...state.addressList,
         },
+        actionLoading: false,
         ...state.defaultAddress,
       };
     case FAILURE(UPDATE_ADDRESS):
@@ -166,6 +170,11 @@ export default function (state = initialState, action) {
         ...state.defaultAddress,
       };
     case SUCCESS(DELETE_ADDRESS):
+      console.log('payload', payload);
+      console.log(
+        'delete success',
+        state.addressList.data.filter(i => i.id !== payload?.id)
+      );
       return {
         ...state,
         addressList: {
