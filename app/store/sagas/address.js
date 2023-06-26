@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client';
 import { all, call, fork, put, takeEvery } from 'redux-saga/effects';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { GET_CUSTOMER_ADDRESS } from '../../graphql/queries';
 import { client } from '../../..';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
@@ -16,6 +17,7 @@ import {
   REMOVE_CUSTOMER_ADDRESS,
   UPDATE_CUSTOMER_ADDRESS,
 } from '../../graphql/mutation';
+import { NAVIGATE_TO } from '../constants/navigation';
 
 export function* getUserAddress() {
   yield takeEvery(REQUEST(GET_ADDRESS_LIST), function* ({ payload }) {
@@ -26,10 +28,13 @@ export function* getUserAddress() {
       const response = yield call(client.query, {
         query,
         variables: {
-          //   fetchPolicy: 'no-cache',
+          fetchPolicy: 'no-cache',
           accessToken: payload?.token,
           limit: 20,
         },
+        refetchQueries: [
+          { query, variables: { fetchPolicy: 'no-cache', accessToken: payload?.customerAccessToken, limit: 20 } },
+        ],
       });
 
       if (response.data.customer.addresses) {
@@ -54,16 +59,28 @@ export function* createUserAddress() {
       const mutation = gql`
         ${CREATE_CUSTOMER_ADDRESS}
       `;
+      const query = gql`
+        ${GET_CUSTOMER_ADDRESS}
+      `;
+
       const response = yield call(client.mutate, {
         mutation,
         variables: {
           ...payload,
         },
+        refetchQueries: [
+          { query, variables: { fetchPolicy: 'no-cache', accessToken: payload?.customerAccessToken, limit: 20 } },
+        ],
       });
       if (response.data.customerAddressCreate.customerAddress) {
         yield put({ type: SUCCESS(CREATE_ADDRESS), payload: response.data.customerAddressCreate.customerAddress });
+        yield put({ type: REQUEST(NAVIGATE_TO), payload: 'Address' });
       }
     } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: error?.message,
+      });
       yield put({ type: FAILURE(CREATE_ADDRESS) });
     }
   });
@@ -75,18 +92,28 @@ export function* updateUserAddresses() {
       const mutation = gql`
         ${UPDATE_CUSTOMER_ADDRESS}
       `;
-
+      const query = gql`
+        ${GET_CUSTOMER_ADDRESS}
+      `;
       const response = yield call(client.mutate, {
         mutation,
         variables: {
           ...payload,
         },
+        refetchQueries: [
+          { query, variables: { fetchPolicy: 'no-cache', accessToken: payload?.customerAccessToken, limit: 20 } },
+        ],
       });
       if (response.data.customerAddressUpdate.customerAddress) {
         const newPayload = { id: response.data.customerAddressUpdate.customerAddress.id, hasEdit: true };
         yield put({ type: SUCCESS(UPDATE_ADDRESS), payload: newPayload });
+        yield put({ type: REQUEST(NAVIGATE_TO), payload: 'Address' });
       }
     } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: error?.message,
+      });
       yield put({ type: FAILURE(UPDATE_ADDRESS) });
     }
   });
@@ -98,19 +125,28 @@ export function* updateDefaultUserAddresses() {
       const mutation = gql`
         ${CUSTOMER_DEFAULT_ADDRESS_UPDATE}
       `;
-
+      const query = gql`
+        ${GET_CUSTOMER_ADDRESS}
+      `;
       const response = yield call(client.mutate, {
         mutation,
         variables: {
           ...payload,
         },
+        refetchQueries: [
+          { query, variables: { fetchPolicy: 'no-cache', accessToken: payload?.customerAccessToken, limit: 20 } },
+        ],
       });
 
       if (response.data.customerDefaultAddressUpdate.customer) {
-        const newPayload = { id: response.data.customerDefaultAddressUpdate.customer.id, hasEdit: true };
+        const newPayload = { id: payload?.addressId };
         yield put({ type: SUCCESS(UPDATE_DEFAULT_ADDRESS), payload: newPayload });
       }
     } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: error?.message,
+      });
       yield put({ type: FAILURE(UPDATE_DEFAULT_ADDRESS) });
     }
   });
@@ -122,12 +158,18 @@ export function* deleteUserAddress() {
       const mutation = gql`
         ${REMOVE_CUSTOMER_ADDRESS}
       `;
+      const query = gql`
+        ${GET_CUSTOMER_ADDRESS}
+      `;
 
       const response = yield call(client.mutate, {
         mutation,
         variables: {
           ...payload,
         },
+        refetchQueries: [
+          { query, variables: { fetchPolicy: 'no-cache', accessToken: payload?.customerAccessToken, limit: 20 } },
+        ],
       });
 
       if (response.data.customerAddressDelete) {
@@ -135,6 +177,10 @@ export function* deleteUserAddress() {
         yield put({ type: SUCCESS(DELETE_ADDRESS), payload: newPayload });
       }
     } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: error?.message,
+      });
       yield put({ type: FAILURE(DELETE_ADDRESS) });
     }
   });

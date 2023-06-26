@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import * as yup from 'yup';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { CountriesApi } from '../../../service/shopify-api';
 
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
@@ -13,7 +13,7 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import InputTextArea from '../../../components/InputTextArea';
 import Button from '../../../components/ButtonComponent';
 import Input from '../../../components/InputComponent';
-import { createAddress, getAddressList } from '../../../store/actions/address';
+import { resetNavigation, createAddress, getAddressList } from '../../../store/actions';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -29,11 +29,14 @@ const schema = yup.object().shape({
 });
 
 function AddAddress({ navigation, token, createAddress: creatingAddress, getAddressList: getAddress }) {
+  const dispatch = useDispatch();
+  const navigationState = useSelector(state => state.Navigation.navigationState);
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
+  const [provinces, setProvinces] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [countryId, setCountryId] = useState('');
-  const [provinces, setProvinces] = useState([]);
+
   const [state, setState] = useState({
     first_name: '',
     last_name: '',
@@ -91,6 +94,26 @@ function AddAddress({ navigation, token, createAddress: creatingAddress, getAddr
     }
   }, [countryId]);
 
+  useEffect(() => {
+    if (navigationState.navigation) {
+      navigation.navigate(`${navigationState?.navigation}`);
+      setErrors({});
+      setState({
+        first_name: '',
+        last_name: '',
+        phone_number: '',
+        company: '',
+        first_address: '',
+        second_address: '',
+        country: '',
+        province: '',
+        city: '',
+        postal_code: '',
+      });
+      dispatch(resetNavigation());
+    }
+  }, [navigationState]);
+
   const handleFieldChange = (value, name) => {
     setState(prev => ({
       ...prev,
@@ -105,7 +128,6 @@ function AddAddress({ navigation, token, createAddress: creatingAddress, getAddr
   };
 
   const handleSubmit = () => {
-    let refetch;
     setIsLoading(true);
 
     const body = {
@@ -122,7 +144,7 @@ function AddAddress({ navigation, token, createAddress: creatingAddress, getAddr
     };
     schema
       .validate(body, { abortEarly: false })
-      .then(result => {
+      .then(async result => {
         const payloadBody = {
           address: {
             address1: result.first_address,
@@ -140,23 +162,9 @@ function AddAddress({ navigation, token, createAddress: creatingAddress, getAddr
           ...payloadBody,
         });
 
-        setErrors({});
-        setState({
-          first_name: '',
-          last_name: '',
-          phone_number: '',
-          company: '',
-          first_address: '',
-          second_address: '',
-          country: '',
-          province: '',
-          city: '',
-          postal_code: '',
-        });
         setTimeout(() => {
           setIsLoading(false);
           getAddress({ token, limit: 10 });
-          navigation.navigate('Address');
         }, 1000);
       })
       .catch(err => {

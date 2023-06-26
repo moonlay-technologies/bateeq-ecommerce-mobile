@@ -95,13 +95,13 @@ export function* __loadUser() {
           }),
         ]);
       }
-
-      yield all([
-        put({
-          type: SUCCESS(LOAD_USER),
-          payload: {},
-        }),
-      ]);
+      // comment for moment
+      // yield all([
+      // put({
+      // type: SUCCESS(LOAD_USER),
+      // payload: {},
+      // }),
+      // ]);
     } catch (err) {
       yield all([
         put({
@@ -176,6 +176,10 @@ export function* __updateAccount() {
           ]);
         }
       } catch (err) {
+        Toast.show({
+          type: 'error',
+          text1: err?.message,
+        });
         yield all([
           put({
             type: FAILURE(EDIT_ACCOUNT),

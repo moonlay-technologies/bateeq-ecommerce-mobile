@@ -1,13 +1,13 @@
 import { all, takeEvery, put, fork, call } from 'redux-saga/effects';
+import { gql } from '@apollo/client';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
 import { AUTH_SIGN_IN, SET_AUTH } from '../constants/Auth';
 import { client } from '../../../index';
-import { gql } from '@apollo/client';
 import { findKey } from '../../utils/helper';
 import { LOAD_USER } from '../constants/user';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { CartGenerateId } from '../actions';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export function* __authUser() {
   yield takeEvery(REQUEST(AUTH_SIGN_IN), function* ({ payload }) {
@@ -31,7 +31,7 @@ export function* __authUser() {
         },
       });
       if (findKey(response, ['data', 'customerAccessTokenCreate', 'customerAccessToken'])) {
-        let item = findKey(response, ['data', 'customerAccessTokenCreate', 'customerAccessToken']);
+        const item = findKey(response, ['data', 'customerAccessTokenCreate', 'customerAccessToken']);
 
         AsyncStorage.setItem('accessToken', findKey(item, ['accessToken']));
 

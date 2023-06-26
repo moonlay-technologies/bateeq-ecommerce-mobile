@@ -57,11 +57,13 @@ function AddressScreen(props) {
     }, 500);
   };
 
-  const onSubmit = async () => {
-    updateDefaultAddress({
-      addressId: addressSelected?.id,
-      customerAccessToken: token,
-    });
+  const onSubmit = () => {
+    if (addressSelected) {
+      updateDefaultAddress({
+        addressId: addressSelected?.id,
+        customerAccessToken: token,
+      });
+    }
   };
 
   return (
@@ -87,7 +89,8 @@ function AddressScreen(props) {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))}
+              }))
+            }
             submitText={addressList?.loading ? 'Deleting ...' : 'Delete'}
             disabled={addressList?.loading}
             onContinue={handleDelete}
@@ -111,7 +114,8 @@ function AddressScreen(props) {
                 >
                   {(isLoadingDelete && showModal?.data?.id === id) ||
                   addressList?.loading ||
-                  (actionLoading && route?.params?.editedId === id) ? (
+                  actionLoading ||
+                  route?.params?.editedId === id ? (
                     <LoadingComponent type="circle" key={id} />
                   ) : (
                     <View>
@@ -156,7 +160,8 @@ function AddressScreen(props) {
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
-                        }))}
+                        }))
+                      }
                       title={<FeatherIcon name="trash-2" size={16} style={styles.icon} />}
                       style={{ borderColor: COLORS.danger, marginLeft: 20 }}
                       outline

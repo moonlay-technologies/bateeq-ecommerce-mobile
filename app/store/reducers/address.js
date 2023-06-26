@@ -17,6 +17,7 @@ const initialState = {
     loading: true,
     data: {},
   },
+  actionLoading: false,
 };
 
 export default function (state = initialState, action) {
@@ -56,12 +57,14 @@ export default function (state = initialState, action) {
     // update action
     case REQUEST(UPDATE_ADDRESS):
       return {
+        ...state,
         addressList: {
           loading: true,
           isChange: true,
           ...state.addressList,
         },
         ...state.defaultAddress,
+        actionLoading: true,
       };
     case SUCCESS(UPDATE_ADDRESS):
       return {
@@ -72,6 +75,7 @@ export default function (state = initialState, action) {
           ...state.addressList,
         },
         ...state.defaultAddress,
+        actionLoading: false,
       };
     case FAILURE(UPDATE_ADDRESS):
       return {
@@ -84,30 +88,34 @@ export default function (state = initialState, action) {
           ...state.defaultAddress,
           loading: false,
         },
+        actionLoading: false,
       };
 
     // update default address
     case REQUEST(UPDATE_DEFAULT_ADDRESS):
       return {
+        ...state,
         addressList: {
           loading: true,
           isChange: true,
           ...state.addressList,
         },
+
         ...state.defaultAddress,
+        actionLoading: true,
       };
     case SUCCESS(UPDATE_DEFAULT_ADDRESS):
       return {
         ...state,
         addressList: {
           loading: false,
-          isChange: true,
-          data: [...state.addressList.filter(i => i.id !== payload?.id), state.defaultAddress],
+          data: [...state.addressList.data.filter(i => i.id !== payload?.id), state?.defaultAddress?.data],
         },
         defaultAddress: {
           loading: false,
           data: state.addressList.data.find(i => i.id === payload?.id),
         },
+        actionLoading: false,
       };
     case FAILURE(UPDATE_DEFAULT_ADDRESS):
       return {
@@ -120,11 +128,13 @@ export default function (state = initialState, action) {
           ...state.defaultAddress,
           loading: false,
         },
+        actionLoading: false,
       };
 
     // create address
     case REQUEST(CREATE_ADDRESS):
       return {
+        ...state,
         addressList: {
           loading: true,
           isChange: true,
@@ -158,6 +168,7 @@ export default function (state = initialState, action) {
     // delete Address
     case REQUEST(DELETE_ADDRESS):
       return {
+        ...state,
         addressList: {
           loading: true,
           isChange: true,
