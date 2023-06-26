@@ -33,11 +33,11 @@ function CustomDrawer({ navigation, customerInfo, options, ...props }) {
         navigation.closeDrawer();
       },
     },
-    {
-      icon: 'heart',
-      name: 'Wishlist',
-      navigate: 'Favourite',
-    },
+    // {
+    //   icon: 'heart',
+    //   name: 'Wishlist',
+    //   navigate: 'Favourite',
+    // },
     {
       icon: 'repeat',
       name: 'Orders',
@@ -145,7 +145,7 @@ function CustomDrawer({ navigation, customerInfo, options, ...props }) {
                         // data.navigate == 'Home' ||
                         // data.navigate == 'Cart' ||
                         data.navigate === 'Account' ||
-                        data.navigate === 'Favourite' ||
+                        // data.navigate === 'Favourite' ||
                         data.navigate === 'Orders'
                       ) {
                         navigation.navigate('BottomNavigation', {

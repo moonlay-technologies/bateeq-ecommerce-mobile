@@ -60,7 +60,7 @@ const Orders = ({ navigation }) => {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      {/* <HeaderComponent /> */}
+      <HeaderComponent />
       <View
         style={{
           flex: 1,
