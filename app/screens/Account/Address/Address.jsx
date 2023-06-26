@@ -11,26 +11,21 @@ import Modal from '../../../components/ActionModalComponent';
 import LoadingComponent from '../../../components/LoadingView';
 import HeaderComponent from '../../../components/HeaderComponent';
 import Button from '../../../components/ButtonComponent';
-import {
-  getAddressList,
-  removeCustomerAddress,
-  updateDefaultCustomerAddress,
-  refetchAddressList,
-} from '../../../store/actions/address';
+import { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress } from '../../../store/actions/address';
 import NoContent from '../../../components/NoContent';
 
 function AddressScreen(props) {
   const {
     token,
+    route,
     getAddressList: getAddress,
     addressList,
     defaultAddress,
     removeCustomerAddress: removeAddress,
     updateDefaultCustomerAddress: updateDefaultAddress,
-    refetchAddressList: refetchAddress,
+    actionLoading,
   } = props;
   const navigation = useNavigation();
-
   const [addressSelected, setAddressSelected] = useState();
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
   const [showModal, setShowModal] = useState({
@@ -38,17 +33,9 @@ function AddressScreen(props) {
     data: '',
   });
 
-  // useEffect(() => {
-  //   getAddress({ token, limit: 10 });
-  // }, []);
-
-  // useEffect(() => {
-  //   if (addressList?.isChange) {
-  //     console.log('gamasuk sini ya ');
-  //     refetchAddress();
-  //     getAddress({ token, limit: 10 });
-  //   }
-  // }, [addressList]);
+  useEffect(() => {
+    getAddress({ token, limit: 10 });
+  }, []);
 
   const handleSelectAddress = value => {
     setAddressSelected(value);
@@ -64,8 +51,8 @@ function AddressScreen(props) {
       ...prev,
       show: !prev.show,
     }));
-    await getAddress({ token, limit: 10, refetch: true });
     setTimeout(() => {
+      getAddress({ token, limit: 10 });
       setIsLoadingDelete(false);
     }, 500);
   };
@@ -123,7 +110,9 @@ function AddressScreen(props) {
                   onPress={() => handleSelectAddress(item)}
                   key={`${address1}`}
                 >
-                  {(isLoadingDelete && showModal?.data?.id === id) || addressList?.loading ? (
+                  {(isLoadingDelete && showModal?.data?.id === id) ||
+                  addressList?.loading ||
+                  (actionLoading && route?.params?.editedId === id) ? (
                     <LoadingComponent type="circle" key={id} />
                   ) : (
                     <View>
@@ -179,6 +168,8 @@ function AddressScreen(props) {
                 </TouchableOpacity>
               );
             })
+          ) : addressList?.data.length === 0 && addressList?.loading ? (
+            <LoadingComponent type="circle" />
           ) : (
             <NoContent text="No addresses found. Please add an address." icon={FontAwesome} name="address-book" />
           )}
@@ -273,9 +264,9 @@ export default connect(
       options: { token },
       collections: { address },
     } = User;
-    const { addressList, defaultAddress } = Address;
-    console.log('ADDRESS STATE REDUCER', Address);
-    return { token, address, addressList, defaultAddress };
+    const { addressList, defaultAddress, actionLoading } = Address;
+
+    return { token, address, addressList, defaultAddress, actionLoading };
   },
-  { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress, refetchAddressList }
+  { getAddressList, removeCustomerAddress, updateDefaultCustomerAddress }
 )(React.memo(AddressScreen));

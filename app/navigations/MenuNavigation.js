@@ -1,5 +1,6 @@
-import AddAddress from '../screens/Account/Address/Add';
 import AddressList from '../screens/Account/Address/Address';
+import AddAddress from '../screens/Account/Address/Add';
+import EditAddress from '../screens/Account/Address/Edit';
 import AppSetting from '../screens/Account/AppSetting';
 import AccountDetails from '../screens/Account/EditProfile';
 import Profile from '../screens/Account/Profile';
@@ -13,11 +14,17 @@ import OrderDetail from '../screens/Orders/OrdersDetail';
 import ProductDetail from '../screens/Products/ProductDetail';
 import DrawerNavigation from './DrawerNavigation';
 import PagesInShopify from '../screens/Pages/PageByRoute';
+import Home from '../screens/Home/MainHome';
+import Cart from '../screens/Cart/Cart';
 
 export const AuthScreens = [
   {
     name: 'DrawerNavigation',
     component: DrawerNavigation,
+  },
+  {
+    name: 'Home',
+    component: Home,
   },
   {
     name: 'OrderDetail',
@@ -40,6 +47,10 @@ export const AuthScreens = [
     component: AddAddress,
   },
   {
+    name: 'EditAddress',
+    component: EditAddress,
+  },
+  {
     name: 'ProductDetail',
     component: ProductDetail,
   },
@@ -47,7 +58,6 @@ export const AuthScreens = [
     name: 'Checkout',
     component: Checkout,
   },
-
   {
     name: 'Items',
     component: Items,
@@ -64,6 +74,10 @@ export const AuthScreens = [
     name: 'PagesInShopify',
     component: PagesInShopify,
   },
+  {
+    name: 'Cart',
+    component: Cart,
+  }
 ];
 
 export const Screens = [
@@ -83,13 +97,4 @@ export const Screens = [
     name: 'Onboarding',
     component: Onboarding,
   },
-
-  //   {
-  //     name: 'AppSetting',
-  //     component: AppSetting,
-  //   },
-  //   {
-  //     name: 'AppSetting',
-  //     component: AppSetting,
-  //   },
 ];

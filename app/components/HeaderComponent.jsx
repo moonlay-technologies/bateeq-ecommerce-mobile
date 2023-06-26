@@ -18,8 +18,6 @@ import { CartGetList, CartPutTotalQty } from '../store/actions';
  * @param backAction
  * @param {boolean} withoutCartAndLogo
  * @param dataPageStory
- * @param showListMenu
- * @param dataListMenu
  * @param options
  * @param props
  * @returns {JSX.Element}
@@ -30,11 +28,9 @@ function HeaderComponent({
   title,
   backAction,
   withoutCartAndLogo,
-  dataPageStory,
-  showListMenu,
-  dataListMenu,
   navTo,
   options,
+  // setIsDrawerOpen,
   ...props
 }) {
   const { CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
@@ -55,21 +51,19 @@ function HeaderComponent({
     navigation.navigate('Home');
   };
 
-  const onPressBack = () => {
-    console.log('navigation onPressBack', navigation);
-    // if (backAction) {
-    //   navigation.goBack();
-    // } else if (navTo) {
-    //   console.log('navTo headerComponent', navTo);
-    //   navTo.openDrawer();
-    // } else if (
-    //   'openDrawer' in navigation &&
-    //   typeof navigation?.openDrawer !== 'undefined' &&
-    //   typeof navigation?.openDrawer === 'function'
-    // ) {
-    //   console.log('navigation onPressBack', navigation);
-    // navigation.openDrawer();
-    // }
+  const onPressLeft = () => {
+    // setIsDrawerOpen(prev => !prev);
+    if (backAction) {
+      navigation.goBack();
+    } else if (navTo) {
+      navTo.openDrawer();
+    } else if (
+      'openDrawer' in navigation &&
+      typeof navigation?.openDrawer !== 'undefined' &&
+      typeof navigation?.openDrawer === 'function'
+    ) {
+      navigation.openDrawer();
+    }
   };
 
   const onNavigateCart = () => {
@@ -142,9 +136,10 @@ function HeaderComponent({
           flexDirection: 'row',
           alignItems: 'center',
           height: 45,
+          backgroundColor: COLORS.white,
         }}
       >
-        <IconButton icon={() => leftIcon(icon, title)} size={25} onPress={onPressBack} />
+        <IconButton icon={() => leftIcon(icon, title)} size={25} onPress={onPressLeft} />
         {title && (
           <Text
             style={{
@@ -162,17 +157,12 @@ function HeaderComponent({
         {!withoutCartAndLogo && (
           <>
             <TouchableOpacity onPress={handlePress}>
-              <Image style={{ width: 70, height: 35 }} source={Logo} />
+              <Image style={{ width: 70, height: 35, backgroundColor: COLORS.transparent }} source={Logo} />
             </TouchableOpacity>
             <IconButton onPress={() => navigation.navigate('Cart')} icon={() => rightIcon()} size={25} />
           </>
         )}
       </View>
-      {showListMenu && (
-        <View>
-          <MenuListHeader dataListMenu={dataListMenu} dataStory={dataPageStory} />
-        </View>
-      )}
     </View>
   );
 }

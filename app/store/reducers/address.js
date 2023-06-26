@@ -14,6 +14,7 @@ const initialState = {
     data: [],
     isChange: false,
   },
+  actionLoading: false,
   defaultAddress: {
     loading: true,
     data: {},
@@ -63,6 +64,7 @@ export default function (state = initialState, action) {
           isChange: true,
           ...state.addressList,
         },
+        actionLoading: true,
         ...state.defaultAddress,
       };
     case SUCCESS(UPDATE_ADDRESS):
@@ -73,6 +75,7 @@ export default function (state = initialState, action) {
           isChange: true,
           ...state.addressList,
         },
+        actionLoading: false,
         ...state.defaultAddress,
       };
     case FAILURE(UPDATE_ADDRESS):

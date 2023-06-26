@@ -12,7 +12,8 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import InputTextArea from '../../../components/InputTextArea';
 import Button from '../../../components/ButtonComponent';
 import Input from '../../../components/InputComponent';
-import { updateAddress } from '../../../store/actions';
+import { updateAddress, getAddressList } from '../../../store/actions';
+import LoadingScreen from '../../../components/LoadingView';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -27,11 +28,19 @@ const schema = yup.object().shape({
   postal_code: yup.string().required(),
 });
 
-function EditAddress({ navigation, route, userInfo, token, updateAddress: updatingAddress }) {
+function EditAddress({
+  navigation,
+  route,
+  userInfo,
+  token,
+  updateAddress: updatingAddress,
+  getAddressList: getAddress,
+}) {
   const { id } = route.params;
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadFetching, setLoadFetching] = useState(false);
   const [countryId, setCountryId] = useState('');
   const [provinces, setProvinces] = useState([]);
   const [customerAddressById, setCustomerAddressById] = useState();
@@ -49,6 +58,7 @@ function EditAddress({ navigation, route, userInfo, token, updateAddress: updati
   });
 
   useEffect(() => {
+    setLoadFetching(true);
     const addressId = id.match(/\/(\d+)\?/)[1];
     const customerId = userInfo?.id.match(/\/(\d+)$/)[1];
     const params = {
@@ -70,9 +80,11 @@ function EditAddress({ navigation, route, userInfo, token, updateAddress: updati
           city: result?.customer_address?.city || '',
           postal_code: result?.customer_address?.zip || '',
         });
+        setLoadFetching(false);
       })
       .catch(err => {
         Toast.show({ type: 'error', text1: 'Oops!', text2: err?.message });
+        setLoadFetching(false);
       });
   }, []);
 
@@ -134,7 +146,6 @@ function EditAddress({ navigation, route, userInfo, token, updateAddress: updati
   };
 
   const handleSubmit = () => {
-    let refetch;
     setIsLoading(true);
 
     const body = {
@@ -184,7 +195,8 @@ function EditAddress({ navigation, route, userInfo, token, updateAddress: updati
           postal_code: '',
         });
         setIsLoading(false);
-        navigation.navigate('Address', { refetch });
+        getAddress({ token, limit: 10 });
+        navigation.navigate('Address', { editedId: id });
       })
       .catch(err => {
         if (err.name === 'ValidationError') {
@@ -216,115 +228,119 @@ function EditAddress({ navigation, route, userInfo, token, updateAddress: updati
         <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
       </View>
       <View style={{ flex: 1 }}>
-        <ScrollView>
-          <View style={GlobalStyleSheet.container}>
-            <View
-              style={{
-                paddingBottom: 10,
-                marginBottom: 20,
-              }}
-            >
-              <Text
+        {isLoadFetching ? (
+          <LoadingScreen type="circle" />
+        ) : (
+          <ScrollView>
+            <View style={GlobalStyleSheet.container}>
+              <View
                 style={{
-                  ...FONTS.fontSatoshiBold,
-                  fontSize: 24,
-                  color: COLORS.title,
+                  paddingBottom: 10,
+                  marginBottom: 20,
                 }}
               >
-                Edit Address
-              </Text>
-            </View>
-            <Input
-              name="first_name"
-              label="First Name"
-              placeholder="e.g. John"
-              value={customerAddressById?.first_name}
-              handleInputChange={val => handleFieldChange(val, 'first_name')}
-              errors={errors}
-            />
-            <Input
-              name="last_name"
-              label="Last Name"
-              placeholder="e.g. Doe"
-              value={customerAddressById?.last_name}
-              handleInputChange={val => handleFieldChange(val, 'last_name')}
-              errors={errors}
-            />
-            <Input
-              name="phone_number"
-              label="Phone Number"
-              placeholder="e.g. +628123456789"
-              keyboardType="phone-pad"
-              value={customerAddressById?.phone}
-              handleInputChange={val => handleFieldChange(val, 'phone_number')}
-              errors={errors}
-            />
-            <Input
-              name="company"
-              label="Company"
-              placeholder="e.g. PT ABC"
-              value={customerAddressById?.company}
-              handleInputChange={val => handleFieldChange(val, 'company')}
-              errors={errors}
-            />
-            <InputTextArea
-              name="first_address"
-              label="Address 1"
-              placeholder="e.g. Jl. Taman Anggrek"
-              numberOfLines={4}
-              value={customerAddressById?.address1}
-              handleInputChange={val => handleFieldChange(val, 'first_address')}
-              errors={errors}
-            />
-            <InputTextArea
-              name="second_address"
-              label="Address 2"
-              placeholder="e.g. Jl. Taman Anggrek"
-              numberOfLines={4}
-              value={customerAddressById?.address2}
-              handleInputChange={val => handleFieldChange(val, 'second_address')}
-              errors={errors}
-            />
-            <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
-              <AsyncSelectComponent
-                name="country"
-                label="Country"
-                options={countries}
-                value={{ label: customerAddressById?.country }}
-                onChange={val => handleChangeCountry(val, 'country')}
-                onSelect={val => handleFieldChange(val, 'country')}
+                <Text
+                  style={{
+                    ...FONTS.fontSatoshiBold,
+                    fontSize: 24,
+                    color: COLORS.title,
+                  }}
+                >
+                  Edit Address
+                </Text>
+              </View>
+              <Input
+                name="first_name"
+                label="First Name"
+                placeholder="e.g. John"
+                value={customerAddressById?.first_name}
+                handleInputChange={val => handleFieldChange(val, 'first_name')}
+                errors={errors}
+              />
+              <Input
+                name="last_name"
+                label="Last Name"
+                placeholder="e.g. Doe"
+                value={customerAddressById?.last_name}
+                handleInputChange={val => handleFieldChange(val, 'last_name')}
+                errors={errors}
+              />
+              <Input
+                name="phone_number"
+                label="Phone Number"
+                placeholder="e.g. +628123456789"
+                keyboardType="phone-pad"
+                value={customerAddressById?.phone}
+                handleInputChange={val => handleFieldChange(val, 'phone_number')}
+                errors={errors}
+              />
+              <Input
+                name="company"
+                label="Company"
+                placeholder="e.g. PT ABC"
+                value={customerAddressById?.company}
+                handleInputChange={val => handleFieldChange(val, 'company')}
+                errors={errors}
+              />
+              <InputTextArea
+                name="first_address"
+                label="Address 1"
+                placeholder="e.g. Jl. Taman Anggrek"
+                numberOfLines={4}
+                value={customerAddressById?.address1}
+                handleInputChange={val => handleFieldChange(val, 'first_address')}
+                errors={errors}
+              />
+              <InputTextArea
+                name="second_address"
+                label="Address 2"
+                placeholder="e.g. Jl. Taman Anggrek"
+                numberOfLines={4}
+                value={customerAddressById?.address2}
+                handleInputChange={val => handleFieldChange(val, 'second_address')}
+                errors={errors}
+              />
+              <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
+                <AsyncSelectComponent
+                  name="country"
+                  label="Country"
+                  options={countries}
+                  value={{ label: customerAddressById?.country }}
+                  onChange={val => handleChangeCountry(val, 'country')}
+                  onSelect={val => handleFieldChange(val, 'country')}
+                  errors={errors}
+                />
+              </View>
+              <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
+                <AsyncSelectComponent
+                  name="province"
+                  label="Province"
+                  options={provinces}
+                  value={customerAddressById?.province}
+                  onSelect={val => handleFieldChange(val, 'province')}
+                  errors={errors}
+                />
+              </View>
+              <Input
+                name="city"
+                label="City"
+                placeholder="e.g. Jakarta Selatan"
+                value={customerAddressById?.city}
+                handleInputChange={val => handleFieldChange(val, 'city')}
+                errors={errors}
+              />
+              <Input
+                name="postal_code"
+                label="Postal Code"
+                placeholder="e.g. 12190"
+                keyboardType="number-pad"
+                value={customerAddressById?.zip}
+                handleInputChange={val => handleFieldChange(val, 'postal_code')}
                 errors={errors}
               />
             </View>
-            <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
-              <AsyncSelectComponent
-                name="province"
-                label="Province"
-                options={provinces}
-                value={customerAddressById?.province}
-                onSelect={val => handleFieldChange(val, 'province')}
-                errors={errors}
-              />
-            </View>
-            <Input
-              name="city"
-              label="City"
-              placeholder="e.g. Jakarta Selatan"
-              value={customerAddressById?.city}
-              handleInputChange={val => handleFieldChange(val, 'city')}
-              errors={errors}
-            />
-            <Input
-              name="postal_code"
-              label="Postal Code"
-              placeholder="e.g. 12190"
-              keyboardType="number-pad"
-              value={customerAddressById?.zip}
-              handleInputChange={val => handleFieldChange(val, 'postal_code')}
-              errors={errors}
-            />
-          </View>
-        </ScrollView>
+          </ScrollView>
+        )}
       </View>
       <View style={[GlobalStyleSheet.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Button
@@ -349,5 +365,5 @@ export default connect(
       token,
     };
   },
-  { updateAddress }
+  { updateAddress, getAddressList }
 )(EditAddress);

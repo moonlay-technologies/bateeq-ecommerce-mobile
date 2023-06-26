@@ -155,7 +155,7 @@ function AddAddress({ navigation, token, createAddress: creatingAddress, getAddr
         });
         setTimeout(() => {
           setIsLoading(false);
-          getAddress({ token, limit: 10, refetch: true });
+          getAddress({ token, limit: 10 });
           navigation.navigate('Address');
         }, 1000);
       })
