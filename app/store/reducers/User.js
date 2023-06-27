@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
 import { EDIT_ACCOUNT, LOAD_USER, USER_SET_TOKEN } from '../constants/user';
@@ -13,6 +14,7 @@ const initialState = {
       first_name: null,
       last_name: null,
       phone: null,
+      company: null,
     },
   },
   collections: {
@@ -121,6 +123,7 @@ export default function (state = initialState, action) {
           },
         },
       };
+
     case REQUEST(EDIT_ACCOUNT):
       return {
         ...state,
@@ -130,6 +133,10 @@ export default function (state = initialState, action) {
         },
       };
     case SUCCESS(EDIT_ACCOUNT):
+      if (payload?.token?.accessToken) {
+        state.options.token = payload.token.accessToken;
+      }
+
       return {
         ...state,
         options: {

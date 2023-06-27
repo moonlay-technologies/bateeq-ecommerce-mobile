@@ -1,0 +1,54 @@
+{
+  /* <View 
+         style={{ marginRight: 20, paddingVertical: 10 }}
+        > */
+}
+{
+  /* <Button
+            onPress={() => {
+              setOnWishList(prev => !prev);
+              if (onWishList) {
+                setNotifState({
+                  show: true,
+                  text: 'Item removed from wishlist',
+                  navText: 'see wishlist',
+                  to: 'Wishlist',
+                });
+                setTimeout(() => {
+                  setNotifState({
+                    show: false,
+                    text: '',
+                    navText: '',
+                    to: '',
+                  });
+                }, 5000);
+              } else {
+                setNotifState({
+                  show: true,
+                  text: 'Item added to wishlist',
+                  navText: 'see wishlist',
+                  to: 'Wishlist',
+                });
+                setTimeout(() => {
+                  setNotifState({
+                    show: false,
+                    text: '',
+                    navText: '',
+                    to: '',
+                  });
+                }, 5000);
+              }
+            }}
+            title="Wishlist"
+            outline
+            size="xs"
+            iconColor="red"
+            iconStyles={{ marginLeft: 18 }}
+            icon={onWishList ? FontAwesome : FeatherIcon}
+            iconName="heart"
+          /> */
+}
+
+{
+  /* </View> */
+}

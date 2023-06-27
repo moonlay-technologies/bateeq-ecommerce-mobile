@@ -1,7 +1,8 @@
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import RenderHTML from 'react-native-render-html';
+import DeliveryMap from '../screens/Delivery/DeliveryMap';
 
-const CustomHTML = ({ htmlContent, limit, blog_id }) => {
+const CustomHTML = ({ htmlContent, limit, blog_id, dataPages }) => {
   const windowWidth = useWindowDimensions().width;
   if (htmlContent && typeof htmlContent === 'string') {
     const customRenderersProps = {
@@ -12,29 +13,17 @@ const CustomHTML = ({ htmlContent, limit, blog_id }) => {
         style: styles.heading2,
       },
     };
-
-    const contentStyle = {
-      body: {
-        whiteSpace: 'normal',
-        color: 'gray',
-      },
-      p: {
-        color: 'gray',
-      },
-    };
-
-    const ignoredTags = ['iframe'];
     // const previewText = htmlContent.replace(/<[^>]+>/g, '').slice(0, limit);
     const paragraphEndIndex = htmlContent.indexOf('</p>') + 4;
     const previewText = htmlContent.slice(0, paragraphEndIndex);
     return (
       <View style={styles.container}>
+        {dataPages?.title === 'Contact Us' && <DeliveryMap />}
         <RenderHTML
           source={{ html: blog_id ? previewText : htmlContent }}
           contentWidth={windowWidth}
-          tagsStyles={contentStyle}
           renderersProps={customRenderersProps}
-          ignoredDomTags={ignoredTags}
+          ignoredDomTags={['iframe']}
         />
       </View>
     );
@@ -44,7 +33,7 @@ const CustomHTML = ({ htmlContent, limit, blog_id }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
     // paddingVertical: -10,
   },
   paragraph: {

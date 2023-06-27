@@ -117,6 +117,6 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   error: {
-    color: 'red',
+    color: COLORS.danger,
   },
 });

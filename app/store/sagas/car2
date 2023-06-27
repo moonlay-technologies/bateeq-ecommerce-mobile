@@ -1,0 +1,66 @@
+    try {
+      const newPayload = {
+        id: null,
+        totalQuantity: 0,
+      };
+      getCartId().then(cartId => {
+        console.log('cartID', cartId);
+        if (cartId) {
+          Reflect.set(payload, 'id', cartId);
+        }
+      });
+      if (payload?.id) {
+        if (!getCartId()) {
+          AsyncStorage.setItem('cart', payload.id);
+        }
+
+        yield put({
+          type: SUCCESS(GENERATE_CART_ID),
+          payload: newPayload,
+        });
+      } else if (payload?.token) {
+        let cartId;
+        getCartId().then(id => {
+          cartId = id;
+        });
+
+        if (!cartId) {
+          const mutation = gql`
+            ${CREATE_CART}
+          `;
+          const { data } = yield call(client.mutate, {
+            mutation,
+            variables: {
+              input: {
+                buyerIdentity: {
+                  customerAccessToken: payload.token,
+                },
+                note: '',
+              },
+            },
+          });
+
+          if (findKey(data, ['cartCreate', 'cart']) && Object.keys(findKey(data, ['cartCreate', 'cart'])).length > 0) {
+            Object.entries(findKey(data, ['cartCreate', 'cart'])).map(([key, value]) => {
+              Reflect.set(newPayload, key, value);
+            });
+
+            AsyncStorage.setItem('cart', newPayload?.id);
+            yield put({
+              type: SUCCESS(GENERATE_CART_ID),
+              payload: newPayload,
+            });
+          } else {
+            yield put({
+              type: FAILURE(GENERATE_CART_ID),
+              payload: 'Some Error',
+            });
+          }
+        }
+      }
+    } catch (error) {
+      yield put({
+        type: FAILURE(GENERATE_CART_ID),
+        payload: 'Some Error',
+      });
+    }

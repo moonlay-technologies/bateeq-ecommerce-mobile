@@ -166,6 +166,7 @@ const Items = ({ navigation, route }) => {
   const { type, query, categories, colletionTitle } = route.params;
   const [itemView, setItemView] = useState('grid');
   const [dataCategories, setDataCategories] = useState([]);
+  const [dataCollections, setDataCollection] = useState([]);
   const [isSnackbar, setIsSnackbar] = useState(false);
   const [snackText, setSnackText] = useState('Loading...');
   // const [currentPage, setCurrentPage] = useState(1);
@@ -205,20 +206,20 @@ const Items = ({ navigation, route }) => {
     },
   });
 
-  const [filterSearch, { loading: loadingSearch }] = useLazyQuery(GET_LIST_CATEGORIES, {
-    onCompleted: ({ products }) => {
-      const results = products?.nodes || [];
-      setDataCategories(results);
-    },
-  });
+  // const [{ loading: loadingSearch }] = useLazyQuery(GET_LIST_CATEGORIES, {
+  //   onCompleted: ({ products }) => {
+  //     const results = products?.nodes || [];
+  //     setDataCategories(results);
+  //   },
+  // });
 
-  const handleSearchButton = () => {
-    filterSearch({
-      variables: {
-        first: 10,
-        query: valSearch,
-      },
-    });
+  // const handleSearchButton = () => {
+  //   filterSearch({
+  //     variables: {
+  //       first: 10,
+  //       query: valSearch,
+  //     },
+  //   });
 
     // const [filterByAvailability, {data: dataFilterAvailability, loading: loadingSearch}] = useLazyQuery(
     //   FILTER_PRODUCT_BY_AVAILABILITY,
@@ -259,7 +260,7 @@ const Items = ({ navigation, route }) => {
     // });
 
     // setFilteredProducts(filteredByPrice);
-  };
+  // };
 
   useEffect(() => {
     if (data) {
@@ -412,7 +413,7 @@ const Items = ({ navigation, route }) => {
               ></View>
             </View>
           )}
-          {loadingSearch || loadingGetProducts ? (
+          { loadingGetProducts ? (
             <View
               style={{
                 justifyContent: 'center',

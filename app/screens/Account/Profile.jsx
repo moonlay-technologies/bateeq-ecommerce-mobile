@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation, CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
-import { useQuery } from '@apollo/client';
-import { useDispatch } from 'react-redux';
-import { Toast } from 'react-native-toast-message/lib/src/Toast';
+import { connect } from 'react-redux';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
@@ -16,11 +14,9 @@ import italian from '../../assets/images/flags/italian.png';
 import spanish from '../../assets/images/flags/spanish.png';
 import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
-import { setCartId } from '../../store/reducer';
 import HeaderComponent from '../../components/HeaderComponent';
 import UserInfo from '../../components/UserInfo';
-import { GET_PAGES } from '../../graphql/queries';
-import { gqlError } from '../../utils/eror-handling';
+import { getAddressList } from '../../store/actions/address';
 
 const languagetData = [
   {
@@ -44,38 +40,21 @@ const languagetData = [
     name: 'Spanish',
   },
 ];
-function Profile() {
+function Profile({ token, getAddressList: getAddress }) {
   const navigation = useNavigation();
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [dataFaq, setDataFaq] = useState(null);
   const RBSheetLanguage = useRef();
   const isFocused = useIsFocused();
-  const dispatch = useDispatch();
-
-  const onError = err => {
-    gqlError({ error: err, Toast });
-  };
-
-  const { loading: loadingFAQ } = useQuery(GET_PAGES, {
-    fetchPolicy: 'no-cache',
-    variables: {
-      handle: 'f-a-q',
-    },
-    onCompleted: ({ page }) => {
-      console.log('page', page);
-      if (page) {
-        setDataFaq(page);
-      }
-    },
-    onError: err => {
-      onError(err);
-    },
-  });
 
   useEffect(() => {
     if (isLoggedOut && isFocused) {
-      navigation.navigate('SignIn');
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'SignIn' }],
+        })
+      );
     }
   }, [isLoggedOut, isFocused, navigation]);
 
@@ -142,7 +121,7 @@ function Profile() {
           backgroundColor: COLORS.backgroundColor,
         }}
       >
-        <HeaderComponent />
+        {/* <HeaderComponent /> */}
         <ScrollView>
           <Text
             style={{
@@ -181,7 +160,10 @@ function Profile() {
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Address')}
+                onPress={() => {
+                  navigation.navigate('Address');
+                  getAddress({ token, limit: 10, refetch: true });
+                }}
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -202,7 +184,7 @@ function Profile() {
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity>
-              {/* <TouchableOpacity
+              <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -210,6 +192,7 @@ function Profile() {
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
                 }}
+                onPress={() => navigation.navigate('AppSetting')}
               >
                 <Text
                   style={{
@@ -219,11 +202,11 @@ function Profile() {
                     flex: 1,
                   }}
                 >
-                  App Setting
+                  Change Password
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
-              </TouchableOpacity> */}
-              <TouchableOpacity
+              </TouchableOpacity>
+              {/* <TouchableOpacity
                 style={{
                   flexDirection: 'row',
                   paddingHorizontal: 10,
@@ -236,7 +219,8 @@ function Profile() {
                   navigation.navigate('PagesInShopify', {
                     dataPages: dataFaq,
                     loading: loadingFAQ,
-                  })}
+                  })
+                }
               >
                 <Text
                   style={{
@@ -249,7 +233,7 @@ function Profile() {
                   FAQ & Help
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <CustomButton
                 arrowIcon
                 title="Log Out"
@@ -257,7 +241,6 @@ function Profile() {
                 onPress={async () => {
                   setIsLoggedOut(true);
                   await AsyncStorage.removeItem('accessToken');
-                  dispatch(setCartId(''));
                   navigation.navigate('SignIn');
                 }}
                 logout
@@ -270,4 +253,12 @@ function Profile() {
   );
 }
 
-export default Profile;
+export default connect(
+  ({ User }) => {
+    const {
+      options: { token },
+    } = User;
+    return { token };
+  },
+  { getAddressList }
+)(Profile);

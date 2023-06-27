@@ -53,7 +53,6 @@ export default class RequestHandler {
       api
         .get(url, { ...params })
         .then(response => {
-          console.log('response', response);
           if (response.ok) resolve(response.data);
           else {
             reject(response);

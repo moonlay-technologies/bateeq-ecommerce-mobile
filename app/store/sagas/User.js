@@ -1,5 +1,5 @@
 import { all, takeEvery, put, fork, call } from 'redux-saga/effects';
-import { ApolloClient, gql, InMemoryCache } from '@apollo/client';
+import { gql } from '@apollo/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
@@ -10,6 +10,7 @@ import { SET_AUTH } from '../constants/Auth';
 import { GENERATE_CART_ID } from '../constants';
 import { __GQL_EDIT_DETAIL_ACCOUNT } from '../../graphql/mutation';
 import { findKey } from '../../utils/helper';
+import { NAVIGATE_TO } from '../constants/navigation';
 
 export function* __loadUser() {
   yield takeEvery(REQUEST(LOAD_USER), function* ({ payload }) {
@@ -94,13 +95,13 @@ export function* __loadUser() {
           }),
         ]);
       }
-
-      yield all([
-        put({
-          type: SUCCESS(LOAD_USER),
-          payload: {},
-        }),
-      ]);
+      // comment for moment
+      // yield all([
+      // put({
+      // type: SUCCESS(LOAD_USER),
+      // payload: {},
+      // }),
+      // ]);
     } catch (err) {
       yield all([
         put({
@@ -130,6 +131,7 @@ export function* __updateAccount() {
         const mutation = gql`
           ${__GQL_EDIT_DETAIL_ACCOUNT}
         `;
+
         const response = yield call(client.mutate, {
           mutation,
           variables: {
@@ -138,15 +140,29 @@ export function* __updateAccount() {
           },
         });
 
-        if (findKey(response, ['data', 'customerUpdate', 'customer'])) {
+        if (
+          findKey(response, ['data', 'customerUpdate', 'customer']) ||
+          findKey(response, ['data', 'customerUpdate', 'customerAccessToken'])
+        ) {
+          if (findKey(response, ['data', 'customerUpdate', 'customerAccessToken'])) {
+            AsyncStorage.setItem(
+              'accessToken',
+              findKey(response, ['data', 'customerUpdate', 'customerAccessToken', 'accessToken'])
+            );
+          }
           yield all([
             put({
               type: SUCCESS(EDIT_ACCOUNT),
               payload: {
                 info: findKey(response, ['data', 'customerUpdate', 'customer']),
+                ...(findKey(response, ['data', 'customerUpdate', 'customerAccessToken']) && {
+                  token: findKey(response, ['data', 'customerUpdate', 'customerAccessToken']),
+                }),
               },
             }),
+            put({ type: REQUEST(NAVIGATE_TO), payload: 'Account' }),
           ]);
+
           Toast.show({
             type: 'success',
             text1: 'Save data success',
@@ -160,6 +176,10 @@ export function* __updateAccount() {
           ]);
         }
       } catch (err) {
+        Toast.show({
+          type: 'error',
+          text1: err?.message,
+        });
         yield all([
           put({
             type: FAILURE(EDIT_ACCOUNT),

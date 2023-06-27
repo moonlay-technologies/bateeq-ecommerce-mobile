@@ -1,30 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import {
-  // Image,
-  // Button,
-  Linking,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomButton from '../../components/CustomButton';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { COLORS, FONTS } from '../../constants/theme';
-import HeaderBateeq from '../../components/HeaderBateeq';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import LoadingScreen from '../../components/LoadingView';
 import { useMutation } from '@apollo/client';
 import { useNavigation, CommonActions } from '@react-navigation/native';
+import { connect } from 'react-redux';
 import { AUTH_LOGIN } from '../../graphql/mutation';
-import {useDispatch, batch, connect} from 'react-redux';
-import { setIsLogin, setToken } from '../../store/reducer';
-import {CartGenerateId} from "../../store/actions";
+import LoadingScreen from '../../components/LoadingView';
+import HeaderBateeq from '../../components/HeaderBateeq';
+import { COLORS, FONTS } from '../../constants/theme';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import CustomButton from '../../components/CustomButton';
+import { CartGenerateId } from '../../store/actions';
+import { AuthUser } from '../../store/actions/auth';
 
 const ValidateSchema = Yup.object().shape({
   customer: Yup.object().shape({
@@ -35,63 +26,62 @@ const ValidateSchema = Yup.object().shape({
   }),
 });
 
-const SignIn = props => {
-  let { CartGenerateId,cartId } = props
+function SignIn(props) {
+  const { CartGenerateId, cartId, AuthUser } = props;
   const [isFocused, setisFocused] = useState(false);
   const [isFocused2, setisFocused2] = useState(false);
   const [handlePassword, setHandlePassword] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
-  const dispatch = useDispatch();
 
   const [CustomerAccessTokenCreateMutation] = useMutation(AUTH_LOGIN);
 
   const handleOnSubmit = async values => {
     try {
       setIsLoading(true);
-
-      const { data } = await CustomerAccessTokenCreateMutation({
-        fetchPolicy: 'no-cache',
-        variables: {
-          email: values.customer.email,
-          password: values.customer.password,
-        },
+      AuthUser({
+        email: values.customer.email,
+        password: values.customer.password,
       });
-      const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
-
-      if (accessToken) {
-        Toast.show({
-          type: 'success',
-          text1: 'Login Success',
-          visibilityTime: 2000,
-        });
-        if(!cartId){
-          // await AsyncStorage.setItem('cart',)
-          CartGenerateId({
-            token: accessToken
-          })
-        }
-        CartGenerateId({
-          token: accessToken
-        })
-        // batch(() => {
-        //   dispatch(setToken(accessToken));
-        //   dispatch(setIsLogin(!!accessToken));
-        // });
-        await AsyncStorage.setItem('accessToken', accessToken);
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: 'DrawerNavigation' }],
-          })
-        );
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Username or Email is not registered',
-          visibilityTime: 3000,
-        });
-      }
+      // const { data } = await CustomerAccessTokenCreateMutation({
+      //   fetchPolicy: 'no-cache',
+      //   variables: {
+      //     email: values.customer.email,
+      //     password: values.customer.password,
+      //   },
+      // });
+      //
+      // const accessToken = data?.customerAccessTokenCreate?.customerAccessToken?.accessToken;
+      //
+      // if (accessToken) {
+      //   Toast.show({
+      //     type: 'success',
+      //     text1: 'Login Success',
+      //     visibilityTime: 2000,
+      //   });
+      //   if (!cartId) {
+      //   //   // await AsyncStorage.setItem('cart',)
+      //     CartGenerateId({
+      //       token: accessToken,
+      //     });
+      //   }
+      // CartGenerateId({
+      //   token: accessToken,
+      // });
+      // await AsyncStorage.setItem('accessToken', accessToken);
+      // navigation.dispatch(
+      //   CommonActions.reset({
+      //     index: 0,
+      //     routes: [{ name: 'DrawerNavigation' }],
+      //   })
+      // );
+      // } else {
+      //   Toast.show({
+      //     type: 'error',
+      //     text1: 'Incorrect email or password',
+      //     visibilityTime: 3000,
+      //   });
+      // }
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -103,9 +93,12 @@ const SignIn = props => {
     }
   };
 
+  const handleResetPassword = () => {
+    navigation.navigate('ResetPassword');
+  };
+
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <HeaderBateeq signin />
       {isLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <LoadingScreen />
@@ -118,6 +111,7 @@ const SignIn = props => {
             backgroundColor: COLORS.white,
           }}
         >
+          <HeaderBateeq signin />
           <View style={{ marginBottom: 20 }}>
             <Text
               style={{
@@ -241,11 +235,7 @@ const SignIn = props => {
                     >
                       Forgot password?
                     </Text>
-                    <TouchableOpacity
-                      onPress={() =>
-                        Linking.openURL('https://bateeqshop.myshopify.com/account/login?return_url=%2Faccount')
-                      }
-                    >
+                    <TouchableOpacity onPress={handleResetPassword}>
                       <Text
                         style={{
                           ...FONTS.font,
@@ -257,7 +247,7 @@ const SignIn = props => {
                       </Text>
                     </TouchableOpacity>
                   </View>
-                  <CustomButton onPress={handleSubmit} title="Login" arrowIcon={true} logout />
+                  <CustomButton onPress={handleSubmit} title="Login" arrowIcon logout />
                 </>
               );
             }}
@@ -290,10 +280,13 @@ const SignIn = props => {
       )}
     </ScrollView>
   );
-};
+}
 
-export default connect(({Cart})=> {
-  let { options } = Cart
-  let { cartId } = options
-  return { cartId }
-},{CartGenerateId})(React.memo(SignIn));
+export default connect(
+  ({ Cart }) => {
+    const { options } = Cart;
+    const { cartId } = options;
+    return { cartId };
+  },
+  { CartGenerateId, AuthUser }
+)(React.memo(SignIn));

@@ -1,124 +1,204 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Modal,
+  TouchableWithoutFeedback,
+  Animated,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-function MenuListHeader({ dataListMenu, dataStory }) {
-  const [activeSubMenu, setActiveSubMenu] = useState(null);
+function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) {
   const navigation = useNavigation();
+  const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
+  const menuItemRef = useRef(null);
+  const fadeAnimation = useRef(new Animated.Value(0)).current;
 
-  const toggleSubMenu = menu => {
-    setActiveSubMenu(prevActiveMenu => (prevActiveMenu === menu.id ? null : menu.id));
-    if (menu.title === 'OUR STORY') {
+  const handlePress = () => {
+    if (isSubMenuOpen) {
+      hideSubMenu();
+    } else {
+      showSubMenu();
+    }
+
+    if (item.title === 'SALE') {
+      navigation.navigate('Items', { query: 'Sale' });
+    }
+    if (item.title === 'OUR STORY') {
       navigation.navigate('PagesInShopify', { dataPages: dataStory });
     }
   };
 
-  const renderSubMenu = subMenu => {
-    return subMenu.map(item => (
-      <TouchableOpacity
-        style={[styles.subMenuItem, { borderBottomWidth: 0 }]}
-        key={item.id}
-        onPress={() => {
-          if (!item.items) {
-            toggleSubMenu(item);
-          } else if (item.title === 'SHOP MENSWEAR') {
-            navigation.navigate('Items', { query: 'men' });
-          } else if (item.title === 'SHOP WOMENSWEAR') {
-            navigation.navigate('Items', { query: 'women' });
-          } else if (item.title === 'SHOP KIDSWEAR') {
-            navigation.navigate('Items', { query: 'kids' });
-          } else {
-            navigation.navigate('Items', { query: item?.title });
-          }
-        }}
-      >
-        <Text style={styles.subMenuText}>{item.title}</Text>
-        {item.items && (
-          <View style={styles.nestedSubMenuContainer}>
-            {item.items.map(subItem => (
-              <TouchableOpacity
-                style={styles.subMenuItem}
-                key={subItem.id}
-                onPress={() => navigation.navigate('Items', { query: subItem?.title })}
-              >
-                <Text style={styles.subMenuNestedText}>{subItem.title}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+  const showSubMenu = () => {
+    measureMenuItem();
+    setSubMenuOpen(true);
+    Animated.timing(fadeAnimation, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const hideSubMenu = () => {
+    Animated.timing(fadeAnimation, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setSubMenuOpen(false);
+    });
+  };
+
+  const measureMenuItem = () => {
+    menuItemRef.current.measure((x, y, width, height, pageX, pageY) => {
+      setModalPosition({ top: pageY + height, left: pageX });
+    });
+  };
+  const [subMenuOpenStates, setSubMenuOpenStates] = useState({});
+
+  const toggleSubMenu = (itemId, value) => {
+    setSubMenuOpenStates(prevState => ({
+      ...prevState,
+      [itemId]: value,
+    }));
+  };
+
+  const closeSubMenu = () => {
+    setSubMenuOpenStates({});
+  };
+
+  const subMenuStyle = [
+    styles.subMenuContainer,
+    { top: modalPosition.top, left: modalPosition.left, opacity: fadeAnimation },
+  ];
+
+  const handleSubItemPress = subItem => {
+    if (subItem?.items?.length === 0) {
+      navigation.navigate('Items', { query: subItem.title });
+    } else {
+      if (subItem.title === 'SHOP MENSWEAR') {
+        navigation.navigate('Items', { query: 'Men' });
+      }
+      if (subItem.title === 'SHOP WOMENSWEAR') {
+        navigation.navigate('Items', { query: 'Women' });
+      }
+      if (subItem.title === 'SHOP KIDSWEAR') {
+        navigation.navigate('Items', { query: 'Kids' });
+      }
+    }
+  };
+
+  const renderSubMenuItems = items => {
+    return items.map(subItem => (
+      <MenuItem
+        key={subItem.id}
+        item={subItem}
+        onCloseSubMenu={closeSubMenu}
+        isSubMenuOpen={subMenuOpenStates[subItem.id] || false}
+        setSubMenuOpen={value => toggleSubMenu(subItem.id, value)}
+        onPress={() => handleSubItemPress(subItem)}
+      />
+    ));
+  };
+
+  return (
+    <View style={styles.menuItemContainer}>
+      <TouchableOpacity onPress={onPress || handlePress} ref={menuItemRef}>
+        <Text style={styles.menuItemTitle}>{item.title}</Text>
       </TouchableOpacity>
-    ));
-  };
-
-  const renderMainMenu = dataMenu => {
-    return dataMenu?.menu?.items?.map(item => (
-      <View key={item?.id} style={styles.menuItem}>
-        <TouchableOpacity style={styles.menuItemButton} onPress={() => toggleSubMenu(item)}>
-          <Text style={styles.subMenuNestedText}>{item?.title}</Text>
-        </TouchableOpacity>
-        {item.items && activeSubMenu === item.id && (
-          <View style={item.items.length !== 0 ? styles.subMenuContainer : null}>
-            <ScrollView style={{ maxHeight: 200 }}>{renderSubMenu(item?.items)}</ScrollView>
-          </View>
-        )}
-      </View>
-    ));
-  };
-
-  return <View style={{ flexDirection: 'row' }}>{renderMainMenu(dataListMenu)}</View>;
+      {isSubMenuOpen && (
+        <Modal visible={isSubMenuOpen} transparent>
+          <TouchableWithoutFeedback onPress={hideSubMenu}>
+            <View style={styles.modalContainer}>
+              <Animated.View style={subMenuStyle}>
+                <ScrollView contentContainerStyle={styles.subMenuScrollContainer}>
+                  {item.items.map(subItem => (
+                    <MenuItem
+                      key={subItem.id}
+                      item={subItem}
+                      onCloseSubMenu={closeSubMenu}
+                      isSubMenuOpen={subMenuOpenStates[subItem.id] || false}
+                      setSubMenuOpen={value => toggleSubMenu(subItem.id, value)}
+                      onPress={() => handleSubItemPress(subItem)}
+                    />
+                  ))}
+                </ScrollView>
+              </Animated.View>
+            </View>
+          </TouchableWithoutFeedback>
+        </Modal>
+      )}
+    </View>
+  );
 }
 
-export default MenuListHeader;
+function MenuListHeader({ dataListMenu, dataStory }) {
+  const [subMenuOpenStates, setSubMenuOpenStates] = useState({});
 
-const styles = {
+  const toggleSubMenu = (itemId, value) => {
+    setSubMenuOpenStates(prevState => ({
+      ...prevState,
+      [itemId]: value,
+    }));
+  };
+
+  const closeSubMenu = () => {
+    setSubMenuOpenStates({});
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.menuContainer} vertical showsHorizontalScrollIndicator={false}>
+      {dataListMenu?.menu?.items?.map(item => (
+        <MenuItem
+          key={item.id}
+          item={item}
+          onCloseSubMenu={closeSubMenu}
+          isSubMenuOpen={subMenuOpenStates[item.id] || false}
+          setSubMenuOpen={value => toggleSubMenu(item.id, value)}
+          dataStory={dataStory}
+        />
+      ))}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
   menuContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 10,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    paddingHorizontal: 20,
-    paddingVertical: 2,
   },
-  menuItem: {
+  menuItemContainer: {
+    marginRight: 16,
+  },
+  menuItemTitle: {
+    fontSize: 13,
+    color: '#333',
+    paddingTop: 4,
+    paddingBottom: 4,
+  },
+  modalContainer: {
+    flex: 1,
     justifyContent: 'center',
-    alignItem: 'center',
-    marginLeft: 'auto',
-  },
-  menuItemButton: {
-    padding: 10,
-  },
-  menuText: {
-    // fontWeight: 'bold',
-    fontSize: 16,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   subMenuContainer: {
     position: 'absolute',
-    top: '100%',
-    width: 115,
-    left: 0,
-    borderColor: '#9DB2BF',
-    borderBottomWidth: 1,
     backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    zIndex: 10,
+    borderRadius: 4,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    zIndex: 999,
+    maxHeight: 200,
   },
-  nestedSubMenuContainer: {
-    backgroundColor: '#fff',
-    marginTop: 10,
-    paddingVertical: 5,
+  subMenuScrollContainer: {
+    flexGrow: 1,
+  },
+});
 
-    paddingHorizontal: 10,
-  },
-  subMenuItem: {
-    paddingVertical: 5,
-  },
-  subMenuText: {
-    fontSize: 12,
-    color: 'black',
-    fontWeight: 'bold',
-  },
-  subMenuNestedText: {
-    fontSize: 11,
-    color: 'black',
-  },
-};
+export default MenuListHeader;

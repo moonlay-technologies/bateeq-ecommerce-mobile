@@ -6,7 +6,14 @@ import { COLORS } from '../constants/theme';
 import { CartGetList } from '../store/actions';
 
 function Notification(props) {
-  const { visible = false, text = 'Item added to cart!', cartId, CartGetList: cartGetList } = props;
+  const {
+    visible = false,
+    text = 'Item added to cart!',
+    cartId,
+    CartGetList: cartGetList,
+    navText = 'see cart',
+    to = 'Cart',
+  } = props;
   const navigation = useNavigation();
   const handleNavigation = () => {
     cartGetList({
@@ -14,7 +21,7 @@ function Notification(props) {
       last: 0,
       id: cartId,
     });
-    navigation.navigate('Cart');
+    navigation.navigate(`${to}`);
   };
   return (
     <View style={{ alignItems: 'center' }}>
@@ -23,7 +30,7 @@ function Notification(props) {
           <View style={{ display: 'flex', flexDirection: 'row' }}>
             <Text style={[styles.text, { flex: 1 }]}>{text}</Text>
             <Text style={styles.textNavigation} onPress={handleNavigation}>
-              see cart
+              {navText}
             </Text>
           </View>
         </View>

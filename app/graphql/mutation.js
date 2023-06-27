@@ -27,11 +27,15 @@ export const __GQL_EDIT_DETAIL_ACCOUNT = `mutation customerUpdate(
         lastName
         email
       }
+      customerAccessToken {
+        accessToken
+        expiresAt
+      }
       customerUserErrors {
         message
       }
     }
-  }`
+  }`;
 export const EDIT_DETAIL_ACCOUNT = gql`
   mutation customerUpdate($customer: CustomerUpdateInput!, $customerAccessToken: String!) {
     customerUpdate(customer: $customer, customerAccessToken: $customerAccessToken) {
@@ -48,7 +52,7 @@ export const EDIT_DETAIL_ACCOUNT = gql`
   }
 `;
 
-export const ADD_TO_CART = gql`
+export const ADD_TO_CART = `
   mutation ($cartId: ID!, $lines: [CartLineInput!]!, $country: CountryCode = ZZ, $language: LanguageCode)
   @inContext(country: $country, language: $language) {
     cartLinesAdd(cartId: $cartId, lines: $lines) {
@@ -65,7 +69,24 @@ export const ADD_TO_CART = gql`
   }
 `;
 
-export const CREATE_CART = gql`
+export const ADD_ITEM_TO_CART = gql`
+  mutation ($cartId: ID!, $lines: [CartLineInput!]!, $country: CountryCode = ZZ, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        id
+        totalQuantity
+      }
+      userErrors {
+        message
+        field
+        code
+      }
+    }
+  }
+`;
+
+export const CREATE_CART = `
   mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
   @inContext(country: $country, language: $language) {
     cartCreate(input: $input) {
@@ -142,7 +163,7 @@ export const CART_PUT_QTY = gql`
   }
 `;
 
-export const CREATE_ADDRESS = gql`
+export const CREATE_CUSTOMER_ADDRESS = `
   mutation CreateCustomerAddress($address: MailingAddressInput!, $customerAccessToken: String!) {
     customerAddressCreate(address: $address, customerAccessToken: $customerAccessToken) {
       customerAddress {
@@ -164,7 +185,7 @@ export const CREATE_ADDRESS = gql`
   }
 `;
 
-export const UPDATE_CUSTOMER_ADDRESS = gql`
+export const UPDATE_CUSTOMER_ADDRESS = `
   mutation customerAddressUpdate($address: MailingAddressInput!, $customerAccessToken: String!, $id: ID!) {
     customerAddressUpdate(address: $address, customerAccessToken: $customerAccessToken, id: $id) {
       customerAddress {
@@ -177,14 +198,14 @@ export const UPDATE_CUSTOMER_ADDRESS = gql`
   }
 `;
 
-export const REMOVE_CUSTOMER_ADDRESS = gql`
+export const REMOVE_CUSTOMER_ADDRESS = `
   mutation customerAddressDelete($customerAccessToken: String!, $id: ID!) {
     customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {
       deletedCustomerAddressId
     }
   }
 `;
-export const CUSTOMER_DEFAULT_ADDRESS_UPDATE = gql`
+export const CUSTOMER_DEFAULT_ADDRESS_UPDATE = `
   mutation customerDefaultAddressUpdate($addressId: ID!, $customerAccessToken: String!) {
     customerDefaultAddressUpdate(addressId: $addressId, customerAccessToken: $customerAccessToken) {
       customer {
@@ -210,6 +231,18 @@ export const CREATE_CHECKOUT_MUTATION = `
       checkoutUserErrors {
         message
         field
+      }
+    }
+  }
+`;
+
+export const RECOVER_ACCOUNT_CUSTOMER = gql`
+  mutation RecoverAccount($email: String!) {
+    customerRecover(email: $email) {
+      customerUserErrors {
+        code
+        field
+        message
       }
     }
   }

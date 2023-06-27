@@ -6,6 +6,8 @@ export const GET_ORDERS = gql`
       orders(first: 10, query: $query) {
         nodes {
           id
+          name
+          subtotalLineItemsQuantity
           totalPriceSet {
             presentmentMoney {
               amount
@@ -21,6 +23,7 @@ export const GET_ORDERS = gql`
                 title
                 images(first: 1) {
                   nodes {
+                    id
                     url
                   }
                 }
@@ -41,6 +44,44 @@ export const GET_ORDERS = gql`
               }
               currentQuantity
               sku
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+export const GET_ORDERS_DETAIL_BY_ID = gql`
+  query getDetailOrder($orderId: ID!) {
+    node(id: $orderId) {
+      id
+      ... on Order {
+        shippingAddress{
+          address1
+          address2
+          province
+          city
+          country
+        }
+        name
+        createdAt
+        email
+        displayFulfillmentStatus
+        displayFinancialStatus
+        totalPriceSet {
+          presentmentMoney{
+            amount
+          }
+        }
+        lineItems(first: 10) {
+          nodes {
+            variantTitle
+            quantity
+            sku
+            name
+            image {
+              id
+              url
             }
           }
         }

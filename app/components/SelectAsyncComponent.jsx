@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput } from 'react-native';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import { useSelector } from 'react-redux';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 
 function AsyncSelectComponent({
@@ -15,6 +16,7 @@ function AsyncSelectComponent({
   name,
   isEdit = true,
 }) {
+  const currentTheme = useSelector(state => state.Theme.mode);
   const [selectedOption, setSelectedOption] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [searchValue, setSearchValue] = useState(value);
@@ -45,7 +47,10 @@ function AsyncSelectComponent({
       </Text>
       <View style={styles.inputContainer}>
         <TextInput
-          style={isEdit ? styles.select : { ...styles.select, backgroundColor: COLORS.dark }}
+          style={[
+            isEdit ? styles.select : { ...styles.select, backgroundColor: COLORS.dark },
+            currentTheme === 'dark' && { color: COLORS.black },
+          ]}
           placeholder={placeholder ?? label}
           onChangeText={handleInputChange}
           onTouchStart={() => setIsDropdownOpen(!isDropdownOpen)}

@@ -54,7 +54,8 @@ function ItemCard(props) {
               images,
             },
             category: 'Appliances',
-          })}
+          })
+        }
         activeOpacity={0.98}
         style={[
           {
@@ -164,9 +165,8 @@ function ItemCard(props) {
               </Text>
             )}
             <Text style={{ ...FONTS.h6, marginRight: 15 }}>
-              Rp 
-{' '}
-{formatWithCommas(Number(numericPrice).toLocaleString())}
+              Rp
+              {formatWithCommas(Number(numericPrice).toLocaleString())}
             </Text>
           </View>
 

@@ -27,14 +27,11 @@ export const httpLink2 = createHttpLink({
 
 export const cache = new InMemoryCache();
 
-// Create an Apollo Client instance
 export const client = new ApolloClient({
   link: ApolloLink.split(operation => operation.getContext().clientName === 'httpLink2', httpLink2, httpLink),
 
   cache: cache,
-})
-
-
+});
 
 function ReduxApp() {
   return (

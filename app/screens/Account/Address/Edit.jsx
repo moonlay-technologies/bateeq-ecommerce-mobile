@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import * as yup from 'yup';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { useMutation } from '@apollo/client';
-import { useSelector } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 
 import { CountriesApi, CustomerApi } from '../../../service/shopify-api';
-import { UPDATE_CUSTOMER_ADDRESS } from '../../../graphql/mutation';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../../constants/theme';
 import AsyncSelectComponent from '../../../components/SelectAsyncComponent';
@@ -14,6 +12,8 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import InputTextArea from '../../../components/InputTextArea';
 import Button from '../../../components/ButtonComponent';
 import Input from '../../../components/InputComponent';
+import { updateAddress, getAddressList, resetNavigation } from '../../../store/actions';
+import LoadingScreen from '../../../components/LoadingView';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
@@ -28,12 +28,21 @@ const schema = yup.object().shape({
   postal_code: yup.string().required(),
 });
 
-function EditAddress({ navigation, route }) {
+function EditAddress({
+  navigation,
+  route,
+  userInfo,
+  token,
+  updateAddress: updatingAddress,
+  getAddressList: getAddress,
+}) {
   const { id } = route.params;
-  const { customerInfo, getToken } = useSelector(state => state.user);
+  const dispatch = useDispatch();
+  const navigationState = useSelector(state => state.Navigation.navigationState);
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadFetching, setLoadFetching] = useState(false);
   const [countryId, setCountryId] = useState('');
   const [provinces, setProvinces] = useState([]);
   const [customerAddressById, setCustomerAddressById] = useState();
@@ -50,11 +59,10 @@ function EditAddress({ navigation, route }) {
     postal_code: '',
   });
 
-  const [customerAddressUpdate] = useMutation(UPDATE_CUSTOMER_ADDRESS);
-
   useEffect(() => {
+    setLoadFetching(true);
     const addressId = id.match(/\/(\d+)\?/)[1];
-    const customerId = customerInfo?.id.match(/\/(\d+)$/)[1];
+    const customerId = userInfo?.id.match(/\/(\d+)$/)[1];
     const params = {
       addressId,
       customerId,
@@ -74,9 +82,11 @@ function EditAddress({ navigation, route }) {
           city: result?.customer_address?.city || '',
           postal_code: result?.customer_address?.zip || '',
         });
+        setLoadFetching(false);
       })
       .catch(err => {
         Toast.show({ type: 'error', text1: 'Oops!', text2: err?.message });
+        setLoadFetching(false);
       });
   }, []);
 
@@ -124,6 +134,26 @@ function EditAddress({ navigation, route }) {
     }
   }, [countryId]);
 
+  useEffect(() => {
+    if (navigationState.navigation) {
+      setErrors({});
+      setState({
+        first_name: '',
+        last_name: '',
+        phone_number: '',
+        company: '',
+        first_address: '',
+        second_address: '',
+        country: '',
+        province: '',
+        city: '',
+        postal_code: '',
+      });
+      navigation.navigate(`${navigationState?.navigation}`, { editedId: id });
+      dispatch(resetNavigation());
+    }
+  }, [navigationState]);
+
   const handleFieldChange = (value, name) => {
     setState(prev => ({
       ...prev,
@@ -138,7 +168,6 @@ function EditAddress({ navigation, route }) {
   };
 
   const handleSubmit = () => {
-    let refetch;
     setIsLoading(true);
 
     const body = {
@@ -156,48 +185,27 @@ function EditAddress({ navigation, route }) {
     schema
       .validate(body, { abortEarly: false })
       .then(async result => {
-        const { error, data } = await customerAddressUpdate({
-          variables: {
-            address: {
-              address1: result.first_address,
-              address2: result.second_address,
-              phone: result.phone_number,
-              city: result.city,
-              province: result.province,
-              country: result.country,
-              company: result.company,
-              zip: result.postal_code,
-            },
-            customerAccessToken: getToken,
-            id,
+        const payloadBody = {
+          address: {
+            address1: result.first_address,
+            address2: result.second_address,
+            phone: result.phone_number,
+            city: result.city,
+            province: result.province,
+            country: result.country,
+            company: result.company,
+            zip: result.postal_code,
           },
+          customerAccessToken: token,
+          id,
+        };
+        updatingAddress({
+          ...payloadBody,
         });
-
-        if (data) {
-          setErrors({});
-          setState({
-            first_name: '',
-            last_name: '',
-            phone_number: '',
-            company: '',
-            first_address: '',
-            second_address: '',
-            country: '',
-            province: '',
-            city: '',
-            postal_code: '',
-          });
+        setTimeout(() => {
           setIsLoading(false);
-          navigation.navigate('Address', { refetch });
-        }
-        if (error) {
-          setIsLoading(false);
-          Toast.show({
-            type: 'error',
-            text1: 'Oops!',
-            text2: error?.message || 'something went wrong',
-          });
-        }
+          getAddress({ token, limit: 10 });
+        }, 1000);
       })
       .catch(err => {
         if (err.name === 'ValidationError') {
@@ -229,115 +237,119 @@ function EditAddress({ navigation, route }) {
         <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
       </View>
       <View style={{ flex: 1 }}>
-        <ScrollView>
-          <View style={GlobalStyleSheet.container}>
-            <View
-              style={{
-                paddingBottom: 10,
-                marginBottom: 20,
-              }}
-            >
-              <Text
+        {isLoadFetching ? (
+          <LoadingScreen type="circle" />
+        ) : (
+          <ScrollView>
+            <View style={GlobalStyleSheet.container}>
+              <View
                 style={{
-                  ...FONTS.fontSatoshiBold,
-                  fontSize: 24,
-                  color: COLORS.title,
+                  paddingBottom: 10,
+                  marginBottom: 20,
                 }}
               >
-                Edit Address
-              </Text>
-            </View>
-            <Input
-              name="first_name"
-              label="First Name"
-              placeholder="e.g. John"
-              value={customerAddressById?.first_name}
-              handleInputChange={val => handleFieldChange(val, 'first_name')}
-              errors={errors}
-            />
-            <Input
-              name="last_name"
-              label="Last Name"
-              placeholder="e.g. Doe"
-              value={customerAddressById?.last_name}
-              handleInputChange={val => handleFieldChange(val, 'last_name')}
-              errors={errors}
-            />
-            <Input
-              name="phone_number"
-              label="Phone Number"
-              placeholder="e.g. +628123456789"
-              keyboardType="phone-pad"
-              value={customerAddressById?.phone}
-              handleInputChange={val => handleFieldChange(val, 'phone_number')}
-              errors={errors}
-            />
-            <Input
-              name="company"
-              label="Company"
-              placeholder="e.g. PT ABC"
-              value={customerAddressById?.company}
-              handleInputChange={val => handleFieldChange(val, 'company')}
-              errors={errors}
-            />
-            <InputTextArea
-              name="first_address"
-              label="Address 1"
-              placeholder="e.g. Jl. Taman Anggrek"
-              numberOfLines={4}
-              value={customerAddressById?.address1}
-              handleInputChange={val => handleFieldChange(val, 'first_address')}
-              errors={errors}
-            />
-            <InputTextArea
-              name="second_address"
-              label="Address 2"
-              placeholder="e.g. Jl. Taman Anggrek"
-              numberOfLines={4}
-              value={customerAddressById?.address2}
-              handleInputChange={val => handleFieldChange(val, 'second_address')}
-              errors={errors}
-            />
-            <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
-              <AsyncSelectComponent
-                name="country"
-                label="Country"
-                options={countries}
-                value={{ label: customerAddressById?.country }}
-                onChange={val => handleChangeCountry(val, 'country')}
-                onSelect={val => handleFieldChange(val, 'country')}
+                <Text
+                  style={{
+                    ...FONTS.fontSatoshiBold,
+                    fontSize: 24,
+                    color: COLORS.title,
+                  }}
+                >
+                  Edit Address
+                </Text>
+              </View>
+              <Input
+                name="first_name"
+                label="First Name"
+                placeholder="e.g. John"
+                value={customerAddressById?.first_name}
+                handleInputChange={val => handleFieldChange(val, 'first_name')}
+                errors={errors}
+              />
+              <Input
+                name="last_name"
+                label="Last Name"
+                placeholder="e.g. Doe"
+                value={customerAddressById?.last_name}
+                handleInputChange={val => handleFieldChange(val, 'last_name')}
+                errors={errors}
+              />
+              <Input
+                name="phone_number"
+                label="Phone Number"
+                placeholder="e.g. +628123456789"
+                keyboardType="phone-pad"
+                value={customerAddressById?.phone}
+                handleInputChange={val => handleFieldChange(val, 'phone_number')}
+                errors={errors}
+              />
+              <Input
+                name="company"
+                label="Company"
+                placeholder="e.g. PT ABC"
+                value={customerAddressById?.company}
+                handleInputChange={val => handleFieldChange(val, 'company')}
+                errors={errors}
+              />
+              <InputTextArea
+                name="first_address"
+                label="Address 1"
+                placeholder="e.g. Jl. Taman Anggrek"
+                numberOfLines={4}
+                value={customerAddressById?.address1}
+                handleInputChange={val => handleFieldChange(val, 'first_address')}
+                errors={errors}
+              />
+              <InputTextArea
+                name="second_address"
+                label="Address 2"
+                placeholder="e.g. Jl. Taman Anggrek"
+                numberOfLines={4}
+                value={customerAddressById?.address2}
+                handleInputChange={val => handleFieldChange(val, 'second_address')}
+                errors={errors}
+              />
+              <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
+                <AsyncSelectComponent
+                  name="country"
+                  label="Country"
+                  options={countries}
+                  value={{ label: customerAddressById?.country }}
+                  onChange={val => handleChangeCountry(val, 'country')}
+                  onSelect={val => handleFieldChange(val, 'country')}
+                  errors={errors}
+                />
+              </View>
+              <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
+                <AsyncSelectComponent
+                  name="province"
+                  label="Province"
+                  options={provinces}
+                  value={customerAddressById?.province}
+                  onSelect={val => handleFieldChange(val, 'province')}
+                  errors={errors}
+                />
+              </View>
+              <Input
+                name="city"
+                label="City"
+                placeholder="e.g. Jakarta Selatan"
+                value={customerAddressById?.city}
+                handleInputChange={val => handleFieldChange(val, 'city')}
+                errors={errors}
+              />
+              <Input
+                name="postal_code"
+                label="Postal Code"
+                placeholder="e.g. 12190"
+                keyboardType="number-pad"
+                value={customerAddressById?.zip}
+                handleInputChange={val => handleFieldChange(val, 'postal_code')}
                 errors={errors}
               />
             </View>
-            <View style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
-              <AsyncSelectComponent
-                name="province"
-                label="Province"
-                options={provinces}
-                value={customerAddressById?.province}
-                onSelect={val => handleFieldChange(val, 'province')}
-                errors={errors}
-              />
-            </View>
-            <Input
-              name="city"
-              label="City"
-              placeholder="e.g. Jakarta Selatan"
-              value={customerAddressById?.city}
-              handleInputChange={val => handleFieldChange(val, 'city')}
-              errors={errors}
-            />
-            <Input
-              name="postal_code"
-              label="Postal Code"
-              placeholder="e.g. 12190"
-              keyboardType="number-pad"
-              value={customerAddressById?.zip}
-              handleInputChange={val => handleFieldChange(val, 'postal_code')}
-              errors={errors}
-            />
-          </View>
-        </ScrollView>
+          </ScrollView>
+        )}
       </View>
       <View style={[GlobalStyleSheet.container, { justifyContent: 'center', alignItems: 'center' }]}>
         <Button
@@ -351,4 +363,16 @@ function EditAddress({ navigation, route }) {
   );
 }
 
-export default EditAddress;
+export default connect(
+  ({ User }) => {
+    const {
+      options: { info: userInfo, token },
+    } = User;
+
+    return {
+      userInfo,
+      token,
+    };
+  },
+  { updateAddress, getAddressList }
+)(EditAddress);

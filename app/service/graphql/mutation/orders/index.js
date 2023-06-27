@@ -32,7 +32,6 @@ export default class OrdersGql{
                 .catch((err)=> {
                     return [ err , null ]
                 })
-            console.log({err,data})
 
             return [ err, data ]
         }catch (err){

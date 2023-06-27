@@ -1,37 +1,44 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import * as yup from 'yup';
-import { useMutation, useQuery } from '@apollo/client';
-import { Snackbar } from 'react-native-paper';
-import { connect, useSelector } from 'react-redux';
+import { useMutation } from '@apollo/client';
+import { connect } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
+import { ADD_ITEM_TO_CART } from '../../graphql/mutation';
+import { CartGetList, getProductById, getProductRecommendation } from '../../store/actions';
+import { formatWithCommas, findVariantIdByOptions } from '../../utils/helper';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
-import HeaderComponent from '../../components/HeaderComponent';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
+import Notification from '../../components/NotificationComponent';
+import HeaderComponent from '../../components/HeaderComponent';
 import LoadingScreen from '../../components/LoadingView';
 import SelectInput from '../../components/SelectInput';
 import Button from '../../components/ButtonComponent';
 import CustomHTML from '../../components/CustomHtml';
-
 import { COLORS, FONTS } from '../../constants/theme';
-import { formatWithCommas } from '../../utils/helper';
-import { findVariantIdByOptions } from './helper';
-import { ADD_TO_CART } from '../../graphql/mutation';
-import { GET_PRODUCT_BY_ID, GET_PRODUCT_RECOMMENDATION, GET_PRODUCT_OPTIONS_BY_ID } from '../../graphql/queries';
-import { setCartId } from '../../store/reducer';
-import { CartGetList } from '../../store/actions';
-import Notification from '../../components/NotificationComponent';
 
 function ProductDetail(props) {
-  const { navigation, route, cartId, CartGetList } = props;
+  const {
+    navigation,
+    route,
+    cartId,
+    CartGetList: cartGetList,
+    getProductById: getProductId,
+    getProductRecommendation: getRecommendation,
+    productData,
+    loading,
+    recommendationProducts,
+    recommendationLoading,
+  } = props;
+
   const [options, setOptions] = useState({
     color: [],
     size: [],
   });
-
+  console.log('navigation props', navigation)
   const schema = yup.object().shape({
     quantity: yup.number().required(),
     size: yup.string().required(),
@@ -45,27 +52,25 @@ function ProductDetail(props) {
       }
       return pass;
     }),
+    variant_id: yup.string().required() ,
     cartId: yup.string().required(),
   });
 
-  const { id } = route.params;
+  const { id , navTo} = route.params;
+  const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
-  const [cartLinesAdd] = useMutation(ADD_TO_CART);
-  const [isSnackbar, setIsSnackbar] = useState(false);
-  const [productRecommendations, setProductRecommendations] = useState([]);
-  const [snackText] = useState('Loading...');
-  const [errors, setErrors] = useState({});
+  const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);
   const [qty, setQty] = useState(1);
-  const cart = useSelector(state => state.cart);
+  const [errors, setErrors] = useState({});
+  const [variantId, setVariantId] = useState('');
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
+  const [isChangeId, setIsChangeId] = useState(false)
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
-  const [notifState, setNotifState] = useState(false);
-  const [product, setProduct] = useState({
-    id: '',
-    descriptionHtml: '',
-    title: '',
-    images: [],
-    variants: [],
+  const [notifState, setNotifState] = useState({
+    show: false,
+    text: '',
+    navText: '',
+    to: '',
   });
 
   const [amount, setAmount] = useState({
@@ -73,81 +78,22 @@ function ProductDetail(props) {
     original_price: '',
     discounted_price: '',
   });
-  const [variants, setVariants] = useState({
+
+  const [variantOptions, setvariantOptions] = useState({
     size: '',
     color: '',
   });
 
-  const {
-    data: productData,
-    error: productDataError,
-    loading: productDataLoad,
-  } = useQuery(GET_PRODUCT_BY_ID, {
-    fetchPolicy: 'no-cache',
-    variables: {
-      id,
-    },
-  });
-  const {
-    data: optionData,
-    error: getOptionsError,
-    loading: optionDataLoad,
-  } = useQuery(GET_PRODUCT_OPTIONS_BY_ID, {
-    fetchPolicy: 'no-cache',
-    variables: {
-      id,
-    },
-  });
-  const {
-    data: productReccomendationData,
-    error: productRecommendationError,
-    loading: productRecommendationLoad,
-  } = useQuery(GET_PRODUCT_RECOMMENDATION, {
-    variables: {
-      productId: id,
-    },
-  });
-
-  const isLoading = [productDataLoad, optionDataLoad, productRecommendationLoad].some(i => i === true);
-  const isError = [productRecommendationError, productDataError, getOptionsError].some(i => i);
+  useEffect(() => {
+    getProductId({ id });
+    getRecommendation({ id });
+  }, [isChangeId]);
 
   useEffect(() => {
-    if (!isLoading) {
-      const colorOptions = [];
-      const sizeOptions = [];
-
-      const {
-        id: productID,
-        descriptionHtml,
-        title,
-        totalInventory,
-        images: { edges },
-        variants: { edges: variantEdge },
-      } = productData.product;
-
-      const [
-        {
-          node: { compareAtPrice, price },
-        },
-      ] = variantEdge;
-
-      setAmount({
-        currencyCode: price?.currencyCode,
-        original_price: price?.amount,
-        discounted_price: compareAtPrice?.amount,
-      });
-      setProduct({ id: productID, descriptionHtml, title, images: edges, variants: variantEdge, totalInventory });
-      const productRecommendation = productReccomendationData?.productRecommendations.map(d => ({
-        id: d.id,
-        title: d.title,
-        image: d.images.edges.find(i => i)?.node.url,
-        compareAtPrice: d.variants.edges.find(i => i)?.node.compareAtPrice,
-        price: d.variants.edges.find(i => i)?.node.price.amount,
-      }));
-
-      setProductRecommendations(productRecommendation || []);
-
-      const optionsVariant = optionData?.product?.options || [];
+    const colorOptions = [];
+    const sizeOptions = [];
+    if (productData.options && productData.variants) {
+      const optionsVariant = productData?.options || [];
 
       optionsVariant.forEach(option => {
         if (option.name.toLowerCase() === 'color') {
@@ -167,66 +113,70 @@ function ProductDetail(props) {
           );
         }
       });
+
+      const variantData = productData.variants[0];
+      setvariantOptions({
+        size: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'size')?.value,
+        color: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'color')?.value,
+      });
+      setAmount({
+        currencyCode: variantData?.node?.price?.currencyCode,
+        original_price: variantData?.node?.price?.amount,
+        discounted_price: variantData?.node?.compareAtPrice?.amount,
+      });
       setOptions({
         color: colorOptions || [],
         size: sizeOptions || [],
       });
-      if (cart) {
-        setCartId(cart?.id);
-      }
-    } else if (isError) {
-      Toast.show({
-        type: 'error',
-        text1: 'oops!',
-        text2:
-          productRecommendationError?.message ||
-          productDataError?.message ||
-          getOptionsError?.message ||
-          'something went wrong',
-      });
     }
-  }, [isLoading, isError, cart, productData, optionData, productReccomendationData]);
+  }, [productData]);
 
   const onSelectValue = (type, value) => {
     if (type === 'size') {
-      setVariants(prev => ({
+      setvariantOptions(prev => ({
         ...prev,
         size: value,
       }));
     } else if (type === 'color') {
-      setVariants(prev => ({
+      setvariantOptions(prev => ({
         ...prev,
         color: value,
       }));
     }
   };
 
-  const variantId = product?.variants.length > 0 ? findVariantIdByOptions(product?.variants, variants) : '';
+  useEffect(() => {
+    if (productData?.variants?.length > 0) {
+      const varId = findVariantIdByOptions(productData?.variants, variantOptions);
+  
+      if (varId) {
+        setVariantId(varId);
+      } else {
+        setVariantId('');
+      }
+    }
+  }, [variantOptions]);
 
   const onSubmit = () => {
     setOnSubmitLoading(true);
-    const body = {
-      quantity: qty,
-      size: variants.size,
-      color: variants.color,
-      variant_id: variantId,
-      cartId: cartId || '',
-    };
-    schema
-      .validate(body, { abortEarly: false })
-      .then(async result => {
-        const { data: addLine } = await cartLinesAdd({
-          variables: {
+      const body = {
+        quantity: qty,
+        size: variantOptions.size,
+        color: variantOptions.color,
+        variant_id: variantId || '',
+        cartId: cartId || '',
+      };
+      schema
+        .validate(body, { abortEarly: false })
+        .then(async result => {
+          const payload = {
             cartId: result.cartId,
             lines: [
               {
                 merchandiseId: result.variant_id,
                 quantity: result.quantity,
                 attributes: [
-                  {
-                    key: 'Color',
-                    value: result?.color,
-                  },
+                  ...(result?.color ? [{ key: 'Color', value: result.color }] : []),
                   {
                     key: 'Size',
                     value: result?.size,
@@ -234,56 +184,77 @@ function ProductDetail(props) {
                 ],
               },
             ],
-          },
+          };
+
+          const { data: addLine } = await cartLinesAdd({
+            variables: payload,
+          });
+
+          console.log('cartLinesAdd', addLine)
+
+          if (addLine?.cartLinesAdd?.cart.id) {
+            setNotifState({
+              show: true
+            });
+            setTimeout(() => {
+              setNotifState({ show: false, text: '', navText: '', to: '' });
+            }, 5000);
+            setErrors({});
+
+            setvariantOptions({
+              size: '',
+              color: '',
+            });
+            cartGetList({
+              first: 10,
+              last: 0,
+              id: cartId,
+            });
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: 'oops!',
+              text2: 'something went wrong',
+            });
+          }
+          setOnSubmitLoading(false);
+        })
+        .catch(error => {
+         
+          if (error.name === 'ValidationError') {
+            if(error.inner.find(i => i.path === 'variant_id') || error.inner.find(i => i.path === 'cartId')) {
+              if(error.inner.find(i => i.path === 'variant_id') ) {
+                Toast.show({
+                  type: 'error',
+                  text1: 'Variant not available for the selected options.',
+                  text2: 'Please choose different options.',
+                });
+              }
+              if(error.inner.find(i => i.path === 'cartId')) {
+                Toast.show({
+                  type: 'error',
+                  text1: 'The cart id is missing',
+                  text2: 'Please provide the valid ID',
+                });
+              }
+       
+            }
+            const errorsVal = error.inner.reduce((acc, err) => {
+              const { path, message } = err;
+              acc[path] = message;
+              return acc;
+            }, {});
+
+            setErrors(errorsVal);
+          } else {
+            Toast.show({
+              type: 'error',
+              text1: 'oops!',
+              text2: error?.originalError?.message || 'something went wrong',
+            });
+          }
+          setOnSubmitLoading(false);
         });
-
-        if (addLine?.cartLinesAdd?.cart.id) {
-          setNotifState(true);
-          setTimeout(() => {
-            setNotifState(false);
-          }, 5000);
-          setErrors({});
-          setOptions({
-            color: [],
-            size: [],
-          });
-          setVariants({
-            size: '',
-            color: '',
-          });
-          CartGetList({
-            first: 10,
-            last: 0,
-            id: cartId,
-          });
-
-          // navigation.navigate('Cart');
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: 'oops! something went wrong',
-            text2: errors?.originalError?.message,
-          });
-        }
-        setOnSubmitLoading(false);
-      })
-      .catch(error => {
-        if (error.name === 'ValidationError') {
-          const errorsVal = error.inner.reduce((acc, err) => {
-            const { path, message } = err;
-            acc[path] = message;
-            return acc;
-          }, {});
-          setErrors(errorsVal);
-        } else {
-          Toast.show({
-            type: 'error',
-            text1: 'oops!',
-            text2: error?.originalError?.message || 'something went wrong',
-          });
-        }
-        setOnSubmitLoading(false);
-      });
   };
 
   const handleQuantity = type => {
@@ -293,37 +264,38 @@ function ProductDetail(props) {
       }
     }
     if (type === 'in') {
-      if (product?.totalInventory <= 0) {
+      if (productData?.totalInventory <= 0) {
         setQty(qty);
       }
-      if (qty < product?.totalInventory) {
+      if (qty < productData?.totalInventory) {
         setQty(qty + 1);
       }
     }
   };
 
   useEffect(() => {
-    if (productRecommendations.length > 0) {
-      const shuffledProductsRecommendations = productRecommendations.sort(() => 0.5 - Math.random());
+    if (recommendationProducts.length > 0) {
+      const shuffledProductsRecommendations = recommendationProducts.sort(() => 0.5 - Math.random());
       const selectedProducts = shuffledProductsRecommendations.slice(0, 2);
       setRandomProductsRecommendation(selectedProducts);
     }
-  }, [productRecommendations]);
-  // <View>
+  }, [recommendationProducts]);
+  console.log('navTo', navTo)
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
-        <HeaderComponent />
+        <HeaderComponent navTo={navTo} />
+        <Button title='tessss' onPress={() => navTo.openDrawer()} />
         <View style={{ paddingHorizontal: 20 }}>
-          <HeaderComponent withoutCartAndLogo backAction icon="back" title="back" />
+          <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
         </View>
         <View style={{ paddingHorizontal: 20 }}>
-          {isLoading ? (
+          {loading ? (
             <LoadingScreen type="circle" />
           ) : (
             <Swiper style={{ height: 500 }} dotStyle={styles.dotStyle} activeDotStyle={styles.activeDotStyle}>
-              {product.images.length > 0 &&
-                product?.images?.map(dt => {
+              {productData?.images?.length > 0 &&
+                productData?.images?.map(dt => {
                   return (
                     <View key={dt.id}>
                       <Image
@@ -346,7 +318,7 @@ function ProductDetail(props) {
         </View>
         <View style={{ paddingHorizontal: 20 }}>
           <View style={styles.section}>
-            <Text style={styles.title}>{product?.title || ''}</Text>
+            <Text style={styles.title}>{productData?.title || ''}</Text>
             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
               {amount.original_price && (
                 <Text style={styles.lineAmount}>
@@ -359,7 +331,7 @@ function ProductDetail(props) {
                 </Text>
               )}
             </View>
-            {product && <CustomHTML htmlContent={product.descriptionHtml} />}
+            {productData && <CustomHTML htmlContent={productData.descriptionHtml} />}
 
             <View style={{ width: '100%', marginTop: 10 }}>
               <SelectInput
@@ -385,16 +357,16 @@ function ProductDetail(props) {
 
               <View>
                 <View style={{ marginTop: -30, marginBottom: 10 }}>
-                  {product?.totalInventory <= 0 ? (
+                  {productData?.totalInventory <= 0 ? (
                     <View style={styles.container}>
                       <Text style={{ ...styles.text, color: COLORS.danger }}>
                         * Temporarily out of stock: Please check back later
                       </Text>
                     </View>
-                  ) : product?.totalInventory <= 5 && product?.totalInventory > 0 ? (
+                  ) : productData?.totalInventory <= 5 && productData?.totalInventory > 0 ? (
                     <View style={styles.container}>
                       <Text style={{ ...styles.text, color: COLORS.orangeWarning }}>
-                        {`Grab yours now! Limited quantity: ${product?.totalInventory} left.`}
+                        {`Grab yours now! Limited quantity: ${productData?.totalInventory} left.`}
                       </Text>
                     </View>
                   ) : null}
@@ -406,7 +378,7 @@ function ProductDetail(props) {
                     color: COLORS.title,
                   }}
                 >
-                  Quantity
+                  {`Quantity`}
                   <Text style={{ color: COLORS.danger }}>*</Text>
                 </Text>
                 <View
@@ -424,7 +396,7 @@ function ProductDetail(props) {
                   </TouchableOpacity>
                   <Text style={styles.quantity}>{qty}</Text>
                   <TouchableOpacity
-                    // (
+                 
                     onPress={() => handleQuantity('in')}
                     style={{ ...styles.icon, backgroundColor: COLORS.black }}
                   >
@@ -451,7 +423,7 @@ function ProductDetail(props) {
                 marginBottom: 20,
               }}
             >
-              You May Like
+              You May Also Like
             </Text>
             <View style={{ marginBottom: 10 }}>
               <View
@@ -462,20 +434,32 @@ function ProductDetail(props) {
                   justifyContent: 'space-between',
                 }}
               >
-                {randomProductsRecommendation.length > 0 &&
+                {recommendationLoading ? (
+                  <LoadingScreen type="circle" />
+                ) : (
+                  randomProductsRecommendation.length > 0 &&
                   randomProductsRecommendation.map(
                     ({ image, title, price, compareAtPrice, id: productRecommendationId }) => {
                       return (
                         <View
                           key={productRecommendationId}
                           style={{
-                            width: 150,
-                            marginRight: 10,
+                            width: screen.width / 2 - 25,
                             marginBottom: 20,
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                            justifyContent: 'space-between',
                           }}
                         >
                           <ProductCardStyle1
-                            onPress={() => navigation.navigate('ProductDetail', { productRecommendationId })}
+                               onPress={() => {
+                                setIsChangeId(prev => !prev)
+                                navigation.navigate('ProductDetail', {
+                                  id: productRecommendationId,
+                                })
+                                scrollViewRef.current.scrollTo({ y: 0, animated: false });
+                               }
+                              }
                             imageSrc={image}
                             title={title}
                             price={price}
@@ -484,7 +468,8 @@ function ProductDetail(props) {
                         </View>
                       );
                     }
-                  )}
+                  )
+                )}
               </View>
             </View>
           </View>
@@ -493,66 +478,40 @@ function ProductDetail(props) {
         <Footer />
       </ScrollView>
 
-      <Notification visible={notifState} />
+      <Notification visible={notifState.show} text={notifState.text} navText={notifState.navText} to={notifState.to} />
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
+      <View style={{
+          display: 'flex', 
+          flexDirection: 'row', 
           paddingHorizontal: 15,
           paddingVertical: 12,
-        }}
-      >
-        <View style={{ marginRight: 20, paddingVertical: 10 }}>
-          <Button
-            onPress={() => navigation.navigate('Wishlist')}
-            title="Wishlist"
-            outline
-            size="xs"
-            iconStyles={{ marginLeft: 18 }}
-            icon={FeatherIcon}
-            iconName="heart"
-          />
-        </View>
-        <View>
+        }}>
+        <View style={{width: '100%'}}>
           <Button
             onPress={onSubmit}
-            title={onSubmitLoading ? 'Loading ...' : 'Add To Cart'}
-            size="xs"
-            iconStyles={{ marginLeft: 18 }}
+            title={onSubmitLoading ? 'Loading ...' : 'Add to Cart'}
+            iconSize={20}
+            iconName='shopping-bag'
             icon={FeatherIcon}
-            iconName="shopping-bag"
-            disabled={onSubmitLoading || product?.totalInventory <= 0}
+            disabled={onSubmitLoading }
           />
+          </View>
         </View>
-      </View>
-      <Snackbar
-        visible={isSnackbar}
-        duration={3000}
-        onDismiss={() => setIsSnackbar(false)}
-        action={{
-          label: 'Wishlist',
-          onPress: () => {
-            navigation.navigate('Wishlist');
-          },
-        }}
-      >
-        {snackText}
-      </Snackbar>
     </SafeAreaView>
   );
 }
-
-{
-  /* </View> */
-}
 export default connect(
-  ({ Cart }) => {
+  ({ Cart, Product }) => {
     const { options } = Cart;
-    return { cartId: options?.cartId };
+    const {
+      collections: {
+        detail: { data: productData, loading },
+        recommendations: { data: recommendationProducts, loading: recommendationLoading },
+      },
+    } = Product;
+    return { cartId: options?.cartId, productData, loading, recommendationProducts, recommendationLoading };
   },
-  { CartGetList }
+  { CartGetList, getProductById, getProductRecommendation }
 )(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
@@ -612,7 +571,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
   },
   container: {
-    backgroundColor: COLORS.LIGHT, // Customize the background color
+    backgroundColor: COLORS.light, // Customize the background color
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',

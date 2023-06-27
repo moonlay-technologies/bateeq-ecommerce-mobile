@@ -46,29 +46,30 @@ function Button(props) {
             : color || (size === 'xxl' ? '#333333' : COLORS.black),
         },
         { alignItems: 'center' },
-        outline && styles.outline,
-        disabled && styles.disabled,
+        disabled && { opacity: 0.7 },
+        outline && { ...styles.outline, ...(style.borderColor && { borderColor: style.borderColor }) },
       ]}
       disabled={disabled}
     >
-      {/* <FontAwesome5Icon name="circle-notch" color="#d0d0d0" solid /> */}
-      <Text
-        style={{
-          ...(size === 'xs'
-            ? styles.xsText
-            : size === 'sm'
-            ? styles.smText
-            : size === 'lg'
-            ? styles.lgText
-            : size === 'xxl'
-            ? styles.xxlText
-            : { ...styles.defaultText }),
-          color: textStyle?.color ? textStyle.color : outline ? COLORS.title : COLORS.white,
-          fontWeight: textStyle?.fontWeight ? textStyle.fontWeight : '500',
-        }}
-      >
-        {title}
-      </Text>
+      {title && (
+        <Text
+          style={{
+            ...(size === 'xs'
+              ? styles.xsText
+              : size === 'sm'
+              ? styles.smText
+              : size === 'lg'
+              ? styles.lgText
+              : size === 'xxl'
+              ? styles.xxlText
+              : { ...styles.defaultText }),
+            color: textStyle?.color ? textStyle.color : outline ? COLORS.title : COLORS.white,
+            fontWeight: textStyle?.fontWeight ? textStyle.fontWeight : '500',
+          }}
+        >
+          {title}
+        </Text>
+      )}
       {Icon && (
         <View style={iconStyles}>
           <Icon name={iconName} size={iconSize} color={outline ? COLORS.title : iconColor || COLORS.white} />
@@ -82,12 +83,15 @@ export default Button;
 
 const styles = StyleSheet.create({
   default: {
+    height: 50,
+    flexDirection: 'row',
+    justifyContent: 'center',
     paddingHorizontal: 18,
     paddingVertical: 12,
-    borderRadius: 20,
   },
   defaultText: {
-    ...FONTS.h6,
+    ...FONTS.fontSatoshiBold,
+    fontSize: 14,
   },
   xs: {
     paddingHorizontal: 8,
@@ -137,9 +141,6 @@ const styles = StyleSheet.create({
   xxlText: {
     fontSize: 14,
     ...FONTS.fontSatoshiBold,
-  },
-  disabled: {
-    opacity: 0.5,
   },
   outline: {
     backgroundColor: COLORS.transparent,
