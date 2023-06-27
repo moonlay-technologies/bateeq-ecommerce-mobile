@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import * as yup from 'yup';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 
 import { CountriesApi, CustomerApi } from '../../../service/shopify-api';
 import { GlobalStyleSheet } from '../../../constants/StyleSheet';
@@ -12,7 +12,7 @@ import HeaderComponent from '../../../components/HeaderComponent';
 import InputTextArea from '../../../components/InputTextArea';
 import Button from '../../../components/ButtonComponent';
 import Input from '../../../components/InputComponent';
-import { updateAddress, getAddressList } from '../../../store/actions';
+import { updateAddress, getAddressList, resetNavigation } from '../../../store/actions';
 import LoadingScreen from '../../../components/LoadingView';
 
 const schema = yup.object().shape({
@@ -37,6 +37,8 @@ function EditAddress({
   getAddressList: getAddress,
 }) {
   const { id } = route.params;
+  const dispatch = useDispatch();
+  const navigationState = useSelector(state => state.Navigation.navigationState);
   const [errors, setErrors] = useState({});
   const [countries, setCountries] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -132,6 +134,26 @@ function EditAddress({
     }
   }, [countryId]);
 
+  useEffect(() => {
+    if (navigationState.navigation) {
+      setErrors({});
+      setState({
+        first_name: '',
+        last_name: '',
+        phone_number: '',
+        company: '',
+        first_address: '',
+        second_address: '',
+        country: '',
+        province: '',
+        city: '',
+        postal_code: '',
+      });
+      navigation.navigate(`${navigationState?.navigation}`, { editedId: id });
+      dispatch(resetNavigation());
+    }
+  }, [navigationState]);
+
   const handleFieldChange = (value, name) => {
     setState(prev => ({
       ...prev,
@@ -180,23 +202,10 @@ function EditAddress({
         updatingAddress({
           ...payloadBody,
         });
-
-        setErrors({});
-        setState({
-          first_name: '',
-          last_name: '',
-          phone_number: '',
-          company: '',
-          first_address: '',
-          second_address: '',
-          country: '',
-          province: '',
-          city: '',
-          postal_code: '',
-        });
-        setIsLoading(false);
-        getAddress({ token, limit: 10 });
-        navigation.navigate('Address', { editedId: id });
+        setTimeout(() => {
+          setIsLoading(false);
+          getAddress({ token, limit: 10 });
+        }, 1000);
       })
       .catch(err => {
         if (err.name === 'ValidationError') {

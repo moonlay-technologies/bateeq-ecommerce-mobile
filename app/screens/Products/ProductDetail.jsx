@@ -220,7 +220,7 @@ function ProductDetail(props) {
           setOnSubmitLoading(false);
         })
         .catch(error => {
-          console.log('error', error)
+         
           if (error.name === 'ValidationError') {
             if(error.inner.find(i => i.path === 'variant_id') || error.inner.find(i => i.path === 'cartId')) {
               if(error.inner.find(i => i.path === 'variant_id') ) {

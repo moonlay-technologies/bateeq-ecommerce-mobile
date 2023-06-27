@@ -57,11 +57,13 @@ function AddressScreen(props) {
     }, 500);
   };
 
-  const onSubmit = async () => {
-    updateDefaultAddress({
-      addressId: addressSelected?.id,
-      customerAccessToken: token,
-    });
+  const onSubmit = () => {
+    if (addressSelected) {
+      updateDefaultAddress({
+        addressId: addressSelected?.id,
+        customerAccessToken: token,
+      });
+    }
   };
 
   return (
@@ -112,7 +114,8 @@ function AddressScreen(props) {
                 >
                   {(isLoadingDelete && showModal?.data?.id === id) ||
                   addressList?.loading ||
-                  (actionLoading && route?.params?.editedId === id) ? (
+                  actionLoading ||
+                  route?.params?.editedId === id ? (
                     <LoadingComponent type="circle" key={id} />
                   ) : (
                     <View>

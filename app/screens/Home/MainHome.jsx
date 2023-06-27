@@ -26,7 +26,7 @@ import MenuListHeader from '../../components/ListMenuHeader';
 
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
-  console.log('navigation MainHome', navigation);
+
   const [pageStory, setPageStory] = useState(null);
   const [dataBanner, setDataBanner] = useState([]);
   const [imageSliderCollection, setImageSliderCollection] = useState([]);
