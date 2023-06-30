@@ -38,7 +38,7 @@ function ProductDetail(props) {
     color: [],
     size: [],
   });
-  console.log('navigation props', navigation)
+
   const schema = yup.object().shape({
     quantity: yup.number().required(),
     size: yup.string().required(),
@@ -190,8 +190,6 @@ function ProductDetail(props) {
             variables: payload,
           });
 
-          console.log('cartLinesAdd', addLine)
-
           if (addLine?.cartLinesAdd?.cart.id) {
             setNotifState({
               show: true
@@ -280,12 +278,11 @@ function ProductDetail(props) {
       setRandomProductsRecommendation(selectedProducts);
     }
   }, [recommendationProducts]);
-  console.log('navTo', navTo)
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
       <ScrollView ref={scrollViewRef}>
-        <HeaderComponent navTo={navTo} />
-        <Button title='tessss' onPress={() => navTo.openDrawer()} />
+        <HeaderComponent />
         <View style={{ paddingHorizontal: 20 }}>
           <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
         </View>

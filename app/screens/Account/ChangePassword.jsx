@@ -14,7 +14,7 @@ import { UpdateAccount } from '../../store/actions/user';
 import { resetNavigation } from '../../store/actions';
 import Button from '../../components/ButtonComponent';
 
-function AppSettingScreen({ ...props }) {
+function ChangePasswordScreen({ ...props }) {
   const { options, UpdateAccount: updateAccount } = props;
   const dispatch = useDispatch();
   const navigation = useNavigation();
@@ -124,4 +124,4 @@ export default connect(
     return { options, collections };
   },
   { UpdateAccount }
-)(React.memo(AppSettingScreen));
+)(React.memo(ChangePasswordScreen));

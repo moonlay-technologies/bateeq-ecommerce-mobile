@@ -9,8 +9,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
-import MenuListHeader from './ListMenuHeader';
-import { CartGetList, CartPutTotalQty } from '../store/actions';
+import { CartGetList, CartPutTotalQty, DrawerToggle } from '../store/actions';
 
 /**
  * @param {string} icon
@@ -23,17 +22,8 @@ import { CartGetList, CartPutTotalQty } from '../store/actions';
  * @returns {JSX.Element}
  * @constructor
  */
-function HeaderComponent({
-  icon = '',
-  title,
-  backAction,
-  withoutCartAndLogo,
-  navTo,
-  options,
-  // setIsDrawerOpen,
-  ...props
-}) {
-  const { CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
+function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo, navTo, options, ...props }) {
+  const { CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList, DrawerToggle: drawerToggle } = props;
   const navigation = useNavigation();
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
     variables: {
@@ -52,17 +42,10 @@ function HeaderComponent({
   };
 
   const onPressLeft = () => {
-    // setIsDrawerOpen(prev => !prev);
     if (backAction) {
       navigation.goBack();
-    } else if (navTo) {
-      navTo.openDrawer();
-    } else if (
-      'openDrawer' in navigation &&
-      typeof navigation?.openDrawer !== 'undefined' &&
-      typeof navigation?.openDrawer === 'function'
-    ) {
-      navigation.openDrawer();
+    } else {
+      drawerToggle();
     }
   };
 
@@ -172,5 +155,5 @@ export default connect(
     const { options } = Cart;
     return { options };
   },
-  { CartGetList, CartPutTotalQty }
+  { CartGetList, CartPutTotalQty, DrawerToggle }
 )(React.memo(HeaderComponent));

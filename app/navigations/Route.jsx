@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Animated } from 'react-native';
+import React, { useRef } from 'react';
+import { Animated, View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -7,11 +7,11 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { connect } from 'react-redux';
 import SplashScreen from '../components/SplashScreen';
 import StackNavigator from './StackNavigator';
-
+import CustomDrawer from './DrawerNavigation';
 import { LoadUsers, setToken } from '../store/actions/user';
+import BottomNavigation from './BottomNavigation';
 
-function Routes({ ...props }) {
-  const { options, loading, isAuthenticated } = props;
+function Routes({ options, loading, isAuthenticated }) {
   const fadeAnim = useRef(new Animated.Value(1)).current;
   // const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -24,7 +24,11 @@ function Routes({ ...props }) {
           </Animated.View>
         ) : (
           <NavigationContainer>
-            <StackNavigator isAuthenticated={isAuthenticated} />
+            <View style={{ flex: 1 }}>
+              <CustomDrawer />
+              <StackNavigator isAuthenticated={isAuthenticated} />
+              <BottomNavigation />
+            </View>
           </NavigationContainer>
         )}
         <Toast />

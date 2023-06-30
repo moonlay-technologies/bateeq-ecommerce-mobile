@@ -11,6 +11,7 @@ export const GlobalStyleSheet = {
     borderWidth: 1,
     borderColor: COLORS.title,
     paddingHorizontal: 12,
+    color: COLORS.label,
   },
   activeInput: {
     borderWidth: 1,

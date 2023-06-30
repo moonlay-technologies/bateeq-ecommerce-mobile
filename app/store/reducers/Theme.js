@@ -1,5 +1,5 @@
 import { REQUEST } from '../actions/action.type';
-import { CHANGE_THEME_MODE, COLLAPSE_SIDEBAR, THEME_MODE } from '../constants/theme';
+import { CHANGE_THEME_MODE, DRAWER_TOGGLE, THEME_MODE } from '../constants/theme';
 
 const initialState = {
   mode: 'light',
@@ -11,8 +11,9 @@ const initialState = {
 
 export default function (state = initialState, action) {
   const { type, payload } = action;
+
   switch (type) {
-    case COLLAPSE_SIDEBAR:
+    case DRAWER_TOGGLE:
       return {
         ...state,
         sidebar: {
