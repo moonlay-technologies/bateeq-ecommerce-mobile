@@ -233,7 +233,7 @@ function OrderDetail({ route }) {
             {
               Array.isArray(detailOrder?.lineItems?.nodes) && detailOrder?.lineItems?.nodes.length > 0 ?
                 <View style={{
-                  
+                  marginBottom:60,
                   borderRadius:10,
                   paddingVertical:20,
                   paddingHorizontal:20,
