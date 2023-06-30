@@ -37,22 +37,24 @@ const AllCart = ({ ...props }) => {
           <Text style={{ color: 'black', fontSize: 16 }}>{`No orders were orders :D`}</Text>
         </View>
       )}
-      {dataOrders &&
-        dataOrders.map(data => (
-          <CartItem
+      <View style={{marginBottom: Array.isArray(dataOrders) && dataOrders.length > 0 ? 20 : 0}}>
+        {dataOrders &&
+          dataOrders.map(data => (
+            <CartItem
               {...data}
-            key={data.id}
-            orderId={data.id}
-            productId={data?.lineItems?.nodes[0]?.sku}
-            orderName={data?.name}
-            // title={data.lineItems.nodes[0].product.title}
-            // price={data.price}
-            date={data.createdAt}
-            // quantity={data?.subtotalLineItemsQuantity}
-            // size={data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]?.selectedOptions[1]?.value}
-            status={data.displayFinancialStatus}
-          />
-        ))}
+              key={data.id}
+              orderId={data.id}
+              productId={data?.lineItems?.nodes[0]?.sku}
+              orderName={data?.name}
+              // title={data.lineItems.nodes[0].product.title}
+              // price={data.price}
+              date={data.createdAt}
+              // quantity={data?.subtotalLineItemsQuantity}
+              // size={data?.lineItems?.nodes[0]?.product?.variants?.nodes[0]?.selectedOptions[1]?.value}
+              status={data.displayFinancialStatus}
+            />
+          ))}
+      </View>
     </ScrollView>
   );
 };

@@ -76,6 +76,21 @@ export const GET_ORDERS_DETAIL_BY_ID = gql`
         lineItems(first: 10) {
           nodes {
             variantTitle
+            title
+            variant{
+              id
+              position
+              weight
+              weightUnit
+              selectedOptions{
+                name
+                value
+              }
+              image{
+                id
+                url
+              }
+            }
             quantity
             sku
             name

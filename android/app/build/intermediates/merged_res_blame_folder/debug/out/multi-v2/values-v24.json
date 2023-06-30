@@ -1,10 +1,20 @@
 {
     "logs": [
         {
-            "outputFile": "com.w3wedo.app-mergeDebugResources-4:/values-v24/values-v24.xml",
+            "outputFile": "com.w3wedo.app-mergeDebugResources-39:/values-v24/values-v24.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\KrisnaDwiSetyaadi\\.gradle\\caches\\transforms-3\\1b6feb4c1cc1954f1c1dcb48ccb351a6\\transformed\\media-1.0.0\\res\\values-v24\\values-v24.xml",
+                    "source": "/Users/myudi/.gradle/caches/transforms-3/4742f36f31336348d66c7e10243dea8b/transformed/appcompat-1.4.1/res/values-v24/values-v24.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,212",
+                        "endColumns": "156,134",
+                        "endOffsets": "207,342"
+                    }
+                },
+                {
+                    "source": "/Users/myudi/.gradle/caches/transforms-3/1b6feb4c1cc1954f1c1dcb48ccb351a6/transformed/media-1.0.0/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
@@ -18,16 +28,6 @@
                         "startOffsets": "347,413,474,540",
                         "endColumns": "65,60,65,66",
                         "endOffsets": "408,469,535,602"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\KrisnaDwiSetyaadi\\.gradle\\caches\\transforms-3\\4742f36f31336348d66c7e10243dea8b\\transformed\\appcompat-1.4.1\\res\\values-v24\\values-v24.xml",
-                    "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,212",
-                        "endColumns": "156,134",
-                        "endOffsets": "207,342"
                     }
                 }
             ]

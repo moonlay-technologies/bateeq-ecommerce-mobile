@@ -5,29 +5,39 @@ import moment from 'moment/moment';
 import { useNavigation } from '@react-navigation/native';
 import { findKey, formatWithCommas } from '../utils/helper';
 
+/**
+ *
+ * @param orderId
+ * @param orderName
+ * @param status
+ * @param date
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
+ */
 function CartItem({
-  orderId,
-  // productId,
-  // image,
-  orderName,
-  // title,
-  // quantity,
-  // size,
-  status,
-
-  // desc,
-  date,
-  ...props
-}) {
+                    orderId,
+                    // productId,
+                    // image,
+                    orderName,
+                    // title,
+                    // quantity,
+                    // size,
+                    status,
+                    
+                    // desc,
+                    date,
+                    ...props
+                  }) {
   const dateOrders = moment(date);
-
+  
   const navigation = useNavigation();
   const formattedDate = dateOrders.format('MMMM Do YYYY');
-
+  
   const handleClick = () => {
     navigation.navigate('OrderDetail', { orderId: orderId });
   };
-
+  
   return (
     <View style={{ flex: 1, paddingHorizontal: 15, marginTop: 20 }}>
       <TouchableOpacity
@@ -44,19 +54,17 @@ function CartItem({
       >
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-            {/*<Text>{JSON.stringify(props?.lineItems?.nodes,null,2)}</Text>*/}
-
             {props?.lineItems && Array.isArray(props?.lineItems?.nodes) && props?.lineItems?.nodes.length > 0 ? (
-              <View style={{ flexDirection: 'row', width: 100 }}>
-                {props?.lineItems?.nodes?.slice(0, 2).map((item, index) => (
+              <View style={{ flexDirection: 'row', width: 100,height:100 }}>
+                {props?.lineItems?.nodes?.slice(0, 1).map((item, index) => (
                   <View
                     style={{
-                      width: 50,
-                      height: 50,
+                      width: 70,
+                      height: 70,
                       overflow: 'hidden',
                       left: index > 0 ? index * -35 : 0,
                       zIndex: 2,
-                      borderRadius: 50,
+                      borderRadius: 70,
                       backgroundColor: 'rgba(55,55,255,.5)',
                     }}
                   >
@@ -66,23 +74,24 @@ function CartItem({
                       item?.product?.images?.nodes.length > 0 && (
                         <Image
                           source={{ uri: item?.product?.images?.nodes[0]?.url }}
-                          style={{ height: 50, width: 50 }}
+                          style={{ height: 70, width: 70 }}
                         />
                       )}
                   </View>
                 ))}
-                {props?.lineItems?.nodes?.length > 2 && (
+                {props?.lineItems?.nodes?.length > 1 && (
                   <View
                     style={{
-                      width: 50,
-                      height: 50,
-                      left: -70,
+                      width: 30,
+                      height: 30,
+                      left: -20,
+                      bottom: -40,
                       flexDirection: 'row',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      borderRadius: 50,
+                      borderRadius: 70,
                       elevation: 14,
-
+                      
                       backgroundColor: '#ffffff',
                       shadowColor: '#000',
                       shadowOffset: {
@@ -94,7 +103,7 @@ function CartItem({
                       zIndex: 3,
                     }}
                   >
-                    <Text style={{ fontSize: 16, fontWeight: '600' }}>{props?.lineItems?.nodes.length ?? 0}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: '600' }}>{['+',props?.lineItems?.nodes.length - 1].join('') ?? 0}</Text>
                   </View>
                 )}
               </View>
@@ -110,7 +119,7 @@ function CartItem({
                     justifyContent: 'center',
                     borderRadius: 50,
                     elevation: 14,
-
+                    
                     backgroundColor: '#ffffff',
                     shadowColor: '#000',
                     shadowOffset: {
@@ -170,7 +179,7 @@ function CartItem({
               {moment(props?.createdAt).format('DD/MM/YYYY')}
             </Text>
             <Text style={{ ...FONTS.fontSatoshiBold, fontSize: 12, color: COLORS.text }}>
-              {moment(props?.createdAt).format('HH:mm')}
+              {moment(props?.createdAt).format('HH:mm a')}
             </Text>
           </View>
         </View>

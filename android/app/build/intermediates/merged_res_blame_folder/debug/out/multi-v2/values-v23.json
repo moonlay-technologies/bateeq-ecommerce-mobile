@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.w3wedo.app-mergeDebugResources-4:/values-v23/values-v23.xml",
+            "outputFile": "com.w3wedo.app-mergeDebugResources-39:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\KrisnaDwiSetyaadi\\.gradle\\caches\\transforms-3\\f448ac4b9c3f6cc9a502a0c06011ed6c\\transformed\\cardview-1.0.0\\res\\values-v23\\values-v23.xml",
+                    "source": "/Users/myudi/.gradle/caches/transforms-3/f448ac4b9c3f6cc9a502a0c06011ed6c/transformed/cardview-1.0.0/res/values-v23/values-v23.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -23,36 +23,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\KrisnaDwiSetyaadi\\.gradle\\caches\\transforms-3\\09bfadc8383756d48fc1bdeb490607c1\\transformed\\work-runtime-2.7.1\\res\\values-v23\\values-v23.xml",
-                    "from": {
-                        "startLines": "2,3",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,121",
-                        "endColumns": "65,62",
-                        "endOffsets": "116,179"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\KrisnaDwiSetyaadi\\.gradle\\caches\\transforms-3\\7d6ec708d87308ce2231734a845b2de9\\transformed\\material-1.4.0\\res\\values-v23\\values-v23.xml",
-                    "from": {
-                        "startLines": "2,6",
-                        "startColumns": "4,4",
-                        "startOffsets": "55,320",
-                        "endLines": "5,9",
-                        "endColumns": "10,10",
-                        "endOffsets": "315,588"
-                    },
-                    "to": {
-                        "startLines": "55,59",
-                        "startColumns": "4,4",
-                        "startOffsets": "3511,3776",
-                        "endLines": "58,62",
-                        "endColumns": "10,10",
-                        "endOffsets": "3771,4044"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\KrisnaDwiSetyaadi\\.gradle\\caches\\transforms-3\\4742f36f31336348d66c7e10243dea8b\\transformed\\appcompat-1.4.1\\res\\values-v23\\values-v23.xml",
+                    "source": "/Users/myudi/.gradle/caches/transforms-3/4742f36f31336348d66c7e10243dea8b/transformed/appcompat-1.4.1/res/values-v23/values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -68,6 +39,35 @@
                         "endLines": "4,5,6,7,21,35,36,37,40,44,45,46,47,51",
                         "endColumns": "134,134,74,86,12,12,118,126,12,12,114,106,112,12",
                         "endOffsets": "314,449,524,611,1349,2099,2218,2345,2567,2791,2906,3013,3126,3356"
+                    }
+                },
+                {
+                    "source": "/Users/myudi/.gradle/caches/transforms-3/09bfadc8383756d48fc1bdeb490607c1/transformed/work-runtime-2.7.1/res/values-v23/values-v23.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,121",
+                        "endColumns": "65,62",
+                        "endOffsets": "116,179"
+                    }
+                },
+                {
+                    "source": "/Users/myudi/.gradle/caches/transforms-3/7d6ec708d87308ce2231734a845b2de9/transformed/material-1.4.0/res/values-v23/values-v23.xml",
+                    "from": {
+                        "startLines": "2,6",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,320",
+                        "endLines": "5,9",
+                        "endColumns": "10,10",
+                        "endOffsets": "315,588"
+                    },
+                    "to": {
+                        "startLines": "55,59",
+                        "startColumns": "4,4",
+                        "startOffsets": "3511,3776",
+                        "endLines": "58,62",
+                        "endColumns": "10,10",
+                        "endOffsets": "3771,4044"
                     }
                 }
             ]
