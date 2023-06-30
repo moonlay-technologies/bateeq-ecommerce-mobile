@@ -4,7 +4,7 @@
             "outputFile": "com.w3wedo.app-mergeDebugResources-39:/values-en-rXC/values-en-rXC.xml",
             "map": [
                 {
-                    "source": "/Users/myudi/.gradle/caches/transforms-3/1034ce825963aa706d39e8c31239c4bf/transformed/core-1.7.0/res/values-en-rXC/values-en-rXC.xml",
+                    "source": "C:\\Users\\RezaAlpadizami\\.gradle\\caches\\transforms-3\\1034ce825963aa706d39e8c31239c4bf\\transformed\\core-1.7.0\\res\\values-en-rXC\\values-en-rXC.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "/Users/myudi/.gradle/caches/transforms-3/4742f36f31336348d66c7e10243dea8b/transformed/appcompat-1.4.1/res/values-en-rXC/values-en-rXC.xml",
+                    "source": "C:\\Users\\RezaAlpadizami\\.gradle\\caches\\transforms-3\\4742f36f31336348d66c7e10243dea8b\\transformed\\appcompat-1.4.1\\res\\values-en-rXC\\values-en-rXC.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",

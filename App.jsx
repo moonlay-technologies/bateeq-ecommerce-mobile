@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useColorScheme, Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
-import Routes from './app/navigations/Route';
+import Routes from './app/Navigations/Route';
 import { LoadUsers, setToken } from './app/store/actions/user';
 import { themeColor } from './app/store/actions';
 

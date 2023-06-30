@@ -4,7 +4,7 @@
             "outputFile": "com.w3wedo.app-mergeDebugResources-39:/values-v22/values-v22.xml",
             "map": [
                 {
-                    "source": "/Users/myudi/.gradle/caches/transforms-3/4742f36f31336348d66c7e10243dea8b/transformed/appcompat-1.4.1/res/values-v22/values-v22.xml",
+                    "source": "C:\\Users\\RezaAlpadizami\\.gradle\\caches\\transforms-3\\4742f36f31336348d66c7e10243dea8b\\transformed\\appcompat-1.4.1\\res\\values-v22\\values-v22.xml",
                     "from": {
                         "startLines": "2,3,4,9",
                         "startColumns": "4,4,4,4",

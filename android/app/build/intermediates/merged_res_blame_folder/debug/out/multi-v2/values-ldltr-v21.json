@@ -4,7 +4,7 @@
             "outputFile": "com.w3wedo.app-mergeDebugResources-39:/values-ldltr-v21/values-ldltr-v21.xml",
             "map": [
                 {
-                    "source": "/Users/myudi/.gradle/caches/transforms-3/4742f36f31336348d66c7e10243dea8b/transformed/appcompat-1.4.1/res/values-ldltr-v21/values-ldltr-v21.xml",
+                    "source": "C:\\Users\\RezaAlpadizami\\.gradle\\caches\\transforms-3\\4742f36f31336348d66c7e10243dea8b\\transformed\\appcompat-1.4.1\\res\\values-ldltr-v21\\values-ldltr-v21.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
