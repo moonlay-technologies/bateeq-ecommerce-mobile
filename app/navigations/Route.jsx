@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Animated, View, Text } from 'react-native';
+import { Animated, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -11,9 +11,8 @@ import CustomDrawer from './DrawerNavigation';
 import { LoadUsers, setToken } from '../store/actions/user';
 import BottomNavigation from './BottomNavigation';
 
-function Routes({ options, loading, isAuthenticated }) {
+function Routes({ options, loading, isAuthenticated, isLogin }) {
   const fadeAnim = useRef(new Animated.Value(1)).current;
-  // const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
     <PaperProvider>
@@ -27,7 +26,7 @@ function Routes({ options, loading, isAuthenticated }) {
             <View style={{ flex: 1 }}>
               <CustomDrawer />
               <StackNavigator isAuthenticated={isAuthenticated} />
-              <BottomNavigation />
+              <BottomNavigation isAuthenticated={[isAuthenticated, isLogin]} />
             </View>
           </NavigationContainer>
         )}
@@ -39,9 +38,10 @@ function Routes({ options, loading, isAuthenticated }) {
 
 export default connect(
   ({ Auth, User }) => {
-    const { isAuthenticated } = Auth;
+    const { isAuthenticated, isLogin } = Auth;
+
     const { options, loading } = User;
-    return { options, isAuthenticated, loading };
+    return { options, isAuthenticated, loading, isLogin };
   },
   { LoadUsers, setToken }
 )(React.memo(Routes));

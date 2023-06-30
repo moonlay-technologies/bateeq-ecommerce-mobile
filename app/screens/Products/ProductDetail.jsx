@@ -56,7 +56,7 @@ function ProductDetail(props) {
     cartId: yup.string().required(),
   });
 
-  const { id , navTo} = route.params;
+  const { id } = route.params;
   const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
   const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);

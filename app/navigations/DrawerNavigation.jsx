@@ -7,8 +7,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CartGetList, DrawerToggle } from '../store/actions';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 import { SidebarMenuItem } from './routes/menu-items';
+import { LogOut } from '../store/constants/Auth';
 
-function SideBarComponent({ options, visible, DrawerToggle: drawerToggle, CartGetList: cartGetList, cartId }) {
+function SideBarComponent({
+  options,
+  visible,
+  DrawerToggle: drawerToggle,
+  CartGetList: cartGetList,
+  cartId,
+  LogOut: logOut,
+}) {
   const navigation = useNavigation();
   const scrollViewRef = useRef(null);
   const drawerWidth = useRef(new Animated.Value(0)).current;
@@ -27,7 +35,7 @@ function SideBarComponent({ options, visible, DrawerToggle: drawerToggle, CartGe
 
   const drawerTranslateX = drawerWidth.interpolate({
     inputRange: [0, 1],
-    outputRange: [-300, 70], // Adjust the value as per your sidebar width
+    outputRange: [-300, 70],
   });
 
   const onNavigate = menu => {
@@ -44,6 +52,7 @@ function SideBarComponent({ options, visible, DrawerToggle: drawerToggle, CartGe
             routes: [{ name: `${navigate}` }],
           })
         );
+        logOut();
       })();
     }
     navigation.navigate(`${navigate}`);
@@ -173,5 +182,5 @@ export default connect(
       visible,
     };
   },
-  { CartGetList, DrawerToggle }
+  { CartGetList, DrawerToggle, LogOut }
 )(SideBarComponent);

@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { connect } from 'react-redux';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
 import india from '../../assets/images/flags/india.png';
@@ -12,11 +13,12 @@ import UnitedStates from '../../assets/images/flags/UnitedStates.png';
 import german from '../../assets/images/flags/german.png';
 import italian from '../../assets/images/flags/italian.png';
 import spanish from '../../assets/images/flags/spanish.png';
-import CustomButton from '../../components/CustomButton';
 import LoadingScreen from '../../components/LoadingView';
 import HeaderComponent from '../../components/HeaderComponent';
 import UserInfo from '../../components/UserInfo';
-import { getAddressList } from '../../store/actions/address';
+import { getAddressList } from '../../store/actions';
+import { LogOut } from '../../store/constants/Auth';
+import Button from '../../components/ButtonComponent';
 
 const languagetData = [
   {
@@ -40,7 +42,7 @@ const languagetData = [
     name: 'Spanish',
   },
 ];
-function Profile({ token, getAddressList: getAddress }) {
+function Profile({ token, getAddressList: getAddress, LogOut: logOut }) {
   const navigation = useNavigation();
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +59,13 @@ function Profile({ token, getAddressList: getAddress }) {
       );
     }
   }, [isLoggedOut, isFocused, navigation]);
+
+  const handleLogout = async () => {
+    setIsLoggedOut(true);
+    await AsyncStorage.removeItem('accessToken');
+    logOut();
+    navigation.navigate('SignIn');
+  };
 
   return (
     <>
@@ -234,16 +243,22 @@ function Profile({ token, getAddressList: getAddress }) {
                 </Text>
                 <FeatherIcon size={20} color={COLORS.title} name="chevron-right" />
               </TouchableOpacity> */}
-              <CustomButton
-                arrowIcon
+
+              <Button
                 title="Log Out"
-                color="#FF3544"
-                onPress={async () => {
-                  setIsLoggedOut(true);
-                  await AsyncStorage.removeItem('accessToken');
-                  navigation.navigate('SignIn');
+                icon={Ionicons}
+                style={{
+                  backgroundColor: '#FF3544',
                 }}
-                logout
+                iconName="md-arrow-forward"
+                iconSize={12}
+                iconStyles={{
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  marginTop: 4,
+                  left: 110,
+                }}
+                onPress={handleLogout}
               />
             </View>
           </View>
@@ -260,5 +275,5 @@ export default connect(
     } = User;
     return { token };
   },
-  { getAddressList }
+  { getAddressList, LogOut }
 )(Profile);

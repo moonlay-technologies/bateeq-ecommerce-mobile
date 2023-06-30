@@ -54,19 +54,21 @@ function CartList({
   };
 
   return (
-    <TouchableOpacity
+    <View
       activeOpacity={0.9}
-      onPress={onPress}
       style={{
         flexDirection: 'row',
-        paddingHorizontal: 15,
+        // paddingHorizontal: 15,
         borderBottomWidth: 1,
         borderBottomColor: COLORS.borderColor,
         paddingBottom: 15,
         paddingTop: 15,
       }}
     >
-      <Image style={{ height: 120, width: 80, marginRight: 12 }} source={image} />
+      <TouchableOpacity onPress={onPress}>
+        <Image style={{ height: 120, width: 80, marginRight: 12 }} source={image} />
+      </TouchableOpacity>
+
       <View style={{ flex: 1, paddingVertical: 7 }}>
         <Text
           numberOfLines={1}
@@ -181,7 +183,7 @@ function CartList({
                   borderWidth: 1,
                   marginHorizontal: 8,
                   paddingVertical: 5,
-                  paddingHorizontal: 50,
+                  paddingHorizontal: 10,
                 }}
               >
                 {quantity}
@@ -207,12 +209,12 @@ function CartList({
               >
                 <FeatherIcon size={14} color={COLORS.white} name="plus" />
               </TouchableOpacity>
+              {addComponent && <View>{addComponent}</View>}
             </View>
-            {addComponent && <View>{addComponent}</View>}
           </View>
         )}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 

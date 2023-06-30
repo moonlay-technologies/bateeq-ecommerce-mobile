@@ -28,6 +28,8 @@ function AddressScreen(props) {
   const navigation = useNavigation();
   const [addressSelected, setAddressSelected] = useState();
   const [isLoadingDelete, setIsLoadingDelete] = useState(false);
+  const [defaultCustomerAddress, setDefaultCustomerAddress] = useState();
+  const [customerAddress, setCustomerAddress] = useState();
   const [showModal, setShowModal] = useState({
     show: false,
     data: '',
@@ -36,6 +38,11 @@ function AddressScreen(props) {
   useEffect(() => {
     getAddress({ token, limit: 10 });
   }, []);
+
+  useEffect(() => {
+    setDefaultCustomerAddress(defaultAddress);
+    setCustomerAddress(addressList);
+  }, [defaultAddress, addressList]);
 
   const handleSelectAddress = value => {
     setAddressSelected(value);
@@ -63,6 +70,9 @@ function AddressScreen(props) {
         addressId: addressSelected?.id,
         customerAccessToken: token,
       });
+      getAddress({ token, limit: 10 });
+      setAddressSelected('');
+      navigation.navigate('Address');
     }
   };
 
@@ -89,30 +99,31 @@ function AddressScreen(props) {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))}
-            submitText={addressList?.loading ? 'Deleting ...' : 'Delete'}
-            disabled={addressList?.loading}
+              }))
+            }
+            submitText={customerAddress?.loading ? 'Deleting ...' : 'Delete'}
+            disabled={customerAddress?.loading}
             onContinue={handleDelete}
           />
-          {addressList?.data.length > 0 ? (
-            addressList?.data.map(item => {
+          {customerAddress?.data?.length > 0 ? (
+            customerAddress?.data?.map(item => {
               const { address1, city, province, country, id, company } = item;
 
               return (
                 <TouchableOpacity
                   style={[
                     styles.card,
-                    !addressSelected && defaultAddress?.data?.address1 === address1
+                    !addressSelected && defaultCustomerAddress?.data?.id === id
                       ? styles.selectedCard
-                      : addressSelected?.address1 === address1
+                      : addressSelected?.id === id
                       ? styles.selectedCard
                       : null,
                   ]}
                   onPress={() => handleSelectAddress(item)}
-                  key={`${address1}`}
+                  key={`${id}`}
                 >
                   {(isLoadingDelete && showModal?.data?.id === id) ||
-                  addressList?.loading ||
+                  customerAddress?.loading ||
                   actionLoading ||
                   route?.params?.editedId === id ? (
                     <LoadingComponent type="circle" key={id} />
@@ -123,15 +134,15 @@ function AddressScreen(props) {
                       <Text style={styles.city}>{city}</Text>
                       <Text style={styles.city}>{province}</Text>
                       <Text style={styles.city}>{country}</Text>
-                      {/* defaultAddress?.data?.address1 === address1 */}
-                      {[addressSelected?.address1 === address1].some(i => i === true) && (
+                      {/* defaultCustomerAddress?.data?.address1 === address1 */}
+                      {/* {[addressSelected?.address1 === address1].some(i => i === true) && (
                         <View style={styles.tag}>
                           <Text style={styles.tagText}>Selected</Text>
                         </View>
-                      )}
+                      )} */}
 
                       {/* !userAddress?.address1 &&  */}
-                      {!addressSelected && defaultAddress?.data?.address1 === address1 && (
+                      {!addressSelected && defaultCustomerAddress?.data?.id === id && (
                         <View style={styles.tag}>
                           <Text style={styles.tagText}>Selected</Text>
                         </View>
@@ -159,7 +170,8 @@ function AddressScreen(props) {
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
-                        }))}
+                        }))
+                      }
                       title={<FeatherIcon name="trash-2" size={16} style={styles.icon} />}
                       style={{ borderColor: COLORS.danger, marginLeft: 20 }}
                       outline
@@ -169,7 +181,7 @@ function AddressScreen(props) {
                 </TouchableOpacity>
               );
             })
-          ) : addressList?.data.length === 0 && addressList?.loading ? (
+          ) : customerAddress?.data.length === 0 && customerAddress?.loading ? (
             <LoadingComponent type="circle" />
           ) : (
             <NoContent text="No addresses found. Please add an address." icon={FontAwesome} name="address-book" />
@@ -195,11 +207,11 @@ function AddressScreen(props) {
             />
             <Button
               onPress={onSubmit}
-              title={addressList?.loading ? 'Loading ...' : 'Select Address'}
+              title={customerAddress?.loading ? 'Loading ...' : 'Select Address'}
               size="xxl"
               icon={OcticonsIcon}
               iconName="check"
-              disabled={addressList?.data.length === 0}
+              disabled={customerAddress?.data.length === 0}
             />
           </View>
         </View>
