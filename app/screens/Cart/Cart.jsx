@@ -106,8 +106,7 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -172,8 +171,10 @@ function CartScreen({ navigation, route, ...props }) {
                     setIsChange={setIsChange}
                     isChange={isChange}
                     merchandiseId={merchandiseId}
+                    onPress={() => navigation.navigate('ProductDetail', { id })}
                     addComponent={
-                      <ButtonSm
+                      <Button
+                        size="sm"
                         disabled={data?.loading ?? false}
                         title={
                           data?.loading ? (
@@ -198,8 +199,7 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))
-                        }
+                          }))}
                       />
                     }
                   />

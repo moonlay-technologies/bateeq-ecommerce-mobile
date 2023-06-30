@@ -1,6 +1,6 @@
-import { SET_AUTH } from '../constants/Auth';
-import { REQUEST } from '../actions/action.type';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LOG_OUT, SET_AUTH } from '../constants/Auth';
+import { REQUEST } from '../actions/action.type';
 
 const initialState = {
   isLogin: false,
@@ -8,7 +8,8 @@ const initialState = {
 };
 
 export default function (state = initialState, action) {
-  let { type, payload } = action;
+  const { type, payload } = action;
+
   AsyncStorage.getItem('accessToken').then(token => {
     if (token) {
       Reflect.set(state, 'isLogin', true);
@@ -20,6 +21,11 @@ export default function (state = initialState, action) {
       return {
         ...state,
         ...payload,
+      };
+    case LOG_OUT:
+      return {
+        isLogin: false,
+        isAuthenticated: false,
       };
     default:
       return state;

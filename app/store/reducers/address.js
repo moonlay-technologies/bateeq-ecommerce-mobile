@@ -12,7 +12,6 @@ const initialState = {
   addressList: {
     loading: true,
     data: [],
-    isChange: false,
   },
   defaultAddress: {
     loading: true,
@@ -61,7 +60,6 @@ export default function (state = initialState, action) {
         ...state,
         addressList: {
           loading: true,
-          isChange: true,
           ...state.addressList,
         },
         ...state.defaultAddress,
@@ -72,7 +70,6 @@ export default function (state = initialState, action) {
         ...state,
         addressList: {
           loading: false,
-          isChange: true,
           ...state.addressList,
         },
         ...state.defaultAddress,
@@ -98,7 +95,6 @@ export default function (state = initialState, action) {
         ...state,
         addressList: {
           loading: true,
-          isChange: true,
           ...state.addressList,
         },
 
@@ -138,7 +134,6 @@ export default function (state = initialState, action) {
         ...state,
         addressList: {
           loading: true,
-          isChange: true,
           ...state.addressList,
         },
         ...state.defaultAddress,
@@ -148,7 +143,6 @@ export default function (state = initialState, action) {
         ...state,
         addressList: {
           loading: false,
-          isChange: false,
           data: [...state.addressList.data, payload],
         },
         ...state.defaultAddress,
@@ -165,6 +159,7 @@ export default function (state = initialState, action) {
           loading: false,
         },
       };
+
     // refetch address
     case REQUEST(REFETCH_ADDRESS_LIST):
       return {
@@ -188,7 +183,6 @@ export default function (state = initialState, action) {
         ...state,
         addressList: {
           loading: true,
-          isChange: true,
           ...state.addressList,
         },
         ...state.defaultAddress,
@@ -198,7 +192,6 @@ export default function (state = initialState, action) {
         ...state,
         addressList: {
           loading: false,
-          isChange: false,
           data: state.addressList.data.filter(i => i.id !== payload?.id),
         },
         ...state.defaultAddress,
