@@ -1,22 +1,24 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthScreens, Screens } from './MenuNavigation';
+
+import { MenuMasterItem, NotAuthenticatedItem } from './routes/menu-items';
 
 const StackComponent = createNativeStackNavigator();
 
 function StackNavigator({ isAuthenticated }) {
+  console.log('isAuthenticated', isAuthenticated);
   if (isAuthenticated) {
     return (
       <StackComponent.Navigator
-        initialRouteName="DrawerNavigation"
+        initialRouteName="Home"
         detachInactiveScreens
         screenOptions={{
           headerShown: false,
           cardStyle: { backgroundColor: 'transparent' },
         }}
       >
-        {AuthScreens?.map(i => (
-          <StackComponent.Screen key={i.name} name={i.name} component={i.component} />
+        {MenuMasterItem?.map(screen => (
+          <StackComponent.Screen key={screen.name} name={screen.name} component={screen.component} />
         ))}
       </StackComponent.Navigator>
     );
@@ -31,7 +33,7 @@ function StackNavigator({ isAuthenticated }) {
         cardStyle: { backgroundColor: 'transparent' },
       }}
     >
-      {Screens.map(screen => {
+      {NotAuthenticatedItem.map(screen => {
         return <StackComponent.Screen key={screen.name} name={screen.name} component={screen.component} />;
       })}
     </StackComponent.Navigator>

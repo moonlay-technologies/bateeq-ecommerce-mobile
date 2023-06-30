@@ -23,6 +23,7 @@ export const COLORS = {
   backgroundColor: '#fff',
   black: '#333333',
   mediumGray: '#AAAAAA',
+  overlay: '#00000080',
   transparent: 'transparent',
 };
 

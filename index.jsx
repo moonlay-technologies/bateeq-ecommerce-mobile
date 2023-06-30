@@ -15,6 +15,7 @@ export const httpLink = createHttpLink({
   uri: 'https://bateeqshop.myshopify.com/api/2023-04/graphql.json',
   headers: {
     'X-Shopify-storefront-Access-Token': '30ed07258afd05535686d2ea2de46442',
+    // 'X-Shopify-storefront-Access-Token': '495ecfe37736105432f1550487fd9028',
   },
 });
 
@@ -30,7 +31,7 @@ export const cache = new InMemoryCache();
 export const client = new ApolloClient({
   link: ApolloLink.split(operation => operation.getContext().clientName === 'httpLink2', httpLink2, httpLink),
 
-  cache: cache,
+  cache,
 });
 
 function ReduxApp() {

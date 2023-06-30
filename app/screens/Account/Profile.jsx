@@ -192,7 +192,7 @@ function Profile({ token, getAddressList: getAddress }) {
                   borderBottomWidth: 2,
                   borderBottomColor: '#FAFAFA',
                 }}
-                onPress={() => navigation.navigate('AppSetting')}
+                onPress={() => navigation.navigate('ChangePassword')}
               >
                 <Text
                   style={{

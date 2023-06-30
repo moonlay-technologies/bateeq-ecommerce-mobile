@@ -30,7 +30,6 @@ function ItemCard(props) {
   const navigation = useNavigation();
   const numericPrice = Number(price.replace(/[^0-9.-]+/g, ''));
 
-  //   console.log('description', description)
   return (
     <DropShadow
       style={{
@@ -54,8 +53,7 @@ function ItemCard(props) {
               images,
             },
             category: 'Appliances',
-          })
-        }
+          })}
         activeOpacity={0.98}
         style={[
           {
@@ -161,7 +159,9 @@ function ItemCard(props) {
                   textDecorationLine: 'line-through',
                 }}
               >
-                Rp {formatWithCommas(Number(oldPrice).toLocaleString())}
+                Rp 
+{' '}
+{formatWithCommas(Number(oldPrice).toLocaleString())}
               </Text>
             )}
             <Text style={{ ...FONTS.h6, marginRight: 15 }}>

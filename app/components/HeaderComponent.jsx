@@ -9,8 +9,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
-import MenuListHeader from './ListMenuHeader';
-import { CartGetList, CartPutTotalQty } from '../store/actions';
+import { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList } from '../store/actions';
 
 /**
  * @param {string} icon
@@ -23,17 +22,14 @@ import { CartGetList, CartPutTotalQty } from '../store/actions';
  * @returns {JSX.Element}
  * @constructor
  */
-function HeaderComponent({
-  icon = '',
-  title,
-  backAction,
-  withoutCartAndLogo,
-  navTo,
-  options,
-  // setIsDrawerOpen,
-  ...props
-}) {
-  const { CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
+function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo, navTo, options, ...props }) {
+  const {
+    CartPutTotalQty: cartPutTotalQty,
+    CartGetList: cartGetList,
+    DrawerToggle: drawerToggle,
+    getAddressList: getAddress,
+    token,
+  } = props;
   const navigation = useNavigation();
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
     variables: {
@@ -52,17 +48,10 @@ function HeaderComponent({
   };
 
   const onPressLeft = () => {
-    // setIsDrawerOpen(prev => !prev);
     if (backAction) {
       navigation.goBack();
-    } else if (navTo) {
-      navTo.openDrawer();
-    } else if (
-      'openDrawer' in navigation &&
-      typeof navigation?.openDrawer !== 'undefined' &&
-      typeof navigation?.openDrawer === 'function'
-    ) {
-      navigation.openDrawer();
+    } else {
+      drawerToggle();
     }
   };
 
@@ -72,6 +61,7 @@ function HeaderComponent({
       last: 0,
       id: options?.cartId,
     });
+    getAddress({ token, limit: 10, refetch: true });
     navigation.navigate('Cart');
   };
 
@@ -168,9 +158,12 @@ function HeaderComponent({
 }
 
 export default connect(
-  ({ Cart }) => {
+  ({ Cart, User }) => {
     const { options } = Cart;
-    return { options };
+    const {
+      options: { token },
+    } = User;
+    return { options, token };
   },
-  { CartGetList, CartPutTotalQty }
+  { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList }
 )(React.memo(HeaderComponent));

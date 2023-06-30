@@ -89,8 +89,7 @@ function AddressScreen(props) {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))
-            }
+              }))}
             submitText={addressList?.loading ? 'Deleting ...' : 'Delete'}
             disabled={addressList?.loading}
             onContinue={handleDelete}
@@ -160,8 +159,7 @@ function AddressScreen(props) {
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
-                        }))
-                      }
+                        }))}
                       title={<FeatherIcon name="trash-2" size={16} style={styles.icon} />}
                       style={{ borderColor: COLORS.danger, marginLeft: 20 }}
                       outline
@@ -226,14 +224,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+    color: COLORS.title,
   },
   address: {
     fontSize: 16,
     marginBottom: 4,
+    color: COLORS.label,
   },
   city: {
     fontSize: 16,
-    color: '#888',
+    color: COLORS.label,
   },
   tag: {
     backgroundColor: '#585858',

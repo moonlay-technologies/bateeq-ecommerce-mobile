@@ -27,10 +27,10 @@ export const findKey = (data, key) => {
   if (typeof data === 'object') {
     if (Array.isArray(key) && key.length > 0) {
       let value = data;
-      // if (data) {
-      for (const k of key) {
-        value = value[k];
-        // }
+      if (data) {
+        for (const k of key) {
+          value = value[k];
+        }
       }
 
       return value;

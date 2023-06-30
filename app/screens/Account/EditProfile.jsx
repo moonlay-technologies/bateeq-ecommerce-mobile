@@ -84,11 +84,9 @@ function EditProfile({ route, ...props }) {
       >
         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
           <View
-            style={
-              {
-                // flex: 1
-              }
-            }
+            style={{
+              flex: 1,
+            }}
           >
             <ScrollView>
               <View style={GlobalStyleSheet.container}>
@@ -188,7 +186,7 @@ function EditProfile({ route, ...props }) {
                 </View>
               </View>
             </ScrollView>
-            <View style={{ alignItems: 'center' }}>
+            <View style={[GlobalStyleSheet.container, { alignItems: 'center' }]}>
               <Button
                 title={`${options?.loading ? 'Saving ...' : 'Save Details'}`}
                 size="xxl"

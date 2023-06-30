@@ -118,8 +118,7 @@ function LatestCollections(props) {
                           navigation.navigate('ProductDetail', {
                             id: product?.id ?? '-',
                             navTo: navigate,
-                          })
-                        }
+                          })}
                         imageSrc={product?.images?.edges[0].node.url}
                         title={product?.title}
                         price={product?.variants?.edges[0].node.price.amount}

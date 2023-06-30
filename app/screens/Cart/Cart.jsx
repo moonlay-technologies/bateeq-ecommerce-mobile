@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
-import { connect } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { COLORS, FONTS } from '../../constants/theme';
@@ -11,11 +11,13 @@ import Modal from '../../components/ActionModalComponent';
 import ButtonSm from '../../component-template/Button/ButtonSm';
 import Header from '../../layout/Header';
 import NoContent from '../../components/NoContent';
-import { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout } from '../../store/actions';
+import { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout, resetNavigation } from '../../store/actions';
 import Button from '../../components/ButtonComponent';
 
 function CartScreen({ navigation, route, ...props }) {
-  const { cartId, CartGetList, lists, CartDeleteListOfItem, CreateCheckout: createCheckout, userInfo } = props;
+  const { cartId, CartGetList, lists, CartDeleteListOfItem, CreateCheckout: createCheckout, userInfo, loading } = props;
+  const dispatch = useDispatch();
+  const navigationState = useSelector(state => state.Navigation.navigationState);
   const [isLoading, setIsLoading] = useState(false);
   const [isChange, setIsChange] = useState(false);
   const [note, setNote] = useState('');
@@ -28,6 +30,14 @@ function CartScreen({ navigation, route, ...props }) {
     show: false,
     data: null,
   });
+
+  useEffect(() => {
+    if (navigationState.navigation) {
+      setNote('');
+      navigation.navigate(`${navigationState?.navigation}`);
+      dispatch(resetNavigation());
+    }
+  }, [navigationState]);
 
   const handleDelete = async () => {
     setIsLoading(true);
@@ -78,9 +88,7 @@ function CartScreen({ navigation, route, ...props }) {
         input: { ...body },
       },
     });
-
     setIsLoading(false);
-    navigation.navigate('Checkout');
   };
 
   return (
@@ -226,7 +234,7 @@ function CartScreen({ navigation, route, ...props }) {
           >
             <Button
               onPress={() => (lists?.data?.length > 0 ? handleSubmit() : null)}
-              title="Checkout"
+              title={loading ? 'Loading ...' : 'Checkout'}
               size="xxl"
               icon={Ionicons}
               iconName="md-arrow-forward"
@@ -241,24 +249,18 @@ function CartScreen({ navigation, route, ...props }) {
 }
 
 export default connect(
-  ({ Cart, User }) => {
+  ({ Cart, User, Checkout, Address }) => {
     const { options, lists } = Cart;
 
-    const {
-      options: userOptions,
-      collections: {
-        address: {
-          used: { data: defaultAddress },
-        },
-      },
-    } = User;
-
+    const { options: userOptions } = User;
+    const { data: defaultAddress } = Address.defaultAddress;
+    const { loading } = Checkout.collections;
     const userInfo = { default: defaultAddress, ...userOptions };
-
     return {
       cartId: options?.cartId,
       lists,
       userInfo,
+      loading,
     };
   },
   { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout }

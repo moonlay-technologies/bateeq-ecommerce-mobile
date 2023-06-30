@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
     borderRadius: SIZES.radius,
     borderWidth: 1,
     borderColor: COLORS.title,
+    color: COLORS.label,
   },
   optionsContainer: {
     marginTop: 5,

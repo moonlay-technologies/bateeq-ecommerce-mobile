@@ -146,6 +146,8 @@ export const GET_CUSTOMER_ADDRESS = `
           address1
           address2
           company
+          firstName
+          lastName
           city
           province
           country

@@ -1,34 +1,98 @@
-import React from 'react';
-import { View } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import MainHome from '../screens/Home/MainHome';
-import Wishlist from '../screens/Wishlist/Wishlist';
-import Profile from '../screens/Account/Profile';
-import Orders from '../screens/Orders/Orders';
-import Cart from '../screens/Cart/Cart';
-import CustomBottomNavigation from './CustomBottomNavigation';
-import Search from '../screens/Search/Search';
-import ProductDetail from '../screens/Products/ProductDetail';
+import React, { useState } from 'react';
+import { Image, TouchableOpacity, View } from 'react-native';
+import { useSharedValue, withTiming } from 'react-native-reanimated';
+import { useFocusEffect, CommonActions, useNavigation } from '@react-navigation/native';
+import { COLORS, SIZES } from '../constants/theme';
 
-const Tab = createBottomTabNavigator();
+import footerMenuItem from './routes/footer-menu-item';
 
-function BottomNavigation() {
+function CustomBottomNavigation() {
+  const navigation = useNavigation();
+  const offset = useSharedValue(0);
+  const [selected, setSelected] = useState('');
+
+  // const activeTab = async () => {
+  //   const tabWidth = SIZES.width / state.routes.length;
+  //   offset.value = withTiming(state.index * tabWidth);
+  // };
+
+  // useFocusEffect(
+  //   React.useCallback(() => {
+  //     // activeTab();
+  //   }, [state.routes])
+  // );
+
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
+    <View
+      style={{
+        height: 60,
+        borderTopWidth: 1,
+        borderColor: COLORS.borderColor,
+        backgroundColor: COLORS.white,
+        flexDirection: 'row',
+        paddingTop: 4,
       }}
-      initialRouteName="Home"
-      tabBar={props => <CustomBottomNavigation {...props} />}
     >
-      <Tab.Screen name="Home" component={MainHome} />
-      <Tab.Screen name="Search" component={Search} />
-      {/* <Tab.Screen name="Product" component={ProductDetail} /> */}
-      <Tab.Screen name="Orders" component={Orders} />
-      <Tab.Screen name="Account" component={Profile} />
-      {/* <Tab.Screen name="Cart" component={Cart} /> */}
-    </Tab.Navigator>
+      {footerMenuItem.map((route, index) => {
+        const { icon, name, navigate } = route;
+
+        const isFocused = name === selected;
+
+        const onNavigate = (nav, nm) => {
+          setSelected(nm);
+          navigation.navigate(`${nav}`);
+        };
+
+        //   if (isFocused && route.name === 'Home') {
+        //     navigation.dispatch(
+        //       CommonActions.reset({
+        //         index: 0,
+        //         routes: [{ name: 'Home' }],
+        //       })
+        //     );
+        //   } else {
+        //     const event = navigation.emit({
+        //       type: 'tabPress',
+        //       target: route.key,
+        //       canPreventDefault: true,
+        //     });
+
+        //     if (!isFocused && !event.defaultPrevented) {
+        //       navigation.navigate({ name: route.name, merge: true });
+        //     }
+        //   }
+        // };
+
+        return (
+          <View
+            key={name}
+            style={{
+              width: '25%',
+              alignItems: 'center',
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => onNavigate(navigate, name)}
+              style={{
+                alignItems: 'center',
+                paddingVertical: 9,
+              }}
+            >
+              <Image
+                style={{
+                  height: 20,
+                  width: 20,
+                  marginTop: 5,
+                  tintColor: isFocused ? COLORS.title : COLORS.dark,
+                }}
+                source={icon}
+              />
+            </TouchableOpacity>
+          </View>
+        );
+      })}
+    </View>
   );
 }
 
-export default BottomNavigation;
+export default CustomBottomNavigation;

@@ -1,9 +1,9 @@
-import { CHANGE_THEME_MODE, COLLAPSE_SIDEBAR, THEME_MODE } from '../constants/theme';
+import { CHANGE_THEME_MODE, DRAWER_TOGGLE, THEME_MODE } from '../constants/theme';
 import { REQUEST } from './action.type';
 
-export const CollapseSidebar = () => {
+export const DrawerToggle = () => {
   return {
-    type: COLLAPSE_SIDEBAR,
+    type: DRAWER_TOGGLE,
   };
 };
 

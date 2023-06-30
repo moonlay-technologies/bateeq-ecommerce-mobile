@@ -22,9 +22,8 @@ export const CreateCheckout = payload => {
  * @constructor
  */
 
-export const GetCheckoutId = payload => {
+export const GetCheckoutId = () => {
   return {
-    type: REQUEST(GET_CHECKOUT_ID),
-    payload,
+    type: GET_CHECKOUT_ID,
   };
 };
