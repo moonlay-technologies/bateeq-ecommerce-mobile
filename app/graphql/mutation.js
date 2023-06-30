@@ -171,6 +171,8 @@ export const CREATE_CUSTOMER_ADDRESS = `
         address1
         address2
         phone
+        firstName
+        lastName
         company
         country
         province

@@ -9,7 +9,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
-import { CartGetList, CartPutTotalQty, DrawerToggle } from '../store/actions';
+import { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList } from '../store/actions';
 
 /**
  * @param {string} icon
@@ -23,7 +23,13 @@ import { CartGetList, CartPutTotalQty, DrawerToggle } from '../store/actions';
  * @constructor
  */
 function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo, navTo, options, ...props }) {
-  const { CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList, DrawerToggle: drawerToggle } = props;
+  const {
+    CartPutTotalQty: cartPutTotalQty,
+    CartGetList: cartGetList,
+    DrawerToggle: drawerToggle,
+    getAddressList: getAddress,
+    token,
+  } = props;
   const navigation = useNavigation();
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
     variables: {
@@ -55,6 +61,7 @@ function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo, nav
       last: 0,
       id: options?.cartId,
     });
+    getAddress({ token, limit: 10, refetch: true });
     navigation.navigate('Cart');
   };
 
@@ -151,9 +158,12 @@ function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo, nav
 }
 
 export default connect(
-  ({ Cart }) => {
+  ({ Cart, User }) => {
     const { options } = Cart;
-    return { options };
+    const {
+      options: { token },
+    } = User;
+    return { options, token };
   },
-  { CartGetList, CartPutTotalQty, DrawerToggle }
+  { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList }
 )(React.memo(HeaderComponent));

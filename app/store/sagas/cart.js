@@ -1,6 +1,7 @@
 import { all, takeEvery, put, fork, call } from 'redux-saga/effects';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { gql } from '@apollo/client';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import {
   CART_LINE_ITEM_ADD,
   DELETE_CART_LIST_OF_ITEM,
@@ -13,24 +14,24 @@ import { REQUEST, SUCCESS, FAILURE } from '../actions/action.type';
 import { client } from '../../../index';
 import { findKey } from '../../utils/helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
-import {Toast} from "react-native-toast-message/lib/src/Toast";
 
 export function* __cartGenerateId() {
-  yield takeEvery(REQUEST(GENERATE_CART_ID), function*({ payload }) {
+  yield takeEvery(REQUEST(GENERATE_CART_ID), function* ({ payload }) {
     try {
-      const cart = yield call(AsyncStorage.getItem,'cart')
-      if(cart){
+      const cart = yield call(AsyncStorage.getItem, 'cart');
+      if (cart) {
         yield all([
-            put({
-              type: SUCCESS(GENERATE_CART_ID),
-              payload: {
-                ...payload,
-                id:cart
-              },
-            }),
-          ]);
-      }else{
-          const mutation = gql`mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
+          put({
+            type: SUCCESS(GENERATE_CART_ID),
+            payload: {
+              ...payload,
+              id: cart,
+            },
+          }),
+        ]);
+      } else {
+        const mutation = gql`
+          mutation cartCreate($input: CartInput!, $country: CountryCode = ZZ, $language: LanguageCode)
           @inContext(country: $country, language: $language) {
             cartCreate(input: $input) {
               cart {
@@ -75,30 +76,32 @@ export function* __cartGenerateId() {
                 message
               }
             }
-          }`;
-          const response = yield call(client.mutate, {
-            mutation,
-            variables: {
-              input: {
-                buyerIdentity: {
-                  customerAccessToken: payload.token,
-                },
-                note: '',
-              },
-            }
-          })
+          }
+        `;
 
-        if(findKey(response,['data','cartCreate','cart','id'])){
-          yield call(AsyncStorage.setItem,'cart',findKey(response,['data','cartCreate','cart','id']))
+        const response = yield call(client.mutate, {
+          mutation,
+          variables: {
+            input: {
+              buyerIdentity: {
+                customerAccessToken: payload.token,
+              },
+              note: '',
+            },
+          },
+        });
+
+        if (findKey(response, ['data', 'cartCreate', 'cart', 'id'])) {
+          yield call(AsyncStorage.setItem, 'cart', findKey(response, ['data', 'cartCreate', 'cart', 'id']));
           yield all([
-              put({
-                type:SUCCESS(GENERATE_CART_ID),
-                payload: {
-                  id:findKey(response,['data','cartCreate','cart','id'])
-                }
-              })
-          ])
-        }else{
+            put({
+              type: SUCCESS(GENERATE_CART_ID),
+              payload: {
+                id: findKey(response, ['data', 'cartCreate', 'cart', 'id']),
+              },
+            }),
+          ]);
+        } else {
           Toast.show({
             type: 'error',
             text1: 'Oops!',
@@ -106,9 +109,9 @@ export function* __cartGenerateId() {
           });
           yield all([
             put({
-              type:FAILURE(GENERATE_CART_ID)
-            })
-          ])
+              type: FAILURE(GENERATE_CART_ID),
+            }),
+          ]);
         }
       }
     } catch (err) {
@@ -353,7 +356,7 @@ export function* __DeleteListOfItemCart() {
           },
         });
 
-        Object.assign(findKey(data,['cartLinesRemove','cart']),{lineId:payload?.lineIds})
+        Object.assign(findKey(data, ['cartLinesRemove', 'cart']), { lineId: payload?.lineIds });
         if (findKey(data, ['cartLinesRemove', 'cart'])) {
           Toast.show({
             type: 'success',
@@ -370,7 +373,7 @@ export function* __DeleteListOfItemCart() {
           yield all([
             put({
               type: FAILURE(DELETE_CART_LIST_OF_ITEM),
-              payload: payload,
+              payload,
             }),
           ]);
         }
@@ -378,7 +381,7 @@ export function* __DeleteListOfItemCart() {
         yield all([
           put({
             type: FAILURE(DELETE_CART_LIST_OF_ITEM),
-            payload: payload,
+            payload,
           }),
         ]);
       }

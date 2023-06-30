@@ -9,20 +9,20 @@
 9        android:targetSdkVersion="33" />
 10
 11    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-11-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:5:5-77
-11-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:5:22-75
+11-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:5:5-77
+11-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:5:22-75
 12    <uses-permission android:name="android.permission.INTERNET" />
-12-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:4:5-67
-12-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:4:22-64
+12-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:4:5-67
+12-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:4:22-64
 13    <uses-permission android:name="android.permission.CAMERA" />
-13-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:5:5-64
-13-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:5:22-62
+13-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:5:5-64
+13-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:5:22-62
 14    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-14-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:6:5-80
-14-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:6:22-77
+14-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:6:5-80
+14-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:6:22-77
 15    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-15-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:7:5-80
-15-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:7:22-78
+15-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:7:5-80
+15-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:7:22-78
 16    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 16-->[com.facebook.flipper:flipper:0.125.0] C:\Users\KrisnaDwiSetyaadi\.gradle\caches\transforms-3\5cad7575eb1e558554694174e9248aed\transformed\jetified-flipper-0.125.0\AndroidManifest.xml:16:5-76
 16-->[com.facebook.flipper:flipper:0.125.0] C:\Users\KrisnaDwiSetyaadi\.gradle\caches\transforms-3\5cad7575eb1e558554694174e9248aed\transformed\jetified-flipper-0.125.0\AndroidManifest.xml:16:22-73
@@ -87,103 +87,103 @@
 45-->[androidx.work:work-runtime:2.7.1] C:\Users\KrisnaDwiSetyaadi\.gradle\caches\transforms-3\09bfadc8383756d48fc1bdeb490607c1\transformed\work-runtime-2.7.1\AndroidManifest.xml:28:22-74
 46
 47    <application
-47-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:9:5-32:19
+47-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:9:5-32:19
 48        android:name="com.w3wedo.MainApplication"
-48-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:10:7-38
+48-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:10:7-38
 49        android:allowBackup="false"
-49-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:14:7-34
+49-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:14:7-34
 50        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
 50-->[androidx.core:core:1.7.0] C:\Users\KrisnaDwiSetyaadi\.gradle\caches\transforms-3\1034ce825963aa706d39e8c31239c4bf\transformed\core-1.7.0\AndroidManifest.xml:24:18-86
 51        android:debuggable="true"
 52        android:icon="@mipmap/ic_launcher"
-52-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:12:7-41
+52-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:12:7-41
 53        android:label="@string/app_name"
-53-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:11:7-39
+53-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:11:7-39
 54        android:roundIcon="@mipmap/ic_launcher_round"
-54-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:13:7-52
+54-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:13:7-52
 55        android:theme="@style/AppTheme"
-55-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:15:7-38
+55-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:15:7-38
 56        android:usesCleartextTraffic="true" >
-56-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:8:9-44
+56-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:8:9-44
 57        <activity
-57-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:11:9-111
+57-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:11:9-111
 58            android:name="com.facebook.react.devsupport.DevSettingsActivity"
-58-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:11:19-83
+58-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:11:19-83
 59            android:exported="false" />
-59-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:11:84-108
+59-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\debug\AndroidManifest.xml:11:84-108
 60        <activity
-60-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:16:7-27:18
+60-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:16:7-27:18
 61            android:name="com.w3wedo.MainActivity"
-61-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:17:9-37
+61-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:17:9-37
 62            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
-62-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:19:9-118
+62-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:19:9-118
 63            android:exported="true"
-63-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:22:9-32
+63-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:22:9-32
 64            android:label="@string/app_name"
-64-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:18:9-41
+64-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:18:9-41
 65            android:launchMode="singleTask"
-65-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:20:9-40
+65-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:20:9-40
 66            android:windowSoftInputMode="adjustResize" >
-66-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:21:9-51
+66-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:21:9-51
 67            <intent-filter>
-67-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:23:9-26:25
+67-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:23:9-26:25
 68                <action android:name="android.intent.action.MAIN" />
-68-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:24:13-65
-68-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:24:21-62
+68-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:24:13-65
+68-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:24:21-62
 69
 70                <category android:name="android.intent.category.LAUNCHER" />
-70-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:25:13-73
-70-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:25:23-70
+70-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:25:13-73
+70-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:25:23-70
 71            </intent-filter>
 72        </activity>
 73
 74        <meta-data
-74-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:28:9-30:68
+74-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:28:9-30:68
 75            android:name="com.google.android.geo.API_KEY"
-75-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:29:11-56
+75-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:29:11-56
 76            android:value="AIzaSyApb9gz4Oj-L0-xDAE7VYGaAu0LAMkf4EY" />
-76-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:30:11-66
+76-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:30:11-66
 77
 78        <uses-library
-78-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:31:9-87
+78-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:31:9-87
 79            android:name="org.apache.http.legacy"
-79-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:31:23-60
+79-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:31:23-60
 80            android:required="false" />
-80-->C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:31:61-85
+80-->C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\android\app\src\main\AndroidManifest.xml:31:61-85
 81
 82        <provider
-82-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
+82-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
 83            android:name="com.imagepicker.ImagePickerProvider"
-83-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-63
+83-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-63
 84            android:authorities="com.w3wedo.imagepickerprovider"
-84-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-71
+84-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-71
 85            android:exported="false"
-85-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
+85-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
 86            android:grantUriPermissions="true" >
-86-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
+86-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
 87            <meta-data
-87-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:70
+87-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:70
 88                android:name="android.support.FILE_PROVIDER_PATHS"
-88-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
+88-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
 89                android:resource="@xml/imagepicker_provider_paths" />
-89-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-67
+89-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-67
 90        </provider>
 91        <provider
-91-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
+91-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:10:9-18:20
 92            android:name="com.reactnativecommunity.webview.RNCWebViewFileProvider"
-92-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-83
+92-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:11:13-83
 93            android:authorities="com.w3wedo.fileprovider"
-93-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-64
+93-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:12:13-64
 94            android:exported="false"
-94-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
+94-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:13:13-37
 95            android:grantUriPermissions="true" >
-95-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
+95-->[:react-native-webview] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-webview\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:14:13-47
 96            <meta-data
-96-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:70
+96-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:15:13-17:70
 97                android:name="android.support.FILE_PROVIDER_PATHS"
-97-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
+97-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:16:17-67
 98                android:resource="@xml/file_provider_paths" />
-98-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-67
+98-->[:react-native-image-picker] C:\MOONLAY\5. BATEEQ\bateeq-node\new-pull\bateeq-ecommerce-mobile\node_modules\react-native-image-picker\android\build\intermediates\merged_manifest\debug\AndroidManifest.xml:17:17-67
 99        </provider> <!-- FCM -->
 100        <service
 100-->[com.iterable:iterableapi:3.4.11] C:\Users\KrisnaDwiSetyaadi\.gradle\caches\transforms-3\4e8edaf45bf54b0e5479cc4e79b2e166\transformed\jetified-iterableapi-3.4.11\AndroidManifest.xml:32:9-38:19

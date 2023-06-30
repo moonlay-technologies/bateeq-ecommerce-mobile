@@ -17,7 +17,7 @@ import LoadingScreen from '../../../components/LoadingView';
 
 const schema = yup.object().shape({
   first_name: yup.string().required(),
-  last_name: yup.string().required(),
+  last_name: yup.string(),
   phone_number: yup.string().required(),
   company: yup.string().required(),
   first_address: yup.string().required(),
@@ -25,7 +25,11 @@ const schema = yup.object().shape({
   country: yup.string().required(),
   province: yup.string().required(),
   city: yup.string().required(),
-  postal_code: yup.string().required(),
+  postal_code: yup
+    .string()
+    .length(5)
+    .matches(/^[0-9]{5}/)
+    .required(),
 });
 
 function EditAddress({
@@ -173,14 +177,14 @@ function EditAddress({
     const body = {
       first_name: state.first_name,
       last_name: state.last_name,
-      phone_number: state.phone_number || 0,
+      phone_number: state.phone_number,
       company: state.company,
       first_address: state.first_address,
       second_address: state.second_address,
       country: state.country,
       province: state.province,
       city: state.city,
-      postal_code: state.postal_code || 0,
+      postal_code: state.postal_code,
     };
     schema
       .validate(body, { abortEarly: false })
@@ -195,6 +199,8 @@ function EditAddress({
             country: result.country,
             company: result.company,
             zip: result.postal_code,
+            firstName: result.first_name,
+            lastName: result.last_name,
           },
           customerAccessToken: token,
           id,

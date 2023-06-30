@@ -63,7 +63,6 @@ export function* refetchUserAddress() {
       yield call(client.refetchQueries, [{ query, variables: { fetchPolicy: 'no-cache' } }]);
       yield put({ type: SUCCESS(REFETCH_ADDRESS_LIST) });
     } catch (error) {
-      console.log('refecth error', error);
       yield put({
         type: FAILURE(REFETCH_ADDRESS_LIST),
       });

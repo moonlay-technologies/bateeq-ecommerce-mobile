@@ -28,6 +28,18 @@ export default function (state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
+    case GET_CHECKOUT_ID:
+      return {
+        ...state,
+        collections: {
+          ...state.collections,
+          checkout: {
+            ...state.collections.checkout.data,
+            loading: false,
+          },
+        },
+      };
+
     case REQUEST(CREATE_CHECKOUT):
       return {
         ...state,
@@ -40,17 +52,7 @@ export default function (state = initialState, action) {
           },
         },
       };
-    case REQUEST(GET_CHECKOUT_ID):
-      return {
-        ...state,
-        collections: {
-          ...state.collections,
-          checkout: {
-            ...state.collections.checkout.data,
-            loading: false,
-          },
-        },
-      };
+
     case SUCCESS(CREATE_CHECKOUT):
       return {
         ...state,
