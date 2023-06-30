@@ -46,7 +46,7 @@ function ProductItem({data, ...props}){
     <View style={{
       marginBottom:10,
       padding:15,
-      borderWidth:.5,
+      borderWidth:.6,
       borderColor:"rgba(0,0,0,.3)",
       borderRadius:10,
     }} onLayout={onLayout}>
@@ -138,13 +138,55 @@ function FooterOrder({...props}){
         marginVertical:15,
         borderRadius:10,
         borderWidth:.4,
+        display:"flex",
+        flexDirection:"row",
+        justifyContent :"space-between",
         borderColor:COLORS.borderColor,
         backgroundColor: '#ffffff',
       }}/>
-      
-      <View>
-        <Text style={{marginBottom:5,color: 'black', ...FONTS.fontBold,fontSize:13}}>Total</Text>
-        <Text numberOfLines={1} style={{fontSize:13}}>{props?.data?.totalPriceSet?.presentmentMoney?.amount}</Text>
+      <View style={{flexDirection:"row",justifyContent:'space-between',alignItems:'center'}}>
+        <View>
+          <Text style={{marginBottom:5,color: 'black', ...FONTS.fontBold,fontSize:13}}>Total</Text>
+          <Text numberOfLines={1} style={{fontSize:13}}>
+            {
+              typeof(props?.data?.totalPriceSet?.presentmentMoney?.amount) !== 'undefined' ? `RP ${formatWithCommas(Number(props?.data?.totalPriceSet?.presentmentMoney?.amount).toLocaleString())}`:"-"
+            }
+          </Text>
+        </View>
+        <View
+          style={{
+            borderWidth:.8,
+            paddingVertical: 6,
+            paddingHorizontal:20,
+            borderRadius: 10,
+            borderColor:
+              props?.data?.displayFinancialStatus === 'PENDING'
+                ? '#FFE600'
+                : props?.data?.displayFinancialStatus === 'EXPIRED'
+                  ? '#FFB8B8'
+                  : '#659C5C',
+            backgroundColor:
+              props?.data?.displayFinancialStatus === 'PENDING'
+                ? '#FFFDE7'
+                : props?.data?.displayFinancialStatus === 'EXPIRED'
+                  ? '#FFB8B8'
+                  : '#EDFFEA',
+          }}
+        >
+          <Text
+            style={{
+              textAlign: 'center',
+              ...FONTS.fontSatoshiBold,
+              fontSize: 12,
+              color:
+                props?.data?.displayFinancialStatus === 'PENDING'
+                  ? '#FF8A00'
+                  : props?.data?.displayFinancialStatus === 'EXPIRED'
+                    ? '#FF3544'
+                    : '#4F7E48',
+            }}
+          >{props?.data?.displayFinancialStatus}</Text>
+        </View>
       </View>
     </View>
   )
@@ -230,17 +272,6 @@ function OrderDetail({ route }) {
                   </View>
                 )
             }
-            
-            
-            
-            
-            <ExistingReza
-              formattedDate={formattedDate}
-              formatWithCommas={formatWithCommas}
-              detailOrder={detailOrder}
-            />
-            
-            
             
           </View>
         </ScrollView>
