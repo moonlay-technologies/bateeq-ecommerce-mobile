@@ -360,6 +360,97 @@ export const __GQL_GET_PRODUCT_LIST_BY_CATEGORY = `query GetProducts($first: Int
       }
     }
   }`;
+
+  export const __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = `query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String,  $after: String ){
+    collection(handle: $handle){
+      title
+      handle
+      image{
+        url
+      }
+      products(first: $first, filters: $product_filters, after: $after) {
+         pageInfo {
+          hasNextPage
+          endCursor
+        }
+        filters{
+          label
+          values{
+            label
+            count
+          }
+        }
+        nodes{
+          id
+          title
+          description
+          descriptionHtml
+          images(first: 1){
+            edges{
+              node{
+                url
+              }
+            }
+          }
+          availableForSale
+          variants(first: 1){
+            nodes{
+              price{
+                amount
+              }
+              compareAtPrice{
+                amount
+              }
+            }
+          }
+        }
+      }
+    }
+  }`;
+  export const GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = gql `query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String,  $after: String ){
+    collection(handle: $handle){
+      title
+      handle
+      products(first: $first, filters: $product_filters, after: $after) {
+         pageInfo {
+          hasNextPage
+          endCursor
+        }
+        filters{
+          label
+          values{
+            label
+            count
+          }
+        }
+        nodes{
+          id
+          title
+          description
+          descriptionHtml
+          images(first: 1){
+            edges{
+              node{
+                url
+              }
+            }
+          }
+          availableForSale
+          variants(first: 1){
+            nodes{
+              price{
+                amount
+              }
+              compareAtPrice{
+                amount
+              }
+            }
+          }
+        }
+      }
+    }
+  }`;
+
 export const GET_LIST_CATEGORIES = gql`
   query GetProducts($first: Int!, $query: String!, $after: String) {
     products(first: $first, query: $query, after: $after) {
@@ -428,6 +519,7 @@ export const GET_COLLECTIONS_SLIDER = gql`
     nodes(ids: $ids) {
       ... on Collection {
         title
+        handle
         description
         id
         image {

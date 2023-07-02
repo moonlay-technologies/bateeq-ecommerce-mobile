@@ -62,7 +62,7 @@ function OurCategory(props) {
             <View style={{ width: screen.width / 2 - 10, padding: 10 }} key={item.id}>
               <FeaturedCard
                 image={item.images.edges[0]?.node.url}
-                title={item.description}
+                titleDes={item.description}
                 dataCollection={collections?.ourCategory?.data ?? []}
                 imagePath
                 categories

@@ -33,7 +33,11 @@ const initialState = {
       show: {
         loading: true,
         variables: {
-          handle: 'latest-collection',
+          first: 1,
+          handle: 'kamala-collections',
+          product_filters: {
+            available: true,
+          },
         },
         data: null,
       },
@@ -41,11 +45,15 @@ const initialState = {
       loading: true,
       variables: {
         first: 5,
-        query: 'categories',
+        handle: 'kamala-collections',
         after: null,
+        product_filters: {
+          available: true,
+        },
       },
       pagination: {},
       data: [],
+      collection: {}
     },
     detail: {
       loading: true,
@@ -155,6 +163,7 @@ export default function (state = initialState, action) {
             ...state.collections.latest,
             loading: true,
             data: [],
+            collection: {}
           },
         },
       };
@@ -173,6 +182,7 @@ export default function (state = initialState, action) {
             ...state.collections.latest,
             loading: false,
             data: [...state.collections.latest.data],
+            collection: payload?.collection
           },
         },
       };

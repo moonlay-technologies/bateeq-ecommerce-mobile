@@ -15,6 +15,7 @@ import {
   __GQL_SHOW_LATEST_COLLECTION,
   GET_PRODUCT_BY_ID,
   GET_PRODUCT_RECOMMENDATION,
+  __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION
 } from '../../graphql/queries';
 import { findKey } from '../../utils/helper';
 
@@ -148,14 +149,14 @@ export function* __collectionLatest() {
      *
      * @param {object} payload
      * @param {number | 4} payload.first
-     * @param {string | "" | null} payload.query
+     * @param {string | "" | null} payload.handle
      * @param {string | "" | null} payload.after
      * @returns {Generator<*, void, *>}
      */
     function* ({ payload }) {
       try {
         const query = gql`
-          ${__GQL_GET_PRODUCT_LIST_BY_CATEGORY}
+          ${__GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION}
         `;
         const response = yield call(client.query, {
           query,
@@ -164,18 +165,19 @@ export function* __collectionLatest() {
           },
         });
 
-        if (findKey(response, ['data', 'products'])) {
+        if (findKey(response, ['data', 'collection', 'products'])) {
           if (
-            findKey(response, ['data', 'products', 'nodes']) &&
-            Array.isArray(findKey(response, ['data', 'products', 'nodes'])) &&
-            findKey(response, ['data', 'products', 'nodes']).length > 0
+            findKey(response, ['data', 'collection', 'products', 'nodes']) &&
+            Array.isArray(findKey(response, ['data', 'collection', 'products', 'nodes'])) &&
+            findKey(response, ['data', 'collection', 'products', 'nodes']).length > 0
           ) {
             yield all([
               put({
                 type: SUCCESS(GET_PROD_COLL_LATEST),
                 payload: {
-                  data: findKey(response, ['data', 'products', 'nodes']),
-                  pagination: findKey(response, ['data', 'products', 'pageInfo']),
+                  data: findKey(response, ['data', 'collection', 'products', 'nodes']),
+                  collection: findKey(response, ['data', 'collection']),
+                  pagination: findKey(response, ['data', 'collection', 'products', 'pageInfo']),
                 },
               }),
             ]);

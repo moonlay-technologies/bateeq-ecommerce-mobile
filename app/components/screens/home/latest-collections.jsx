@@ -39,8 +39,11 @@ function LatestCollections(props) {
   useEffect(() => {
     CollectionProductLatest({
       first: 4,
-      query: 'kamala',
+      handle: 'kamala-collections',
       after: null,
+      product_filters: {
+        available: true,
+      },
     });
   }, [CollectionProductLatest]);
 
@@ -50,11 +53,11 @@ function LatestCollections(props) {
     });
   }, [CollectionProductLatestShow]);
 
-  console.log('navigate latest collection', navigate);
+  console.log('findkey', collections.latest.collection);
 
   return (
     <View>
-      {collections?.latest.show?.loading ? (
+      {collections?.latest.loading ? (
         <LoadingScreen Loading3 />
       ) : (
         <View
@@ -72,12 +75,12 @@ function LatestCollections(props) {
               textAlign: 'center',
             }}
           >
-            {findKey(collections.latest.show.data, ['title']) ?? '-'}
+            Latest Collection
           </Text>
           <FeaturedCard
-            image={findKey(collections.latest.show.data, ['image', 'url']) ?? null}
-            title={findKey(collections.latest.show.data, ['description'])}
-            dataCollection={findKey(collections.latest.show, ['data'])}
+            image={findKey(collections.latest.collection, ['image', 'url'])}
+            title={findKey(collections.latest, ['collection'])}
+            dataCollection={findKey(collections.latest, ['data'])}
           />
         </View>
       )}
@@ -122,8 +125,8 @@ function LatestCollections(props) {
                         }
                         imageSrc={product?.images?.edges[0].node.url}
                         title={product?.title}
-                        price={product?.variants?.edges[0].node.price.amount}
-                        oldPrice={product?.variants?.edges[0]?.node?.compareAtPrice?.amount}
+                        price={product?.variants?.nodes[0].price.amount}
+                        oldPrice={product?.variants?.nodes[0].compareAtPrice?.amount}
                       />
                     </View>
                   );
@@ -136,7 +139,12 @@ function LatestCollections(props) {
             </View>
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
               <TouchableOpacity
-                onPress={() => navigation.navigate('Items', { query: 'Kamala' })}
+                onPress={() =>
+                  navigation.navigate('Items', {
+                    handle: findKey(collections.latest.collection, ['handle']),
+                    subTitle: findKey(collections.latest.collection, ['title']),
+                  })
+                }
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',

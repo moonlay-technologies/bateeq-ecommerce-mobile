@@ -156,9 +156,10 @@ function MainHome(props) {
             paginationStyle={{ bottom: 10 }}
           >
             {imageSliderCollection.map(i => {
+              console.log('iiiiii', i.handle);
               return (
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('Items', { query: i.title })}
+                  onPress={() => navigation.navigate('Items', { handle: i.handle, subTitle: i.title })}
                   key={i.id}
                   style={{ zIndex: 1 }}
                 >
@@ -226,7 +227,7 @@ function MainHome(props) {
                       {i?.description}
                     </Text>
                     <TouchableOpacity
-                      onPress={() => navigations.navigate('Items', { query: i.title })}
+                      onPress={() => navigations.navigate('Items', { handle: i.handle, subTitle: i.title })}
                       style={{
                         paddingHorizontal: 12,
                         paddingVertical: 6,

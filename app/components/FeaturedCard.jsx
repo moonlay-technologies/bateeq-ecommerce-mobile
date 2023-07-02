@@ -3,47 +3,28 @@ import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS, FONTS } from '../constants/theme';
 
-function FeaturedCard({ image, title, dataCollection, imagePath, hiddenBtn, categories }) {
+function FeaturedCard({ image, title, titleDes, imagePath, hiddenBtn, categories }) {
   const navigation = useNavigation();
 
-  const navigateToItems = query => {
+  const navigateToItems = handle => {
     navigation.navigate('Items', {
-      query,
-      categories,
+      handle,
+      subTitle: title?.title || titleDes,
     });
   };
 
-  const findCategory = description => {
-    return dataCollection.find(category => category?.description === description);
-  };
-
   const handlePress = () => {
-    if (categories) {
-      const topCategories = findCategory('TOP');
-      const outerWearCategories = findCategory('OUTER');
-      const bottomCategories = findCategory('PANTS');
-      const dressCategories = findCategory('DRESS');
-
-      if (topCategories && title === 'TOP') {
-        navigateToItems(topCategories.description);
-      } else if (outerWearCategories && title === 'OUTER') {
-        navigateToItems(outerWearCategories.description);
-      } else if (bottomCategories && title === 'PANTS') {
-        navigateToItems(bottomCategories.description);
-      } else if (dressCategories && title === 'DRESS') {
-        navigateToItems(dressCategories.description);
-      } else {
-        navigateToItems('Fashion');
-      }
-    } else {
-      const collectionData = dataCollection.description;
-
-      if (collectionData && (title === 'PADMA' || title === 'KAMALA')) {
-        navigateToItems(title);
-      } else {
-        navigateToItems('Fashion');
-      }
-    }
+    navigateToItems(
+      categories && titleDes === 'TOP'
+        ? 'womenswear-top'
+        : categories && titleDes === 'PANTS'
+        ? 'bottom'
+        : categories && titleDes === 'OUTER'
+        ? 'outer'
+        : categories && titleDes === 'DRESS'
+        ? 'dress'
+        : title?.handle
+    );
   };
 
   return (
@@ -87,21 +68,10 @@ function FeaturedCard({ image, title, dataCollection, imagePath, hiddenBtn, cate
             fontWeight: imagePath ? '700' : '200',
             fontSize: imagePath ? 13 : 36,
             letterSpacing: imagePath ? 2 : 16,
-            marginHorizontal:
-              imagePath && title === 'TOP'
-                ? 18
-                : imagePath && title === 'PANTS'
-                ? 3
-                : imagePath && title === 'OUTER'
-                ? 5
-                : imagePath && title === 'DRESS'
-                ? 8
-                : imagePath
-                ? -5
-                : -52,
+            textTransform: 'uppercase',
           }}
         >
-          {title}
+          {title?.title || titleDes}
         </Text>
         <TouchableOpacity
           onPress={handlePress}
