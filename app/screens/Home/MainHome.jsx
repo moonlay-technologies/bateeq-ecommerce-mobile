@@ -156,7 +156,6 @@ function MainHome(props) {
             paginationStyle={{ bottom: 10 }}
           >
             {imageSliderCollection.map(i => {
-              console.log('iiiiii', i.handle);
               return (
                 <TouchableOpacity
                   onPress={() => navigation.navigate('Items', { handle: i.handle, subTitle: i.title })}
