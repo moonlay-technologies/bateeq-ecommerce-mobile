@@ -89,6 +89,7 @@ function ChangePasswordScreen({ ...props }) {
                 <TextInput
                   secureTextEntry={!handlePassword}
                   placeholder="New Password"
+                  placeholderTextColor={`${COLORS.label}`}
                   value={values.password}
                   onChangeText={handleChange('password')}
                   onBlur={handleBlur('password')}

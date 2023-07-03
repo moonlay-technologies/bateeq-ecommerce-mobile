@@ -7,6 +7,7 @@ import { findKey } from '../../utils/helper';
 import HeaderComponent from '../../components/HeaderComponent';
 
 function CheckoutScreen({ checkout }) {
+  // let webviewEl;
   if (!checkout.data) {
     return (
       <View
@@ -24,7 +25,15 @@ function CheckoutScreen({ checkout }) {
   return (
     <View style={{ flex: 1 }}>
       <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
-      <WebView source={{ uri: findKey(checkout, ['data', 'webUrl']) }} style={{ flex: 1 }} />
+      <WebView
+        // ref={el => {
+        //   webviewEl = el;
+        // }}
+        // startInLoadingState={true}
+        // onLoadEnd={() => webviewEl.postPostMessage('red')}
+        source={{ uri: findKey(checkout, ['data', 'webUrl']) }}
+        style={{ flex: 1 }}
+      />
     </View>
   );
 }
