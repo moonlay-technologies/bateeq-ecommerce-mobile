@@ -3,12 +3,11 @@ import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { COLORS, FONTS } from '../../constants/theme';
 import CartList from '../../components/CartList';
-
 import LoadingScreen from '../../components/LoadingView';
 import Modal from '../../components/ActionModalComponent';
-import ButtonSm from '../../component-template/Button/ButtonSm';
 import Header from '../../layout/Header';
 import NoContent from '../../components/NoContent';
 import { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout, resetNavigation } from '../../store/actions';
@@ -64,31 +63,38 @@ function CartScreen({ navigation, route, ...props }) {
 
   const handleSubmit = () => {
     setIsLoading(true);
+    if ([userInfo?.default].every(i => i !== undefined || i !== '')) {
+      const body = {
+        email: userInfo?.info.email,
+        note,
+        shippingAddress: {
+          address1: userInfo?.default?.address1,
+          city: userInfo?.default?.city,
+          province: userInfo?.default?.province,
+          zip: userInfo?.default?.zip,
+          country: userInfo?.default?.country,
+          firstName: userInfo?.default?.firstName,
+          lastName: userInfo?.default?.lastName,
+        },
+        lineItems: lists?.data?.map(i => ({
+          variantId: i.merchandise.id,
+          quantity: i.quantity,
+        })),
+      };
 
-    const body = {
-      email: userInfo?.info.email,
-      note,
-      shippingAddress: {
-        address1: userInfo?.default?.address1,
-        city: userInfo?.default?.city,
-        province: userInfo?.default?.province,
-        zip: userInfo?.default?.zip,
-        country: userInfo?.default?.country,
-        firstName: userInfo?.default?.firstName,
-        lastName: userInfo?.default?.lastName,
-      },
-      lineItems: lists?.data?.map(i => ({
-        variantId: i.merchandise.id,
-        quantity: i.quantity,
-      })),
-    };
-
-    createCheckout({
-      variables: {
-        input: { ...body },
-      },
-    });
-    setIsLoading(false);
+      createCheckout({
+        variables: {
+          input: body,
+        },
+      });
+      setIsLoading(false);
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Oops! Something Went Wrong',
+        text2: 'Please complete the address information',
+      });
+    }
   };
 
   return (
@@ -251,6 +257,7 @@ function CartScreen({ navigation, route, ...props }) {
 export default connect(
   ({ Cart, User, Checkout, Address }) => {
     const { options, lists } = Cart;
+    console.log('CART', Cart);
 
     const { options: userOptions } = User;
     const { data: defaultAddress } = Address.defaultAddress;
