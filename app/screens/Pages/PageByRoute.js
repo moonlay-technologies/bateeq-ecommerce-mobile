@@ -27,7 +27,16 @@ const PagesInShopify = ({route}) => {
               {dataPages?.title}
             </Text>
             <CustomHTML
-             htmlContent={dataPages?.body}
+            //  htmlContent={dataPages?.body}
+             htmlContent={clearTagHtml(dataPages?.body)?.__html} htmlStyle={{
+              img: {
+                overflow:"hidden",
+                borderRadius: 10,
+                left:-5,
+                width:`${screen.width / 2 - 30}px`,
+                objectFit:"cover",
+              }
+            }}
              dataPages={dataPages}
             />
 

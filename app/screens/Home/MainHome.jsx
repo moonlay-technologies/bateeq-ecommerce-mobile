@@ -94,7 +94,7 @@ function MainHome(props) {
       }}
     >
       <HeaderComponent />
-      <MenuListHeader dataListMenu={dataSideMenuNavigation} dataPageStory={pageStory} />
+      <MenuListHeader dataListMenu={dataSideMenuNavigation} dataStory={pageStory} />
       <ScrollView>
         {dataImageBannerLoading && <LoadingScreen Loading3 />}
         <Swiper
@@ -252,7 +252,7 @@ function MainHome(props) {
             })}
           </Swiper>
         </View>
-        <Footer dataPagesStory={pageStory} />
+        <Footer dataStory={pageStory} />
       </ScrollView>
     </SafeAreaView>
   );

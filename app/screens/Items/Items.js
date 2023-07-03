@@ -10,6 +10,7 @@ import {
   GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION,
   __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION,
 } from '../../graphql/queries';
+import FilterModal from '../../components/screens/items/filter-product';
 
 
 const Items = ({ navigation, route }) => {
@@ -179,7 +180,7 @@ const Items = ({ navigation, route }) => {
           />
         </View>
         <View style={{ height: '100%' }}>
-          {/* <FilterPopover onApplyFilters={handleApplyFilters}/> */}
+          <FilterModal visible={showInput} onClose={() => setShowInput(false)}/>
           <TouchableOpacity
             style={{
               borderWidth: 1,
@@ -206,7 +207,7 @@ const Items = ({ navigation, route }) => {
             </Text>
             <AntDesignIcon color="#374957" size={20} name="filter" style={{ textAlign: 'center', marginVertical: 3 }} />
           </TouchableOpacity>
-          {showInput && (
+          {/* {showInput && (
             <View>
               <TextInput
                 style={{
@@ -230,7 +231,7 @@ const Items = ({ navigation, route }) => {
                 }}
               ></View>
             </View>
-          )}
+          )} */}
           {loadingGetProducts ? (
             <View
               style={{

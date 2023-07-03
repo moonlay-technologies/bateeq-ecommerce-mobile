@@ -12,6 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) {
+  console.log('dataStory', dataStory);
   const navigation = useNavigation();
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const menuItemRef = useRef(null);
@@ -25,7 +26,7 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
     }
 
     if (item.title === 'SALE') {
-      navigation.navigate('Items', { query: 'Sale' });
+      navigation.navigate('Items', { handle: 'special-offer-3-3', subTitle: 'SALE' });
     }
     if (item.title === 'OUR STORY') {
       navigation.navigate('PagesInShopify', { dataPages: dataStory });
@@ -77,16 +78,16 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
 
   const handleSubItemPress = subItem => {
     if (subItem?.items?.length === 0) {
-      navigation.navigate('Items', { query: subItem.title });
+      navigation.navigate('Items', { handle: subItem.title, subTitle: subItem.title });
     } else {
       if (subItem.title === 'SHOP MENSWEAR') {
-        navigation.navigate('Items', { query: 'Men' });
+        navigation.navigate('Items', { handle: 'shirt-1', subTitle: 'MEN' });
       }
       if (subItem.title === 'SHOP WOMENSWEAR') {
-        navigation.navigate('Items', { query: 'Women' });
+        navigation.navigate('Items', { handle: 'outer', subTitle: 'WOMEN' });
       }
       if (subItem.title === 'SHOP KIDSWEAR') {
-        navigation.navigate('Items', { query: 'Kids' });
+        navigation.navigate('Items', { handle: 'boys', subTitle: 'KIDS' });
       }
     }
   };

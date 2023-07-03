@@ -91,7 +91,7 @@ export const Footer = ({ dataPagesStory }) => {
         <View>
           <TouchableOpacity
             style={{ marginBottom: 10 }}
-            onPress={() => navigation.navigate('Items', { query: 'New Variants' })}
+            onPress={() => navigation.navigate('Items', { handle: 'latest-collection', subTitle: 'NEW VARIANTS' })}
           >
             <Text
               style={{
@@ -102,7 +102,10 @@ export const Footer = ({ dataPagesStory }) => {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={{ marginBottom: 10 }} onPress={() => navigation.navigate('Items', { query: 'Men' })}>
+          <TouchableOpacity
+            style={{ marginBottom: 10 }}
+            onPress={() => navigation.navigate('Items', { handle: 'shirt-1', subTitle: 'MEN' })}
+          >
             <Text
               style={{
                 color: COLORS.title,
@@ -114,7 +117,7 @@ export const Footer = ({ dataPagesStory }) => {
 
           <TouchableOpacity
             style={{ marginBottom: 10 }}
-            onPress={() => navigation.navigate('Items', { query: 'Women' })}
+            onPress={() => navigation.navigate('Items', { handle: 'outer', subTitle: 'WOMEN' })}
           >
             <Text
               style={{
@@ -127,7 +130,7 @@ export const Footer = ({ dataPagesStory }) => {
 
           <TouchableOpacity
             style={{ marginBottom: 10 }}
-            onPress={() => navigation.navigate('Items', { query: 'Kids' })}
+            onPress={() => navigation.navigate('Items', { handle: 'boys', subTitle: 'KIDS' })}
           >
             <Text
               style={{
@@ -140,7 +143,7 @@ export const Footer = ({ dataPagesStory }) => {
 
           <TouchableOpacity
             style={{ marginBottom: 10 }}
-            onPress={() => navigation.navigate('Items', { query: 'Sale' })}
+            onPress={() => navigation.navigate('Items', { handle: 'special-offer-3-3', subTitle: 'SALE' })}
           >
             <Text
               style={{
