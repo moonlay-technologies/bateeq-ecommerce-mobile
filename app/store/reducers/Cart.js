@@ -10,7 +10,7 @@ import {
   PUT_CART_TOTAL_QTY,
 } from '../constants';
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
-import {findKey} from "../../utils/helper";
+import { findKey } from '../../utils/helper';
 
 /**
  *
@@ -97,8 +97,12 @@ export default function (state = initialState, action) {
         },
       };
     case SUCCESS(DELETE_CART_LIST_OF_ITEM):
-      if(findKey(action,['payload']) && findKey(action,['payload','lineId'])){
-        state.lists.data = [ ...state.lists.data.filter((item)=> findKey(action,['payload','lineId']).filter((child)=> child !== item.id).length > 0 ? item : null)]
+      if (findKey(action, ['payload']) && findKey(action, ['payload', 'lineId'])) {
+        state.lists.data = [
+          ...state.lists.data.filter(item =>
+            findKey(action, ['payload', 'lineId']).filter(child => child !== item.id).length > 0 ? item : null
+          ),
+        ];
       }
       return {
         ...state,
@@ -108,7 +112,7 @@ export default function (state = initialState, action) {
         },
         lists: {
           ...state.lists,
-          data: [...state.lists.data]
+          data: [...state.lists.data],
         },
       };
     case FAILURE(DELETE_CART_LIST_OF_ITEM):
@@ -131,10 +135,9 @@ export default function (state = initialState, action) {
         },
         lists: {
           ...state.lists,
-          data: [...state.lists.data]
+          data: [...state.lists.data],
         },
       };
-
 
     case REQUEST(GET_CART_LIST):
       return {
@@ -178,6 +181,7 @@ export default function (state = initialState, action) {
     case REQUEST(CART_LINE_ITEM_ADD):
       return {
         ...state,
+        type,
         options: {
           ...state.options,
           loading: true,
@@ -186,6 +190,7 @@ export default function (state = initialState, action) {
     case SUCCESS(CART_LINE_ITEM_ADD):
       return {
         ...state,
+        type,
         options: {
           ...state.options,
           loading: false,
@@ -195,6 +200,7 @@ export default function (state = initialState, action) {
     case FAILURE(CART_LINE_ITEM_ADD):
       return {
         ...state,
+        type,
         options: {
           ...state.options,
           message: action?.message,

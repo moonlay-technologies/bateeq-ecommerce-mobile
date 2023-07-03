@@ -112,7 +112,8 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))}
+          }))
+        }
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -205,7 +206,8 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))}
+                          }))
+                        }
                       />
                     }
                   />
@@ -257,12 +259,12 @@ function CartScreen({ navigation, route, ...props }) {
 export default connect(
   ({ Cart, User, Checkout, Address }) => {
     const { options, lists } = Cart;
-    console.log('CART', Cart);
 
     const { options: userOptions } = User;
     const { data: defaultAddress } = Address.defaultAddress;
     const { loading } = Checkout.collections;
     const userInfo = { default: defaultAddress, ...userOptions };
+
     return {
       cartId: options?.cartId,
       lists,

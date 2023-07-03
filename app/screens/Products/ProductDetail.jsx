@@ -1,14 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import * as yup from 'yup';
-import { useMutation } from '@apollo/client';
 import { connect } from 'react-redux';
 import Swiper from 'react-native-swiper';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import { ADD_ITEM_TO_CART } from '../../graphql/mutation';
-import { CartGetList, getProductById, getProductRecommendation } from '../../store/actions';
+import { CartGetList, CartLineItemAdd, getProductById, getProductRecommendation } from '../../store/actions';
 import { formatWithCommas, findVariantIdByOptions } from '../../utils/helper';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
@@ -19,6 +17,8 @@ import SelectInput from '../../components/SelectInput';
 import Button from '../../components/ButtonComponent';
 import CustomHTML from '../../components/CustomHtml';
 import { COLORS, FONTS } from '../../constants/theme';
+import { SUCCESS } from '../../store/actions/action.type';
+import { CART_LINE_ITEM_ADD } from '../../store/constants';
 
 function ProductDetail(props) {
   const {
@@ -28,6 +28,9 @@ function ProductDetail(props) {
     CartGetList: cartGetList,
     getProductById: getProductId,
     getProductRecommendation: getRecommendation,
+    CartLineItemAdd: cartLineItemAdd,
+    cartLoading,
+    type,
     productData,
     loading,
     recommendationProducts,
@@ -59,7 +62,7 @@ function ProductDetail(props) {
   const { id } = route.params;
   const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
-  const [cartLinesAdd] = useMutation(ADD_ITEM_TO_CART);
+  const [state, setState] = useState('idle')
   const [qty, setQty] = useState(1);
   const [errors, setErrors] = useState({});
   const [variantId, setVariantId] = useState('');
@@ -88,6 +91,32 @@ function ProductDetail(props) {
     getProductId({ id });
     getRecommendation({ id });
   }, [isChangeId]);
+
+  useEffect(() => {
+    if(state === 'processing' && type === SUCCESS(CART_LINE_ITEM_ADD)) {
+      setNotifState({
+        show: true
+      });
+
+      setTimeout(() => {
+        setNotifState({ show: false, text: '', navText: '', to: '' });
+      }, 5000);
+      setErrors({});
+
+      setvariantOptions({
+        size: '',
+        color: '',
+      });
+
+      cartGetList({
+        first: 10,
+        last: 0,
+        id: cartId,
+      });
+      setState('idle')
+    } 
+
+  },[cartLoading, type])
 
   useEffect(() => {
     const colorOptions = [];
@@ -159,6 +188,7 @@ function ProductDetail(props) {
 
   const onSubmit = () => {
     setOnSubmitLoading(true);
+    setState('processing')
       const body = {
         quantity: qty,
         size: variantOptions.size,
@@ -185,40 +215,10 @@ function ProductDetail(props) {
               },
             ],
           };
-
-          const { data: addLine } = await cartLinesAdd({
-            variables: payload,
-          });
-
-          if (addLine?.cartLinesAdd?.cart.id) {
-            setNotifState({
-              show: true
-            });
-            setTimeout(() => {
-              setNotifState({ show: false, text: '', navText: '', to: '' });
-            }, 5000);
-            setErrors({});
-
-            setvariantOptions({
-              size: '',
-              color: '',
-            });
-            cartGetList({
-              first: 10,
-              last: 0,
-              id: cartId,
-            });
-          } else {
-            Toast.show({
-              type: 'error',
-              text1: 'oops!',
-              text2: 'something went wrong',
-            });
-          }
+          cartLineItemAdd(payload)
           setOnSubmitLoading(false);
         })
         .catch(error => {
-         
           if (error.name === 'ValidationError') {
             if(error.inner.find(i => i.path === 'variant_id') || error.inner.find(i => i.path === 'cartId')) {
               if(error.inner.find(i => i.path === 'variant_id') ) {
@@ -486,11 +486,11 @@ function ProductDetail(props) {
         <View style={{width: '100%'}}>
           <Button
             onPress={onSubmit}
-            title={onSubmitLoading ? 'Loading ...' : 'Add to Cart'}
+            title={onSubmitLoading || cartLoading ? 'Loading ...' : 'Add to Cart'}
             iconSize={20}
             iconName='shopping-bag'
             icon={FeatherIcon}
-            disabled={onSubmitLoading }
+            disabled={onSubmitLoading || cartLoading }
           />
           </View>
         </View>
@@ -498,7 +498,7 @@ function ProductDetail(props) {
   );
 }
 export default connect(
-  ({ Cart, Product }) => {
+  ({ Cart, Product, User }) => {
     const { options } = Cart;
     const {
       collections: {
@@ -506,9 +506,10 @@ export default connect(
         recommendations: { data: recommendationProducts, loading: recommendationLoading },
       },
     } = Product;
-    return { cartId: options?.cartId, productData, loading, recommendationProducts, recommendationLoading };
+
+    return { cartId: options?.cartId, productData, loading, recommendationProducts, recommendationLoading, cartLoading:options?.loading , type: Cart?.type || ''};
   },
-  { CartGetList, getProductById, getProductRecommendation }
+  { CartGetList, getProductById, getProductRecommendation , CartLineItemAdd}
 )(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({

@@ -14,6 +14,7 @@ import { REQUEST, SUCCESS, FAILURE } from '../actions/action.type';
 import { client } from '../../../index';
 import { findKey } from '../../utils/helper';
 import { ADD_TO_CART } from '../../graphql/mutation';
+import { GET_CART_LIST_BY_ID } from '../../graphql/queries';
 
 export function* __cartGenerateId() {
   yield takeEvery(REQUEST(GENERATE_CART_ID), function* ({ payload }) {
@@ -390,23 +391,38 @@ export function* __DeleteListOfItemCart() {
 }
 
 export function* cartLineItemAdd() {
-  yield takeEvery(REQUEST(CART_LINE_ITEM_ADD), function* ({ payload }) {
+  yield takeEvery(REQUEST(CART_LINE_ITEM_ADD), function* ({ payload, token }) {
     try {
       const mutation = gql`
         ${ADD_TO_CART}
       `;
+      const query = gql`
+        ${GET_CART_LIST_BY_ID}
+      `;
 
       const response = yield call(client.mutate, {
         mutation,
-        variables: {
-          payload,
-        },
+        variables: payload,
+        refetchQueries: [{ query, variables: { fetchPolicy: 'no-cache', id: payload.cartId, limit: 10 } }],
       });
-      if (response) {
+
+      if (response.data.cartLinesAdd.cart.id && response.data.cartLinesAdd.userErrors.length === 0) {
         yield put({ type: SUCCESS(CART_LINE_ITEM_ADD) });
+      } else if (response.data.cartLinesAdd.userErrors.length > 0) {
+        response?.data?.cartLinesAdd?.userErrors.map(error => {
+          Toast.show({
+            type: 'error',
+            text1: error?.message,
+          });
+        });
+        yield put({ type: FAILURE(CART_LINE_ITEM_ADD) });
       }
     } catch (error) {
-      yield put({ type: FAILURE(CART_LINE_ITEM_ADD), message: error?.message });
+      Toast.show({
+        type: 'error',
+        text1: error?.message,
+      });
+      yield put({ type: FAILURE(CART_LINE_ITEM_ADD) });
     }
   });
 }
