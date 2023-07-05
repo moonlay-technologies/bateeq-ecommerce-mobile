@@ -53,7 +53,7 @@ function LatestCollections(props) {
     });
   }, [CollectionProductLatestShow]);
 
-  console.log('findkey', collections.latest.collection);
+  console.log('findkey', findKey(collections.latest.collection, ['products']));
 
   return (
     <View>
@@ -78,7 +78,7 @@ function LatestCollections(props) {
             Latest Collection
           </Text>
           <FeaturedCard
-            image={findKey(collections.latest.collection, ['image', 'url'])}
+            image={findKey(collections?.latest?.collection, ['image', 'url'])}
             title={findKey(collections.latest, ['collection'])}
             dataCollection={findKey(collections.latest, ['data'])}
           />
@@ -143,6 +143,7 @@ function LatestCollections(props) {
                   navigation.navigate('Items', {
                     handle: findKey(collections.latest.collection, ['handle']),
                     subTitle: findKey(collections.latest.collection, ['title']),
+                    dataStock: findKey(collections.latest.collection, ['products']),
                   })
                 }
                 style={{

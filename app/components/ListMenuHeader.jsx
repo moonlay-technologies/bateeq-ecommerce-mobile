@@ -12,7 +12,6 @@ import {
 import { useNavigation } from '@react-navigation/native';
 
 function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) {
-  console.log('dataStory', dataStory);
   const navigation = useNavigation();
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const menuItemRef = useRef(null);
@@ -77,18 +76,58 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
   ];
 
   const handleSubItemPress = subItem => {
-    if (subItem?.items?.length === 0) {
-      navigation.navigate('Items', { handle: subItem.title, subTitle: subItem.title });
-    } else {
-      if (subItem.title === 'SHOP MENSWEAR') {
+    switch (subItem?.title) {
+      case 'TAMPA':
+        navigation.navigate('Items', { handle: 'tampa-1', subTitle: subItem.title });
+        break;
+      case 'KAMALA':
+        navigation.navigate('Items', { handle: 'kamala-collections', subTitle: subItem.title });
+        break;
+      case 'PADMA':
+        navigation.navigate('Items', { handle: 'padma', subTitle: subItem.title });
+        break;
+      case 'PEKSI KAWUNG':
+        navigation.navigate('Items', { handle: 'peksi-kawung', subTitle: subItem.title });
+        break;
+      case 'SAMARA':
+        navigation.navigate('Items', { handle: 'samara', subTitle: subItem.title });
+        break;
+      case 'LOKA':
+        navigation.navigate('Items', { handle: 'loka', subTitle: subItem.title });
+        break;
+      case 'CAKIYAR':
+        navigation.navigate('Items', { handle: 'cakiyar', subTitle: subItem.title });
+        break;
+      case 'MONEZ':
+        navigation.navigate('Items', { handle: 'monez', subTitle: subItem.title });
+        break;
+      case 'MIWITI':
+        navigation.navigate('Items', { handle: 'miwiti-collection', subTitle: subItem.title });
+        break;
+      case 'NALIKA':
+        navigation.navigate('Items', { handle: 'nalika-collection', subTitle: subItem.title });
+        break;
+      case 'ZORA':
+        navigation.navigate('Items', { handle: 'zora', subTitle: subItem.title });
+        break;
+      case 'DANADYAKSA':
+        navigation.navigate('Items', { handle: 'danadyaksa-collection', subTitle: subItem.title });
+        break;
+      case 'NOSTALGIA':
+        navigation.navigate('Items', { handle: 'nostalgia-collection', subTitle: subItem.title });
+        break;
+      case 'SHOP MENSWEAR':
         navigation.navigate('Items', { handle: 'shirt-1', subTitle: 'MEN' });
-      }
-      if (subItem.title === 'SHOP WOMENSWEAR') {
+        break;
+      case 'SHOP WOMENSWEAR':
         navigation.navigate('Items', { handle: 'outer', subTitle: 'WOMEN' });
-      }
-      if (subItem.title === 'SHOP KIDSWEAR') {
+        break;
+      case 'SHOP KIDSWEAR':
         navigation.navigate('Items', { handle: 'boys', subTitle: 'KIDS' });
-      }
+        break;
+      default:
+        navigation.navigate('Items', { handle: subItem.title, subTitle: subItem.title });
+        break;
     }
   };
 

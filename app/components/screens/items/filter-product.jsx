@@ -1,30 +1,47 @@
 import React, { useState } from 'react';
-import { Modal, View, Text, Switch, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS } from '../../../constants/theme';
+import { Modal, View, Text, TextInput, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 
-const FilterModal = ({ visible, onClose, onApplyFilter }) => {
-  const [availability, setAvailability] = useState(false);
-  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
-
-  const handleApplyFilter = () => {
-    onApplyFilter({ availability, priceRange });
+const FilterModal = ({ visible, onClose, dataFilter, availability, setAvailability, priceRange, setPriceRange }) => {
+  const handlePressOutsideModal = () => {
     onClose();
   };
 
   return (
     <Modal visible={visible} animationType="fade" transparent>
+      <TouchableWithoutFeedback onPress={handlePressOutsideModal}>
+        <View style={styles.modalOverlay} />
+      </TouchableWithoutFeedback>
       <View style={styles.modalContainer}>
         <Text style={styles.modalHeaderText}>Select Filter</Text>
         <View style={styles.filterOption1}>
           <Text style={styles.filterOptionText1}>Availability:</Text>
           <View style={{ flexDirection: 'row' }}>
-            <CheckBox value={availability} onValueChange={setAvailability} style={styles.checkbox} />
-            <Text style={{ marginTop: 6 }}>In Stock</Text>
+            <CheckBox
+              value={availability.inStock}
+              onValueChange={text => setAvailability(prevRange => ({ ...prevRange, inStock: text }))}
+              style={styles.checkbox}
+            />
+            <Text style={{ marginTop: 6, color: 'black' }}>
+              {dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[0].label}
+              <Text style={{ fontWeight: 'bold' }}>
+                {`(${dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[0].count})`}
+              </Text>
+            </Text>
           </View>
           <View style={{ flexDirection: 'row' }}>
-            <CheckBox value={availability} onValueChange={setAvailability} style={styles.checkbox} />
-            <Text style={{ marginTop: 6 }}>Out of Stock</Text>
+            <CheckBox
+              value={availability.outStock}
+              onValueChange={text => setAvailability(prevRange => ({ ...prevRange, outStock: text }))}
+              style={styles.checkbox}
+              disabled={dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[1].count < 1}
+            />
+            <Text style={{ marginTop: 6, color: 'black' }}>
+              {dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[1].label}
+              <Text style={{ fontWeight: 'bold' }}>
+                {`(${dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[1].count})`}
+              </Text>
+            </Text>
           </View>
         </View>
         <View style={styles.filterOption}>
@@ -44,20 +61,20 @@ const FilterModal = ({ visible, onClose, onApplyFilter }) => {
             keyboardType="numeric"
           />
         </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={onClose}>
-            <Text style={[styles.buttonText, styles.cancelButton]}>Cancel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleApplyFilter}>
-            <Text style={[styles.buttonText, styles.applyButton]}>Done</Text>
-          </TouchableOpacity>
-        </View>
       </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  modalOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
   modalContainer: {
     backgroundColor: '#ffffff',
     paddingHorizontal: 10,

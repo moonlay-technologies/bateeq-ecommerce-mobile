@@ -12,15 +12,17 @@ import {
 } from '../../graphql/queries';
 import FilterModal from '../../components/screens/items/filter-product';
 
-
 const Items = ({ navigation, route }) => {
-  const { handle, categories, subTitle } = route.params;
+  const { handle, categories, subTitle, dataStock } = route.params;
   const [itemView, setItemView] = useState('grid');
   const [dataCategories, setDataCategories] = useState([]);
+  const [dataFilters, setDataFilters] = useState([]);
   // const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showInput, setShowInput] = useState(false);
-  const [valSearch, setValSearch] = useState('');
+  // const [valSearch, setValSearch] = useState('');
+  const [availability, setAvailability] = useState({ inStock: false, outStock: false });
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
 
   const flatListRef = useRef(null);
   const {
@@ -33,84 +35,24 @@ const Items = ({ navigation, route }) => {
       handle: handle,
       after: null,
       product_filters: {
-        available: true,
+        ...(availability.inStock ? { available: true } : availability.outStock ? { available: false } : {}),
+        price: {
+          ...(priceRange.min && priceRange.max ? { min: parseFloat(priceRange.min), max: parseFloat(priceRange.max) } : {}),
+        },
       },
     },
   });
 
-  // const [{ loading: loadingSearch }] = useLazyQuery(GET_LIST_CATEGORIES, {
-  //   onCompleted: ({ products }) => {
-  //     const results = products?.nodes || [];
-  //     setDataCategories(results);
-  //   },
-  // });
-
-  // const handleSearchButton = () => {
-  //   filterSearch({
-  //     variables: {
-  //       first: 10,
-  //       query: valSearch,
-  //     },
-  //   });
-
-  // const [filterByAvailability, {data: dataFilterAvailability, loading: loadingSearch}] = useLazyQuery(
-  //   FILTER_PRODUCT_BY_AVAILABILITY,
-  // );
-
-  // const handleApplyFilters = (filters) => {
-  //   const { availability, minPrice, maxPrice } = filters;
-
-  //     if(availability.some((item) => item.label === "in Stock" && item.checked)) {
-  //       filterByAvailability({
-  //         variables: {
-  //           handle: "monez",
-  //           first: 10,
-  //           isAvailable: true
-  //         }
-  //       })
-  //     }
-  // if (!minPrice && !maxPrice) {
-  //   return true
-  // }
-  // Filter by price range
-  // const filteredByPrice = filteredByAvailability.filter((product) => {
-  //   if (!minPrice && !maxPrice) {
-  //     return true; // If no price range is specified, include all products
-  //   }
-
-  //   if (minPrice && maxPrice) {
-  //     return product.price >= minPrice && product.price <= maxPrice;
-  //   }
-
-  //   if (minPrice) {
-  //     return product.price >= minPrice;
-  //   }
-
-  //   if (maxPrice) {
-  //     return product.price <= maxPrice;
-  //   }
-  // });
-
-  // setFilteredProducts(filteredByPrice);
-  // };
-
   useEffect(() => {
     if (data) {
-      setDataCategories(data?.collection?.products?.nodes || []);
+      setDataCategories(data?.collection?.products.nodes || []);
+      setDataFilters(data?.collection?.products || {});
     }
-    // if (dataFilterAvailability) {
-    //   setDataCategories(data?.collection?.products?.nodes || []);
-    // }
   }, [data]);
-
-  const handleValChange = val => {
-    setValSearch(val);
-  };
 
   const handleFilterButtonClick = () => {
     setShowInput(!showInput);
   };
-
 
   const handleLoadMore = async () => {
     const { endCursor, hasNextPage } = data?.collection?.products?.pageInfo;
@@ -124,7 +66,10 @@ const Items = ({ navigation, route }) => {
             handle: handle,
             after: endCursor,
             product_filters: {
-              available: true,
+              ...(availability.inStock ? { available: true } : availability.outStock ? { available: false } : {}),
+              price: {
+                ...(priceRange.min && priceRange.max ? { min: parseFloat(priceRange.min), max: parseFloat(priceRange.max) } : {}),
+              },
             },
           },
           updateQuery: (prev, { fetchMoreResult }) => {
@@ -173,14 +118,18 @@ const Items = ({ navigation, route }) => {
         }}
       >
         <View style={{ paddingHorizontal: 20 }}>
-          <Header
-            titleLeft
-            leftIcon={'back'}
-            title={subTitle}
-          />
+          <Header titleLeft leftIcon={'back'} title={subTitle} />
         </View>
         <View style={{ height: '100%' }}>
-          <FilterModal visible={showInput} onClose={() => setShowInput(false)}/>
+          <FilterModal
+            visible={showInput}
+            onClose={() => setShowInput(false)}
+            dataFilter={dataFilters}
+            availability={availability}
+            setAvailability={setAvailability}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+          />
           <TouchableOpacity
             style={{
               borderWidth: 1,
@@ -207,31 +156,6 @@ const Items = ({ navigation, route }) => {
             </Text>
             <AntDesignIcon color="#374957" size={20} name="filter" style={{ textAlign: 'center', marginVertical: 3 }} />
           </TouchableOpacity>
-          {/* {showInput && (
-            <View>
-              <TextInput
-                style={{
-                  borderWidth: 1,
-                  paddingHorizontal: 10,
-                  paddingVertical: 2,
-                  marginBottom: 10,
-                  marginHorizontal: 17,
-                  color: 'black',
-                }}
-                placeholder="Search"
-                autoFocus
-                value={valSearch}
-                onChangeText={handleValChange}
-              />
-              <View
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  marginBottom: 8,
-                }}
-              ></View>
-            </View>
-          )} */}
           {loadingGetProducts ? (
             <View
               style={{

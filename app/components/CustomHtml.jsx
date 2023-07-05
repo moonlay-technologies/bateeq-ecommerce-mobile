@@ -1,7 +1,7 @@
 import { View, StyleSheet, useWindowDimensions } from 'react-native';
 import RenderHTML from 'react-native-render-html';
-import React from 'react';
 import LoadingScreen from './LoadingView';
+import React, { useMemo } from 'react';
 import DeliveryMap from '../screens/Delivery/DeliveryMap';
 
 /**
@@ -14,11 +14,11 @@ import DeliveryMap from '../screens/Delivery/DeliveryMap';
  * @returns {JSX.Element}
  * @constructor
  */
-function CustomHTML({ htmlContent, limit, blog_id, dataPages, ...props }) {
+const CustomHTML = ({ htmlContent, limit, blog_id, dataPages, ...props }) => {
   const screen = useWindowDimensions();
   const windowWidth = useWindowDimensions().width;
-  if (htmlContent && typeof htmlContent === 'string') {
-    const contentStyle = {
+  const contentStyle = useMemo(
+    () => ({
       body: {
         whiteSpace: 'normal',
         color: 'gray',
@@ -28,8 +28,10 @@ function CustomHTML({ htmlContent, limit, blog_id, dataPages, ...props }) {
         marginBottom: 7,
         marginTop: -2,
       },
-    };
-
+    }),
+    [htmlContent, blog_id]
+  );
+  if (htmlContent && typeof htmlContent === 'string') {
     const paragraphEndIndex = htmlContent.indexOf('</p>') + 4;
     const previewText = htmlContent.slice(0, paragraphEndIndex);
 
@@ -43,7 +45,7 @@ function CustomHTML({ htmlContent, limit, blog_id, dataPages, ...props }) {
             height: screen.height,
             backgroundColor: 'transparent',
           }}
-          javaScriptEnabled
+          javaScriptEnabled={true}
           renderLoading={() => {
             return <LoadingScreen />;
           }}
@@ -52,13 +54,12 @@ function CustomHTML({ htmlContent, limit, blog_id, dataPages, ...props }) {
             ...contentStyle,
             ...props?.htmlStyle,
           }}
-          // renderersProps={customRenderersProps}
           ignoredDomTags={['iframe']}
         />
       </View>
     );
   }
-}
+};
 
 const styles = StyleSheet.create({
   container: {

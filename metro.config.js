@@ -14,13 +14,13 @@ module.exports = {
       },
     }),
   },
-  blockList: {
+  // blockList: {
     // Excluding a specific file path
     // Make sure it's not excluding the file path causing the issue
-    ios: {
-      sourceExts: [
+    // ios: {
+      // sourceExts: [
         // 'path/to/excludedFile.js',
-      ],
-    },
-  },
+      // ],
+    // },
+  // },
 };
