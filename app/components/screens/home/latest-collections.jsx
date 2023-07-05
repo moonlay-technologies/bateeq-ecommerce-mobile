@@ -53,8 +53,6 @@ function LatestCollections(props) {
     });
   }, [CollectionProductLatestShow]);
 
-  console.log('findkey', findKey(collections.latest.collection, ['products']));
-
   return (
     <View>
       {collections?.latest.loading ? (

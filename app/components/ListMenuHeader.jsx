@@ -24,10 +24,10 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
       showSubMenu();
     }
 
-    if (item.title === 'SALE') {
+    if (item.id === 'gid://shopify/MenuItem/519458652443') {
       navigation.navigate('Items', { handle: 'special-offer-3-3', subTitle: 'SALE' });
     }
-    if (item.title === 'OUR STORY') {
+    if (item.id === 'gid://shopify/MenuItem/519530053915') {
       navigation.navigate('PagesInShopify', { dataPages: dataStory });
     }
   };
@@ -76,53 +76,53 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
   ];
 
   const handleSubItemPress = subItem => {
-    switch (subItem?.title) {
-      case 'TAMPA':
+    switch (subItem?.id) {
+      case 'gid://shopify/MenuItem/538806976795':
         navigation.navigate('Items', { handle: 'tampa-1', subTitle: subItem.title });
         break;
-      case 'KAMALA':
+      case 'gid://shopify/MenuItem/526979334427':
         navigation.navigate('Items', { handle: 'kamala-collections', subTitle: subItem.title });
         break;
-      case 'PADMA':
+      case 'gid://shopify/MenuItem/521845440795':
         navigation.navigate('Items', { handle: 'padma', subTitle: subItem.title });
         break;
-      case 'PEKSI KAWUNG':
+      case 'gid://shopify/MenuItem/521845473563':
         navigation.navigate('Items', { handle: 'peksi-kawung', subTitle: subItem.title });
         break;
-      case 'SAMARA':
+      case 'gid://shopify/MenuItem/526979137819':
         navigation.navigate('Items', { handle: 'samara', subTitle: subItem.title });
         break;
-      case 'LOKA':
+      case 'gid://shopify/MenuItem/521845571867':
         navigation.navigate('Items', { handle: 'loka', subTitle: subItem.title });
         break;
-      case 'CAKIYAR':
+      case 'gid://shopify/MenuItem/521845408027':
         navigation.navigate('Items', { handle: 'cakiyar', subTitle: subItem.title });
         break;
-      case 'MONEZ':
+      case 'gid://shopify/MenuItem/526526349595':
         navigation.navigate('Items', { handle: 'monez', subTitle: subItem.title });
         break;
-      case 'MIWITI':
+      case 'gid://shopify/MenuItem/521845276955':
         navigation.navigate('Items', { handle: 'miwiti-collection', subTitle: subItem.title });
         break;
-      case 'NALIKA':
+      case 'gid://shopify/MenuItem/521845309723':
         navigation.navigate('Items', { handle: 'nalika-collection', subTitle: subItem.title });
         break;
-      case 'ZORA':
+      case 'gid://shopify/MenuItem/526979367195':
         navigation.navigate('Items', { handle: 'zora', subTitle: subItem.title });
         break;
-      case 'DANADYAKSA':
+      case 'gid://shopify/MenuItem/521845342491':
         navigation.navigate('Items', { handle: 'danadyaksa-collection', subTitle: subItem.title });
         break;
-      case 'NOSTALGIA':
+      case 'gid://shopify/MenuItem/521845244187':
         navigation.navigate('Items', { handle: 'nostalgia-collection', subTitle: subItem.title });
         break;
-      case 'SHOP MENSWEAR':
+      case 'gid://shopify/MenuItem/519704019227':
         navigation.navigate('Items', { handle: 'shirt-1', subTitle: 'MEN' });
         break;
-      case 'SHOP WOMENSWEAR':
+      case 'gid://shopify/MenuItem/519704051995':
         navigation.navigate('Items', { handle: 'outer', subTitle: 'WOMEN' });
         break;
-      case 'SHOP KIDSWEAR':
+      case 'gid://shopify/MenuItem/525267632411':
         navigation.navigate('Items', { handle: 'boys', subTitle: 'KIDS' });
         break;
       default:
@@ -190,7 +190,7 @@ function MenuListHeader({ dataListMenu, dataStory }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.menuContainer} vertical showsHorizontalScrollIndicator={false}>
+    <ScrollView contentContainerStyle={styles.menuContainer} horizontal showsHorizontalScrollIndicator={false}>
       {dataListMenu?.menu?.items?.map(item => (
         <MenuItem
           key={item.id}
@@ -208,12 +208,13 @@ function MenuListHeader({ dataListMenu, dataStory }) {
 const styles = StyleSheet.create({
   menuContainer: {
     paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 10,
+    marginBottom: 6,
     flexDirection: 'row',
+    width: 'auto',
   },
   menuItemContainer: {
-    marginRight: 16,
+    width: 'auto',
+    marginHorizontal: 8,
   },
   menuItemTitle: {
     fontSize: 13,
