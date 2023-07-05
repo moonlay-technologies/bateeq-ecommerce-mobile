@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import WebView from 'react-native-webview';
 import { connect } from 'react-redux';
 import { View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import LoadingScreen from '../../components/LoadingView';
 import { findKey } from '../../utils/helper';
 import HeaderComponent from '../../components/HeaderComponent';
 
 function CheckoutScreen({ checkout }) {
-  // let webviewEl;
+  const webViewRef = useRef(null);
+  const navigation = useNavigation();
+  const [route, setRoute] = useState('');
+
   if (!checkout.data) {
     return (
       <View
@@ -22,15 +26,59 @@ function CheckoutScreen({ checkout }) {
     );
   }
 
+  const handleWebview = event => {
+    const { data } = event.nativeEvent;
+    if (data.includes('ROUTE_NAME')) {
+      const routeName = data.split(':')[1];
+      const lastSlashIndex = routeName.lastIndexOf('/');
+      const name = routeName.substring(lastSlashIndex);
+
+      if (name) {
+        setRoute(name);
+      }
+    }
+  };
+
+  const routeInject = `
+  function handleRouteChange() {
+    const routeName = window.location.pathname;
+    window.ReactNativeWebView.postMessage('ROUTE_NAME:' + routeName);
+  }
+  window.addEventListener('popstate', handleRouteChange);
+  `;
+
+  const goBack = useCallback(() => {
+    if (webViewRef.current) {
+      webViewRef.current.goBack();
+    }
+  }, [navigation, route, webViewRef]);
+
+  useEffect(() => {
+    // Cleanup the listener when the component unmounts
+    return () => {
+      webViewRef.current.injectJavaScript(`
+        window.removeEventListener('popstate', handleRouteChange);
+      `);
+    };
+  }, [webViewRef]);
+
   return (
     <View style={{ flex: 1 }}>
-      <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
+      <HeaderComponent
+        withoutCartAndLogo
+        backAction
+        backFunc={route === '/information' ? false : goBack}
+        icon="back"
+        title="Back"
+      />
+
       <WebView
-        // ref={el => {
-        //   webviewEl = el;
-        // }}
+        ref={webViewRef}
         // startInLoadingState={true}
         // onLoadEnd={() => webviewEl.postPostMessage('red')}
+        // onMessage={e => onTest(e)}
+        injectedJavaScript={routeInject}
+        onMessage={handleWebview}
         source={{ uri: findKey(checkout, ['data', 'webUrl']) }}
         style={{ flex: 1 }}
       />

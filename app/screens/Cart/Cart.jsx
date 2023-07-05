@@ -70,6 +70,7 @@ function CartScreen({ navigation, route, ...props }) {
         shippingAddress: {
           address1: userInfo?.default?.address1,
           city: userInfo?.default?.city,
+          company: userInfo?.default?.company,
           province: userInfo?.default?.province,
           zip: userInfo?.default?.zip,
           country: userInfo?.default?.country,
@@ -112,8 +113,7 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -206,8 +206,7 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))
-                        }
+                          }))}
                       />
                     }
                   />

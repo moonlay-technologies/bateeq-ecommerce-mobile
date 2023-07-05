@@ -22,13 +22,19 @@ import { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList } from '../s
  * @returns {JSX.Element}
  * @constructor
  */
-function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo, navTo, options, ...props }) {
+function HeaderComponent({ ...props }) {
   const {
+    icon = '',
+    title,
+    backAction,
+    withoutCartAndLogo,
+    options,
     CartPutTotalQty: cartPutTotalQty,
     CartGetList: cartGetList,
     DrawerToggle: drawerToggle,
     getAddressList: getAddress,
     token,
+    backFunc,
   } = props;
   const navigation = useNavigation();
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
@@ -129,7 +135,7 @@ function HeaderComponent({ icon = '', title, backAction, withoutCartAndLogo, nav
           backgroundColor: COLORS.white,
         }}
       >
-        <IconButton icon={() => leftIcon(icon, title)} size={25} onPress={onPressLeft} />
+        <IconButton icon={() => leftIcon(icon, title)} size={25} onPress={backFunc || onPressLeft} />
         {title && (
           <Text
             style={{
