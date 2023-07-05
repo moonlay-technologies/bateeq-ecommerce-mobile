@@ -11,6 +11,7 @@ function Input({
   handleInputChange,
   keyboardType = 'none',
   label = '',
+  labelStyle = {},
   value = '',
   errors = {},
   numberOfLines,
@@ -18,8 +19,10 @@ function Input({
 }) {
   const currentTheme = useSelector(state => state.Theme.mode);
   return (
-    <View style={GlobalStyleSheet.inputGroup}>
-      <Text style={currentTheme === 'dark' ? GlobalStyleSheet.label : GlobalStyleSheet.label}>{label}</Text>
+    <View>
+      <Text style={labelStyle || (currentTheme === 'dark' ? GlobalStyleSheet.label : GlobalStyleSheet.label)}>
+        {label}
+      </Text>
       <TextInput
         keyboardType={keyboardType}
         placeholder={placeholder}
@@ -55,6 +58,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.title,
     borderWidth: 1,
     padding: 10,
-    color: COLORS.label,
+    color: COLORS.title,
   },
 });

@@ -7,7 +7,7 @@ export const GlobalStyleSheet = {
   formControl: {
     backgroundColor: COLORS.input,
     height: 50,
-    borderRadius: SIZES.radius,
+    borderRadius: SIZES.radius_sm,
     borderWidth: 1,
     borderColor: COLORS.title,
     paddingHorizontal: 12,

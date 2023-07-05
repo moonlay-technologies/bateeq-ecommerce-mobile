@@ -12,6 +12,7 @@ import Header from '../../layout/Header';
 import NoContent from '../../components/NoContent';
 import { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout, resetNavigation } from '../../store/actions';
 import Button from '../../components/ButtonComponent';
+import TextArea from '../../components/InputTextArea';
 
 function CartScreen({ navigation, route, ...props }) {
   const { cartId, CartGetList, lists, CartDeleteListOfItem, CreateCheckout: createCheckout, userInfo, loading } = props;
@@ -113,7 +114,8 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))}
+          }))
+        }
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -206,7 +208,8 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))}
+                          }))
+                        }
                       />
                     }
                   />
@@ -214,22 +217,14 @@ function CartScreen({ navigation, route, ...props }) {
               );
             })
           )}
-          <View style={{ padding: 20 }}>
-            <Text style={{ ...FONTS.fontSatoshiBold, marginBottom: 12 }}>Special Instruction</Text>
-            <TextInput
-              underlineColorAndroid="transparent"
+
+          <View style={{ padding: 5 }}>
+            <TextArea
+              label="Special Instruction"
+              labelStyle={{ ...FONTS.fontSatoshiBold, marginBottom: 8, color: COLORS.title }}
               placeholder="Write Instruction Here..."
-              placeholderTextColor="gray"
-              numberOfLines={5}
-              multiline
-              onChangeText={val => setNote(val)}
+              handleInputChange={val => setNote(val)}
               value={note}
-              style={{
-                borderWidth: 1,
-                textAlignVertical: 'top',
-                padding: 15,
-                ...FONTS.fontSatoshiRegular,
-              }}
             />
           </View>
           <View
