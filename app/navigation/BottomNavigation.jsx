@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Image, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 import { COLORS } from '../constants/theme';
 
 import footerMenuItem from './routes/footer-menu-item';
@@ -28,7 +28,16 @@ function CustomBottomNavigation({ isAuthenticated }) {
             const isFocused = name === selected;
             const onNavigate = (nav, nm) => {
               setSelected(nm);
-              navigation.navigate(`${nav}`);
+              if (isFocused && route.name === 'Home') {
+                navigation.dispatch(
+                  CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Home' }],
+                  })
+                );
+              } else {
+                navigation.navigate(`${nav}`);
+              }
             };
 
             return (
