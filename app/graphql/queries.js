@@ -28,6 +28,51 @@ export const GET_PRODUCT_RECOMMENDATION = `
   }
 `;
 
+export const GET_CART_LIST_BY_ID = `
+  query getCart($id: ID!) {
+    cart(id: $id) {
+      id
+      totalQuantity
+      lines(first: 10) {
+        nodes {
+          id
+          quantity
+          merchandise {
+            ... on ProductVariant {
+              product {
+                id
+                title
+              }
+              id
+              image {
+                url
+              }
+            }
+          }
+          attributes {
+            key
+            value
+          }
+          cost {
+            compareAtAmountPerQuantity {
+              currencyCode
+              amount
+            }
+            totalAmount {
+              amount
+              currencyCode
+            }
+            subtotalAmount {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const GET_PRODUCT_BY_ID = `
   query getProductById($id: ID!) {
     product(id: $id) {
@@ -361,7 +406,7 @@ export const __GQL_GET_PRODUCT_LIST_BY_CATEGORY = `query GetProducts($first: Int
     }
   }`;
 
-  export const __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = `query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String,  $after: String ){
+export const __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = `query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String,  $after: String ){
     collection(handle: $handle){
       title
       handle
@@ -407,41 +452,42 @@ export const __GQL_GET_PRODUCT_LIST_BY_CATEGORY = `query GetProducts($first: Int
       }
     }
   }`;
-  export const GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = gql `query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String,  $after: String ){
-    collection(handle: $handle){
+export const GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = gql`
+  query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String, $after: String) {
+    collection(handle: $handle) {
       title
       handle
       products(first: $first, filters: $product_filters, after: $after) {
-         pageInfo {
+        pageInfo {
           hasNextPage
           endCursor
         }
-        filters{
+        filters {
           label
-          values{
+          values {
             label
             count
           }
         }
-        nodes{
+        nodes {
           id
           title
           description
           descriptionHtml
-          images(first: 1){
-            edges{
-              node{
+          images(first: 1) {
+            edges {
+              node {
                 url
               }
             }
           }
           availableForSale
-          variants(first: 1){
-            nodes{
-              price{
+          variants(first: 1) {
+            nodes {
+              price {
                 amount
               }
-              compareAtPrice{
+              compareAtPrice {
                 amount
               }
             }
@@ -449,7 +495,8 @@ export const __GQL_GET_PRODUCT_LIST_BY_CATEGORY = `query GetProducts($first: Int
         }
       }
     }
-  }`;
+  }
+`;
 
 export const GET_LIST_CATEGORIES = gql`
   query GetProducts($first: Int!, $query: String!, $after: String) {
