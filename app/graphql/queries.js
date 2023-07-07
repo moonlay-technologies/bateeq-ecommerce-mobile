@@ -453,8 +453,8 @@ export const __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = `query FilterP
     }
   }`;
 export const GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION = gql`
-  query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String, $after: String) {
-    collection(handle: $handle) {
+  query FilterProducts($product_filters: [ProductFilter!], $first: Int!, $handle: String, $after: String, $id: ID) {
+    collection(handle: $handle, id: $id) {
       title
       handle
       products(first: $first, filters: $product_filters, after: $after) {
@@ -548,12 +548,15 @@ export const GET_MAIN_MENU_NAVIGATION = gql`
         id
         title
         url
+        resourceId
         items {
           id
           title
+          resourceId
           items {
             id
             title
+            resourceId
           }
         }
       }
