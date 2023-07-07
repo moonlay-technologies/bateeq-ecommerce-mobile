@@ -1,5 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import {
+  Image,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import * as yup from 'yup';
 import { connect } from 'react-redux';
 import Swiper from 'react-native-swiper';
@@ -55,19 +64,19 @@ function ProductDetail(props) {
       }
       return pass;
     }),
-    variant_id: yup.string().required() ,
+    variant_id: yup.string().required(),
     cartId: yup.string().required(),
   });
 
   const { id } = route.params;
   const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
-  const [state, setState] = useState('idle')
+  const [state, setState] = useState('idle');
   const [qty, setQty] = useState(1);
   const [errors, setErrors] = useState({});
   const [variantId, setVariantId] = useState('');
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
-  const [isChangeId, setIsChangeId] = useState(false)
+  const [isChangeId, setIsChangeId] = useState(false);
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [notifState, setNotifState] = useState({
     show: false,
@@ -93,9 +102,9 @@ function ProductDetail(props) {
   }, [isChangeId]);
 
   useEffect(() => {
-    if(state === 'processing' && type === SUCCESS(CART_LINE_ITEM_ADD)) {
+    if (state === 'processing' && type === SUCCESS(CART_LINE_ITEM_ADD)) {
       setNotifState({
-        show: true
+        show: true,
       });
 
       setTimeout(() => {
@@ -113,10 +122,9 @@ function ProductDetail(props) {
         last: 0,
         id: cartId,
       });
-      setState('idle')
-    } 
-
-  },[cartLoading, type])
+      setState('idle');
+    }
+  }, [cartLoading, type]);
 
   useEffect(() => {
     const colorOptions = [];
@@ -177,7 +185,7 @@ function ProductDetail(props) {
   useEffect(() => {
     if (productData?.variants?.length > 0) {
       const varId = findVariantIdByOptions(productData?.variants, variantOptions);
-  
+
       if (varId) {
         setVariantId(varId);
       } else {
@@ -188,71 +196,70 @@ function ProductDetail(props) {
 
   const onSubmit = () => {
     setOnSubmitLoading(true);
-    setState('processing')
-      const body = {
-        quantity: qty,
-        size: variantOptions.size,
-        color: variantOptions.color,
-        variant_id: variantId || '',
-        cartId: cartId || '',
-      };
-      schema
-        .validate(body, { abortEarly: false })
-        .then(async result => {
-          const payload = {
-            cartId: result.cartId,
-            lines: [
-              {
-                merchandiseId: result.variant_id,
-                quantity: result.quantity,
-                attributes: [
-                  ...(result?.color ? [{ key: 'Color', value: result.color }] : []),
-                  {
-                    key: 'Size',
-                    value: result?.size,
-                  },
-                ],
-              },
-            ],
-          };
-          cartLineItemAdd(payload)
-          setOnSubmitLoading(false);
-        })
-        .catch(error => {
-          if (error.name === 'ValidationError') {
-            if(error.inner.find(i => i.path === 'variant_id') || error.inner.find(i => i.path === 'cartId')) {
-              if(error.inner.find(i => i.path === 'variant_id') ) {
-                Toast.show({
-                  type: 'error',
-                  text1: 'Variant not available for the selected options.',
-                  text2: 'Please choose different options.',
-                });
-              }
-              if(error.inner.find(i => i.path === 'cartId')) {
-                Toast.show({
-                  type: 'error',
-                  text1: 'The cart id is missing',
-                  text2: 'Please provide the valid ID',
-                });
-              }
-       
+    setState('processing');
+    const body = {
+      quantity: qty,
+      size: variantOptions.size,
+      color: variantOptions.color,
+      variant_id: variantId || '',
+      cartId: cartId || '',
+    };
+    schema
+      .validate(body, { abortEarly: false })
+      .then(async result => {
+        const payload = {
+          cartId: result.cartId,
+          lines: [
+            {
+              merchandiseId: result.variant_id,
+              quantity: result.quantity,
+              attributes: [
+                ...(result?.color ? [{ key: 'Color', value: result.color }] : []),
+                {
+                  key: 'Size',
+                  value: result?.size,
+                },
+              ],
+            },
+          ],
+        };
+        cartLineItemAdd(payload);
+        setOnSubmitLoading(false);
+      })
+      .catch(error => {
+        if (error.name === 'ValidationError') {
+          if (error.inner.find(i => i.path === 'variant_id') || error.inner.find(i => i.path === 'cartId')) {
+            if (error.inner.find(i => i.path === 'variant_id')) {
+              Toast.show({
+                type: 'error',
+                text1: 'Variant not available for the selected options.',
+                text2: 'Please choose different options.',
+              });
             }
-            const errorsVal = error.inner.reduce((acc, err) => {
-              const { path, message } = err;
-              acc[path] = message;
-              return acc;
-            }, {});
-
-            setErrors(errorsVal);
-          } else {
-            Toast.show({
-              type: 'error',
-              text1: 'oops!',
-              text2: error?.originalError?.message || 'something went wrong',
-            });
+            if (error.inner.find(i => i.path === 'cartId')) {
+              Toast.show({
+                type: 'error',
+                text1: 'The cart id is missing',
+                text2: 'Please provide the valid ID',
+              });
+            }
           }
-          setOnSubmitLoading(false);
-        });
+          const errorsVal = error.inner.reduce((acc, err) => {
+            const { path, message } = err;
+            acc[path] = message;
+            return acc;
+          }, {});
+
+          setErrors(errorsVal);
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'oops!',
+            text2: error?.originalError?.message || 'something went wrong',
+          });
+        }
+        setOnSubmitLoading(false);
+      });
   };
 
   const handleQuantity = type => {
@@ -318,12 +325,12 @@ function ProductDetail(props) {
             <Text style={styles.title}>{productData?.title || ''}</Text>
             <View style={{ flexDirection: 'column', alignItems: 'center' }}>
               {amount.original_price && (
-                <Text style={styles.lineAmount}>
+                <Text style={styles.amount}>
                   {`${amount.currencyCode} ${formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}`}
                 </Text>
               )}
               {amount.discounted_price && (
-                <Text style={styles.amount}>
+                <Text style={styles.lineAmount}>
                   {`${amount.currencyCode} ${formatWithCommas(Number(amount.discounted_price * qty).toLocaleString())}`}
                 </Text>
               )}
@@ -393,7 +400,6 @@ function ProductDetail(props) {
                   </TouchableOpacity>
                   <Text style={styles.quantity}>{qty}</Text>
                   <TouchableOpacity
-                 
                     onPress={() => handleQuantity('in')}
                     style={{ ...styles.icon, backgroundColor: COLORS.black }}
                   >
@@ -449,14 +455,13 @@ function ProductDetail(props) {
                           }}
                         >
                           <ProductCardStyle1
-                               onPress={() => {
-                                setIsChangeId(prev => !prev)
-                                navigation.navigate('ProductDetail', {
-                                  id: productRecommendationId,
-                                })
-                                scrollViewRef.current.scrollTo({ y: 0, animated: false });
-                               }
-                              }
+                            onPress={() => {
+                              setIsChangeId(prev => !prev);
+                              navigation.navigate('ProductDetail', {
+                                id: productRecommendationId,
+                              });
+                              scrollViewRef.current.scrollTo({ y: 0, animated: false });
+                            }}
                             imageSrc={image}
                             title={title}
                             price={price}
@@ -477,23 +482,25 @@ function ProductDetail(props) {
 
       <Notification visible={notifState.show} text={notifState.text} navText={notifState.navText} to={notifState.to} />
 
-      <View style={{
-          display: 'flex', 
-          flexDirection: 'row', 
+      <View
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
           paddingHorizontal: 15,
           paddingVertical: 12,
-        }}>
-        <View style={{width: '100%'}}>
+        }}
+      >
+        <View style={{ width: '100%' }}>
           <Button
             onPress={onSubmit}
             title={onSubmitLoading || cartLoading ? 'Loading ...' : 'Add to Cart'}
             iconSize={20}
-            iconName='shopping-bag'
+            iconName="shopping-bag"
             icon={FeatherIcon}
-            disabled={onSubmitLoading || cartLoading }
+            disabled={onSubmitLoading || cartLoading}
           />
-          </View>
         </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -507,9 +514,17 @@ export default connect(
       },
     } = Product;
 
-    return { cartId: options?.cartId, productData, loading, recommendationProducts, recommendationLoading, cartLoading:options?.loading , type: Cart?.type || ''};
+    return {
+      cartId: options?.cartId,
+      productData,
+      loading,
+      recommendationProducts,
+      recommendationLoading,
+      cartLoading: options?.loading,
+      type: Cart?.type || '',
+    };
   },
-  { CartGetList, getProductById, getProductRecommendation , CartLineItemAdd}
+  { CartGetList, getProductById, getProductRecommendation, CartLineItemAdd }
 )(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
