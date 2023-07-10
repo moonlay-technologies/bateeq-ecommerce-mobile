@@ -3,7 +3,7 @@ import { useColorScheme, Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { connect } from 'react-redux';
 import Routes from './app/navigation/Route';
-import { LoadUsers, setToken } from './app/store/actions/user';
+import { LoadUsers, setToken } from './app/store/actions';
 import { themeColor } from './app/store/actions';
 
 function App({ ...props }) {
@@ -23,24 +23,8 @@ function App({ ...props }) {
       LoadUsers({
         accessToken: val,
       });
-
-      // if (val) {
-      //   setToken(val);
-      //   setNewToken(val);
-      // }
-      // setNewLoad(false);
     });
-    // }
   }, [LoadUsers, isLogin]);
-
-  // useEffect(() => {
-  //   // if (!newLoad) {
-  //     LoadUsers({
-  //       accessToken: options?.token,
-  //     });
-  //   // }
-  // }, [LoadUsers, newLoad,options?.token, newToken]);
-
   useEffect(() => {
     const handleAppearanceChange = ({ colorScheme }) => {
       setTheme(colorScheme);

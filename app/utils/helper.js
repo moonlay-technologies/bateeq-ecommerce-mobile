@@ -17,6 +17,12 @@ export const renderHTMLContent = html => {
   });
 };
 
+export function priceToPercent(price, compare){
+  let newPrice = Number(price ?? 0)
+  let newCompare = Number(compare ?? 0)
+  return ((newCompare - price ) / newCompare) * 100
+}
+
 /**
  * @param {object} data
  * @param {string|Array} key
@@ -66,20 +72,11 @@ export const findVariantIdByOptions = (product, options) => {
 };
 
 export function getSrcInTag(html) {
-  // let pattern = /(?<=src=").*?(?=["])/g
-  // let src = html.match(pattern)
   return html;
-  // return Array.isArray(src) && src.length > 0 ? src[0]: null
 }
 
 export function getIframeHtml(html) {
-  // let patternIframe = /<iframe.*?<\/iframe>/
-
   try {
-    // let iframe = html.match(patternIframe)
-    // if(Array.isArray(iframe) && iframe.length > 0){
-    //   iframe = iframe.map((item)=> item.replace(/style="(.*?)"/,' '))
-    // }
     return html;
   } catch (err) {
     return null;

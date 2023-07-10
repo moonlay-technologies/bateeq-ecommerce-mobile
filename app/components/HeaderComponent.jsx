@@ -12,12 +12,14 @@ import Logo from '../assets/images/logo.png';
 import { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList } from '../store/actions';
 
 /**
- * @param {string} icon
- * @param {string} title
- * @param backAction
- * @param {boolean} withoutCartAndLogo
- * @param dataPageStory
- * @param options
+ * @param {object} props
+ * @param {object | undefined} props.style
+ * @param {string} props.icon
+ * @param {string} props.title
+ * @param {boolean} props.backAction
+ * @param {boolean} props.withoutCartAndLogo
+ * @param props.dataPageStory
+ * @param props.options
  * @param props
  * @returns {JSX.Element}
  * @constructor
@@ -35,6 +37,12 @@ function HeaderComponent({ ...props }) {
     getAddressList: getAddress,
     token,
     backFunc,
+    style = {
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: 45,
+      backgroundColor: COLORS.white,
+    }
   } = props;
   const navigation = useNavigation();
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
@@ -128,11 +136,8 @@ function HeaderComponent({ ...props }) {
     <View>
       <View
         style={{
+          ...style,
           ...(title ? { marginLeft: -5, marginTop: 5 } : { justifyContent: 'space-between' }),
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          backgroundColor: COLORS.white,
         }}
       >
         <IconButton icon={() => leftIcon(icon, title)} size={25} onPress={backFunc || onPressLeft} />

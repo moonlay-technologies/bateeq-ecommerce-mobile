@@ -34,7 +34,7 @@ const CustomHTML = ({ htmlContent, limit, blog_id, dataPages, ...props }) => {
   if (htmlContent && typeof htmlContent === 'string') {
     const paragraphEndIndex = htmlContent.indexOf('</p>') + 4;
     const previewText = htmlContent.slice(0, paragraphEndIndex);
-
+    
     return (
       <View style={styles.container}>
         {dataPages?.title === 'Contact Us' && <DeliveryMap />}

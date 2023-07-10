@@ -1,4 +1,4 @@
-package com.w3wedo.newarchitecture;
+package com.bateeq.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.fabric.ReactNativeConfig;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.w3wedo.BuildConfig;
-import com.w3wedo.newarchitecture.components.MainComponentsRegistry;
-import com.w3wedo.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.bateeq.BuildConfig;
+import com.bateeq.newarchitecture.components.MainComponentsRegistry;
+import com.bateeq.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 
