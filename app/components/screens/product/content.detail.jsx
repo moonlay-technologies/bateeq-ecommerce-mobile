@@ -28,7 +28,6 @@ function ContentDetail(props)  {
     setVisible(!visible)
   }
   
-
   return (
    <View style={{marginBottom:10,paddingHorizontal:15}}>
      <Text style={{fontSize:16,marginBottom:10,fontWeight:"bold",color:"#000000"}}>Detail Product</Text>
