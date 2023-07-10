@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) {
+function MenuItem({ item, subSubItem, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) {
   const navigation = useNavigation();
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const menuItemRef = useRef(null);
@@ -21,14 +21,13 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
     if (isSubMenuOpen) {
       hideSubMenu();
     } else {
-      showSubMenu();
-    }
-
-    if (item.id === 'gid://shopify/MenuItem/519458652443') {
-      navigation.navigate('Items', { handle: 'special-offer-3-3', subTitle: 'SALE' });
-    }
-    if (item.id === 'gid://shopify/MenuItem/519530053915') {
-      navigation.navigate('PagesInShopify', { dataPages: dataStory });
+      if (item?.items?.length > 0) {
+        showSubMenu();
+      } else if (item.id === 'gid://shopify/MenuItem/519530053915') {
+        navigation.navigate('PagesInShopify', { dataPages: dataStory });
+      } else {
+        navigation.navigate('Items', { id: item.resourceId, subTitle: item.title });
+      }
     }
   };
 
@@ -75,63 +74,10 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
     { top: modalPosition.top, left: modalPosition.left, opacity: fadeAnimation },
   ];
 
-  const handleSubItemPress = subItem => {
-    switch (subItem?.id) {
-      case 'gid://shopify/MenuItem/538806976795':
-        navigation.navigate('Items', { handle: 'tampa-1', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/526979334427':
-        navigation.navigate('Items', { handle: 'kamala-collections', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845440795':
-        navigation.navigate('Items', { handle: 'padma', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845473563':
-        navigation.navigate('Items', { handle: 'peksi-kawung', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/526979137819':
-        navigation.navigate('Items', { handle: 'samara', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845571867':
-        navigation.navigate('Items', { handle: 'loka', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845408027':
-        navigation.navigate('Items', { handle: 'cakiyar', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/526526349595':
-        navigation.navigate('Items', { handle: 'monez', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845276955':
-        navigation.navigate('Items', { handle: 'miwiti-collection', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845309723':
-        navigation.navigate('Items', { handle: 'nalika-collection', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/526979367195':
-        navigation.navigate('Items', { handle: 'zora', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845342491':
-        navigation.navigate('Items', { handle: 'danadyaksa-collection', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/521845244187':
-        navigation.navigate('Items', { handle: 'nostalgia-collection', subTitle: subItem.title });
-        break;
-      case 'gid://shopify/MenuItem/519704019227':
-        navigation.navigate('Items', { handle: 'shirt-1', subTitle: 'MEN' });
-        break;
-      case 'gid://shopify/MenuItem/519704051995':
-        navigation.navigate('Items', { handle: 'outer', subTitle: 'WOMEN' });
-        break;
-      case 'gid://shopify/MenuItem/525267632411':
-        navigation.navigate('Items', { handle: 'boys', subTitle: 'KIDS' });
-        break;
-      default:
-        navigation.navigate('Items', { handle: subItem.title, subTitle: subItem.title });
-        break;
-    }
-  };
-
   const renderSubMenuItems = items => {
+    if (items.length === 0) {
+      return null;
+    }
     return items.map(subItem => (
       <MenuItem
         key={subItem.id}
@@ -139,7 +85,7 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
         onCloseSubMenu={closeSubMenu}
         isSubMenuOpen={subMenuOpenStates[subItem.id] || false}
         setSubMenuOpen={value => toggleSubMenu(subItem.id, value)}
-        onPress={() => handleSubItemPress(subItem)}
+        dataStory={dataStory}
       />
     ));
   };
@@ -155,16 +101,7 @@ function MenuItem({ item, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataSto
             <View style={styles.modalContainer}>
               <Animated.View style={subMenuStyle}>
                 <ScrollView contentContainerStyle={styles.subMenuScrollContainer}>
-                  {item.items.map(subItem => (
-                    <MenuItem
-                      key={subItem.id}
-                      item={subItem}
-                      onCloseSubMenu={closeSubMenu}
-                      isSubMenuOpen={subMenuOpenStates[subItem.id] || false}
-                      setSubMenuOpen={value => toggleSubMenu(subItem.id, value)}
-                      onPress={() => handleSubItemPress(subItem)}
-                    />
-                  ))}
+                  {renderSubMenuItems(item.items)}
                 </ScrollView>
               </Animated.View>
             </View>

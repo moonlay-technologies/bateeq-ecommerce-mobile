@@ -13,7 +13,7 @@ import {
 import FilterModal from '../../components/screens/items/filter-product';
 
 const Items = ({ navigation, route }) => {
-  const { handle, categories, subTitle, dataStock } = route.params;
+  const { handle, subTitle, id } = route.params;
   const [itemView, setItemView] = useState('grid');
   const [dataCategories, setDataCategories] = useState([]);
   const [dataFilters, setDataFilters] = useState([]);
@@ -33,6 +33,7 @@ const Items = ({ navigation, route }) => {
     variables: {
       first: 5,
       handle: handle,
+      id: id,
       after: null,
       product_filters: {
         ...(availability.inStock ? { available: true } : availability.outStock ? { available: false } : {}),
@@ -64,6 +65,7 @@ const Items = ({ navigation, route }) => {
           variables: {
             first: 5,
             handle: handle,
+            id: id,
             after: endCursor,
             product_filters: {
               ...(availability.inStock ? { available: true } : availability.outStock ? { available: false } : {}),
