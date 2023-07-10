@@ -1,4 +1,4 @@
-package com.w3wedo.newarchitecture.modules;
+package com.bateeq.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

@@ -7,6 +7,7 @@ import LoadingScreen from '../../components/LoadingView';
 import { findKey } from '../../utils/helper';
 import Modal from '../../components/ActionModalComponent';
 import HeaderComponent from '../../components/HeaderComponent';
+import Environment from '../../config/Environment';
 import ViewAddressList from '../../components/screens/checkout/address-list';
 import { getAddressList, updateDefaultCustomerAddress, CreateCheckout } from '../../store/actions';
 import { COLORS } from '../../constants/theme';
@@ -17,6 +18,7 @@ function CheckoutScreen({
   updateDefaultCustomerAddress: updateDefaultAddress,
   CreateCheckout: createCheckout,
   token,
+  ...props
 }) {
   const webViewRef = useRef(null);
   const navigation = useNavigation();
@@ -166,8 +168,7 @@ function CheckoutScreen({
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         style={{
           position: 'relative',
           top: '35%',
@@ -184,9 +185,19 @@ function CheckoutScreen({
       {/* setToLocalStorage */}
       <WebView
         ref={webViewRef}
+        // startInLoadingState={true}
+        // onLoadEnd={() => webviewEl.postPostMessage('red')}
+        // onMessage={e => onTest(e)}
         injectedJavaScript={routeInject}
         onMessage={handleWebViewMessage}
-        source={{ uri: findKey(checkout, ['data', 'webUrl']) }}
+        source={{
+          uri: findKey(checkout, ['data', 'webUrl']),
+          headers: {
+            'X-Shopify-Customer-Access-Token': props?.User?.options?.token ?? null,
+            'X-Shopify-Access-Token': Environment.AccessToken,
+            'X-Shopify-Storefront-Access-Token': Environment.StorefrontToken,
+          },
+        }}
         style={{ flex: 1 }}
         onLoadEnd={handleLoadEnd}
         onNavigationStateChange={handleNavigationStateChange}

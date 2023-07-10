@@ -14,6 +14,7 @@ const renderers = {
 
 const PagesInShopify = ({route}) => {
   const {dataPages} = route.params;
+  console.log([dataPages])
   const screen = useWindowDimensions()
   // console.log({dataPages})
   return (

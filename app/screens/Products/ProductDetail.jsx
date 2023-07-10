@@ -1,33 +1,32 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions,
+  useWindowDimensions
 } from 'react-native';
 import * as yup from 'yup';
-import { connect } from 'react-redux';
-import Swiper from 'react-native-swiper';
+import {connect} from 'react-redux';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message';
-import { CartGetList, CartLineItemAdd, getProductById, getProductRecommendation } from '../../store/actions';
-import { formatWithCommas, findVariantIdByOptions } from '../../utils/helper';
-import { Footer, ShowHideProductDetail } from '../../components/Footer';
+import {CartGetList, CartLineItemAdd, getProductById, getProductRecommendation} from '../../store/actions';
+import {findVariantIdByOptions} from '../../utils/helper';
+import {Footer, ShowHideProductDetail} from '../../components/Footer';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
 import Notification from '../../components/NotificationComponent';
 import HeaderComponent from '../../components/HeaderComponent';
 import LoadingScreen from '../../components/LoadingView';
 import SelectInput from '../../components/SelectInput';
 import Button from '../../components/ButtonComponent';
-import CustomHTML from '../../components/CustomHtml';
-import { COLORS, FONTS } from '../../constants/theme';
-import { SUCCESS } from '../../store/actions/action.type';
-import { CART_LINE_ITEM_ADD } from '../../store/constants';
+import {COLORS, FONTS} from '../../constants/theme';
+import {SUCCESS} from '../../store/actions/action.type';
+import {CART_LINE_ITEM_ADD} from '../../store/constants';
+import Sliders from "../../components/shared-components/sliders";
+import SummaryDetail from "../../components/screens/product/summary.detail";
+import ContentDetail from "../../components/screens/product/content.detail";
 
 function ProductDetail(props) {
   const {
@@ -45,12 +44,12 @@ function ProductDetail(props) {
     recommendationProducts,
     recommendationLoading,
   } = props;
-
+  
   const [options, setOptions] = useState({
     color: [],
     size: [],
   });
-
+  
   const schema = yup.object().shape({
     quantity: yup.number().required(),
     size: yup.string().required(),
@@ -67,16 +66,16 @@ function ProductDetail(props) {
     variant_id: yup.string().required(),
     cartId: yup.string().required(),
   });
-
-  const { id } = route.params;
+  
+  const {id} = route.params;
   const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
-  const [state, setState] = useState('idle');
+  const [state, setState] = useState('idle')
   const [qty, setQty] = useState(1);
   const [errors, setErrors] = useState({});
   const [variantId, setVariantId] = useState('');
   const [onSubmitLoading, setOnSubmitLoading] = useState(false);
-  const [isChangeId, setIsChangeId] = useState(false);
+  const [isChangeId, setIsChangeId] = useState(false)
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [notifState, setNotifState] = useState({
     show: false,
@@ -84,54 +83,55 @@ function ProductDetail(props) {
     navText: '',
     to: '',
   });
-
+  
   const [amount, setAmount] = useState({
     currencyCode: '',
     original_price: '',
     discounted_price: '',
   });
-
+  
   const [variantOptions, setvariantOptions] = useState({
     size: '',
     color: '',
   });
-
+  
   useEffect(() => {
-    getProductId({ id });
-    getRecommendation({ id });
+    getProductId({id});
+    getRecommendation({id});
   }, [isChangeId]);
-
+  
   useEffect(() => {
     if (state === 'processing' && type === SUCCESS(CART_LINE_ITEM_ADD)) {
       setNotifState({
-        show: true,
+        show: true
       });
-
+      
       setTimeout(() => {
-        setNotifState({ show: false, text: '', navText: '', to: '' });
+        setNotifState({show: false, text: '', navText: '', to: ''});
       }, 5000);
       setErrors({});
-
+      
       setvariantOptions({
         size: '',
         color: '',
       });
-
+      
       cartGetList({
         first: 10,
         last: 0,
         id: cartId,
       });
-      setState('idle');
+      setState('idle')
     }
-  }, [cartLoading, type]);
-
+    
+  }, [cartLoading, type])
+  
   useEffect(() => {
     const colorOptions = [];
     const sizeOptions = [];
     if (productData.options && productData.variants) {
       const optionsVariant = productData?.options || [];
-
+      
       optionsVariant.forEach(option => {
         if (option.name.toLowerCase() === 'color') {
           colorOptions.push(
@@ -150,7 +150,7 @@ function ProductDetail(props) {
           );
         }
       });
-
+      
       const variantData = productData.variants[0];
       setvariantOptions({
         size: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'size')?.value,
@@ -167,25 +167,18 @@ function ProductDetail(props) {
       });
     }
   }, [productData]);
-
+  
   const onSelectValue = (type, value) => {
-    if (type === 'size') {
-      setvariantOptions(prev => ({
-        ...prev,
-        size: value,
-      }));
-    } else if (type === 'color') {
-      setvariantOptions(prev => ({
-        ...prev,
-        color: value,
-      }));
-    }
+    setvariantOptions((prev)=> ({
+      ...prev,
+      [type]: value
+    }))
   };
-
+  
   useEffect(() => {
     if (productData?.variants?.length > 0) {
       const varId = findVariantIdByOptions(productData?.variants, variantOptions);
-
+      
       if (varId) {
         setVariantId(varId);
       } else {
@@ -193,10 +186,10 @@ function ProductDetail(props) {
       }
     }
   }, [variantOptions]);
-
+  
   const onSubmit = () => {
     setOnSubmitLoading(true);
-    setState('processing');
+    setState('processing')
     const body = {
       quantity: qty,
       size: variantOptions.size,
@@ -205,7 +198,7 @@ function ProductDetail(props) {
       cartId: cartId || '',
     };
     schema
-      .validate(body, { abortEarly: false })
+      .validate(body, {abortEarly: false})
       .then(async result => {
         const payload = {
           cartId: result.cartId,
@@ -214,7 +207,7 @@ function ProductDetail(props) {
               merchandiseId: result.variant_id,
               quantity: result.quantity,
               attributes: [
-                ...(result?.color ? [{ key: 'Color', value: result.color }] : []),
+                ...(result?.color ? [{key: 'Color', value: result.color}] : []),
                 {
                   key: 'Size',
                   value: result?.size,
@@ -223,7 +216,7 @@ function ProductDetail(props) {
             },
           ],
         };
-        cartLineItemAdd(payload);
+        cartLineItemAdd(payload)
         setOnSubmitLoading(false);
       })
       .catch(error => {
@@ -243,13 +236,14 @@ function ProductDetail(props) {
                 text2: 'Please provide the valid ID',
               });
             }
+            
           }
           const errorsVal = error.inner.reduce((acc, err) => {
-            const { path, message } = err;
+            const {path, message} = err;
             acc[path] = message;
             return acc;
           }, {});
-
+          
           setErrors(errorsVal);
         } else {
           Toast.show({
@@ -261,7 +255,7 @@ function ProductDetail(props) {
         setOnSubmitLoading(false);
       });
   };
-
+  
   const handleQuantity = type => {
     if (type === 'de') {
       if (qty > 1) {
@@ -277,7 +271,7 @@ function ProductDetail(props) {
       }
     }
   };
-
+  
   useEffect(() => {
     if (recommendationProducts.length > 0) {
       const shuffledProductsRecommendations = recommendationProducts.sort(() => 0.5 - Math.random());
@@ -285,91 +279,87 @@ function ProductDetail(props) {
       setRandomProductsRecommendation(selectedProducts);
     }
   }, [recommendationProducts]);
-
+  
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.backgroundColor }}>
+    <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor}}>
+      <HeaderComponent
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          height: 60,
+          backgroundColor: COLORS.white,
+        }}
+        withoutCartAndLogo={false} backAction icon="back"/>
       <ScrollView ref={scrollViewRef}>
-        <HeaderComponent />
-        <View style={{ paddingHorizontal: 20 }}>
-          <HeaderComponent withoutCartAndLogo backAction icon="back" title="Back" />
-        </View>
-        <View style={{ paddingHorizontal: 20 }}>
+        
+        <View>
           {loading ? (
-            <LoadingScreen type="circle" />
+            <LoadingScreen type="circle"/>
           ) : (
-            <Swiper style={{ height: 500 }} dotStyle={styles.dotStyle} activeDotStyle={styles.activeDotStyle}>
-              {productData?.images?.length > 0 &&
-                productData?.images?.map(dt => {
-                  return (
-                    <View key={dt.id}>
-                      <Image
-                        source={{ uri: dt.node.url }}
-                        style={{
-                          width: '100%',
-                          height: undefined,
-                          aspectRatio: 200 / 300,
-                        }}
-                      />
-                      <LinearGradient
-                        style={styles.linear}
-                        colors={['rgba(0,0,0,.3)', 'rgba(0,0,0,0)', 'rgba(0,0,0,0)']}
-                      />
-                    </View>
-                  );
-                })}
-            </Swiper>
+            <Sliders
+              data={productData?.images.map((item) => ({
+                ...item,
+                url: item?.node?.url ?? null
+              }))}
+              keyUri={['url']}
+              keyUnique={['id']}
+              swiper={{
+                height: 300
+              }}
+            />
           )}
         </View>
-        <View style={{ paddingHorizontal: 20 }}>
+        
+        
+        <View>
           <View style={styles.section}>
-            <Text style={styles.title}>{productData?.title || ''}</Text>
-            <View style={{ flexDirection: 'column', alignItems: 'center' }}>
-              {amount.original_price && (
-                <Text style={styles.amount}>
-                  {`${amount.currencyCode} ${formatWithCommas((Number(amount.original_price) * qty).toLocaleString())}`}
-                </Text>
-              )}
-              {amount.discounted_price && (
-                <Text style={styles.lineAmount}>
-                  {`${amount.currencyCode} ${formatWithCommas(Number(amount.discounted_price * qty).toLocaleString())}`}
-                </Text>
-              )}
-            </View>
-            {productData && <CustomHTML htmlContent={productData.descriptionHtml} />}
-
-            <View style={{ width: '100%', marginTop: 10 }}>
-              <SelectInput
-                label="Choose Size"
-                name="size"
-                options={options.size}
-                onSelect={val => onSelectValue('size', val)}
-                placeholder="Choose Size"
-                customDetail
-                errors={errors}
-              />
-              {options.color.length > 0 && (
-                <SelectInput
-                  label="Choose Color"
-                  name="color"
-                  options={options.color}
-                  onSelect={val => onSelectValue('color', val)}
-                  placeholder="Choose Color"
-                  customDetail
-                  errors={errors}
-                />
-              )}
-
+            <SummaryDetail
+              data={productData}
+              title={productData?.title ?? "-"}
+              price={{
+                regular:Number(amount.original_price) ?? 0,
+                prefix:amount.currencyCode ?? "-",
+                discount:amount.discounted_price ? amount.original_price !== amount.discounted_price ? Number(amount.discounted_price) : false: false,
+                discount_prefix:"%"
+              }}
+            />
+            
+            <View style={{height:3,marginBottom:15,width:"100%",backgroundColor:"rgba(211,211,211,0.25)"}}/>
+            
+            <ContentDetail data={productData}/>
+            
+            
+            <View style={{width: '100%', marginTop: 10, paddingHorizontal:15}}>
+              
+              {
+                Object.entries(options).map(([key,value])=> {
+                  return Array.isArray(value) && value.length > 0 && (
+                    <View style={{flex:1}} key={`product-detail-options-${key}`}>
+                      <SelectInput
+                        label={`Choose ${key}`}
+                        name={key}
+                        onSelect={(val)=> onSelectValue(key,val)}
+                        placeholder={`Choose ${key}`}
+                        customDetail
+                        errors={errors}
+                        options={Array.isArray(value) && value.length > 0 ? value : []}
+                      />
+                    </View>
+                  )
+                })
+              }
+              
               <View>
-                <View style={{ marginTop: -30, marginBottom: 10 }}>
+                <View style={{marginTop: -30, marginBottom: 10}}>
                   {productData?.totalInventory <= 0 ? (
                     <View style={styles.container}>
-                      <Text style={{ ...styles.text, color: COLORS.danger }}>
+                      <Text style={{...styles.text, color: COLORS.danger}}>
                         * Temporarily out of stock: Please check back later
                       </Text>
                     </View>
                   ) : productData?.totalInventory <= 5 && productData?.totalInventory > 0 ? (
                     <View style={styles.container}>
-                      <Text style={{ ...styles.text, color: COLORS.orangeWarning }}>
+                      <Text style={{...styles.text, color: COLORS.orangeWarning}}>
                         {`Grab yours now! Limited quantity: ${productData?.totalInventory} left.`}
                       </Text>
                     </View>
@@ -383,7 +373,7 @@ function ProductDetail(props) {
                   }}
                 >
                   {`Quantity`}
-                  <Text style={{ color: COLORS.danger }}>*</Text>
+                  <Text style={{color: COLORS.danger}}>*</Text>
                 </Text>
                 <View
                   style={{
@@ -394,24 +384,28 @@ function ProductDetail(props) {
                   <TouchableOpacity
                     //
                     onPress={() => handleQuantity('de')}
-                    style={{ ...styles.icon, backgroundColor: COLORS.mediumGray }}
+                    style={{...styles.icon, backgroundColor: COLORS.mediumGray}}
                   >
-                    <FeatherIcon size={14} color={COLORS.white} name="minus" />
+                    <FeatherIcon size={14} color={COLORS.white} name="minus"/>
                   </TouchableOpacity>
                   <Text style={styles.quantity}>{qty}</Text>
                   <TouchableOpacity
+                    
                     onPress={() => handleQuantity('in')}
-                    style={{ ...styles.icon, backgroundColor: COLORS.black }}
+                    style={{...styles.icon, backgroundColor: COLORS.black}}
                   >
-                    <FeatherIcon size={14} color={COLORS.white} name="plus" />
+                    <FeatherIcon size={14} color={COLORS.white} name="plus"/>
                   </TouchableOpacity>
                 </View>
-                <ShowHideProductDetail />
+                <ShowHideProductDetail/>
               </View>
             </View>
+          
+          
           </View>
           <View
             style={{
+              paddingHorizontal:15,
               marginTop: 20,
               paddingTop: 12,
               borderTopWidth: 1,
@@ -428,7 +422,7 @@ function ProductDetail(props) {
             >
               You May Also Like
             </Text>
-            <View style={{ marginBottom: 10 }}>
+            <View style={{marginBottom: 10}}>
               <View
                 style={{
                   marginBottom: 25,
@@ -438,11 +432,11 @@ function ProductDetail(props) {
                 }}
               >
                 {recommendationLoading ? (
-                  <LoadingScreen type="circle" />
+                  <LoadingScreen type="circle"/>
                 ) : (
                   randomProductsRecommendation.length > 0 &&
                   randomProductsRecommendation.map(
-                    ({ image, title, price, compareAtPrice, id: productRecommendationId }) => {
+                    ({image, title, price, compareAtPrice, id: productRecommendationId}) => {
                       return (
                         <View
                           key={productRecommendationId}
@@ -456,12 +450,13 @@ function ProductDetail(props) {
                         >
                           <ProductCardStyle1
                             onPress={() => {
-                              setIsChangeId(prev => !prev);
+                              setIsChangeId(prev => !prev)
                               navigation.navigate('ProductDetail', {
                                 id: productRecommendationId,
-                              });
-                              scrollViewRef.current.scrollTo({ y: 0, animated: false });
-                            }}
+                              })
+                              scrollViewRef.current.scrollTo({y: 0, animated: false});
+                            }
+                            }
                             imageSrc={image}
                             title={title}
                             price={price}
@@ -476,26 +471,23 @@ function ProductDetail(props) {
             </View>
           </View>
         </View>
-
-        <Footer />
+        <Footer/>
       </ScrollView>
-
-      <Notification visible={notifState.show} text={notifState.text} navText={notifState.navText} to={notifState.to} />
-
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          paddingHorizontal: 15,
-          paddingVertical: 12,
-        }}
-      >
-        <View style={{ width: '100%' }}>
+      
+      <Notification visible={notifState.show} text={notifState.text} navText={notifState.navText} to={notifState.to}/>
+      
+      <View style={{
+        display: 'flex',
+        flexDirection: 'row',
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+      }}>
+        <View style={{width: '100%'}}>
           <Button
             onPress={onSubmit}
             title={onSubmitLoading || cartLoading ? 'Loading ...' : 'Add to Cart'}
             iconSize={20}
-            iconName="shopping-bag"
+            iconName='shopping-bag'
             icon={FeatherIcon}
             disabled={onSubmitLoading || cartLoading}
           />
@@ -504,27 +496,29 @@ function ProductDetail(props) {
     </SafeAreaView>
   );
 }
+
 export default connect(
-  ({ Cart, Product, User }) => {
-    const { options } = Cart;
+  ({Cart, Product, User}) => {
+    const {options} = Cart;
     const {
       collections: {
-        detail: { data: productData, loading },
-        recommendations: { data: recommendationProducts, loading: recommendationLoading },
+        detail: {data: productData, loading},
+        recommendations: {data: recommendationProducts, loading: recommendationLoading},
       },
     } = Product;
-
+    
     return {
+      Product,
       cartId: options?.cartId,
       productData,
       loading,
       recommendationProducts,
       recommendationLoading,
       cartLoading: options?.loading,
-      type: Cart?.type || '',
+      type: Cart?.type || ''
     };
   },
-  { CartGetList, getProductById, getProductRecommendation, CartLineItemAdd }
+  {CartGetList, getProductById, getProductRecommendation, CartLineItemAdd}
 )(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
@@ -572,7 +566,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
   },
-  section: { alignItems: 'flex-start', paddingBottom: 12 },
+  section: {alignItems: 'flex-start', paddingBottom: 12},
   quantity: {
     ...FONTS.fontSatoshiBold,
     color: COLORS.title,

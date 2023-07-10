@@ -3,6 +3,7 @@ import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'r
 import LinearGradient from 'react-native-linear-gradient';
 import Swiper from 'react-native-swiper';
 import { useQuery } from '@apollo/client';
+import { Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { connect } from 'react-redux';
 
@@ -85,6 +86,8 @@ function MainHome(props) {
       cartPutTotalQty({ totalQuantity: cartData?.cart?.totalQuantity });
     }
   }, [cartData]);
+  
+  
 
   return (
     <SafeAreaView

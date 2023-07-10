@@ -1,11 +1,12 @@
 import {create} from 'apisauce';
 import LocalStorage from 'local-storage';
+import Environment from "../../config/Environment";
 
 const api = create({
   baseURL: `https://bateeqshop.myshopify.com/admin/api/2023-04/`,
   headers: {
     'Content-Type': 'application/json',
-    'X-Shopify-Access-Token': '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',
+    'X-Shopify-Access-Token': Environment.AccessToken,
   },
 });
 

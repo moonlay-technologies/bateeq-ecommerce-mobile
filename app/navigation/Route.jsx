@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Animated, View } from 'react-native';
+import {Animated, Linking, View} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
@@ -8,11 +8,14 @@ import { connect } from 'react-redux';
 import SplashScreen from '../components/SplashScreen';
 import StackNavigator from './StackNavigator';
 import CustomDrawer from './DrawerNavigation';
-import { LoadUsers, setToken } from '../store/actions/user';
+import { LoadUsers, setToken } from '../store/actions';
 import BottomNavigation from './BottomNavigation';
 
 function Routes({ options, loading, isAuthenticated, isLogin }) {
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+// Configure deep linking
+//   const prefix = Linking?.ur('/'); // Set the desired prefix for deep links
 
   return (
     <PaperProvider>
