@@ -8,7 +8,6 @@ import {
   CREATE_ADDRESS,
   DELETE_ADDRESS,
   GET_ADDRESS_LIST,
-  REFETCH_ADDRESS_LIST,
   UPDATE_ADDRESS,
   UPDATE_DEFAULT_ADDRESS,
 } from '../constants/address';
@@ -26,6 +25,7 @@ export function* getUserAddress() {
       const query = gql`
         ${GET_CUSTOMER_ADDRESS}
       `;
+
       const response = yield call(client.query, {
         query,
         variables: {
@@ -47,24 +47,12 @@ export function* getUserAddress() {
         yield put({ type: SUCCESS(GET_ADDRESS_LIST), payload: newPayload });
       }
     } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: error?.message,
+      });
       yield put({
         type: FAILURE(GET_ADDRESS_LIST),
-      });
-    }
-  });
-}
-
-export function* refetchUserAddress() {
-  yield takeEvery(REQUEST(REFETCH_ADDRESS_LIST), function* ({ payload }) {
-    try {
-      const query = gql`
-        ${GET_CUSTOMER_ADDRESS}
-      `;
-      yield call(client.refetchQueries, [{ query, variables: { fetchPolicy: 'no-cache' } }]);
-      yield put({ type: SUCCESS(REFETCH_ADDRESS_LIST) });
-    } catch (error) {
-      yield put({
-        type: FAILURE(REFETCH_ADDRESS_LIST),
       });
     }
   });
@@ -157,7 +145,15 @@ export function* updateDefaultUserAddresses() {
 
       if (response.data.customerDefaultAddressUpdate.customer) {
         const newPayload = { id: payload?.addressId };
-        yield put({ type: SUCCESS(UPDATE_DEFAULT_ADDRESS), payload: newPayload });
+        const addressPayload = {
+          token: payload?.customerAccessToken,
+          limit: 20,
+        };
+
+        yield all([
+          put({ type: REQUEST(GET_ADDRESS_LIST), payload: addressPayload }),
+          put({ type: SUCCESS(UPDATE_DEFAULT_ADDRESS), payload: newPayload }),
+        ]);
       }
     } catch (error) {
       Toast.show({

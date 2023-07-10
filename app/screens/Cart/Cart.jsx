@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, TextInput, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -10,12 +10,29 @@ import LoadingScreen from '../../components/LoadingView';
 import Modal from '../../components/ActionModalComponent';
 import Header from '../../layout/Header';
 import NoContent from '../../components/NoContent';
-import { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout, resetNavigation } from '../../store/actions';
+import {
+  CartDeleteListOfItem,
+  CartGetList,
+  LoadUsers,
+  CreateCheckout,
+  resetNavigation,
+  getAddressList,
+} from '../../store/actions';
 import Button from '../../components/ButtonComponent';
 import TextArea from '../../components/InputTextArea';
 
 function CartScreen({ navigation, route, ...props }) {
-  const { cartId, CartGetList, lists, CartDeleteListOfItem, CreateCheckout: createCheckout, userInfo, loading } = props;
+  const {
+    cartId,
+    CartGetList,
+    lists,
+    CartDeleteListOfItem,
+    CreateCheckout: createCheckout,
+    userInfo,
+    loading,
+    getAddressList: getAddress,
+    token,
+  } = props;
   const dispatch = useDispatch();
   const navigationState = useSelector(state => state.Navigation.navigationState);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +47,10 @@ function CartScreen({ navigation, route, ...props }) {
     show: false,
     data: null,
   });
+
+  useEffect(() => {
+    getAddress({ token, limit: 10 });
+  }, []);
 
   useEffect(() => {
     if (navigationState.navigation) {
@@ -114,8 +135,7 @@ function CartScreen({ navigation, route, ...props }) {
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         submitText={isLoading ? 'Deleting ...' : 'Delete'}
         disabled={isLoading}
         onContinue={handleDelete}
@@ -208,8 +228,7 @@ function CartScreen({ navigation, route, ...props }) {
                           setShowModal(prev => ({
                             data: { lineIds: [lineId], title },
                             show: !prev.show,
-                          }))
-                        }
+                          }))}
                       />
                     }
                   />
@@ -264,7 +283,8 @@ export default connect(
       lists,
       userInfo,
       loading,
+      token: userOptions?.token,
     };
   },
-  { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout }
+  { CartDeleteListOfItem, CartGetList, LoadUsers, CreateCheckout, getAddressList }
 )(React.memo(CartScreen));

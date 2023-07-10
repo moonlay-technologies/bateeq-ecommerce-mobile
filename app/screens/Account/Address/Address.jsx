@@ -99,7 +99,8 @@ function AddressScreen(props) {
               setShowModal(prev => ({
                 ...prev,
                 show: !prev.show,
-              }))}
+              }))
+            }
             submitText={customerAddress?.loading ? 'Deleting ...' : 'Delete'}
             disabled={customerAddress?.loading}
             onContinue={handleDelete}
@@ -169,7 +170,8 @@ function AddressScreen(props) {
                         setShowModal(prev => ({
                           data: { id, company },
                           show: !prev.show,
-                        }))}
+                        }))
+                      }
                       title={<FeatherIcon name="trash-2" size={16} style={styles.icon} />}
                       style={{ borderColor: COLORS.danger, marginLeft: 20 }}
                       outline

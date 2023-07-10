@@ -6,7 +6,6 @@ import { MenuMasterItem, NotAuthenticatedItem } from './routes/menu-items';
 const StackComponent = createNativeStackNavigator();
 
 function StackNavigator({ isAuthenticated }) {
-  console.log('isAuthenticated', isAuthenticated);
   if (isAuthenticated) {
     return (
       <StackComponent.Navigator

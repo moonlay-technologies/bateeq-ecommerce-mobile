@@ -5,13 +5,29 @@ import { View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LoadingScreen from '../../components/LoadingView';
 import { findKey } from '../../utils/helper';
+import Modal from '../../components/ActionModalComponent';
 import HeaderComponent from '../../components/HeaderComponent';
+import ViewAddressList from '../../components/screens/checkout/address-list';
+import { getAddressList, updateDefaultCustomerAddress, CreateCheckout } from '../../store/actions';
+import { COLORS } from '../../constants/theme';
 
-function CheckoutScreen({ checkout }) {
+function CheckoutScreen({
+  checkout,
+  getAddressList: getAddress,
+  updateDefaultCustomerAddress: updateDefaultAddress,
+  CreateCheckout: createCheckout,
+  token,
+}) {
   const webViewRef = useRef(null);
   const navigation = useNavigation();
   const [route, setRoute] = useState('');
-
+  const [webContentLoaded, setWebContentLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState({
+    show: false,
+    data: null,
+  });
+  console.log('showModal', showModal);
   if (!checkout.data) {
     return (
       <View
@@ -26,18 +42,33 @@ function CheckoutScreen({ checkout }) {
     );
   }
 
-  const handleWebview = event => {
-    const { data } = event.nativeEvent;
-    if (data.includes('ROUTE_NAME')) {
-      const routeName = data.split(':')[1];
-      const lastSlashIndex = routeName.lastIndexOf('/');
-      const name = routeName.substring(lastSlashIndex);
+  const handleClickWebView = useCallback(() => {
+    setShowModal(prev => ({
+      ...prev,
+      show: !prev.show,
+    }));
+  }, []);
 
-      if (name) {
-        setRoute(name);
+  const handleWebViewMessage = useCallback(
+    event => {
+      const { data } = event.nativeEvent;
+
+      if (data.includes('ROUTE_NAME')) {
+        const routeName = data.split(':')[1];
+
+        const lastSlashIndex = routeName.lastIndexOf('/');
+        const name = routeName.substring(lastSlashIndex);
+        if (name) {
+          setRoute(name);
+        }
       }
-    }
-  };
+
+      if (data === 'SHIPPING_BUTTON_CLICKED') {
+        handleClickWebView();
+      }
+    },
+    [handleClickWebView, route]
+  );
 
   const routeInject = `
   function handleRouteChange() {
@@ -47,6 +78,28 @@ function CheckoutScreen({ checkout }) {
   window.addEventListener('popstate', handleRouteChange);
   `;
 
+  const modifyWebContent = useCallback(() => {
+    const script = `
+      const elements = document.querySelectorAll('a[aria-label="Change shipping address"]');
+      if (elements) {
+        elements.forEach(element => {
+          const divElement = document.createElement('div');
+          divElement.innerHTML = 'Change';
+          divElement.className = 'shipping-button';
+          divElement.onclick = () => {
+            // Perform your custom logic when the button is clicked
+            window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
+          };
+          element.parentNode.replaceChild(divElement, element);
+        });
+      }
+    
+    `;
+
+    webViewRef.current.injectJavaScript(script);
+    setWebContentLoaded(false);
+  }, [webViewRef, route]);
+
   const goBack = useCallback(() => {
     if (webViewRef.current) {
       webViewRef.current.goBack();
@@ -54,13 +107,45 @@ function CheckoutScreen({ checkout }) {
   }, [navigation, route, webViewRef]);
 
   useEffect(() => {
-    // Cleanup the listener when the component unmounts
     return () => {
       webViewRef.current.injectJavaScript(`
         window.removeEventListener('popstate', handleRouteChange);
       `);
     };
   }, [webViewRef]);
+
+  const handleLoadEnd = () => {
+    setWebContentLoaded(true);
+  };
+
+  useEffect(() => {
+    if (webContentLoaded) {
+      modifyWebContent();
+    }
+  }, [modifyWebContent, webContentLoaded, route]);
+
+  const handleDefaultAddress = () => {
+    if (showModal.data) {
+      updateDefaultAddress({
+        addressId: showModal.data?.id,
+        customerAccessToken: token,
+      });
+
+      setShowModal({
+        show: false,
+        data: null,
+      });
+      webViewRef.current.reload();
+      setTimeout(() => {
+        getAddress({ token, limit: 10 });
+        navigation.navigate('Cart');
+      }, 1000);
+    }
+  };
+
+  const handleNavigationStateChange = navState => {
+    const currentRoute = navState.url;
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -72,24 +157,52 @@ function CheckoutScreen({ checkout }) {
         title="Back"
       />
 
+      <Modal
+        title="Address"
+        text={`${showModal?.data?.title ? `${showModal?.data?.title} will be` : 'choose'} your current address`}
+        onOpen={showModal.show}
+        visible={showModal.show}
+        toggle={() =>
+          setShowModal(prev => ({
+            ...prev,
+            show: !prev.show,
+          }))
+        }
+        style={{
+          position: 'relative',
+          top: '35%',
+        }}
+        confirmBtnStyle={{
+          backgroundColor: COLORS.info,
+        }}
+        children={<ViewAddressList setShowModal={setShowModal} />}
+        submitText={isLoading ? 'Loading ...' : 'Submit'}
+        disabled={isLoading}
+        onContinue={handleDefaultAddress}
+        withoutIcon
+      />
+      {/* setToLocalStorage */}
       <WebView
         ref={webViewRef}
-        // startInLoadingState={true}
-        // onLoadEnd={() => webviewEl.postPostMessage('red')}
-        // onMessage={e => onTest(e)}
         injectedJavaScript={routeInject}
-        onMessage={handleWebview}
+        onMessage={handleWebViewMessage}
         source={{ uri: findKey(checkout, ['data', 'webUrl']) }}
         style={{ flex: 1 }}
+        onLoadEnd={handleLoadEnd}
+        onNavigationStateChange={handleNavigationStateChange}
       />
     </View>
   );
 }
 
-export default connect(({ Checkout }) => {
-  const {
-    collections: { checkout },
-  } = Checkout;
+export default connect(
+  ({ Checkout, User }) => {
+    const { options: userOptions } = User;
+    const {
+      collections: { checkout },
+    } = Checkout;
 
-  return { checkout };
-}, {})(CheckoutScreen);
+    return { checkout, token: userOptions?.token };
+  },
+  { getAddressList, updateDefaultCustomerAddress, CreateCheckout }
+)(CheckoutScreen);

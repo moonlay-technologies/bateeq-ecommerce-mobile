@@ -96,15 +96,11 @@ const styles = StyleSheet.create({
   xs: {
     paddingHorizontal: 8,
     paddingVertical: 6,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    width: 150,
-    height: 50,
+    borderRadius: SIZES.radius_sm,
   },
   xsText: {
     ...FONTS.fontXs,
     ...FONTS.fontSatoshiBold,
-    fontSize: 15,
   },
   sm: {
     paddingHorizontal: 10,

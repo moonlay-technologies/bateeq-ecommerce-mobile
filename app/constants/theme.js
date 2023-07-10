@@ -14,6 +14,7 @@ export const COLORS = {
   dark: '#D8D8D8',
   light: '#E6E6E6',
   info: '#2B39B9',
+  infoLight: '#dae6ff',
   white: '#fff',
   text: '#6A6A6A',
   title: '#000000',
