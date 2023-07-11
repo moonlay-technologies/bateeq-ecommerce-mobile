@@ -25,11 +25,12 @@ function CheckoutScreen({
   const [route, setRoute] = useState('');
   const [webContentLoaded, setWebContentLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isChange, setIsChange] = useState(false);
   const [showModal, setShowModal] = useState({
     show: false,
     data: null,
   });
-  console.log('showModal', showModal);
+  // console.log('showModal', showModal);
   if (!checkout.data) {
     return (
       <View
@@ -55,9 +56,9 @@ function CheckoutScreen({
     event => {
       const { data } = event.nativeEvent;
 
+      // console.log('handleWebViewMessagedata', data);
       if (data.includes('ROUTE_NAME')) {
         const routeName = data.split(':')[1];
-
         const lastSlashIndex = routeName.lastIndexOf('/');
         const name = routeName.substring(lastSlashIndex);
         if (name) {
@@ -68,39 +69,76 @@ function CheckoutScreen({
       if (data === 'SHIPPING_BUTTON_CLICKED') {
         handleClickWebView();
       }
+
+      if (data.includes('CONTINUE_BUTTON') || data.includes('BACK_BUTTON')) {
+        // waiting change the page
+        // console.log('setIsChange');
+        setTimeout(() => {
+          setIsChange(true);
+        }, 1000);
+      }
     },
     [handleClickWebView, route]
   );
 
-  const routeInject = `
-  function handleRouteChange() {
-    const routeName = window.location.pathname;
-    window.ReactNativeWebView.postMessage('ROUTE_NAME:' + routeName);
-  }
-  window.addEventListener('popstate', handleRouteChange);
-  `;
+  const initialRoute = `window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)`;
 
   const modifyWebContent = useCallback(() => {
     const script = `
-      const elements = document.querySelectorAll('a[aria-label="Change shipping address"]');
-      if (elements) {
-        elements.forEach(element => {
-          const divElement = document.createElement('div');
-          divElement.innerHTML = 'Change';
-          divElement.className = 'shipping-button';
-          divElement.onclick = () => {
-            // Perform your custom logic when the button is clicked
-            window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
-          };
-          element.parentNode.replaceChild(divElement, element);
-        });
+    function handleClick(event) {
+      const target = event.target;
+      const continueButton = target.closest('.QT4by.rqC98.hodFu.VDIfJ.j6D1f.janiy');
+      const backButton = target.closest('.QT4by.eVFmT.j6D1f.janiy.adBMs');
+
+      if (continueButton) {
+        window.ReactNativeWebView.postMessage('CONTINUE_BUTTON:');
+      } 
+      if (backButton) {
+
+        window.ReactNativeWebView.postMessage('BACK_BUTTON:');
       }
+    }
+    document.addEventListener('click', handleClick);
+    `;
+
+    const routeInject = `
+      window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)
+    `;
+
+    const replaceChangeButton = `
+    const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]');
     
+    if (shippingButton) {
+      shippingButton.forEach(element => {
+        const divElement = document.createElement('div');
+        divElement.innerHTML = 'Change';
+        divElement.className = 'shipping-button';
+        divElement.onclick = () => {
+          window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
+        };
+        divElement.style.fontSize = '12px'
+        element.parentNode.replaceChild(divElement, element);
+       });
+    }  
     `;
 
     webViewRef.current.injectJavaScript(script);
+    if (isChange) {
+      // console.log('isChange', isChange);
+      webViewRef.current.injectJavaScript(routeInject);
+    }
+    // console.log('conditions', [route.includes('shipping'), isChange]);
+
+    if (route.includes('shipping')) {
+      // console.log('routeshipping', route);
+      setTimeout(() => {
+        webViewRef.current.injectJavaScript(replaceChangeButton);
+      }, 500);
+    }
+
+    setIsChange(false);
     setWebContentLoaded(false);
-  }, [webViewRef, route]);
+  }, [webViewRef, route, isChange]);
 
   const goBack = useCallback(() => {
     if (webViewRef.current) {
@@ -117,13 +155,14 @@ function CheckoutScreen({
   }, [webViewRef]);
 
   const handleLoadEnd = () => {
+    // console.log('handleLoadEnd');
     setWebContentLoaded(true);
   };
 
   useEffect(() => {
-    if (webContentLoaded) {
-      modifyWebContent();
-    }
+    // if (webContentLoaded) {
+    modifyWebContent();
+    // }
   }, [modifyWebContent, webContentLoaded, route]);
 
   const handleDefaultAddress = () => {
@@ -185,11 +224,8 @@ function CheckoutScreen({
       {/* setToLocalStorage */}
       <WebView
         ref={webViewRef}
-        // startInLoadingState={true}
-        // onLoadEnd={() => webviewEl.postPostMessage('red')}
-        // onMessage={e => onTest(e)}
-        injectedJavaScript={routeInject}
         onMessage={handleWebViewMessage}
+        injectedJavaScript={initialRoute}
         source={{
           uri: findKey(checkout, ['data', 'webUrl']),
           headers: {
@@ -200,6 +236,12 @@ function CheckoutScreen({
         }}
         style={{ flex: 1 }}
         onLoadEnd={handleLoadEnd}
+        onLoadStart={() => {
+          // console.log('load start');
+        }}
+        onLoadProgress={() => {
+          // console.log('progess');
+        }}
         onNavigationStateChange={handleNavigationStateChange}
       />
     </View>
