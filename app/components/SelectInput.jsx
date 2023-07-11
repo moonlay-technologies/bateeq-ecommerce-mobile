@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 
-function SelectInput({ label, options, onSelect, placeholder, customDetail, errors = {}, name }) {
+function SelectInput({ label, options, onSelect, placeholder, customDetail, errors = {}, name, selectedValue }) {
   const [selectedOption, setSelectedOption] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -12,6 +12,15 @@ function SelectInput({ label, options, onSelect, placeholder, customDetail, erro
     onSelect(option.value);
     setIsDropdownOpen(false);
   };
+
+  useEffect(() => {
+    if (selectedValue) {
+      const option = options.find(option => option.value === selectedValue);
+      setSelectedOption(option || null);
+    } else {
+      setSelectedOption(null);
+    }
+  }, [selectedValue, options]);
 
   return (
     <View style={styles.inputGroup}>
