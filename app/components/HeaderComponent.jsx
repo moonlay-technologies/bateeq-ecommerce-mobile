@@ -10,6 +10,8 @@ import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
 import { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList } from '../store/actions';
+import MenuListHeader from "./ListMenuHeader";
+import NavbarCheckoutWidget from "./shared-components/checkouts/navbar.checkout.widget";
 
 /**
  * @param {object} props
@@ -19,6 +21,12 @@ import { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList } from '../s
  * @param {boolean} props.backAction
  * @param {boolean} props.withoutCartAndLogo
  * @param props.dataPageStory
+ * @param { boolean } props.mainMenu
+ * @param { Array | []  | undefined } props.dataListMenu
+ * @param { null | object } props.dataStory
+ * /mainMenu
+ * dataListMenu
+ * dataStory
  * @param props.options
  * @param props
  * @returns {JSX.Element}
@@ -164,6 +172,11 @@ function HeaderComponent({ ...props }) {
           </>
         )}
       </View>
+      {
+        props?.mainMenu && props?.dataListMenu && props?.dataStory && (
+          <MenuListHeader dataListMenu={props?.dataListMenu ?? []} dataStory={props?.dataStory ?? null} />
+        )
+      }
     </View>
   );
 }

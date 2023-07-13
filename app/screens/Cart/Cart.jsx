@@ -106,10 +106,12 @@ function CartScreen({ navigation, route, ...props }) {
       };
 
       createCheckout({
+        cartId,
         variables: {
-          input: body,
+          input: body
         },
       });
+      
       setIsLoading(false);
     } else {
       Toast.show({

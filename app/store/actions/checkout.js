@@ -12,7 +12,7 @@ export const CreateCheckout = payload => {
 
   return {
     type: REQUEST(CREATE_CHECKOUT),
-    payload: input,
+    payload: payload,
   };
 };
 
@@ -22,8 +22,9 @@ export const CreateCheckout = payload => {
  * @constructor
  */
 
-export const GetCheckoutId = () => {
+export const GetCheckoutId = (payload) => {
   return {
     type: GET_CHECKOUT_ID,
+    payload
   };
 };

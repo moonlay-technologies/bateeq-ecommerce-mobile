@@ -1,7 +1,10 @@
 import { FAILURE, REQUEST, SUCCESS } from '../actions/action.type';
-import { CREATE_CHECKOUT, GET_CHECKOUT_ID } from '../constants/checkout';
+import {CREATE_CHECKOUT, GET_CHECKOUT_ID, PREVIEW_CHECKOUT_SHOW} from '../constants/checkout';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const initialState = {
+  checkoutId: null,
+  visible:false,
   show: {
     loading: true,
     data: null,
@@ -15,6 +18,7 @@ const initialState = {
   },
 };
 
+
 /**
  * @name Checkout
  * @param
@@ -26,19 +30,43 @@ const initialState = {
 // action, state = initialState
 export default function (state = initialState, action) {
   const { type, payload } = action;
-
+  AsyncStorage.getItem('checkoutId').then(value => {
+    if (value) {
+      Reflect.set(state, 'checkoutId', value);
+    }
+  });
   switch (type) {
     case GET_CHECKOUT_ID:
       return {
         ...state,
-        collections: {
-          ...state.collections,
-          checkout: {
-            ...state.collections.checkout.data,
-            loading: false,
-          },
-        },
+        ...payload,
+        visible: !!payload?.checkoutId ?? false,
+        checkoutId: payload?.checkoutId,
       };
+      
+    case REQUEST(PREVIEW_CHECKOUT_SHOW):
+      return {
+        ...state,
+        show:{
+          ...state.show,
+          loading: true,
+          data:null
+        }
+      }
+    case SUCCESS(PREVIEW_CHECKOUT_SHOW):
+      console.log({type,state,payload})
+      return {
+        ...state,
+        show:{
+          ...state.show,
+          data:payload,
+          loading: false,
+        }
+      }
+    case FAILURE(PREVIEW_CHECKOUT_SHOW):
+      return {
+        ...state,
+      }
 
     case REQUEST(CREATE_CHECKOUT):
       return {

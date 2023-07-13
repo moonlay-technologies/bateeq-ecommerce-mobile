@@ -96,8 +96,12 @@ function MainHome(props) {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      <HeaderComponent />
-      <MenuListHeader dataListMenu={dataSideMenuNavigation} dataStory={pageStory} />
+      <HeaderComponent
+        mainMenu
+        dataListMenu={dataSideMenuNavigation}
+        dataStory={pageStory}
+      />
+      
       <ScrollView>
         {dataImageBannerLoading && <LoadingScreen Loading3 />}
         <Swiper
