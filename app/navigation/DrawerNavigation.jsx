@@ -126,6 +126,7 @@ function SideBarComponent({
           </View>
           {SidebarMenuItem.map(menu => (
             <TouchableOpacity
+              key={menu.name}
               onPress={() => onNavigate(menu)}
               style={{
                 flexDirection: 'row',

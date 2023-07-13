@@ -207,7 +207,8 @@ function CheckoutScreen({
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))}
+          }))
+        }
         style={{
           position: 'relative',
           top: '35%',
@@ -234,6 +235,7 @@ function CheckoutScreen({
             'X-Shopify-Storefront-Access-Token': Environment.StorefrontToken,
           },
         }}
+        sour
         style={{ flex: 1 }}
         onLoadEnd={handleLoadEnd}
         onLoadStart={() => {
