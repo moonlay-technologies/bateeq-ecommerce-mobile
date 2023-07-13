@@ -3,6 +3,7 @@ import {
   CREATE_ADDRESS,
   DELETE_ADDRESS,
   GET_ADDRESS_LIST,
+  REFETCH_ADDRESS_LIST,
   UPDATE_ADDRESS,
   UPDATE_DEFAULT_ADDRESS,
 } from '../constants/address';
@@ -157,6 +158,23 @@ export default function (state = initialState, action) {
           ...state.defaultAddress,
           loading: false,
         },
+      };
+
+    // refetch address
+    case REQUEST(REFETCH_ADDRESS_LIST):
+      return {
+        ...state,
+        refetchLoading: true,
+      };
+    case SUCCESS(REFETCH_ADDRESS_LIST):
+      return {
+        ...state,
+        refetchLoading: false,
+      };
+    case FAILURE(REFETCH_ADDRESS_LIST):
+      return {
+        ...state,
+        refetchLoading: false,
       };
 
     // delete Address

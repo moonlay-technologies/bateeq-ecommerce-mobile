@@ -12,6 +12,7 @@ function CustomBottomNavigation({ isAuthenticated }) {
 
   return (
     <View>
+      
       {isAuthenticated.every(i => i === true) && (
         <View
           style={{

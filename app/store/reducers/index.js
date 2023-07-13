@@ -8,6 +8,7 @@ import Checkout from './Checkout';
 import Address from './address';
 import Pages from './Pages';
 import Navigation from './navigation';
+import Modal from './modal';
 
 const rootReducers = combineReducers({
   Cart,
@@ -19,5 +20,6 @@ const rootReducers = combineReducers({
   Product,
   Auth,
   Navigation,
+  _Modal:Modal,
 });
 export default rootReducers;
