@@ -18,18 +18,20 @@ function CheckoutScreen({
   updateDefaultCustomerAddress: updateDefaultAddress,
   CreateCheckout: createCheckout,
   token,
+  actionLoading,
   ...props
 }) {
   const webViewRef = useRef(null);
   const navigation = useNavigation();
   const [route, setRoute] = useState('');
-  const [webContentLoaded, setWebContentLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isChange, setIsChange] = useState(false);
+  const [routeState, setRouteState] = useState('');
   const [showModal, setShowModal] = useState({
     show: false,
     data: null,
   });
+
+  // console.log('checkout', checkout);
   // console.log('showModal', showModal);
   if (!checkout.data) {
     return (
@@ -55,8 +57,6 @@ function CheckoutScreen({
   const handleWebViewMessage = useCallback(
     event => {
       const { data } = event.nativeEvent;
-
-      // console.log('handleWebViewMessagedata', data);
       if (data.includes('ROUTE_NAME')) {
         const routeName = data.split(':')[1];
         const lastSlashIndex = routeName.lastIndexOf('/');
@@ -72,7 +72,7 @@ function CheckoutScreen({
 
       if (data.includes('CONTINUE_BUTTON') || data.includes('BACK_BUTTON')) {
         // waiting change the page
-        // console.log('setIsChange');
+
         setTimeout(() => {
           setIsChange(true);
         }, 1000);
@@ -81,7 +81,27 @@ function CheckoutScreen({
     [handleClickWebView, route]
   );
 
-  const initialRoute = `window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)`;
+  const initialJSInjected = `
+  const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]') 
+      
+  if (shippingButton) {
+      shippingButton.forEach(element => {
+        const divElement = document.createElement('div');
+        divElement.innerHTML = 'Change';
+        divElement.className = 'shipping-button';
+        divElement.onclick = () => {
+          window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
+        };
+        divElement.style.fontSize = '12px'
+        element.parentNode.replaceChild(divElement, element);
+       });
+
+    }
+
+ window.ReactNativeWebView.postMessage('RENDERED')
+  
+  
+  window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)`;
 
   const modifyWebContent = useCallback(() => {
     const script = `
@@ -94,7 +114,6 @@ function CheckoutScreen({
         window.ReactNativeWebView.postMessage('CONTINUE_BUTTON:');
       } 
       if (backButton) {
-
         window.ReactNativeWebView.postMessage('BACK_BUTTON:');
       }
     }
@@ -104,66 +123,48 @@ function CheckoutScreen({
     const routeInject = `
       window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)
     `;
-
-    const replaceChangeButton = `
-    const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]');
-    
-    if (shippingButton) {
-      shippingButton.forEach(element => {
-        const divElement = document.createElement('div');
-        divElement.innerHTML = 'Change';
-        divElement.className = 'shipping-button';
-        divElement.onclick = () => {
-          window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
-        };
-        divElement.style.fontSize = '12px'
-        element.parentNode.replaceChild(divElement, element);
-       });
-    }  
-    `;
-
     webViewRef.current.injectJavaScript(script);
     if (isChange) {
-      // console.log('isChange', isChange);
       webViewRef.current.injectJavaScript(routeInject);
+      setIsChange(false);
     }
-    // console.log('conditions', [route.includes('shipping'), isChange]);
 
-    if (route.includes('shipping')) {
-      // console.log('routeshipping', route);
+    if (route.includes('shipping') || route.includes('payment')) {
+      const replaceChangeButton = `
+      const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]')
+      if (shippingButton) {
+        shippingButton.forEach(element => {
+          const divElement = document.createElement('div');
+          divElement.innerHTML = 'Change';
+          divElement.className = 'shipping-button';
+          divElement.onclick = () => {
+            window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
+          };
+          divElement.style.fontSize = '12px'
+          element.parentNode.replaceChild(divElement, element);
+         });
+      }
+
+      window.ReactNativeWebView.postMessage('RENDERED' )
+      `;
       setTimeout(() => {
-        webViewRef.current.injectJavaScript(replaceChangeButton);
+        webViewRef?.current?.injectJavaScript(replaceChangeButton);
+        setIsChange(false);
       }, 500);
     }
-
-    setIsChange(false);
-    setWebContentLoaded(false);
   }, [webViewRef, route, isChange]);
 
-  const goBack = useCallback(() => {
-    if (webViewRef.current) {
+  const handleRoute = () => {
+    if (route.includes('information')) {
+      navigation.navigate('Cart');
+    } else {
       webViewRef.current.goBack();
     }
-  }, [navigation, route, webViewRef]);
-
-  useEffect(() => {
-    return () => {
-      webViewRef.current.injectJavaScript(`
-        window.removeEventListener('popstate', handleRouteChange);
-      `);
-    };
-  }, [webViewRef]);
-
-  const handleLoadEnd = () => {
-    // console.log('handleLoadEnd');
-    setWebContentLoaded(true);
   };
 
   useEffect(() => {
-    // if (webContentLoaded) {
     modifyWebContent();
-    // }
-  }, [modifyWebContent, webContentLoaded, route]);
+  }, [modifyWebContent, route]);
 
   const handleDefaultAddress = () => {
     if (showModal.data) {
@@ -184,19 +185,36 @@ function CheckoutScreen({
     }
   };
 
-  const handleNavigationStateChange = navState => {
-    const currentRoute = navState.url;
-  };
+  const handleNavigationStateChange = useCallback(
+    navState => {
+      setRouteState(navState);
+      const replaceChangeButton = `
+      const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]')
+      if (shippingButton) {
+        shippingButton.forEach(element => {
+          const divElement = document.createElement('div');
+          divElement.innerHTML = 'Change';
+          divElement.className = 'shipping-button';
+          divElement.onclick = () => {
+            window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
+          };
+          divElement.style.fontSize = '12px'
+          element.parentNode.replaceChild(divElement, element);
+         });
+      }
+
+      window.ReactNativeWebView.postMessage('RENDERED' )
+      `;
+      if (route.includes('shipping') || route.includes('payment')) {
+        webViewRef.current.injectJavaScript(replaceChangeButton);
+      }
+    },
+    [webViewRef, route]
+  );
 
   return (
     <View style={{ flex: 1 }}>
-      <HeaderComponent
-        withoutCartAndLogo
-        backAction
-        backFunc={route === '/information' ? false : goBack}
-        icon="back"
-        title="Back"
-      />
+      <HeaderComponent withoutCartAndLogo backAction backFunc={handleRoute} icon="back" title="Back" />
 
       <Modal
         title="Address"
@@ -216,8 +234,8 @@ function CheckoutScreen({
           backgroundColor: COLORS.info,
         }}
         children={<ViewAddressList setShowModal={setShowModal} />}
-        submitText={isLoading ? 'Loading ...' : 'Submit'}
-        disabled={isLoading}
+        submitText={actionLoading ? 'Loading ...' : 'Submit'}
+        disabled={actionLoading}
         onContinue={handleDefaultAddress}
         withoutIcon
       />
@@ -225,9 +243,10 @@ function CheckoutScreen({
       <WebView
         ref={webViewRef}
         onMessage={handleWebViewMessage}
-        injectedJavaScript={initialRoute}
+        injectedJavaScript={initialJSInjected}
         source={{
           uri: findKey(checkout, ['data', 'webUrl']),
+
           headers: {
             'X-Shopify-Customer-Access-Token': props?.User?.options?.token ?? null,
             'X-Shopify-Access-Token': Environment.AccessToken,
@@ -235,12 +254,31 @@ function CheckoutScreen({
           },
         }}
         style={{ flex: 1 }}
-        onLoadEnd={handleLoadEnd}
         onLoadStart={() => {
-          // console.log('load start');
+          console.log('load start');
         }}
-        onLoadProgress={() => {
-          // console.log('progess');
+        onLoadProgress={e => {
+          console.log('event onload', e);
+          setIsChange(true);
+          setReplaceChangeButton(`
+          const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]') 
+      
+           if (shippingButton) {
+               shippingButton.forEach(element => {
+                 const divElement = document.createElement('div');
+                 divElement.innerHTML = 'Change';
+                 divElement.className = 'shipping-button';
+                 divElement.onclick = () => {
+                   window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
+                 };
+                 divElement.style.fontSize = '12px'
+                 element.parentNode.replaceChild(divElement, element);
+                });
+         
+             }
+         
+          window.ReactNativeWebView.postMessage('RENDERED' )
+          `);
         }}
         onNavigationStateChange={handleNavigationStateChange}
       />
@@ -249,13 +287,15 @@ function CheckoutScreen({
 }
 
 export default connect(
-  ({ Checkout, User }) => {
+  ({ Checkout, User, Address }) => {
     const { options: userOptions } = User;
     const {
       collections: { checkout },
     } = Checkout;
 
-    return { checkout, token: userOptions?.token };
+    const { actionLoading } = Address;
+
+    return { checkout, token: userOptions?.token, actionLoading };
   },
   { getAddressList, updateDefaultCustomerAddress, CreateCheckout }
 )(CheckoutScreen);
