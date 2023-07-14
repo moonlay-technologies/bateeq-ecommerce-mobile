@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { Toast } from 'react-native-toast-message/lib/src/Toast';
 import { COLORS, FONTS } from '../constants/theme';
 import { CartPutQtyItem } from '../store/actions';
+import { formatWithCommas } from '../utils/helper';
 
 function CartList({
   image,
@@ -123,7 +124,7 @@ function CartList({
               flex: 1,
             }}
           >
-            <Text style={{ ...FONTS.h6 }}>{price}</Text>
+            <Text style={{ ...FONTS.h6 }}>{['Rp', formatWithCommas(price ?? 0)].join('. ') ?? '-'}</Text>
             <Text
               style={{
                 ...FONTS.fontSm,
@@ -131,7 +132,7 @@ function CartList({
                 marginLeft: 8,
               }}
             >
-              {originalPrice}
+              {typeof originalPrice !== 'undefined' && originalPrice ? ['Rp', originalPrice].join('. ') : ''}
             </Text>
           </View>
         </View>

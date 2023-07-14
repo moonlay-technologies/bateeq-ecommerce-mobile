@@ -22,7 +22,7 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
 
   const [style, setStyle] = useState({
     hero: {
-      bottom: 60,
+      bottom: 0,
       left: 0,
       zIndex: 9999999,
       position: 'absolute',
@@ -98,7 +98,7 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
           ...style,
           hero: {
             ...style?.hero,
-            bottom: 60,
+            bottom: 0,
           },
         });
       }
@@ -106,126 +106,131 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
   }, [props?.checkoutId, loading, data]);
 
   return (
-    !loading &&
-    show?.data && (
-      <View style={style.hero}>
-        <View
-          style={{
-            ...style.content,
-          }}
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View
-              style={{
-                flexDirection: 'row',
-              }}
-            >
-              {Array.isArray(data?.lineItems?.nodes) &&
-                data?.lineItems?.nodes.length > 0 &&
-                data?.lineItems?.nodes.slice(0, 2).map((item, index) => (
-                  <View
-                    style={{
-                      height: 40,
-                      width: 40,
-                      left: index > 0 ? -(30 * index) : 0,
-                      borderWidth: 2,
-                      borderColor: '#fff',
-                      zIndex: index,
-                      borderRadius: 20,
-                      shadowColor: '#000',
-                      shadowOffset: {
-                        width: 5,
-                        height: 5,
-                      },
-                      shadowOpacity: 0.5,
-                      shadowRadius: 5,
-                      overflow: 'hidden',
-                      backgroundColor: 'rgba(122,122,122,1)',
-                    }}
-                  >
-                    <Image
-                      style={{
-                        height: '100%',
-                        width: '100%',
-                        resizeMode: 'cover',
-                      }}
-                      source={{
-                        uri: item?.image?.url ?? null,
-                      }}
-                    />
-                  </View>
-                ))}
-
-              {data?.lineItems &&
-                typeof data?.lineItems?.nodes !== 'undefined' &&
-                data?.lineItems?.nodes.length > 2 && (
-                  <View
-                    style={{
-                      height: 40,
-                      width: 40,
-                      borderRadius: 20,
-                      left: -(data?.lineItems?.nodes.length - 2 > 0 ? 60 : 30),
-                      zIndex: 11,
-                      borderColor: '#fff',
-                      borderWidth: 2,
-                      backgroundColor: 'rgba(122,122,122,1)',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: '#fff',
-                      }}
-                    >
-                      {[data?.lineItems?.nodes.length - 2, '+'].join('')}
-                    </Text>
-                  </View>
-                )}
-            </View>
-            <View
-              style={{
-                flex: 1,
-                left:
-                  (data?.lineItems?.nodes.length ?? 0) > 2
-                    ? -50
-                    : -(((data?.lineItems?.nodes?.length - 1 ?? 2) - 1) * 20),
-                flexDirection: 'column',
-                flexWrap: 'nowrap',
-                alignItems: 'flex-start',
-              }}
-            >
-              <Text style={{ color: COLORS.black, fontWeight: 'bold' }}>Checkout</Text>
+    <View style={{ flex: 1 }}>
+      {!loading && show?.data && (
+        <View style={style.hero}>
+          <View
+            style={{
+              ...style.content,
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
               <View
                 style={{
                   flexDirection: 'row',
-
-                  alignItems: 'center',
                 }}
               >
-                <Text style={{ fontSize: 12 }}>
-                  {data?.lineItems?.nodes
-                    .slice(0, 2)
-                    .map(item => item?.title.slice(0, 10))
-                    .join('...')}
-                </Text>
+                {Array.isArray(data?.lineItems?.nodes) &&
+                  data?.lineItems?.nodes.length > 0 &&
+                  data?.lineItems?.nodes.slice(0, 2).map((item, index) => (
+                    <View
+                      style={{
+                        height: 40,
+                        width: 40,
+                        left: index > 0 ? -(30 * index) : 0,
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                        zIndex: index,
+                        borderRadius: 20,
+                        shadowColor: '#000',
+                        shadowOffset: {
+                          width: 5,
+                          height: 5,
+                        },
+                        shadowOpacity: 0.5,
+                        shadowRadius: 5,
+                        overflow: 'hidden',
+                        backgroundColor: 'rgba(122,122,122,1)',
+                      }}
+                    >
+                      <Image
+                        style={{
+                          height: '100%',
+                          width: '100%',
+                          resizeMode: 'cover',
+                        }}
+                        source={{
+                          uri: item?.image?.url ?? null,
+                        }}
+                      />
+                    </View>
+                  ))}
+
+                {data?.lineItems &&
+                  typeof data?.lineItems?.nodes !== 'undefined' &&
+                  data?.lineItems?.nodes.length > 2 && (
+                    <View
+                      style={{
+                        height: 40,
+                        width: 40,
+                        borderRadius: 20,
+                        left: -(data?.lineItems?.nodes.length - 2 > 0 ? 60 : 30),
+                        zIndex: 11,
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        backgroundColor: 'rgba(122,122,122,1)',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          color: '#fff',
+                        }}
+                      >
+                        {[data?.lineItems?.nodes.length - 2, '+'].join('')}
+                      </Text>
+                    </View>
+                  )}
               </View>
+              <View
+                style={{
+                  flex: 1,
+                  left:
+                    (data?.lineItems?.nodes.length ?? 0) > 2
+                      ? -50
+                      : -(((data?.lineItems?.nodes?.length - 1 ?? 2) - 1) * 20),
+                  flexDirection: 'column',
+                  flexWrap: 'nowrap',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <Text style={{ color: COLORS.black, fontWeight: 'bold' }}>Checkout</Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{ fontSize: 12 }}>
+                    {data?.lineItems?.nodes
+                      .slice(0, 2)
+                      .map(item => item?.title.slice(0, 10))
+                      .join('...')}
+                  </Text>
+                </View>
+              </View>
+              {/**
+               * BUAT MAS REZA
+               */}
+              <Button
+                onPress={() => props?.NAVIGATES('Checkout', { webUrl: 'http://asdladmalskd.caosdmadas' })}
+                title="Lanjutkan"
+                size="sm"
+                style={{ paddingVertical: 7, paddingHorizontal: 15, backgroundColor: COLORS.black, borderRadius: 5 }}
+              />
             </View>
-            {/**
-             * BUAT MAS REZA
-             */}
-            {/* <Button
-              onPress={() => props?.NAVIGATES('Checkout', { webUrl: 'http://asdladmalskd.caosdmadas' })}
-              title="Lanjutkan"
-              size="sm"
-              style={{ paddingVertical: 7, paddingHorizontal: 15, backgroundColor: COLORS.black, borderRadius: 5 }}
-            /> */}
+            {/* <Octicons size={18} style={{ marginRight: 20 }} color="#FFA800" name="luggage-cart" /> */}
           </View>
-          {/* <Octicons size={18} style={{ marginRight: 20 }} color="#FFA800" name="luggage-cart" /> */}
         </View>
-      </View>
-    )
+      )}
+
+      <ScrollView>
+        <View style={{ flex: 1, backgroundColor: '#EEEEEE' }}>{props?.children}</View>
+      </ScrollView>
+    </View>
   );
 }
 

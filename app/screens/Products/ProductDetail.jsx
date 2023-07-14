@@ -290,7 +290,7 @@ function ProductDetail(props) {
             <LoadingScreen type="circle" />
           ) : (
             <Sliders
-              data={productData?.images.map(item => ({
+              data={productData?.images?.map(item => ({
                 ...item,
                 url: item?.node?.url ?? null,
               }))}

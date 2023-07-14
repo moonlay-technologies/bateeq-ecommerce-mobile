@@ -26,7 +26,6 @@ function Routes({ options, loading, isAuthenticated, isLogin }) {
         ) : (
           <NavigationContainer>
             <View style={{ flex: 1, height: screen.height, width: screen.width, position: 'relative' }}>
-              <NavbarCheckoutWidget />
               <CustomDrawer />
               <StackNavigator isAuthenticated={isAuthenticated} />
               <BottomNavigation isAuthenticated={[isAuthenticated, isLogin]} />
