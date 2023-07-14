@@ -65,11 +65,14 @@ export function* _getCheckoutId(){
   yield takeEvery(GET_CHECKOUT_ID, function*({payload}){
     try{
       const checkoutId = yield call(AsyncStorage.getItem,'checkoutId')
+      const cartId = yield call(AsyncStorage.getItem,'cart')
+
       if(checkoutId || payload?.checkoutId){
         yield all([
           put({
             type:REQUEST(PREVIEW_CHECKOUT_SHOW),
             payload: {
+              cartId:cartId ?? payload?.cartId,
               checkoutId: checkoutId ?? payload?.checkoutId
             }
           })
@@ -85,6 +88,9 @@ export function* _PreviewCheckoutShow(){
   yield takeEvery(REQUEST(PREVIEW_CHECKOUT_SHOW), function*({payload}){
     try{
       
+      const cartId = yield call(AsyncStorage.getItem,'cartId');
+      
+      // checkout
       const  query = gql`query Checkout($checkoutID: ID!){
         node(id:$checkoutID){
           ... on Checkout{
@@ -197,7 +203,6 @@ export function* _PreviewCheckoutShow(){
           }
         }
       }`
-      
       let {data,loading} = yield call(client.query, {
         query,
         variables: {
@@ -209,18 +214,81 @@ export function* _PreviewCheckoutShow(){
       
       newData = data?.node ?? null
       newData.product = data?.node?.lineItems?.nodes ?? []
-
+      
+      //cart
+      const queryCart = gql`
+        query getCart($id: ID!) {
+          cart(id: $id) {
+            id
+            totalQuantity
+            lines(first: 10) {
+              nodes {
+                id
+                quantity
+                merchandise {
+                  ... on ProductVariant {
+                    product {
+                      id
+                      title
+                    }
+                    id
+                    image {
+                      url
+                    }
+                  }
+                }
+                attributes {
+                  key
+                  value
+                }
+                
+                cost {
+                  compareAtAmountPerQuantity {
+                    currencyCode
+                    amount
+                  }
+                  totalAmount {
+                    amount
+                    currencyCode
+                  }
+                  subtotalAmount {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+      `;
+      const response = yield call(client.query, {
+        query:queryCart,
+        fetchPolicy: 'no-cache',
+        variables: {
+          id: cartId ?? payload?.cartId,
+        },
+      });
+      let cartItems = []
+      if(typeof(response?.data?.cart) !== 'undefined'){
+        let cart = response?.data?.cart ?? {}
+        if(cart && cart?.lines && cart?.lines?.nodes && Array.isArray(cart?.lines?.nodes) && cart?.lines?.nodes.length > 0){
+          cartItems = cart?.lines?.nodes.filter((item)=> {
+            return newData.lineItems?.nodes?.filter((child)=> child?.variant?.id === item.merchandise?.id).length > 0
+          }).map((item)=> item?.id)
+        }
+      }
       if(newData?.order !== null){
+        AsyncStorage.removeItem('checkoutId')
         yield all([
           put({
             type: SUCCESS(PREVIEW_CHECKOUT_SHOW),
-            payload: newData ?? null
+            payload: null
           }),
           put({
             type:REQUEST(DELETE_CART_LIST_OF_ITEM),
             payload: {
               cartId: payload?.cartId,
-              lineIds: newData?.lineItems?.nodes ? newData?.lineItems?.nodes?.map((item)=> item?.variant?.id) : []
+              lineIds: cartItems ?? []
             }
           })
         ])

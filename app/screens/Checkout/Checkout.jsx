@@ -30,7 +30,8 @@ function CheckoutScreen({
     show: false,
     data: null,
   });
-  // console.log('showModal', showModal);
+  
+  console.log({checkout})
   if (!checkout.data) {
     return (
       <View

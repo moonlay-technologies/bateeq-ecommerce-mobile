@@ -48,6 +48,7 @@ AsyncStorage.getItem('cart').then(cartId => {
 
 export default function (state = initialState, action) {
   const { type } = action;
+  console.log({action,state},'STATE CART')
   switch (type) {
     case REQUEST(GENERATE_CART_ID):
       return {
@@ -78,6 +79,7 @@ export default function (state = initialState, action) {
       };
 
     case REQUEST(DELETE_CART_LIST_OF_ITEM):
+      console.log({action,state},'DELETE_CART_LIST_OF_ITEM')
       if (Array.isArray(action?.payload?.lineIds) && action?.payload?.lineIds.length > 0) {
         for (const element of state.lists.data) {
           if (typeof element !== 'undefined') {

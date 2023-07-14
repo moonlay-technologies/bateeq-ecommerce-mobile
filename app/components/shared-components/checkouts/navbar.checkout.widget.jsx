@@ -16,7 +16,7 @@ function mapStateToProps({Checkout}) {
 
 function NavbarCheckoutWidget({GetCheckoutId,show,...props}) {
 	let { data , loading } = show
-	console.log({show})
+
 	const navigation = useNavigation();
 	const screen = useWindowDimensions();
 	
@@ -104,12 +104,11 @@ function NavbarCheckoutWidget({GetCheckoutId,show,...props}) {
 				})
 			}
 		}
-
 	},[props?.checkoutId,loading,data])
 	
 	return (
 		<View style={{ flex: 1}}>
-			{!loading && show?.data && (
+			{!loading && show?.data && typeof (data?.order) !== 'undefined' && data?.order === null &&(
 				<View style={style.hero}>
 					
 					<View style={{
@@ -208,7 +207,7 @@ function NavbarCheckoutWidget({GetCheckoutId,show,...props}) {
 								 */
 							}
 							<Button
-								onPress={() => props?.NAVIGATES('Checkout', {webUrl:"http://asdladmalskd.caosdmadas"})}
+								onPress={() => navigation.navigate('Checkout', data)}
 								title="Lanjutkan"
 								size="sm"
 								style={{paddingVertical:7,paddingHorizontal:15,backgroundColor:COLORS.black,borderRadius:5,}}
@@ -221,7 +220,8 @@ function NavbarCheckoutWidget({GetCheckoutId,show,...props}) {
 			)}
 			
 			<ScrollView>
-				<View style={{ flex: 1, backgroundColor:"#EEEEEE"}}>
+				<View style={{ flex: 1, backgroundColor:"#EEEEEE", paddingBottom:data ? 100 : 0 }}>
+					<Text>{JSON.stringify(data,null,2)}</Text>
 					{props?.children}
 				</View>
 			</ScrollView>
