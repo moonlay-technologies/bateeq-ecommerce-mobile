@@ -225,8 +225,7 @@ function CheckoutScreen({
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         style={{
           position: 'relative',
           top: '35%',
@@ -254,33 +253,13 @@ function CheckoutScreen({
             'X-Shopify-Storefront-Access-Token': Environment.StorefrontToken,
           },
         }}
-        sour
         style={{ flex: 1 }}
         onLoadStart={() => {
-          console.log('load start');
+          // console.log('load start');
         }}
         onLoadProgress={e => {
-          console.log('event onload', e);
+          // console.log('event onload', e);
           setIsChange(true);
-          setReplaceChangeButton(`
-          const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]') 
-      
-           if (shippingButton) {
-               shippingButton.forEach(element => {
-                 const divElement = document.createElement('div');
-                 divElement.innerHTML = 'Change';
-                 divElement.className = 'shipping-button';
-                 divElement.onclick = () => {
-                   window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
-                 };
-                 divElement.style.fontSize = '12px'
-                 element.parentNode.replaceChild(divElement, element);
-                });
-         
-             }
-         
-          window.ReactNativeWebView.postMessage('RENDERED' )
-          `);
         }}
         onNavigationStateChange={handleNavigationStateChange}
       />
