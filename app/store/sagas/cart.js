@@ -298,6 +298,7 @@ export function* __getCartList() {
 
       if (typeof response?.data !== 'undefined' && typeof response?.data?.cart !== 'undefined') {
         if (Array.isArray(response?.data?.cart?.lines?.nodes) && response?.data?.cart?.lines?.nodes.length > 0) {
+          // response.data.cart.lines.nodes = response.data.cart.lines.nodes.filter((child)=> child?.quantity > 0)
           Reflect.set(newPayload, 'data', response?.data?.cart?.lines?.nodes ?? []);
         }
       }
@@ -335,8 +336,10 @@ export function* __DeleteListOfItemCart() {
      */
     function* ({ payload }) {
       try {
-        const query = gql`
-          mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+        const cartId = yield call(AsyncStorage.getItem,'cart');
+        
+        console.log({payload,cartId},DELETE_CART_LIST_OF_ITEM)
+        const query = gql`mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
             cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
               cart {
                 id
@@ -347,37 +350,38 @@ export function* __DeleteListOfItemCart() {
                 message
               }
             }
-          }
-        `;
+          }`;
         const { data } = yield call(client.mutate, {
           mutation: query,
           variables: {
-            cartId: payload?.cartId,
+            cartId: cartId ?? payload?.cartId,
             lineIds: payload?.lineIds ?? [],
           },
         });
+        
+        console.log({data},DELETE_CART_LIST_OF_ITEM)
 
         Object.assign(findKey(data, ['cartLinesRemove', 'cart']), { lineId: payload?.lineIds });
-        if (findKey(data, ['cartLinesRemove', 'cart'])) {
-          Toast.show({
-            type: 'success',
-            text1: 'Successfully: deleted list of item product',
-            visibilityTime: 2000,
-          });
-          yield all([
-            put({
-              type: SUCCESS(DELETE_CART_LIST_OF_ITEM),
-              payload: findKey(data, ['cartLinesRemove', 'cart']),
-            }),
-          ]);
-        } else {
-          yield all([
-            put({
-              type: FAILURE(DELETE_CART_LIST_OF_ITEM),
-              payload,
-            }),
-          ]);
-        }
+        // if (findKey(data, ['cartLinesRemove', 'cart'])) {
+        //   Toast.show({
+        //     type: 'success',
+        //     text1: 'Successfully: deleted list of item product',
+        //     visibilityTime: 2000,
+        //   });
+        //   yield all([
+        //     put({
+        //       type: SUCCESS(DELETE_CART_LIST_OF_ITEM),
+        //       payload: findKey(data, ['cartLinesRemove', 'cart']),
+        //     }),
+        //   ]);
+        // } else {
+        //   yield all([
+        //     put({
+        //       type: FAILURE(DELETE_CART_LIST_OF_ITEM),
+        //       payload,
+        //     }),
+        //   ]);
+        // }
       } catch (err) {
         yield all([
           put({
@@ -399,13 +403,15 @@ export function* cartLineItemAdd() {
       const query = gql`
         ${GET_CART_LIST_BY_ID}
       `;
-
+      
+      console.log({payload})
       const response = yield call(client.mutate, {
         mutation,
         variables: payload,
         refetchQueries: [{ query, variables: { fetchPolicy: 'no-cache', id: payload.cartId, limit: 10 } }],
       });
-
+      
+      console.log({response})
       if (response.data.cartLinesAdd.cart.id && response.data.cartLinesAdd.userErrors.length === 0) {
         yield put({ type: SUCCESS(CART_LINE_ITEM_ADD) });
       } else if (response.data.cartLinesAdd.userErrors.length > 0) {
@@ -415,14 +421,32 @@ export function* cartLineItemAdd() {
             text1: error?.message,
           });
         });
-        yield put({ type: FAILURE(CART_LINE_ITEM_ADD) });
+        yield all([
+          put({ type: FAILURE(CART_LINE_ITEM_ADD) }),
+          put({
+            type:REQUEST(DELETE_CART_LIST_OF_ITEM),
+            payload: {
+              cartId:payload?.cartId,
+              lineIds:payload?.lines?.map((item)=> item?.merchandiseId) ?? []
+            }
+          })
+        ])
       }
     } catch (error) {
       Toast.show({
         type: 'error',
         text1: error?.message,
       });
-      yield put({ type: FAILURE(CART_LINE_ITEM_ADD) });
+      yield all([
+        put({
+          type:REQUEST(DELETE_CART_LIST_OF_ITEM),
+          payload: {
+            cartId:payload?.cartId,
+            lineIds:payload?.lines?.map((item)=> item?.merchandiseId) ?? []
+          }
+        }),
+        put({ type: FAILURE(CART_LINE_ITEM_ADD) })
+      ])
     }
   });
 }

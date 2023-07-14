@@ -54,14 +54,21 @@ export default function (state = initialState, action) {
         }
       }
     case SUCCESS(PREVIEW_CHECKOUT_SHOW):
-      console.log({type,state,payload})
       return {
         ...state,
         show:{
           ...state.show,
           data:payload,
           loading: false,
-        }
+        },
+        collections: {
+          ...state.collections,
+          checkout: {
+            ...state.collections.checkout,
+            loading: false,
+            data: payload,
+          },
+        },
       }
     case FAILURE(PREVIEW_CHECKOUT_SHOW):
       return {
