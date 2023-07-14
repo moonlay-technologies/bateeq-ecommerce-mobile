@@ -24,6 +24,7 @@ import HeaderComponent from '../../components/HeaderComponent';
 import LoadingScreen from '../../components/LoadingView';
 import { Footer } from '../../components/Footer';
 import MenuListHeader from '../../components/ListMenuHeader';
+import NavbarCheckoutWidget from "../../components/shared-components/checkouts/navbar.checkout.widget";
 
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
@@ -102,7 +103,7 @@ function MainHome(props) {
         dataStory={pageStory}
       />
       
-      <ScrollView>
+      <NavbarCheckoutWidget>
         {dataImageBannerLoading && <LoadingScreen Loading3 />}
         <Swiper
           autoplay
@@ -137,7 +138,7 @@ function MainHome(props) {
             );
           })}
         </Swiper>
-
+        
         <OurStory
           style={{
             marginBottom: 10,
@@ -147,11 +148,11 @@ function MainHome(props) {
             navigation.navigate('PagesInShopify', { dataPages: data });
           }}
         />
-
+        
         <LatestCollections navigate={navigation} />
-
+        
         <OurCategory />
-
+        
         <View style={{ marginTop: 20 }}>
           <Swiper
             autoplay
@@ -260,7 +261,8 @@ function MainHome(props) {
           </Swiper>
         </View>
         <Footer dataStory={pageStory} />
-      </ScrollView>
+      </NavbarCheckoutWidget>
+      
     </SafeAreaView>
   );
 }
