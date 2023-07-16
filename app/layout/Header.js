@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from 'react-redux'
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS, FONTS, IMAGES } from '../constants/theme';
 import {IconButton } from "@react-native-material/core";
@@ -7,7 +8,6 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from '@react-navigation/native';
 
 const Header = (props) => {
-
     const navigation = useNavigation();
 
     return (
