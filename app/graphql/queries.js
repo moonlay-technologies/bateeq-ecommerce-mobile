@@ -96,6 +96,7 @@ export const GET_PRODUCT_BY_ID = `
         edges {
           node {
             currentlyNotInStock
+            quantityAvailable
             id
             compareAtPrice {
               amount

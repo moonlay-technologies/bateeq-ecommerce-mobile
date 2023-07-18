@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import Toast from 'react-native-toast-message';
 import { CartGetList, CartLineItemAdd, getProductById, getProductRecommendation } from '../../store/actions';
-import { findVariantIdByOptions } from '../../utils/helper';
+import { findVariantIdByOptions, validateArray } from '../../utils/helper';
 import { Footer, ShowHideProductDetail } from '../../components/Footer';
 import ProductCardStyle1 from '../../components/ProductCardStyle';
 import Notification from '../../components/NotificationComponent';
@@ -62,12 +62,15 @@ function ProductDetail(props) {
   const { id } = route.params;
   const screen = useWindowDimensions();
   const scrollViewRef = useRef(null);
-  const [state, setState] = useState('idle');
   const [qty, setQty] = useState(1);
   const [errors, setErrors] = useState({});
+  const [state, setState] = useState('idle');
   const [variantId, setVariantId] = useState('');
-  const [onSubmitLoading, setOnSubmitLoading] = useState(false);
+  const [selectedValue, setSelectedValue] = useState('');
+  const [variantsProduct, setVariantsProduct] = useState({});
+  const [variantQuantity, setVariantQuantity] = useState({});
   const [isChangeId, setIsChangeId] = useState(false);
+  const [onSubmitLoading, setOnSubmitLoading] = useState(false);
   const [randomProductsRecommendation, setRandomProductsRecommendation] = useState([]);
   const [notifState, setNotifState] = useState({
     show: false,
@@ -75,7 +78,6 @@ function ProductDetail(props) {
     navText: '',
     to: '',
   });
-  const [selectedValue, setSelectedValue] = useState('');
 
   const [amount, setAmount] = useState({
     currencyCode: '',
@@ -84,14 +86,14 @@ function ProductDetail(props) {
   });
 
   const [variantOptions, setvariantOptions] = useState({
-    size: '',
     color: '',
+    size: '',
   });
 
   useEffect(() => {
     getProductId({ id });
     getRecommendation({ id });
-  }, [isChangeId]);
+  }, [getProductId, getRecommendation, id, isChangeId]);
 
   useEffect(() => {
     if (state === 'processing' && type === SUCCESS(CART_LINE_ITEM_ADD)) {
@@ -105,10 +107,10 @@ function ProductDetail(props) {
       setErrors({});
 
       setvariantOptions({
-        size: '',
         color: '',
+        size: '',
       });
-
+      setVariantQuantity({});
       cartGetList({
         first: 10,
         last: 0,
@@ -121,10 +123,22 @@ function ProductDetail(props) {
   useEffect(() => {
     const colorOptions = [];
     const sizeOptions = [];
-    if (productData.options && productData.variants) {
-      const optionsVariant = productData?.options || [];
 
-      optionsVariant.forEach(option => {
+    if (productData.options && productData.variants) {
+      setVariantsProduct(
+        productData.variants.map(i => {
+          return {
+            available_quantity: i.node.quantityAvailable,
+            variants: i.node.selectedOptions.map(f => ({
+              [f.name.toLowerCase()]: f.value,
+            })),
+          };
+        })
+      );
+
+      const variantData = productData.variants[0];
+      const optionsVariant = productData?.options || [];
+      optionsVariant?.forEach(option => {
         if (option.name.toLowerCase() === 'color') {
           colorOptions.push(
             ...option.values.map(i => ({
@@ -143,10 +157,11 @@ function ProductDetail(props) {
         }
       });
 
-      const variantData = productData.variants[0];
       setvariantOptions({
+        ...(variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'color')?.value && {
+          color: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'color')?.value,
+        }),
         size: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'size')?.value,
-        color: variantData?.selectedOptions?.find(i => i.name.toLowerCase() === 'color')?.value,
       });
       setAmount({
         currencyCode: variantData?.node?.price?.currencyCode,
@@ -160,12 +175,37 @@ function ProductDetail(props) {
     }
   }, [productData]);
 
-  const onSelectValue = (type, value) => {
-    setvariantOptions(prev => ({
-      ...prev,
-      [type]: value,
-    }));
+  const onSelectValue = (types, value) => {
+    setvariantOptions(prev => {
+      return {
+        ...prev,
+        [types]: value,
+      };
+    });
   };
+
+  useEffect(() => {
+    if (variantsProduct.length > 0) {
+      const index = variantsProduct.findIndex(i => {
+        const foundVariant = Object.keys(variantOptions)?.map(key => {
+          return i.variants.find(item => {
+            return item[key] === variantOptions[key];
+          });
+        });
+
+        if (
+          foundVariant.every(itm => itm !== undefined) &&
+          foundVariant.length === Object.keys(variantOptions).length
+        ) {
+          return validateArray(i.variants, foundVariant, Object.keys(variantOptions));
+        }
+      });
+
+      if (index !== -1) {
+        setVariantQuantity(variantsProduct[index]);
+      }
+    }
+  }, [variantOptions, variantsProduct]);
 
   useEffect(() => {
     if (productData?.variants?.length > 0) {
@@ -247,13 +287,13 @@ function ProductDetail(props) {
       });
   };
 
-  const handleQuantity = type => {
-    if (type === 'de') {
+  const handleQuantity = types => {
+    if (types === 'de') {
       if (qty > 1) {
         setQty(qty - 1);
       }
     }
-    if (type === 'in') {
+    if (types === 'in') {
       if (productData?.totalInventory <= 0) {
         setQty(qty);
       }
@@ -286,8 +326,9 @@ function ProductDetail(props) {
       />
       <ScrollView ref={scrollViewRef}>
         <View>
+          {/* loading */}
           {loading ? (
-            <LoadingScreen type="circle" />
+            <LoadingScreen />
           ) : (
             <Sliders
               data={productData?.images?.map(item => ({
@@ -305,24 +346,25 @@ function ProductDetail(props) {
 
         <View>
           <View style={styles.section}>
-            <SummaryDetail
-              data={productData}
-              title={productData?.title ?? '-'}
-              price={{
-                regular: Number(amount.original_price) ?? 0,
-                prefix: amount.currencyCode ?? '-',
-                discount: amount.discounted_price
-                  ? amount.original_price !== amount.discounted_price
-                    ? Number(amount.discounted_price)
-                    : false
-                  : false,
-                discount_prefix: '%',
-              }}
-            />
+            {!loading && (
+              <SummaryDetail
+                data={productData}
+                title={productData?.title ?? '-'}
+                price={{
+                  regular: Number(amount.original_price) ?? 0,
+                  prefix: amount.currencyCode ?? '-',
+                  discount: amount.discounted_price
+                    ? amount.original_price !== amount.discounted_price
+                      ? Number(amount.discounted_price)
+                      : false
+                    : false,
+                  discount_prefix: '%',
+                }}
+              />
+            )}
 
             <View style={{ height: 3, marginBottom: 15, width: '100%', backgroundColor: 'rgba(211,211,211,0.25)' }} />
-
-            <ContentDetail data={productData} />
+            {!loading && <ContentDetail data={productData} />}
 
             <View style={{ width: '100%', marginTop: 10, paddingHorizontal: 15 }}>
               {Object.entries(options).map(([key, value]) => {
@@ -361,16 +403,19 @@ function ProductDetail(props) {
                     </View>
                   ) : null}
                 </View>
-                <Text
-                  style={{
-                    marginBottom: 8,
-                    ...FONTS.fontSatoshiBold,
-                    color: COLORS.title,
-                  }}
-                >
-                  {`Quantity`}
-                  <Text style={{ color: COLORS.danger }}>*</Text>
-                </Text>
+                <View style={{ flex: 1, flexDirection: 'row' }}>
+                  <Text
+                    style={{
+                      marginBottom: 8,
+                      ...FONTS.fontSatoshiBold,
+                      color: COLORS.title,
+                    }}
+                  >
+                    Quantity
+                  </Text>
+                  <Text style={{ color: COLORS.danger }}> *</Text>
+                </View>
+
                 <View
                   style={{
                     flexDirection: 'row',
@@ -378,7 +423,6 @@ function ProductDetail(props) {
                   }}
                 >
                   <TouchableOpacity
-                    //
                     onPress={() => handleQuantity('de')}
                     style={{ ...styles.icon, backgroundColor: COLORS.mediumGray }}
                   >
@@ -478,43 +522,21 @@ function ProductDetail(props) {
         }}
       >
         <View style={{ width: '100%' }}>
-          <Button
-            onPress={onSubmit}
-            title={onSubmitLoading || cartLoading ? 'Loading ...' : 'Add to Cart'}
-            iconSize={20}
-            iconName="shopping-bag"
-            icon={FeatherIcon}
-            disabled={onSubmitLoading || cartLoading}
-          />
+          {variantQuantity?.available_quantity > 0 && (
+            <Button
+              onPress={onSubmit}
+              title={onSubmitLoading || cartLoading ? 'Loading ...' : 'Add to Cart'}
+              iconSize={20}
+              iconName="shopping-bag"
+              icon={FeatherIcon}
+              disabled={onSubmitLoading || cartLoading}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>
   );
 }
-
-export default connect(
-  ({ Cart, Product, User }) => {
-    const { options } = Cart;
-    const {
-      collections: {
-        detail: { data: productData, loading },
-        recommendations: { data: recommendationProducts, loading: recommendationLoading },
-      },
-    } = Product;
-
-    return {
-      Product,
-      cartId: options?.cartId,
-      productData,
-      loading,
-      recommendationProducts,
-      recommendationLoading,
-      cartLoading: options?.loading,
-      type: Cart?.type || '',
-    };
-  },
-  { CartGetList, getProductById, getProductRecommendation, CartLineItemAdd }
-)(React.memo(ProductDetail));
 
 const styles = StyleSheet.create({
   icon: {
@@ -524,42 +546,6 @@ const styles = StyleSheet.create({
     borderColor: COLORS.borderColor,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  title: {
-    ...FONTS.fontSatoshiBold,
-    fontSize: 24,
-    color: COLORS.title,
-    marginBottom: 3,
-  },
-  lineAmount: {
-    ...FONTS.fontSatoshiRegular,
-    textDecorationLine: 'line-through',
-    fontSize: 16,
-  },
-  amount: {
-    ...FONTS.fontSatoshiBold,
-    color: COLORS.title,
-    fontSize: 20,
-  },
-  dotStyle: {
-    height: 10,
-    width: 10,
-    borderWidth: 2,
-    borderColor: COLORS.white,
-    borderRadius: 10,
-  },
-  activeDotStyle: {
-    height: 10,
-    width: 10,
-    backgroundColor: COLORS.white,
-    borderRadius: 10,
-  },
-  linear: {
-    position: 'absolute',
-    height: '100%',
-    width: '100%',
-    top: 0,
-    left: 0,
   },
   section: { alignItems: 'flex-start', paddingBottom: 12 },
   quantity: {
@@ -583,3 +569,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+
+export default connect(
+  ({ Cart, Product }) => {
+    const { options } = Cart;
+    const {
+      collections: {
+        detail: { data: productData, loading },
+        recommendations: { data: recommendationProducts, loading: recommendationLoading },
+      },
+    } = Product;
+
+    return {
+      Product,
+      cartId: options?.cartId,
+      productData,
+      loading,
+      recommendationProducts,
+      recommendationLoading,
+      cartLoading: options?.loading,
+      type: Cart?.type || '',
+    };
+  },
+  { CartGetList, getProductById, getProductRecommendation, CartLineItemAdd }
+)(React.memo(ProductDetail));

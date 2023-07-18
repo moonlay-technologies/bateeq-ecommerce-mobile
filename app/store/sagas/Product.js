@@ -15,7 +15,7 @@ import {
   __GQL_SHOW_LATEST_COLLECTION,
   GET_PRODUCT_BY_ID,
   GET_PRODUCT_RECOMMENDATION,
-  __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION
+  __GQL_GET_PRODUCT_LIST_ITEM_BY_CATEGORY_COLLECTION,
 } from '../../graphql/queries';
 import { findKey } from '../../utils/helper';
 

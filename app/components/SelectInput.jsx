@@ -15,7 +15,7 @@ function SelectInput({ label, options, onSelect, placeholder, customDetail, erro
 
   useEffect(() => {
     if (selectedValue) {
-      const option = options.find(option => option.value === selectedValue);
+      const option = options.find(opt => opt.value === selectedValue);
       setSelectedOption(option || null);
     } else {
       setSelectedOption(null);

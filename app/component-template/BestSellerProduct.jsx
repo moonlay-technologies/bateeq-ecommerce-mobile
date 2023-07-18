@@ -3,8 +3,8 @@ import { Image, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { useNavigation } from '@react-navigation/native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-import Quantity from '../../components/CustomQuantity';
-import { COLORS, FONTS } from '../../constants/theme';
+import Quantity from '../components/CustomQuantity';
+import { COLORS, FONTS } from '../constants/theme';
 
 function Slider() {
   const navigation = useNavigation();

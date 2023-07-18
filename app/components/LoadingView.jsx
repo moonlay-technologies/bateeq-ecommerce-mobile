@@ -8,19 +8,20 @@ import LoadingWave from '../assets/lotties/Loading3.json';
 /**
  *
  * @param {object} props
- * @param {boolean | false} props.Loading2
- * @param {boolean | false} props.Loading3
+ * @param {string | false} props.type
  * @returns {JSX.Element}
  */
-function LoadingScreen({ Loading2, Loading3, ...props }) {
+function LoadingScreen({ type }) {
   return (
     <View style={styles.container}>
       <LottieView
-        source={Loading2 ? LoadingCircle : Loading3 ? LoadingWave : Loading}
+        // source={Loading2 ? LoadingCircle : Loading3 ? LoadingWave : Loading}
+        source={type === 'circle' ? LoadingCircle : LoadingWave}
         autoPlay
         loop
         speed={1.5}
-        style={Loading2 ? styles.animation2 : styles.animation}
+        style={type === 'circle' ? styles.animation2 : styles.animation}
+        // style={Loading2 ? styles.animation2 : styles.animation}
       />
     </View>
   );

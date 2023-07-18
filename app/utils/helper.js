@@ -1,3 +1,4 @@
+/* eslint-disable no-plusplus */
 /* eslint-disable no-restricted-syntax */
 import React from 'react';
 import { Text } from 'react-native';
@@ -17,10 +18,10 @@ export const renderHTMLContent = html => {
   });
 };
 
-export function priceToPercent(price, compare){
-  let newPrice = Number(price ?? 0)
-  let newCompare = Number(compare ?? 0)
-  return ((newCompare - price ) / newCompare) * 100
+export function priceToPercent(price, compare) {
+  const newPrice = Number(price ?? 0);
+  const newCompare = Number(compare ?? 0);
+  return ((newCompare - price) / newCompare) * 100;
 }
 
 /**
@@ -112,3 +113,24 @@ export function clearTagHtml(html) {
     };
   }
 }
+
+export const validateArray = (arr1, arr2, keys) => {
+  // if the arrays not have the same lengths
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+  // try yo sort array
+  const sortedArr1 = arr1.sort();
+  const sortedArr2 = arr2.sort();
+  // mapping arrays and find the same keys
+  const mappingAndSortItems = keys.map(key => {
+    const item1 = sortedArr1.find(item => item[key]);
+    const item2 = sortedArr2.find(f => f[key]);
+    if (item1 && item2) {
+      return item1[key] === item2[key];
+    }
+    return [undefined, undefined];
+  });
+  // from the result we mapping on every item is true
+  return mappingAndSortItems.every(i => i === true);
+};
