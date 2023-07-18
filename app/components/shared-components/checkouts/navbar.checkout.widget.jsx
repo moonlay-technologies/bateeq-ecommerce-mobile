@@ -2,10 +2,10 @@ import React, { Component, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { useWindowDimensions, View, Text, Image, BackHandler, ScrollView } from 'react-native';
 import Octicons from 'react-native-vector-icons/FontAwesome5';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { COLORS } from '../../../constants/theme';
 import { GetCheckoutId, NAVIGATES } from '../../../store/actions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { REQUEST } from '../../../store/actions/action.type';
 import { NAVIGATE_TO } from '../../../store/constants/navigation';
 import Button from '../../ButtonComponent';
@@ -15,7 +15,7 @@ function mapStateToProps({ Checkout }) {
 }
 
 function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
-  const { data, loading } = show;
+  let { data, loading } = show;
   console.log({ show });
   const navigation = useNavigation();
   const screen = useWindowDimensions();
@@ -216,13 +216,13 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
                * BUAT MAS REZA
                */}
               <Button
-                onPress={() => props?.NAVIGATES('Checkout', { webUrl: 'http://asdladmalskd.caosdmadas' })}
+                onPress={() => navigation.navigate('Checkout', { data })}
                 title="Lanjutkan"
                 size="sm"
                 style={{ paddingVertical: 7, paddingHorizontal: 15, backgroundColor: COLORS.black, borderRadius: 5 }}
               />
             </View>
-            {/* <Octicons size={18} style={{ marginRight: 20 }} color="#FFA800" name="luggage-cart" /> */}
+            {/*<Octicons size={18} style={{ marginRight: 20 }} color="#FFA800" name="luggage-cart" />*/}
           </View>
         </View>
       )}
@@ -234,7 +234,4 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
   );
 }
 
-
-export default connect(
-	mapStateToProps,{GetCheckoutId, NAVIGATES}
-)(NavbarCheckoutWidget);
+export default connect(mapStateToProps, { GetCheckoutId, NAVIGATES })(NavbarCheckoutWidget);

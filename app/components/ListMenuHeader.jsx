@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -11,11 +11,20 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-function MenuItem({ item, subSubItem, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory, onPress }) {
+function MenuItem({ item, subSubItem, onCloseSubMenu, isSubMenuOpen, setSubMenuOpen, dataStory }) {
   const navigation = useNavigation();
   const [modalPosition, setModalPosition] = useState({ top: 0, left: 0 });
   const menuItemRef = useRef(null);
   const fadeAnimation = useRef(new Animated.Value(0)).current;
+  const [subMenuOpenStates, setSubMenuOpenStates] = useState({});
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('state', () => {
+      setSubMenuOpenStates({});
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const handlePress = () => {
     if (isSubMenuOpen) {
@@ -27,6 +36,7 @@ function MenuItem({ item, subSubItem, onCloseSubMenu, isSubMenuOpen, setSubMenuO
         navigation.navigate('PagesInShopify', { dataPages: dataStory });
       } else {
         navigation.navigate('Items', { id: item.resourceId, subTitle: item.title });
+        setSubMenuOpenStates({});
       }
     }
   };
@@ -56,7 +66,6 @@ function MenuItem({ item, subSubItem, onCloseSubMenu, isSubMenuOpen, setSubMenuO
       setModalPosition({ top: pageY + height, left: pageX });
     });
   };
-  const [subMenuOpenStates, setSubMenuOpenStates] = useState({});
 
   const toggleSubMenu = (itemId, value) => {
     setSubMenuOpenStates(prevState => ({
@@ -75,7 +84,7 @@ function MenuItem({ item, subSubItem, onCloseSubMenu, isSubMenuOpen, setSubMenuO
   ];
 
   const renderSubMenuItems = items => {
-    if (items.length === 0) {
+    if (items?.length === 0) {
       return null;
     }
     return items.map(subItem => (
@@ -92,7 +101,7 @@ function MenuItem({ item, subSubItem, onCloseSubMenu, isSubMenuOpen, setSubMenuO
 
   return (
     <View style={styles.menuItemContainer}>
-      <TouchableOpacity onPress={onPress || handlePress} ref={menuItemRef}>
+      <TouchableOpacity onPress={handlePress} ref={menuItemRef}>
         <Text style={styles.menuItemTitle}>{item.title}</Text>
       </TouchableOpacity>
       {isSubMenuOpen && (
