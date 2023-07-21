@@ -338,7 +338,6 @@ export function* __DeleteListOfItemCart() {
       try {
         const cartId = yield call(AsyncStorage.getItem,'cart');
         
-        console.log({payload,cartId},DELETE_CART_LIST_OF_ITEM)
         const query = gql`mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
             cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
               cart {
@@ -359,29 +358,27 @@ export function* __DeleteListOfItemCart() {
           },
         });
         
-        console.log({data},DELETE_CART_LIST_OF_ITEM)
-
         Object.assign(findKey(data, ['cartLinesRemove', 'cart']), { lineId: payload?.lineIds });
-        // if (findKey(data, ['cartLinesRemove', 'cart'])) {
-        //   Toast.show({
-        //     type: 'success',
-        //     text1: 'Successfully: deleted list of item product',
-        //     visibilityTime: 2000,
-        //   });
-        //   yield all([
-        //     put({
-        //       type: SUCCESS(DELETE_CART_LIST_OF_ITEM),
-        //       payload: findKey(data, ['cartLinesRemove', 'cart']),
-        //     }),
-        //   ]);
-        // } else {
-        //   yield all([
-        //     put({
-        //       type: FAILURE(DELETE_CART_LIST_OF_ITEM),
-        //       payload,
-        //     }),
-        //   ]);
-        // }
+        if (findKey(data, ['cartLinesRemove', 'cart'])) {
+          Toast.show({
+            type: 'success',
+            text1: 'Successfully: deleted list of item product',
+            visibilityTime: 2000,
+          });
+          yield all([
+            put({
+              type: SUCCESS(DELETE_CART_LIST_OF_ITEM),
+              payload: findKey(data, ['cartLinesRemove', 'cart']),
+            }),
+          ]);
+        } else {
+          yield all([
+            put({
+              type: FAILURE(DELETE_CART_LIST_OF_ITEM),
+              payload,
+            }),
+          ]);
+        }
       } catch (err) {
         yield all([
           put({
@@ -404,14 +401,12 @@ export function* cartLineItemAdd() {
         ${GET_CART_LIST_BY_ID}
       `;
       
-      console.log({payload})
       const response = yield call(client.mutate, {
         mutation,
         variables: payload,
         refetchQueries: [{ query, variables: { fetchPolicy: 'no-cache', id: payload.cartId, limit: 10 } }],
       });
       
-      console.log({response})
       if (response.data.cartLinesAdd.cart.id && response.data.cartLinesAdd.userErrors.length === 0) {
         yield put({ type: SUCCESS(CART_LINE_ITEM_ADD) });
       } else if (response.data.cartLinesAdd.userErrors.length > 0) {

@@ -21,6 +21,7 @@ const FilterModal = ({ visible, onClose, dataFilter, availability, setAvailabili
               value={availability.inStock}
               onValueChange={text => setAvailability(prevRange => ({ ...prevRange, inStock: text }))}
               style={styles.checkbox}
+              tintColors={{ true: 'black' }}
             />
             <Text style={{ marginTop: 6, color: 'black' }}>
               {dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[0].label}
@@ -35,6 +36,7 @@ const FilterModal = ({ visible, onClose, dataFilter, availability, setAvailabili
               onValueChange={text => setAvailability(prevRange => ({ ...prevRange, outStock: text }))}
               style={styles.checkbox}
               disabled={dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[1].count < 1}
+              tintColors={{ true: 'black' }}
             />
             <Text style={{ marginTop: 6, color: 'black' }}>
               {dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[1].label}
@@ -140,6 +142,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#1f2937',
     color: '#ffffff',
     borderRadius: 4,
+  },
+  checkbox: {
+    borderRadius: 12,
   },
 });
 
