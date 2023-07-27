@@ -522,16 +522,14 @@ function ProductDetail(props) {
         }}
       >
         <View style={{ width: '100%' }}>
-          {variantQuantity?.available_quantity > 0 && (
-            <Button
-              onPress={onSubmit}
-              title={onSubmitLoading || cartLoading ? 'Loading ...' : 'Add to Cart'}
-              iconSize={20}
-              iconName="shopping-bag"
-              icon={FeatherIcon}
-              disabled={onSubmitLoading || cartLoading}
-            />
-          )}
+          <Button
+            onPress={onSubmit}
+            title={onSubmitLoading || cartLoading ? 'Loading ...' : 'Add to Cart'}
+            iconSize={20}
+            iconName="shopping-bag"
+            icon={FeatherIcon}
+            disabled={onSubmitLoading || cartLoading || variantQuantity?.available_quantity === 0}
+          />
         </View>
       </View>
     </SafeAreaView>

@@ -10,8 +10,8 @@ import { GET_TOTAL_QUANTITY_CART } from '../graphql/queries';
 import { COLORS, FONTS } from '../constants/theme';
 import Logo from '../assets/images/logo.png';
 import { CartGetList, CartPutTotalQty, DrawerToggle, getAddressList } from '../store/actions';
-import MenuListHeader from "./ListMenuHeader";
-import NavbarCheckoutWidget from "./shared-components/checkouts/navbar.checkout.widget";
+import MenuListHeader from './ListMenuHeader';
+import NavbarCheckoutWidget from './shared-components/checkouts/navbar.checkout.widget';
 
 /**
  * @param {object} props
@@ -50,7 +50,7 @@ function HeaderComponent({ ...props }) {
       alignItems: 'center',
       height: 45,
       backgroundColor: COLORS.white,
-    }
+    },
   } = props;
   const navigation = useNavigation();
   const { data: cartData } = useQuery(GET_TOTAL_QUANTITY_CART, {
@@ -58,6 +58,8 @@ function HeaderComponent({ ...props }) {
       id: options?.cartId,
     },
   });
+
+  console.log('token', token);
 
   useEffect(() => {
     if (cartData) {
@@ -172,11 +174,9 @@ function HeaderComponent({ ...props }) {
           </>
         )}
       </View>
-      {
-        props?.mainMenu && props?.dataListMenu && props?.dataStory && (
-          <MenuListHeader dataListMenu={props?.dataListMenu ?? []} dataStory={props?.dataStory ?? null} />
-        )
-      }
+      {props?.mainMenu && props?.dataListMenu && props?.dataStory && (
+        <MenuListHeader dataListMenu={props?.dataListMenu ?? []} dataStory={props?.dataStory ?? null} />
+      )}
     </View>
   );
 }

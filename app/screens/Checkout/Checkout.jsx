@@ -213,6 +213,8 @@ function CheckoutScreen({
     [webViewRef, route]
   );
 
+  console.log('checkout data', findKey(checkout, ['data', 'webUrl']));
+
   return (
     <View style={{ flex: 1 }}>
       <HeaderComponent withoutCartAndLogo backAction backFunc={handleRoute} icon="back" title="Back" />
@@ -226,7 +228,8 @@ function CheckoutScreen({
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))}
+          }))
+        }
         style={{
           position: 'relative',
           top: '35%',
@@ -249,7 +252,7 @@ function CheckoutScreen({
           uri: findKey(checkout, ['data', 'webUrl']),
 
           headers: {
-            'X-Shopify-Customer-Access-Token': props?.User?.options?.token ?? null,
+            'X-Shopify-Customer-Access-Token': token ?? null,
             'X-Shopify-Access-Token': Environment.AccessToken,
             'X-Shopify-Storefront-Access-Token': Environment.StorefrontToken,
           },
