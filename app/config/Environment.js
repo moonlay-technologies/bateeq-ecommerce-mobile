@@ -1,6 +1,6 @@
 const Environment = {
-	"AccessToken":"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",
-	"StorefrontToken":"30ed07258afd05535686d2ea2de46442"
+	"AccessToken":"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",
+	"StorefrontToken":"113f8b61743a1f3ff681ec38be7ba44a"
 }
 
 export default Environment

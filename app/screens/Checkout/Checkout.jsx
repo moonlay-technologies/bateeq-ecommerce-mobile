@@ -30,9 +30,8 @@ function CheckoutScreen({
     show: false,
     data: null,
   });
+  const [webViewKey, setWebViewKey] = useState(1);
 
-  // console.log('checkout', checkout);
-  // console.log('showModal', showModal);
   if (!checkout.data) {
     return (
       <View
@@ -167,22 +166,30 @@ function CheckoutScreen({
     modifyWebContent();
   }, [modifyWebContent, route]);
 
-  const handleDefaultAddress = () => {
+  const handleDefaultAddress = async () => {
     if (showModal.data) {
-      updateDefaultAddress({
-        addressId: showModal.data?.id,
-        customerAccessToken: token,
-      });
+      try {
+        await updateDefaultAddress({
+          addressId: showModal.data?.id,
+          customerAccessToken: token,
+        });
 
-      setShowModal({
-        show: false,
-        data: null,
-      });
-      webViewRef.current.reload();
-      setTimeout(() => {
-        getAddress({ token, limit: 10 });
-        navigation.navigate('Cart');
-      }, 1000);
+        setShowModal({
+          show: false,
+          data: null,
+        });
+
+        webViewRef.current.clearCache(true);
+        webViewRef.current.reload();
+        setWebViewKey(prevKey => prevKey + 1);
+
+        setTimeout(() => {
+          getAddress({ token, limit: 10 });
+          navigation.navigate('Cart');
+        }, 1000);
+      } catch (error) {
+        console.error('Error updating default address:', error);
+      }
     }
   };
 
@@ -218,7 +225,6 @@ function CheckoutScreen({
   return (
     <View style={{ flex: 1 }}>
       <HeaderComponent withoutCartAndLogo backAction backFunc={handleRoute} icon="back" title="Back" />
-
       <Modal
         title="Address"
         text={`${showModal?.data?.title ? `${showModal?.data?.title} will be` : 'choose'} your current address`}
@@ -245,7 +251,9 @@ function CheckoutScreen({
       />
       {/* setToLocalStorage */}
       <WebView
+        key={webViewKey}
         ref={webViewRef}
+        cacheMode="LOAD_NO_CACHE"
         onMessage={handleWebViewMessage}
         injectedJavaScript={initialJSInjected}
         source={{

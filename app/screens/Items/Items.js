@@ -17,14 +17,13 @@ const Items = ({ navigation, route }) => {
   const [itemView, setItemView] = useState('grid');
   const [dataCategories, setDataCategories] = useState([]);
   const [dataFilters, setDataFilters] = useState([]);
-  // const [currentPage, setCurrentPage] = useState(1);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [showInput, setShowInput] = useState(false);
-  // const [valSearch, setValSearch] = useState('');
-  const [availability, setAvailability] = useState({ inStock: false, outStock: false });
+  const [selectedProductTypes, setSelectedProductTypes] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
 
   const flatListRef = useRef(null);
+
   const {
     data,
     fetchMore,
@@ -35,12 +34,15 @@ const Items = ({ navigation, route }) => {
       handle: handle,
       id: id,
       after: null,
-      product_filters: {
-        ...(availability.inStock ? { available: true } : availability.outStock ? { available: false } : {}),
-        price: {
-          ...(priceRange.min && priceRange.max ? { min: parseFloat(priceRange.min), max: parseFloat(priceRange.max) } : {}),
-        },
-      },
+      product_filters: [
+    ...selectedProductTypes.map(productType => ({ productType })),
+        {
+          price: {
+            ...(priceRange.min && priceRange.max ? { min: parseFloat(priceRange.min), max: parseFloat(priceRange.max) } : {}),
+          },
+
+        }
+      ],
     },
   });
 
@@ -50,6 +52,8 @@ const Items = ({ navigation, route }) => {
       setDataFilters(data?.collection?.products || {});
     }
   }, [data]);
+
+  
 
   const handleFilterButtonClick = () => {
     setShowInput(!showInput);
@@ -67,12 +71,15 @@ const Items = ({ navigation, route }) => {
             handle: handle,
             id: id,
             after: endCursor,
-            product_filters: {
-              ...(availability.inStock ? { available: true } : availability.outStock ? { available: false } : {}),
-              price: {
-                ...(priceRange.min && priceRange.max ? { min: parseFloat(priceRange.min), max: parseFloat(priceRange.max) } : {}),
-              },
-            },
+            product_filters: [
+              ...selectedProductTypes.map(productType => ({ productType })),
+                  {
+                    price: {
+                      ...(priceRange.min && priceRange.max ? { min: parseFloat(priceRange.min), max: parseFloat(priceRange.max) } : {}),
+                    },
+          
+                  }
+                ],
           },
           updateQuery: (prev, { fetchMoreResult }) => {
             if (!fetchMoreResult) return prev;
@@ -94,6 +101,7 @@ const Items = ({ navigation, route }) => {
       }
     }
   };
+
 
   const renderItem = ({ item }) => (
     <View style={{ width: '50%', paddingHorizontal: 5 }}>
@@ -127,10 +135,11 @@ const Items = ({ navigation, route }) => {
             visible={showInput}
             onClose={() => setShowInput(false)}
             dataFilter={dataFilters}
-            availability={availability}
-            setAvailability={setAvailability}
+            selectedProductTypes={selectedProductTypes}
+            setSelectedProductTypes={setSelectedProductTypes}
             priceRange={priceRange}
             setPriceRange={setPriceRange}
+            
           />
           <TouchableOpacity
             style={{

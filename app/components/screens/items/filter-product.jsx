@@ -2,7 +2,23 @@ import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import CheckBox from '@react-native-community/checkbox';
 
-const FilterModal = ({ visible, onClose, dataFilter, availability, setAvailability, priceRange, setPriceRange }) => {
+const FilterModal = ({
+  visible,
+  onClose,
+  dataFilter,
+  selectedProductTypes,
+  priceRange,
+  setPriceRange,
+  setSelectedProductTypes,
+}) => {
+  const handleProductTypeChange = (productType, checked) => {
+    if (checked) {
+      setSelectedProductTypes(prev => [...prev, productType]);
+    } else {
+      setSelectedProductTypes(prev => prev.filter(type => type !== productType));
+    }
+  };
+
   const handlePressOutsideModal = () => {
     onClose();
   };
@@ -15,22 +31,24 @@ const FilterModal = ({ visible, onClose, dataFilter, availability, setAvailabili
       <View style={styles.modalContainer}>
         <Text style={styles.modalHeaderText}>Select Filter</Text>
         <View style={styles.filterOption1}>
-          <Text style={styles.filterOptionText1}>Availability:</Text>
-          <View style={{ flexDirection: 'row' }}>
-            <CheckBox
-              value={availability.inStock}
-              onValueChange={text => setAvailability(prevRange => ({ ...prevRange, inStock: text }))}
-              style={styles.checkbox}
-              tintColors={{ true: 'black' }}
-            />
-            <Text style={{ marginTop: 6, color: 'black' }}>
-              {dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[0].label}
-              <Text style={{ fontWeight: 'bold' }}>
-                {`(${dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[0].count})`}
-              </Text>
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row' }}>
+          <Text style={styles.filterOptionText1}>Product type:</Text>
+          {dataFilter &&
+            dataFilter.filters &&
+            dataFilter.filters[0].values.map(val => (
+              <View style={{ flexDirection: 'row' }}>
+                <CheckBox
+                  value={selectedProductTypes.includes(val?.label)}
+                  onValueChange={checked => handleProductTypeChange(val?.label, checked)}
+                  style={styles.checkbox}
+                  tintColors={{ true: 'black' }}
+                />
+                <Text style={{ marginTop: 6, color: 'black' }}>
+                  {val?.label}
+                  <Text style={{ fontWeight: 'bold' }}>{`(${val?.count})`}</Text>
+                </Text>
+              </View>
+            ))}
+          {/* <View style={{ flexDirection: 'row' }}>
             <CheckBox
               value={availability.outStock}
               onValueChange={text => setAvailability(prevRange => ({ ...prevRange, outStock: text }))}
@@ -44,7 +62,7 @@ const FilterModal = ({ visible, onClose, dataFilter, availability, setAvailabili
                 {`(${dataFilter && dataFilter.filters && dataFilter.filters[0]?.values[1].count})`}
               </Text>
             </Text>
-          </View>
+          </View> */}
         </View>
         <View style={styles.filterOption}>
           <Text style={styles.filterOptionText}>Price Range:</Text>
