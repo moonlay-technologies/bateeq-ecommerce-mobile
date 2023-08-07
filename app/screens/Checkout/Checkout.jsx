@@ -26,11 +26,12 @@ function CheckoutScreen({
   const [route, setRoute] = useState('');
   const [isChange, setIsChange] = useState(false);
   const [routeState, setRouteState] = useState('');
+  const [webContentLoading, setWebContentLoading] = useState(false);
   const [showModal, setShowModal] = useState({
     show: false,
     data: null,
   });
-
+  // const initialJSInjected = `window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)`;
   // console.log('checkout', checkout);
   // console.log('showModal', showModal);
   if (!checkout.data) {
@@ -53,10 +54,11 @@ function CheckoutScreen({
       show: !prev.show,
     }));
   }, []);
-
+  console.log('route name', route);
   const handleWebViewMessage = useCallback(
     event => {
       const { data } = event.nativeEvent;
+      console.log('datahandleWebViewMessage', data);
       if (data.includes('ROUTE_NAME')) {
         const routeName = data.split(':')[1];
         const lastSlashIndex = routeName.lastIndexOf('/');
@@ -71,38 +73,22 @@ function CheckoutScreen({
       }
 
       if (data.includes('CONTINUE_BUTTON') || data.includes('BACK_BUTTON')) {
-        // waiting change the page
+        const backOrContinueButton = data?.split('*')[1];
+        console.log('dataaaCONTINUE_BUTTONorBACK_BUTTON', data);
+        console.log('backOrContinueButton', backOrContinueButton);
+        // if (backOrContinueButton) {
 
-        setTimeout(() => {
-          setIsChange(true);
-        }, 1000);
+        // `);
+        webViewRef.current.injectJavaScript(`
+        window.location.href = ${backOrContinueButton}`);
+        // .current.reload();
+        // }
       }
     },
-    [handleClickWebView, route]
+    [handleClickWebView]
   );
-
-  const initialJSInjected = `
-  const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]')
-  
-  if (shippingButton) {
-      shippingButton.forEach(element => {
-        const divElement = document.createElement('div');
-        divElement.innerHTML = 'Change';
-        divElement.className = 'shipping-button';
-        divElement.onclick = () => {
-          window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
-        };
-        divElement.style.fontSize = '12px'
-        element.parentNode.replaceChild(divElement, element);
-       });
-
-    }
-
- window.ReactNativeWebView.postMessage('RENDERED')
-  
-  
-  window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)`;
-
+  // + window.location.pathname +
+  // const submitFunction = button.getAttribute('onclick');
   const modifyWebContent = useCallback(() => {
     const script = `
     function handleClick(event) {
@@ -111,49 +97,20 @@ function CheckoutScreen({
       const backButton = target.closest('.QT4by.eVFmT.j6D1f.janiy.adBMs');
 
       if (continueButton) {
-        window.ReactNativeWebView.postMessage('CONTINUE_BUTTON:');
+        const submitFunction = document.querySelector('button[type="submit"]');
+        const href = continueButton.getAttribute('href');
+        window.ReactNativeWebView.postMessage('CONTINUE_BUTTON*' + submitFunction.value + ":" + href + ":" + submitFunction);
       } 
       if (backButton) {
-
-        window.ReactNativeWebView.postMessage('BACK_BUTTON:');
+        const backButtonHref = backButton.href;
+        window.ReactNativeWebView.postMessage('BACK_BUTTON*' + backButtonHref);
       }
     }
     document.addEventListener('click', handleClick);
     `;
 
-    const routeInject = `
-      window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)
-    `;
     webViewRef.current.injectJavaScript(script);
-    if (isChange) {
-      webViewRef.current.injectJavaScript(routeInject);
-      setIsChange(false);
-    }
-
-    if (route.includes('shipping') || route.includes('payment')) {
-      const replaceChangeButton = `
-      const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]')
-      if (shippingButton) {
-        shippingButton.forEach(element => {
-          const divElement = document.createElement('div');
-          divElement.innerHTML = 'Change';
-          divElement.className = 'shipping-button';
-          divElement.onclick = () => {
-            window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
-          };
-          divElement.style.fontSize = '12px'
-          element.parentNode.replaceChild(divElement, element);
-         });
-      }
-
-      window.ReactNativeWebView.postMessage('RENDERED' )
-      `;
-      setTimeout(() => {
-        webViewRef?.current?.injectJavaScript(replaceChangeButton);
-        setIsChange(false);
-      }, 500);
-    }
-  }, [webViewRef, route, isChange]);
+  }, [webViewRef]);
 
   const handleRoute = () => {
     if (route.includes('information')) {
@@ -186,11 +143,16 @@ function CheckoutScreen({
     }
   };
 
-  const handleNavigationStateChange = useCallback(
-    navState => {
-      setRouteState(navState);
-      const replaceChangeButton = `
+  useEffect(() => {
+    console.log('routewebContentLoading', [route, webContentLoading]);
+    let replaceChangeButton = '';
+    console.log('condition', [route.includes('shipping'), route.includes('payment'), !webContentLoading, isChange]);
+
+    if ((route.includes('shipping') || route.includes('payment')) && !webContentLoading) {
+      console.log('ga masuk ya');
+      replaceChangeButton = `
       const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]')
+      const shippingButton2 = document.querySelectorAll('a[aria-label="Change shipping address"]')
       if (shippingButton) {
         shippingButton.forEach(element => {
           const divElement = document.createElement('div');
@@ -200,20 +162,49 @@ function CheckoutScreen({
             window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
           };
           divElement.style.fontSize = '12px'
+          divElement.setAttribute('aria-label', 'Change shipping address');
+          element.parentNode.replaceChild(divElement, element);
+         });
+      }
+      if (shippingButton2) {
+        shippingButton2.forEach(element => {
+          const divElement = document.createElement('div');
+          divElement.innerHTML = 'Change';
+          divElement.className = 'shipping-button';
+          divElement.onclick = () => {
+            window.ReactNativeWebView.postMessage('SHIPPING_BUTTON_CLICKED');
+          };
+          divElement.style.fontSize = '12px'
+          divElement.setAttribute('aria-label', 'Change shipping address');
           element.parentNode.replaceChild(divElement, element);
          });
       }
 
-      window.ReactNativeWebView.postMessage('RENDERED' )
-      `;
-      if (route.includes('shipping') || route.includes('payment')) {
-        webViewRef.current.injectJavaScript(replaceChangeButton);
-      }
-    },
-    [webViewRef, route]
-  );
 
-  console.log('checkout data', findKey(checkout, ['data', 'webUrl']));
+      window.ReactNativeWebView.postMessage('RENDERED' )`;
+    } else {
+      replaceChangeButton = '';
+    }
+    console.log('replaceChangeButton', replaceChangeButton);
+    webViewRef.current.injectJavaScript(replaceChangeButton);
+  }, [webViewRef, route, webContentLoading, isChange]);
+
+  const handleOnLoadStart = useCallback(() => {
+    // handling load from web content is start loading then set true
+    setWebContentLoading(true);
+  }, []);
+
+  const handleOnLoadEnd = useCallback(() => {
+    // handling load from web content is start loading then set false
+    setWebContentLoading(false);
+  }, []);
+
+  const handleOnLoadProgress = () => {
+    const routeInject = `
+    window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)
+  `;
+    webViewRef.current.injectJavaScript(routeInject);
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -247,7 +238,7 @@ function CheckoutScreen({
       <WebView
         ref={webViewRef}
         onMessage={handleWebViewMessage}
-        injectedJavaScript={initialJSInjected}
+        // injectedJavaScript={initialJSInjected}
         source={{
           uri: findKey(checkout, ['data', 'webUrl']),
 
@@ -258,14 +249,10 @@ function CheckoutScreen({
           },
         }}
         style={{ flex: 1 }}
-        onLoadStart={() => {
-          // console.log('load start');
-        }}
-        onLoadProgress={e => {
-          // console.log('event onload', e);
-          setIsChange(true);
-        }}
-        onNavigationStateChange={handleNavigationStateChange}
+        onLoadStart={handleOnLoadStart}
+        onLoadEnd={handleOnLoadEnd}
+        onLoadProgress={handleOnLoadProgress}
+        // onNavigationStateChange={handleNavigationStateChange}
       />
     </View>
   );
