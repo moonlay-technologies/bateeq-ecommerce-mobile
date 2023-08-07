@@ -23,9 +23,6 @@ function OptionBar(props) {
       marginRight: 10,
       backgroundColor: '#d4d4d4',
     },
-    confirmBtnStyle = {
-      backgroundColor: '#cd5044',
-    },
   } = props;
 
   return (
@@ -41,24 +38,26 @@ function OptionBar(props) {
             backgroundColor: '#ededed',
             borderRadius: SIZES.radius,
             paddingHorizontal: 20,
-            // paddingVertical: 20,
-            maxWidth: 340,
+            maxWidth: '86%',
+            height: '63%',
             zIndex: 999,
+            elevation: 4,
           },
         ]}
       >
         {!withoutIcon && (
           <Ionicons name="information-circle-sharp" style={{ marginBottom: 8 }} color="#704FFE" size={50} />
         )}
-        <Text style={{ ...FONTS.h5, color: COLORS.title }}>{title}</Text>
-        <Text style={{ ...FONTS.font, color: COLORS.text, textAlign: 'center' }}>{text}</Text>
-        {children && <View style={{ height: '50%', width: '100%' }}>{children}</View>}
+        <View style={{ marginBottom: 20, alignItems: 'center' }}>
+          <Text style={{ ...FONTS.h5, color: COLORS.title }}>{title}</Text>
+          <Text style={{ ...FONTS.font, color: COLORS.text, textAlign: 'center' }}>{text}</Text>
+        </View>
+        {children && <View style={{ height: '60%', width: '100%' }}>{children}</View>}
         <View style={{ flexDirection: 'row', marginTop: 18 }}>
           <Button size="sm" title="Cancel" style={btnStyle} textStyle={{ color: '#555555' }} onPress={toggle} />
           <Button
             size="sm"
             title={submitText}
-            style={confirmBtnStyle}
             textStyle={{
               fontWeight: '900',
             }}

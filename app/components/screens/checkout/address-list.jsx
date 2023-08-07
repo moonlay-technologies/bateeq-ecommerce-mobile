@@ -46,15 +46,17 @@ function ViewAddressList(props) {
               ]}
               key={id}
             >
-              <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between' }}>
+              <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={{ fontWeight: '900' }}>{company}</Text>
                 {defaultAddress?.data?.id !== id ? (
-                  <Button
-                    size="xs"
-                    onPress={() => handleSelectAddress(data)}
-                    title={selectedAddress?.id === id ? 'Selected' : 'Select'}
-                    outline
-                  />
+                  <View style={{ marginTop: 10, justifyContent: 'center', alignItems: 'center' }}>
+                    <Button
+                      size="xs"
+                      onPress={() => handleSelectAddress(data)}
+                      title={selectedAddress?.id === id ? 'Selected' : 'Select'}
+                      outline
+                    />
+                  </View>
                 ) : (
                   <View style={styles.circle} />
                 )}
@@ -81,16 +83,19 @@ export default connect(
 
 const styles = StyleSheet.create({
   addressContainer: {
-    marginVertical: 2,
-    borderBottomColor: COLORS.borderColor,
+    marginVertical: 3,
+    borderBottomColor: COLORS.dark,
     borderBottomWidth: 1,
     paddingHorizontal: 5,
   },
   circle: {
-    backgroundColor: COLORS.info,
-    alignSelf: 'center',
+    backgroundColor: COLORS.black,
     height: 10,
     width: 10,
+    marginRight: 20,
+    marginTop: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: SIZES.radius,
   },
 });

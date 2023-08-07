@@ -31,9 +31,9 @@ function CheckoutScreen({
     show: false,
     data: null,
   });
-  // const initialJSInjected = `window.ReactNativeWebView.postMessage('ROUTE_NAME:' + window.location.pathname)`;
-  // console.log('checkout', checkout);
-  // console.log('showModal', showModal);
+
+  const [webViewKey, setWebViewKey] = useState(1);
+
   if (!checkout.data) {
     return (
       <View
@@ -124,22 +124,30 @@ function CheckoutScreen({
     modifyWebContent();
   }, [modifyWebContent, route]);
 
-  const handleDefaultAddress = () => {
+  const handleDefaultAddress = async () => {
     if (showModal.data) {
-      updateDefaultAddress({
-        addressId: showModal.data?.id,
-        customerAccessToken: token,
-      });
+      try {
+        await updateDefaultAddress({
+          addressId: showModal.data?.id,
+          customerAccessToken: token,
+        });
 
-      setShowModal({
-        show: false,
-        data: null,
-      });
-      webViewRef.current.reload();
-      setTimeout(() => {
-        getAddress({ token, limit: 10 });
-        navigation.navigate('Cart');
-      }, 1000);
+        setShowModal({
+          show: false,
+          data: null,
+        });
+
+        webViewRef.current.clearCache(true);
+        webViewRef.current.reload();
+        setWebViewKey(prevKey => prevKey + 1);
+
+        setTimeout(() => {
+          getAddress({ token, limit: 10 });
+          navigation.navigate('Cart');
+        }, 1000);
+      } catch (error) {
+        console.error('Error updating default address:', error);
+      }
     }
   };
 
@@ -149,7 +157,6 @@ function CheckoutScreen({
     console.log('condition', [route.includes('shipping'), route.includes('payment'), !webContentLoading, isChange]);
 
     if ((route.includes('shipping') || route.includes('payment')) && !webContentLoading) {
-      console.log('ga masuk ya');
       replaceChangeButton = `
       const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]')
       const shippingButton2 = document.querySelectorAll('a[aria-label="Change shipping address"]')
@@ -185,7 +192,6 @@ function CheckoutScreen({
     } else {
       replaceChangeButton = '';
     }
-    console.log('replaceChangeButton', replaceChangeButton);
     webViewRef.current.injectJavaScript(replaceChangeButton);
   }, [webViewRef, route, webContentLoading, isChange]);
 
@@ -209,7 +215,6 @@ function CheckoutScreen({
   return (
     <View style={{ flex: 1 }}>
       <HeaderComponent withoutCartAndLogo backAction backFunc={handleRoute} icon="back" title="Back" />
-
       <Modal
         title="Address"
         text={`${showModal?.data?.title ? `${showModal?.data?.title} will be` : 'choose'} your current address`}
@@ -219,8 +224,7 @@ function CheckoutScreen({
           setShowModal(prev => ({
             ...prev,
             show: !prev.show,
-          }))
-        }
+          }))}
         style={{
           position: 'relative',
           top: '35%',
@@ -236,7 +240,9 @@ function CheckoutScreen({
       />
       {/* setToLocalStorage */}
       <WebView
+        key={webViewKey}
         ref={webViewRef}
+        cacheMode="LOAD_NO_CACHE"
         onMessage={handleWebViewMessage}
         // injectedJavaScript={initialJSInjected}
         source={{
