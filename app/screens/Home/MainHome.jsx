@@ -24,7 +24,7 @@ import HeaderComponent from '../../components/HeaderComponent';
 import LoadingScreen from '../../components/LoadingView';
 import { Footer } from '../../components/Footer';
 import MenuListHeader from '../../components/ListMenuHeader';
-import NavbarCheckoutWidget from "../../components/shared-components/checkouts/navbar.checkout.widget";
+import NavbarCheckoutWidget from '../../components/shared-components/checkouts/navbar.checkout.widget';
 
 function MainHome(props) {
   const { navigation, options, CartPutTotalQty: cartPutTotalQty, CartGetList: cartGetList } = props;
@@ -87,8 +87,6 @@ function MainHome(props) {
       cartPutTotalQty({ totalQuantity: cartData?.cart?.totalQuantity });
     }
   }, [cartData]);
-  
-  
 
   return (
     <SafeAreaView
@@ -97,12 +95,7 @@ function MainHome(props) {
         backgroundColor: COLORS.backgroundColor,
       }}
     >
-      <HeaderComponent
-        mainMenu
-        dataListMenu={dataSideMenuNavigation}
-        dataStory={pageStory}
-      />
-      
+      <HeaderComponent mainMenu dataListMenu={dataSideMenuNavigation} dataStory={pageStory} />
       <NavbarCheckoutWidget>
         {dataImageBannerLoading && <LoadingScreen Loading3 />}
         <Swiper
@@ -138,7 +131,7 @@ function MainHome(props) {
             );
           })}
         </Swiper>
-        
+
         <OurStory
           style={{
             marginBottom: 10,
@@ -148,11 +141,11 @@ function MainHome(props) {
             navigation.navigate('PagesInShopify', { dataPages: data });
           }}
         />
-        
+
         <LatestCollections navigate={navigation} />
-        
+
         <OurCategory />
-        
+
         <View style={{ marginTop: 20 }}>
           <Swiper
             autoplay
@@ -262,7 +255,6 @@ function MainHome(props) {
         </View>
         <Footer dataStory={pageStory} />
       </NavbarCheckoutWidget>
-      
     </SafeAreaView>
   );
 }

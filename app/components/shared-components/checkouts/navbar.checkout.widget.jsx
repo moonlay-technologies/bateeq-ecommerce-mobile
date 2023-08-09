@@ -16,7 +16,6 @@ function mapStateToProps({ Checkout }) {
 
 function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
   let { data, loading } = show;
-  console.log({ show });
   const navigation = useNavigation();
   const screen = useWindowDimensions();
 
@@ -45,7 +44,6 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
       padding: 15,
       borderRadius: 10,
       justifyContent: 'space-between',
-      // flex:1,
       flexDirection: 'row',
       alignItems: 'center',
     },
@@ -53,17 +51,13 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
 
   useEffect(() => {
     const handleBackPress = () => {
-      // Code to be executed when the back button is pressed
       console.log('Back button pressed');
 
-      // Return `true` to prevent the default back button behavior
       return true;
     };
 
-    // Subscribe to the back button press event
     BackHandler.addEventListener('hardwareBackPress', handleBackPress);
 
-    // Clean up the event listener when the component unmounts
     return () => {
       BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
     };
@@ -134,8 +128,8 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
                         borderRadius: 20,
                         shadowColor: '#000',
                         shadowOffset: {
-                          width: 5,
-                          height: 5,
+                          width: 8,
+                          height: 8,
                         },
                         shadowOpacity: 0.5,
                         shadowRadius: 5,
@@ -150,7 +144,7 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
                           resizeMode: 'cover',
                         }}
                         source={{
-                          uri: item?.image?.url ?? null,
+                          uri: item?.variant?.image?.url ?? null,
                         }}
                       />
                     </View>
@@ -212,9 +206,6 @@ function NavbarCheckoutWidget({ GetCheckoutId, show, ...props }) {
                   </Text>
                 </View>
               </View>
-              {/**
-               * BUAT MAS REZA
-               */}
               <Button
                 onPress={() => navigation.navigate('Checkout', { data })}
                 title="Lanjutkan"

@@ -39,7 +39,7 @@ export default [
     component: Orders,
   },
   {
-    name: 'Profile',
+    name: 'Account',
     component: Profile,
   },
   {

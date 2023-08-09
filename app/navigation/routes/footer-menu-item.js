@@ -30,9 +30,9 @@ export default [
     navigate: 'Orders',
   },
   {
-    name: 'Profile',
+    name: 'Account',
     component: Profile,
     icon: UserIcon,
-    navigate: 'Profile',
+    navigate: 'Account',
   },
 ];

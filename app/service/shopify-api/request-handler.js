@@ -1,12 +1,13 @@
 import { create } from 'apisauce';
 import LocalStorage from 'local-storage';
 // import AuthService from '../auth/auth-service';
+import Environment from '../../config/Environment';
 
 const api = create({
   baseURL: `https://bateeqshop.myshopify.com/admin/api/2023-04/`,
   headers: {
     'Content-Type': 'application/json',
-    'X-Shopify-Access-Token': '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',
+    'X-Shopify-Access-Token': Environment.AccessToken,
   },
 });
 api.axiosInstance.interceptors.request.use(

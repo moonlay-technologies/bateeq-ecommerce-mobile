@@ -70,8 +70,6 @@ function CheckoutScreen({
       }
 
       if (data.includes('CONTINUE_BUTTON') || data.includes('BACK_BUTTON')) {
-        // waiting change the page
-
         setTimeout(() => {
           setIsChange(true);
         }, 1000);
@@ -220,8 +218,6 @@ function CheckoutScreen({
     [webViewRef, route]
   );
 
-  console.log('checkout data', findKey(checkout, ['data', 'webUrl']));
-
   return (
     <View style={{ flex: 1 }}>
       <HeaderComponent withoutCartAndLogo backAction backFunc={handleRoute} icon="back" title="Back" />
@@ -248,6 +244,7 @@ function CheckoutScreen({
         disabled={actionLoading}
         onContinue={handleDefaultAddress}
         withoutIcon
+        checkoutSide
       />
       {/* setToLocalStorage */}
       <WebView

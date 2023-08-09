@@ -72,7 +72,7 @@ function AddressScreen(props) {
       });
       getAddress({ token, limit: 10 });
       setAddressSelected('');
-      navigation.navigate('Address');
+      navigation.navigate('Account');
     }
   };
 
@@ -120,7 +120,7 @@ function AddressScreen(props) {
                       : null,
                   ]}
                   onPress={() => handleSelectAddress(item)}
-                  key={`${id}`}
+                  key={id}
                 >
                   {(isLoadingDelete && showModal?.data?.id === id) ||
                   customerAddress?.loading ||

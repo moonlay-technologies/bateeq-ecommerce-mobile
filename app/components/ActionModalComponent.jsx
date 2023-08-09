@@ -23,6 +23,7 @@ function OptionBar(props) {
       marginRight: 10,
       backgroundColor: '#d4d4d4',
     },
+    checkoutSide,
   } = props;
 
   return (
@@ -34,12 +35,12 @@ function OptionBar(props) {
             alignItems: 'center',
             justifyContent: 'center',
             left: '50%',
-            transform: [{ translateX: -170 }, { translateY: -100 }],
+            transform: [{ translateX: checkoutSide ? -170 : -140 }, { translateY: checkoutSide ? -100 : -250 }],
             backgroundColor: '#ededed',
             borderRadius: SIZES.radius,
             paddingHorizontal: 20,
             maxWidth: '86%',
-            height: '63%',
+            height: checkoutSide ? '56%' : '40%',
             zIndex: 999,
             elevation: 4,
           },

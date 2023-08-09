@@ -23,11 +23,14 @@ function EditProfile({ route, ...props }) {
   const [isFocused3, setisFocused3] = useState(false);
   const [isFocused4, setisFocused4] = useState(false);
 
+  const { email, firstName, lastName, phone } = options.info;
+  const { loading, token } = options;
+
   const initialValues = {
-    email: options?.info?.email || '',
-    firstName: options?.info?.firstName || options?.info?.first_name || '',
-    lastName: options?.info?.lastName || options?.info?.last_name || '',
-    phone: options?.info?.phone || '',
+    email: email || '',
+    firstName: firstName || '',
+    lastName: lastName || '',
+    phone: phone || '',
   };
 
   const ValidationSchema = Yup.object().shape({
@@ -58,7 +61,7 @@ function EditProfile({ route, ...props }) {
       // setIsLoading(true);
       updateAccount({
         customer: values,
-        accessToken: options?.token,
+        accessToken: token,
       });
     } catch (error) {
       onError(error);
@@ -188,10 +191,10 @@ function EditProfile({ route, ...props }) {
             </ScrollView>
             <View style={[GlobalStyleSheet.container, { alignItems: 'center' }]}>
               <Button
-                title={`${options?.loading ? 'Saving ...' : 'Save Details'}`}
+                title={`${loading ? 'Saving ...' : 'Save Details'}`}
                 size="xxl"
                 onPress={handleSubmit}
-                disabled={options?.loading}
+                disabled={loading}
               />
             </View>
           </View>

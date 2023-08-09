@@ -34,8 +34,8 @@ const FilterModal = ({
           <Text style={styles.filterOptionText1}>Product type:</Text>
           {dataFilter &&
             dataFilter.filters &&
-            dataFilter.filters[0].values.map(val => (
-              <View style={{ flexDirection: 'row' }}>
+            dataFilter.filters[0].values.map((val, index) => (
+              <View key={index} style={{ flexDirection: 'row' }}>
                 <CheckBox
                   value={selectedProductTypes.includes(val?.label)}
                   onValueChange={checked => handleProductTypeChange(val?.label, checked)}
