@@ -239,9 +239,10 @@ function CartScreen({ navigation, route, ...props }) {
             })
           )}
 
-          <View style={{ padding: 5 }}>
+          <View style={{ padding: 5,marginBottom:10,marginTop:10 }}>
             <TextArea
               label="Special Instruction"
+              numberOfLines={5}
               labelStyle={{ ...FONTS.fontSatoshiBold, marginBottom: 8, color: COLORS.title }}
               placeholder="Write Instruction Here..."
               handleInputChange={val => setNote(val)}

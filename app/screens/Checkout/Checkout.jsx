@@ -158,7 +158,7 @@ function CheckoutScreen({
     console.log('routewebContentLoading', [route, webContentLoading]);
     let replaceChangeButton = '';
     console.log('condition', [route.includes('shipping'), route.includes('payment'), !webContentLoading, isChange]);
-
+    webViewRef.current.injectJavaScript(replaceChangeButton);
     if ((route.includes('shipping') || route.includes('payment')) && !webContentLoading) {
       replaceChangeButton = `
       const shippingButton = document.querySelectorAll('a[aria-label="Change shipping address"]')
