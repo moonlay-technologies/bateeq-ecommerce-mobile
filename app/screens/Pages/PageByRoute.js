@@ -14,9 +14,7 @@ const renderers = {
 
 const PagesInShopify = ({route}) => {
   const {dataPages} = route.params;
-  console.log([dataPages])
   const screen = useWindowDimensions()
-  // console.log({dataPages})
   return (
     <>
       <SafeAreaView style={{flex: 1, backgroundColor: COLORS.backgroundColor }}>
@@ -29,7 +27,8 @@ const PagesInShopify = ({route}) => {
             </Text>
             <CustomHTML
             //  htmlContent={dataPages?.body}
-             htmlContent={clearTagHtml(dataPages?.body)?.__html} htmlStyle={{
+             htmlContent={clearTagHtml(dataPages?.body)?.__html}
+             htmlStyle={{
               img: {
                 overflow:"hidden",
                 borderRadius: 10,

@@ -36,7 +36,9 @@ export const findKey = (data, key) => {
       let value = data;
       if (data) {
         for (const k of key) {
-          value = value[k];
+          if(typeof value[k] !== 'undefined'){
+            value = value[k];
+          }
         }
       }
 
