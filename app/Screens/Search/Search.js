@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   //   ScrollView,
@@ -9,63 +9,23 @@ import {
   Image,
   FlatList,
 } from 'react-native';
-import {IconButton} from 'react-native-paper';
-import ProductItem from '../../components/ProductItem';
-import FeatherIcon from 'react-native-vector-icons/Feather';
+// import { IconButton } from 'react-native-paper';
+// import FeatherIcon from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {COLORS, FONTS} from '../../constants/theme';
-import {ProductApi} from '../../service/shopify-api';
+import { COLORS, FONTS } from '../../constants/theme';
 import LoadingScreen from '../../components/LoadingView';
-import {gql, useLazyQuery} from '@apollo/client';
+import { useLazyQuery } from '@apollo/client';
+import { SEARCH_PRODUCTS_QUERY } from '../../service/graphql/query/search';
+import HeaderCartComponent from '../../components/HeaderCartComponent';
+import ProductItem from '../../components/ProductItem';
 
-const SEARCH_PRODUCTS_QUERY = gql`
-query SearchProducts($query: String!) {
-  products(query: $query, first: 10) {
-    edges {
-      node {
-        id
-        title
-        description
-        images(first: 4) {
-          edges {
-            node {
-              id
-              url
-            }
-          }
-        }
-        variants(first: 1) {
-          edges {
-            node {
-              price {
-                amount
-                currencyCode
-              }
-              compareAtPrice {
-                amount
-                currencyCode
-              }
-            }
-          }
-        }
-        options(first: 2) {
-          values
-        }
-      }
-    }
-  }
-}`
-
-
-const Search = ({navigation}) => {
+const Search = ({ navigation }) => {
   const [valSearch, setValSearch] = useState('');
   const [itemView, setItemView] = useState('grid');
   // const [isLoading, setIsLoading] = useState(null);
   const [searchResults, setSearchResults] = useState([]);
 
-  const [searchProducts, {data, loading, error}] = useLazyQuery(
-    SEARCH_PRODUCTS_QUERY,
-  );
+  const [searchProducts, { data, loading, error }] = useLazyQuery(SEARCH_PRODUCTS_QUERY);
 
   const handlePress = () => {
     navigation.navigate('Home');
@@ -87,8 +47,8 @@ const Search = ({navigation}) => {
     }
   }, [data]);
 
-  const renderItem = ({item}) => (
-    <View style={{width: '50%', paddingHorizontal: 5}}>
+  const renderItem = ({ item }) => (
+    <View style={{ width: '50%', paddingHorizontal: 5 }}>
       <ProductItem
         onPress={() =>
           navigation.navigate('ProductDetail', {
@@ -101,7 +61,6 @@ const Search = ({navigation}) => {
               variant: item?.options[0]?.values,
               colors: item?.options[1]?.values,
             },
-            // category: type,
           })
         }
         imgLength
@@ -125,81 +84,30 @@ const Search = ({navigation}) => {
       style={{
         flex: 1,
         backgroundColor: COLORS.backgroundColor,
-      }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          height: 45,
-          justifyContent: 'space-between',
-        }}>
-        <IconButton
-          icon={() => (
-            <View
-              style={{
-                height: 30,
-                width: 30,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 8,
-              }}>
-              <FeatherIcon color={COLORS.title} size={18} name="menu" />
-            </View>
-          )}
-          size={25}
-          onPress={() => navigation.openDrawer()}
-        />
-        <TouchableOpacity onPress={handlePress}>
-          <Image
-            style={{width: 70, height: 35}}
-            source={require('../../assets/images/logo.png')}
-          />
-        </TouchableOpacity>
-        <IconButton
-          onPress={() => navigation.navigate('Cart')}
-          icon={() => (
-            <View>
-              <FeatherIcon color={COLORS.title} size={20} name="shopping-bag" />
-              <View
-                style={{
-                  height: 14,
-                  width: 14,
-                  borderRadius: 14,
-                  backgroundColor: COLORS.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'absolute',
-                  top: -4,
-                  right: -6,
-                }}>
-                <Text
-                  style={{...FONTS.fontXs, fontSize: 10, color: COLORS.white}}>
-                  2
-                </Text>
-              </View>
-            </View>
-          )}
-          size={25}
-        />
-      </View>
+      }}
+    >
+      <HeaderCartComponent />
       <View
         style={{
           flexDirection: 'column',
           height: 190,
           padding: 20,
-        }}>
+        }}
+      >
         <Text
           style={{
             color: COLORS.title,
             fontSize: 14,
-            ...FONTS.fontSatoshiBold,
+            ...FONTS.font,
             marginBottom: 8,
-          }}>
+          }}
+        >
           Search Product
         </Text>
         <TextInput
           style={{
             ...FONTS.font,
+            ...COLORS.font,
             flex: 1,
             color: COLORS.title,
             borderWidth: 1,
@@ -207,13 +115,13 @@ const Search = ({navigation}) => {
             borderRadius: 5,
             marginBottom: 24,
           }}
-          autoFocus={true}
+          autoFocus
           placeholder="e.g T-shirt / Dress"
           placeholderTextColor={COLORS.text}
           value={valSearch}
           onChangeText={handleValChange}
         />
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
           <TouchableOpacity
             style={{
               backgroundColor: '#333333',
@@ -226,21 +134,23 @@ const Search = ({navigation}) => {
               alignItems: 'center',
               height: 48,
             }}
-            onPress={handleSearchButton}>
+            onPress={handleSearchButton}
+          >
             <Text
               style={{
                 color: COLORS.white,
                 ...FONTS.fontSatoshiBold,
                 textAlign: 'center',
                 alignItems: 'center',
-              }}>
+              }}
+            >
               Search
             </Text>
             <Ionicons
               name="md-arrow-forward"
               size={12}
               color={COLORS.white}
-              style={{  
+              style={{
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginTop: 4,

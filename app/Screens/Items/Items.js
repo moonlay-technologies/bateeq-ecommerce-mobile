@@ -1,17 +1,6 @@
-import React, {useState, useEffect} from 'react';
-import {
-  SafeAreaView,
-  // ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  FlatList,
-} from 'react-native';
-// import Octicons from 'react-native-vector-icons/Octicons';
-// import FeatherIcon from 'react-native-vector-icons/Feather';
-// import RBSheet from 'react-native-raw-bottom-sheet';
-import {COLORS, FONTS} from '../../constants/theme';
+import React, { useRef, useState, useEffect } from 'react';
+import { SafeAreaView, TextInput, TouchableOpacity, StyleSheet, Text, View, FlatList } from 'react-native';
+import { COLORS, FONTS } from '../../constants/theme';
 import Header from '../../layout/Header';
 import ProductItem from '../../components/ProductItem';
 import pic1 from '../../assets/images/product/pic1.jpg';
@@ -22,12 +11,7 @@ import pic5 from '../../assets/images/product/pic5.jpg';
 import pic6 from '../../assets/images/product/pic6.jpg';
 import pic7 from '../../assets/images/product/pic7.jpg';
 import pic8 from '../../assets/images/product/pic8.jpg';
-import {List, RadioButton, Snackbar} from 'react-native-paper';
-import {ProductApi} from '../../service/shopify-api';
-// import Ripple from 'react-native-material-ripple';
-// import CheckBox from '@react-native-community/checkbox';
-// import {GlobalStyleSheet} from '../../constants/StyleSheet';
-// import CustomButton from '../../components/CustomButton';
+import { Snackbar } from 'react-native-paper';
 import MobilesData from '../../JSON/Mobiles.json';
 import ElectronicsData from '../../JSON/Electronics.json';
 import FashionData from '../../JSON/Fashion.json';
@@ -35,9 +19,10 @@ import FurnitureData from '../../JSON/Furniture.json';
 import GroceryData from '../../JSON/Grocery.json';
 import AppliancesData from '../../JSON/Appliances.json';
 import BooksToysData from '../../JSON/BooksToys.json';
-import {gql, useQuery} from '@apollo/client';
+import { useQuery, useLazyQuery } from '@apollo/client';
 import LoadingScreen from '../../components/LoadingView';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
+import { GET_LIST_PRODUCTS_CATEGORIES } from '../../service/graphql/query/products';
 
 const ProductData = [
   {
@@ -116,142 +101,79 @@ const ProductData = [
   },
 ];
 
-const discountFilterData = [
-  {
-    selected: false,
-    title: '50% or more',
-  },
-  {
-    selected: false,
-    title: '30% or more',
-  },
-  {
-    selected: false,
-    title: '40% or more',
-  },
-  {
-    selected: false,
-    title: '60% or more',
-  },
-  {
-    selected: false,
-    title: '70% or more',
-  },
-];
-const brandFilterData = [
-  {
-    selected: true,
-    title: 'Roadster',
-  },
-  {
-    selected: true,
-    title: 'Peter England',
-  },
-  {
-    selected: true,
-    title: 'Flying Machine',
-  },
-  {
-    selected: true,
-    title: 'Killer',
-  },
-  {
-    selected: true,
-    title: "Levi's",
-  },
-  {
-    selected: true,
-    title: 'Puma',
-  },
-  {
-    selected: true,
-    title: 'Wildcraft',
-  },
-  {
-    selected: true,
-    title: 'Ndet',
-  },
-  {
-    selected: true,
-    title: 'Woodland',
-  },
-];
+// const discountFilterData = [
+//   {
+//     selected: false,
+//     title: '50% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '30% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '40% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '60% or more',
+//   },
+//   {
+//     selected: false,
+//     title: '70% or more',
+//   },
+// ];
+// const brandFilterData = [
+//   {
+//     selected: true,
+//     title: 'Roadster',
+//   },
+//   {
+//     selected: true,
+//     title: 'Peter England',
+//   },
+//   {
+//     selected: true,
+//     title: 'Flying Machine',
+//   },
+//   {
+//     selected: true,
+//     title: 'Killer',
+//   },
+//   {
+//     selected: true,
+//     title: "Levi's",
+//   },
+//   {
+//     selected: true,
+//     title: 'Puma',
+//   },
+//   {
+//     selected: true,
+//     title: 'Wildcraft',
+//   },
+//   {
+//     selected: true,
+//     title: 'Ndet',
+//   },
+//   {
+//     selected: true,
+//     title: 'Woodland',
+//   },
+// ];
 
-const GET_LIST_PRODUCTS_CATEGORIES = gql`
-  query GetProducts($first: Int!, $query: String!) {
-    products(first: $first, query: $query) {
-      edges {
-        node {
-          id
-          title
-          description
-          images(first: 1) {
-            edges {
-              node {
-                url
-              }
-            }
-          }
-          variants(first: 1) {
-            edges {
-              node {
-                price {
-                  amount
-                }
-                compareAtPrice {
-                  amount
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
-const Items = ({navigation, route}) => {
-  // const sheetRef = useRef();
-  const {type, collectionId, query, categories, colletionTitle} = route.params;
+const Items = ({ navigation, route }) => {
+  const { type, query, categories, colletionTitle } = route.params;
   const [itemView, setItemView] = useState('grid');
-  const [productData, setProductData] = useState(null);
-  const [dataCategories, setDataCategories] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
-  const [collectionCustomId, setCollectionCustomId] = useState({
-    collection_id: collectionId,
-  });
+  const [dataCategories, setDataCategories] = useState([]);
+  const [isSnackbar, setIsSnackbar] = useState(false);
+  const [snackText, setSnackText] = useState('Loading...');
+  // const [currentPage, setCurrentPage] = useState(1);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [valSearch, setValSearch] = useState('');
 
-  const {data: dataListCategories} = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
-    variables: {
-      first: 5,
-      query: query,
-    },
-  });
-
-  // console.log('collectionTit', dataListCategories.products.edges.map(e => e.node.variants.edges[0].node.price.amount))
-
-  useEffect(() => {
-    getDataProducts();
-    if (dataListCategories) {
-      setDataCategories(dataListCategories?.products?.edges);
-    }
-    // getDataCount();
-  }, []);
-
-  const getDataProducts = () => {
-    setIsLoading(true);
-    ProductApi.get(collectionCustomId)
-      .then(res => {
-        // console.log(res.products[0].images.map(src => src.src));
-        setIsLoading(false);
-        setProductData(res.products);
-      })
-      .catch(error => {
-        setIsLoading(false);
-        console.log('errorrr', error);
-      });
-  };
-
+  const flatListRef = useRef(null);
   const Products =
     type == 'Mobiles'
       ? MobilesData.items
@@ -261,26 +183,102 @@ const Items = ({navigation, route}) => {
       ? FurnitureData.items
       : type == 'Grocery'
       ? GroceryData.items
-      : type == 'Appliances'
+      : type == 'Dress'
       ? AppliancesData.items
-      : type == 'Books,Toys'
+      : type == 'Bottom'
       ? BooksToysData.items
-      : type == 'Fashion'
+      : type == 'Top'
       ? FashionData.items
       : ProductData;
 
   const [itemData, setItemData] = useState(Products);
 
-  // const [sortVal, setSortVal] = useState('');
-  // const [sheetType, setSheetType] = useState('');
-  // const [brandFilter, setBrandFilter] = useState(brandFilterData);
-  // const [discountFilter, setDiscountFilter] = useState(discountFilterData);
-  // const [filterData, setFilterData] = useState([]);
-  const [isSnackbar, setIsSnackbar] = useState(false);
-  const [snackText, setSnackText] = useState('Loading...');
+  const {
+    data,
+    fetchMore,
+    loading: loadingGetProducts,
+  } = useQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+    variables: {
+      first: 5,
+      query: valSearch || query,
+    },
+  });
+
+  const [filterSearch, { loading: loadingSearch }] = useLazyQuery(GET_LIST_PRODUCTS_CATEGORIES, {
+    onCompleted: ({ products }) => {
+      const results = products?.edges || [];
+      setDataCategories(results);
+    },
+  });
+
+  const handleSearchButton = () => {
+    filterSearch({
+      variables: {
+        first: 10,
+        query: valSearch,
+      },
+    });
+
+    // const [filterByAvailability, {data: dataFilterAvailability, loading: loadingSearch}] = useLazyQuery(
+    //   FILTER_PRODUCT_BY_AVAILABILITY,
+    // );
+
+    // const handleApplyFilters = (filters) => {
+    //   const { availability, minPrice, maxPrice } = filters;
+
+    //     if(availability.some((item) => item.label === "in Stock" && item.checked)) {
+    //       filterByAvailability({
+    //         variables: {
+    //           handle: "monez",
+    //           first: 10,
+    //           isAvailable: true
+    //         }
+    //       })
+    //     }
+    // if (!minPrice && !maxPrice) {
+    //   return true
+    // }
+    // Filter by price range
+    // const filteredByPrice = filteredByAvailability.filter((product) => {
+    //   if (!minPrice && !maxPrice) {
+    //     return true; // If no price range is specified, include all products
+    //   }
+
+    //   if (minPrice && maxPrice) {
+    //     return product.price >= minPrice && product.price <= maxPrice;
+    //   }
+
+    //   if (minPrice) {
+    //     return product.price >= minPrice;
+    //   }
+
+    //   if (maxPrice) {
+    //     return product.price <= maxPrice;
+    //   }
+    // });
+
+    // setFilteredProducts(filteredByPrice);
+  };
+
+  useEffect(() => {
+    if (data) {
+      setDataCategories(data?.products?.edges || []);
+    }
+    // if (dataFilterAvailability) {
+    //   setDataCategories(data?.collection?.products?.nodes || []);
+    // }
+  }, [data]);
+
+  const handleValChange = val => {
+    setValSearch(val);
+  };
+
+  const handleFilterButtonClick = () => {
+    setShowInput(!showInput);
+  };
 
   const handleItemLike = val => {
-    let items = itemData.map(data => {
+    const items = itemData.map(data => {
       if (val === data.id) {
         if (data.isLike) {
           setSnackText('Item removed to Favourite.');
@@ -288,101 +286,60 @@ const Items = ({navigation, route}) => {
           setSnackText('Item add to Favourite.');
         }
         setIsSnackbar(true);
-        return {...data, isLike: !data.isLike};
+        return { ...data, isLike: !data.isLike };
       }
       return data;
     });
     setItemData(items);
   };
 
-  // const handleFilterSelected = val => {
-  //   let Brand = brandFilter.map(data => {
-  //     if (val === data.title) {
-  //       return {...data, selected: !data.selected};
-  //     }
-  //     return data;
-  //   });
-  //   let Discount = discountFilter.map(data => {
-  //     if (val === data.title) {
-  //       return {...data, selected: !data.selected};
-  //     }
-  //     return data;
-  //   });
-  //   setBrandFilter(Brand);
-  //   setDiscountFilter(Discount);
-  //   setFilterData(
-  //     sheetType == 'brand' ? Brand : sheetType == 'discount' ? Discount : [],
-  //   );
-  // };
+  const handleLoadMore = async () => {
+    if (data && data?.products?.pageInfo?.hasNextPage) {
+      setIsLoadingMore(true);
+      try {
+        const result = await fetchMore({
+          variables: {
+            first: 5,
+            query: query,
+            after: data.products.pageInfo.endCursor,
+          },
+          updateQuery: (prev, { fetchMoreResult }) => {
+            if (!fetchMoreResult) return prev;
+            return {
+              products: {
+                ...fetchMoreResult.products,
+                edges: [...prev?.products?.edges, ...fetchMoreResult.products.edges],
+              },
+            };
+          },
+        });
+        // Process the result if needed
+      } catch (error) {
+        console.error('Error fetching more products:', error);
+      } finally {
+        setIsLoadingMore(false);
+      }
+    }
+  };
 
-  const renderItem = ({item}) => (
-    // <View
-    //   style={{
-    //     width: itemView == 'list' ? '100%' : '50%',
-    //     paddingHorizontal: 10,
-    //     marginBottom: 8,
-    //   }}>
-    //   <ItemCard
-    //     listView={itemView == 'list' ? true : false}
-    //     id={item.id}
-    //     subCategory="MEN - LS - REGULER"
-    //     imageSrc={item.images[0].src}
-    //     images={item.images}
-    //     price={item.variants[0].price}
-    //     oldPrice={item.variants[0].compare_at_price}
-    //     title={item.title}
-    //     description={item.description}
-    //     shopBtn={false}
-    //     itemName={item.title}
-    //   />
-    // </View>
-    <View style={{width: '50%', paddingHorizontal: 5}}>
+  const renderItem = ({ item }) => (
+    <View style={{ width: '50%', paddingHorizontal: 5 }}>
+      {console.log('checkItem', item.node.id)}
       <ProductItem
         onPress={() =>
           navigation.navigate('ProductDetail', {
-            item: {
-              title: categories ? item.node.title : item.title,
-              images: categories
-                ? item.node.images.edges[0].node.url
-                : item.images,
-              oldPrice: categories
-                ? item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount
-                : item.variants[0].compare_at_price,
-              price: categories
-                ? item.node.variants.edges[0].node.price.amount
-                : item.variants[0].price,
-              desc: categories ? item.node.description : item.desc,
-              variant: categories
-                ? data.products.edges[0].node.variants.edges[0].node
-                    .selectedOptions[0].value
-                : item?.options[0]?.values,
-              colors: categories
-                ? data.products.edges[0].node.variants.edges[0].node
-                    .selectedOptions[1].value
-                : item?.options[1]?.values,
-            },
+            id: item.node.id,
             // category: type,
           })
         }
         imgLength
-        id={categories ? item.node.id : item.id}
-        imageSrc={
-          categories ? item.node.images.edges[0].node.url : item.images[0].src
-        }
+        imageSrc={item.node.images.edges[0].node.url}
         // images={item.images}
-        title={categories ? item.node.title : item.title}
-        desc={categories ? item.node.description : item.desc}
+        title={item.node.title}
+        desc={item.node.description}
         status={item.status ? 'SALE' : null}
-        price={
-          categories
-            ? item.node.variants.edges[0].node.price.amount
-            : item.variants[0].price
-        }
-        oldPrice={
-          categories
-            ? item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount
-            : item.variants[0].compare_at_price
-        }
+        price={item.node.variants.edges[0].node.price.amount}
+        oldPrice={item?.node?.variants?.edges[0]?.node?.compareAtPrice?.amount}
         // rating={data.rating}
         // reviews={data.reviews}
         isLike={item.isLike}
@@ -390,317 +347,121 @@ const Items = ({navigation, route}) => {
       />
     </View>
   );
-
   return (
     <>
-      {/* <RBSheet
-        ref={sheetRef}
-        height={
-          sheetType === 'sort'
-            ? 250
-            : sheetType === 'discount'
-            ? 310
-            : sheetType === 'brand'
-            ? 400
-            : 300
-        }
-        closeOnDragDown={true}
-        closeOnPressMask={true}>
-        {sheetType == 'sort' ? (
-          <RadioButton.Group
-            onValueChange={value => {
-              setSortVal(value);
-              sheetRef.current.close();
-            }}
-            value={sortVal}>
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="What's new"
-              value="newest"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Price - high to low"
-              value="price-hightolow"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Price - low to hight"
-              value="price-lowtohigh"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Popularity"
-              value="popularity"
-            />
-            <RadioButton.Item
-              color={COLORS.primary}
-              uncheckedColor={COLORS.label}
-              style={{paddingVertical: 2}}
-              label="Discount"
-              value="discount"
-            />
-          </RadioButton.Group>
-        ) : (
-          <>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                paddingHorizontal: 5,
-                marginTop: -10,
-                marginBottom: 5,
-              }}>
-              <TouchableOpacity
-                onPress={() => sheetRef.current.close()}
-                style={{
-                  padding: 10,
-                  marginRight: 3,
-                }}>
-                <FeatherIcon color={COLORS.title} size={24} name="x" />
-              </TouchableOpacity>
-              <Text style={{...FONTS.h6, top: 1}}>Filters</Text>
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-              }}>
-              {filterData.map((data, index) => (
-                <View
-                  key={index}
-                  style={{
-                    width: '50%',
-                  }}>
-                  <List.Item
-                    style={{paddingVertical: 2}}
-                    onPress={() => handleFilterSelected(data.title)}
-                    left={() => (
-                      <CheckBox
-                        tintColors={{true: COLORS.primary, false: COLORS.text}}
-                        style={{left: 10}}
-                        value={data.selected}
-                        disabled
-                      />
-                    )}
-                    title={() => (
-                      <Text
-                        style={{
-                          ...FONTS.font,
-                          ...FONTS.fontMedium,
-                          top: -1,
-                          color: COLORS.title,
-                        }}>
-                        {data.title}
-                      </Text>
-                    )}
-                  />
-                </View>
-              ))}
-            </View>
-            <View style={GlobalStyleSheet.container}>
-              <View style={GlobalStyleSheet.row}>
-                <View style={GlobalStyleSheet.col50}>
-                  <TouchableOpacity
-                    style={{
-                      borderWidth: 1,
-                      borderColor: COLORS.borderColor,
-                      paddingHorizontal: 15,
-                      alignItems: 'center',
-                      paddingVertical: 14,
-                      borderRadius: SIZES.radius,
-                    }}>
-                    <Text style={{...FONTS.fontLg, color: COLORS.primary}}>
-                      Clear
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={GlobalStyleSheet.col50}>
-                  <CustomButton title={'Apply'} />
-                </View>
-              </View>
-            </View>
-          </>
-        )}
-      </RBSheet> */}
-
       <SafeAreaView
         style={{
           flex: 1,
           backgroundColor: COLORS.backgroundColor,
-        }}>
-        <View style={{paddingHorizontal: 20}}>
-          <Header titleLeft leftIcon={'back'} title={categories ? query : colletionTitle ? colletionTitle : "All Product"} />
+        }}
+      >
+        <View style={{ paddingHorizontal: 20 }}>
+          <Header
+            titleLeft
+            leftIcon={'back'}
+            title={categories ? query : colletionTitle ? colletionTitle : query === '' ? 'All Product' : query}
+          />
         </View>
-        {/* <View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View
-              style={{
-                paddingHorizontal: 15,
-                paddingVertical: 10,
-                flexDirection: 'row',
-                alignItems: 'center',
-              }}>
-              <Ripple
-                onPress={() => {
-                  setSheetType('sort');
-                  sheetRef.current.open();
-                }}
-                style={styles.badge}>
-                <Octicons size={16} style={{marginRight: 6}} name="sort-desc" />
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  Sort By
-                </Text>
-                <FeatherIcon
-                  style={{marginLeft: 2, marginRight: -6}}
-                  size={18}
-                  name="chevron-down"
-                />
-              </Ripple>
-              <TouchableOpacity
-                onPress={() => navigation.navigate('Filter')}
-                style={styles.badge}>
-                <FeatherIcon style={{marginRight: 8}} size={15} name="filter" />
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  Filter
-                </Text>
-              </TouchableOpacity>
-              <Ripple
-                onPress={() => {
-                  setSheetType('brand');
-                  setFilterData(brandFilter);
-                  sheetRef.current.open();
-                }}
-                style={styles.badge}>
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  Brand
-                </Text>
-                <FeatherIcon
-                  style={{marginLeft: 2, marginRight: -6}}
-                  size={18}
-                  name="chevron-down"
-                />
-              </Ripple>
-              <Ripple
-                onPress={() => {
-                  setSheetType('discount');
-                  setFilterData(discountFilter);
-                  sheetRef.current.open();
-                }}
-                style={styles.badge}>
-                <Text style={{...FONTS.font, top: -1, color: COLORS.title}}>
-                  discount
-                </Text>
-                <FeatherIcon
-                  style={{marginLeft: 2, marginRight: -6}}
-                  size={18}
-                  name="chevron-down"
-                />
-              </Ripple>
-            </View>
-          </ScrollView>
-        </View> */}
-        {/* <ScrollView> */}
-        {/* <View
+        <View style={{ height: '100%' }}>
+          {/* <FilterPopover onApplyFilters={handleApplyFilters}/> */}
+          <TouchableOpacity
             style={{
-              paddingTop: 5,
-            }}>
+              borderWidth: 1,
+              paddingHorizontal: 10,
+              paddingVertical: 2,
+              flexDirection: 'row',
+              justifyContent: 'center',
+              width: '30%',
+              marginBottom: 10,
+              marginHorizontal: 17,
+            }}
+            onPress={handleFilterButtonClick}
+          >
+            <Text
+              style={{
+                textAlign: 'center',
+                marginRight: 10,
+                marginVertical: 3,
+                color: 'black',
+                ...FONTS.font,
+              }}
+            >
+              Filter
+            </Text>
+            <AntDesignIcon color="#374957" size={20} name="filter" style={{ textAlign: 'center', marginVertical: 3 }} />
+          </TouchableOpacity>
+          {showInput && (
+            <View>
+              <TextInput
+                style={{
+                  borderWidth: 1,
+                  paddingHorizontal: 10,
+                  paddingVertical: 2,
+                  marginBottom: 10,
+                  marginHorizontal: 17,
+                  color: 'black',
+                }}
+                placeholder="Search"
+                autoFocus
+                value={valSearch}
+                onChangeText={handleValChange}
+              />
+              <View
+                style={{
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: 8,
+                }}
+              ></View>
+            </View>
+          )}
+          {loadingSearch || loadingGetProducts ? (
             <View
               style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                paddingHorizontal: 5,
-              }}>
-              {itemData.map((data, index) => (
-                <View key={index} style={{width: '50%', paddingHorizontal: 5}}>
-                  <ProductItem
-                    onPress={() =>
-                      navigation.navigate('ProductDetail', {
-                        item: data,
-                        category: type,
-                      })
-                    }
-                    imgLength={type == 'Fashion'}
-                    id={data.id}
-                    imageSrc={data.image}
-                    title={data.title}
-                    desc={data.desc}
-                    status={data.status}
-                    price={data.price}
-                    oldPrice={data.oldPrice}
-                    rating={data.rating}
-                    reviews={data.reviews}
-                    isLike={data.isLike}
-                    handleItemLike={handleItemLike}
-                  />
-                </View>
-              ))}
-            </View>
-          </View> */}
-        {isLoading ? (
-          <View
-            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <LoadingScreen />
-          </View>
-        ) : (
-          <View>
-            <TouchableOpacity
-              style={{
-                borderWidth: 1,
-                paddingHorizontal: 10,
-                paddingVertical: 2,
-                flexDirection: 'row',
                 justifyContent: 'center',
-                width: '30%',
-                marginBottom: 10,
-                marginHorizontal: 17,
-              }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  marginRight: 10,
-                  marginVertical: 3,
-                  ...FONTS.fontSatoshiBold,
-                }}>
-                Filter
-              </Text>
-              <AntDesignIcon
-                color={'#374957'}
-                size={20}
-                name="filter"
-                style={{textAlign: 'center', marginVertical: 3}}
-              />
-            </TouchableOpacity>
+                alignItems: 'center',
+                height: '70%',
+              }}
+            >
+              <LoadingScreen />
+            </View>
+          ) : dataCategories.length === 0 ? (
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '70%',
+              }}
+            >
+              <Text style={{ color: 'black', fontSize: 16, fontWeight: 'bold' }}>Product Not Found</Text>
+            </View>
+          ) : (
             <FlatList
-              data={
-                categories ? dataListCategories?.products?.edges : productData
-              }
+              data={dataCategories}
               renderItem={renderItem}
-              keyExtractor={item => (categories ? item.node.id : item.id)}
+              ref={flatListRef}
+              keyExtractor={item => String(item.node.id)}
               numColumns={itemView === 'grid' ? 2 : 1}
-              initialNumToRender={20}
+              initialNumToRender={10}
               maxToRenderPerBatch={10}
               windowSize={10}
-              onEndReachedThreshold={0.5}
               contentContainerStyle={{
+                minHeight: '100%',
                 paddingHorizontal: 8,
-                marginBottom: 15,
+                paddingBottom: 90,
               }}
-              // onEndReached={() => {
-              // Load more data here
-              // }}
+              showsVerticalScrollIndicator={false}
+              ListFooterComponent={
+                isLoadingMore && (
+                  <View style={{ marginBottom: 90 }}>
+                    <LoadingScreen Loading2 />
+                  </View>
+                )
+              }
+              onEndReached={() => handleLoadMore()}
             />
-          </View>
-        )}
-        {/* </ScrollView> */}
+          )}
+        </View>
         <Snackbar
           visible={isSnackbar}
           duration={3000}
@@ -710,7 +471,8 @@ const Items = ({navigation, route}) => {
             onPress: () => {
               navigation.navigate('Wishlist');
             },
-          }}>
+          }}
+        >
           {snackText}
         </Snackbar>
       </SafeAreaView>
@@ -719,17 +481,31 @@ const Items = ({navigation, route}) => {
 };
 
 const styles = StyleSheet.create({
-  badge: {
-    borderWidth: 1,
-    borderColor: COLORS.borderColor,
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 15,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 12,
+  container: {
+    flex: 1,
+    backgroundColor: COLORS.white,
+  },
+  columnWrapper: {
+    flex: 1,
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  paginationContainer: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: 10,
+  },
+  paginationButton: {
+    padding: 10,
+    position: 'absolute',
+  },
+  snackbar: {
+    backgroundColor: COLORS.primary,
+    marginBottom: 10,
   },
 });
+
+// Rest of the code...
 
 export default Items;
